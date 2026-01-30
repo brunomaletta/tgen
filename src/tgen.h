@@ -32,71 +32,54 @@ std::runtime_error __error(const std::string &msg) {
 		__throw_assertion_error(#cond, __VA_ARGS__);
 
 /*
- * Basic random generation.
- *
- */
-struct random {
-
-	// Variable to generate numbers.
-	std::mt19937 rng;
-
-	template <typename T> T __next_integral(T l, T r) {
-		std::uniform_int_distribution<T> dist(l, r);
-		return dist(rng);
-	}
-
-	double __next_double(double l, double r) {
-		std::uniform_real_distribution<double> dist(l, r);
-		return dist(rng);
-	}
-
-	// Returns a 'random' number in [l, r].
-	template <typename T> T next(T l, T r) {
-		if (std::is_integral<T>())
-			return __next_integral<T>(l, r);
-		if (std::is_same<T, double>())
-			return __next_double(l, r);
-		throw __error("invalid type for next (" +
-					  std::string(typeid(T).name()) + ")");
-	}
-
-	// Compatible with testlib.
-	// Returns an equiprobable value from the string s.
-	// For example, next("one|two|three") returns an equiprobable element from
-	// {"one", "two", "three"}.
-	void next(std::string s) {
-		// TODO
-	}
-
-	// Shuffles [first, last) uniformly.
-	template <typename It> void shuffle(It first, It last) {
-		if (first == last)
-			return;
-
-		for (It i = first + 1; i != last; ++i)
-			std::iter_swap(i, first + next(0, int(i - first)));
-	}
-
-	// Returns uniformly element from [first, last).
-	template <typename It>
-	typename It::value_type any(const It &first, const It &last) {
-		int size = std::distance(first, last);
-		It it = first;
-		std::advance(it, next(0, size - 1));
-		return *it;
-	}
-
-	// Sets the seed.
-	void seed(const std::vector<uint32_t> &seed) {
-		std::seed_seq seq(seed.begin(), seed.end());
-		rng.seed(seq);
-	}
-};
-
-/*
  * Global random generation.
  */
-random rnd;
+std::mt19937 __rng;
+
+// Fetches next integral/double
+template <typename T> T __next_integral(T l, T r) {
+	std::uniform_int_distribution<T> dist(l, r);
+	return dist(__rng);
+}
+double __next_double(double l, double r) {
+	std::uniform_real_distribution<double> dist(l, r);
+	return dist(__rng);
+}
+
+// Returns a 'random' number in [l, r].
+template <typename T> T next(T l, T r) {
+	if (std::is_integral<T>())
+		return __next_integral<T>(l, r);
+	if (std::is_floating_point<T>())
+		return __next_double(l, r);
+	throw __error("invalid type for next (" + std::string(typeid(T).name()) +
+				  ")");
+}
+
+// Compatible with testlib.
+// Returns an equiprobable value from the string s.
+// For example, next("one|two|three") returns an equiprobable element from
+// {"one", "two", "three"}.
+void next(std::string s) {
+	// TODO
+}
+
+// Shuffles [first, last) uniformly.
+template <typename It> void shuffle(It first, It last) {
+	if (first == last)
+		return;
+
+	for (It i = first + 1; i != last; ++i)
+		std::iter_swap(i, first + next(0, int(i - first)));
+}
+
+// Returns uniformly element from [first, last).
+template <typename It> typename It::value_type any(It first, It last) {
+	int size = std::distance(first, last);
+	It it = first;
+	std::advance(it, next(0, size - 1));
+	return *it;
+}
 
 /*
  * Opts - options given to the generator.
@@ -113,12 +96,12 @@ random rnd;
  * 2) -keyname value or --keyname value (ex. -n 10   , --test-count 20)
  */
 
-/* INTERNAL
+/*
  * Dictionary containing the positional parsed opts.
  */
 std::vector<std::string> __pos_opts;
 
-/* INTERNAL
+/*
  * Global dictionary the named parsed opts.
  */
 std::map<std::string, std::string> __named_opts;
@@ -133,10 +116,12 @@ bool has_opt(int index) { return 0 <= index and index < __pos_opts.size(); }
  */
 bool has_opt(const std::string &key) { return __named_opts.count(key) != 0; }
 
-/* INTERNAL
+/*
  * Parses 'value' into bool.
  */
-bool __get_opt_bool(std::string value) {
+template <typename T>
+T __get_opt(const std::string &value, std::true_type, std::false_type,
+			std::false_type) {
 	if (value == "true" or value == "1")
 		return true;
 	if (value == "false" or value == "0")
@@ -144,34 +129,43 @@ bool __get_opt_bool(std::string value) {
 	throw __error("invalid value " + value + " for type bool");
 }
 
-/* INTERNAL
+/*
  * Parses 'value' into integral type T.
  */
-template <typename T> T __get_opt_integral(std::string value) {
+template <typename T>
+T __get_opt(const std::string &value, std::false_type, std::true_type,
+			std::false_type) {
 	if (std::is_unsigned<T>())
 		return static_cast<T>(std::stoull(value));
 	return static_cast<T>(std::stoll(value));
 }
 
-/* INTERNAL
+/*
  * Parses 'value' into floating type T.
  */
-template <typename T> T __get_opt_floating(std::string value) {
+template <typename T>
+T __get_opt(const std::string &value, std::false_type, std::false_type,
+			std::true_type) {
 	return static_cast<T>(std::stold(value));
 }
 
-/* INTERNAL
+/*
+ * Parses 'value' into std::String.
+ */
+template <typename T>
+T __get_opt(const std::string &value, std::false_type, std::false_type,
+			std::false_type) {
+	return value;
+}
+
+/*
  * Parses 'value' into type T.
  */
-template <typename T> T __get_opt(std::string value) {
+template <typename T> T __get_opt(const std::string &value) {
 	try {
-		if (std::is_same<T, bool>())
-			return __get_opt_bool(value);
-		if (std::is_integral<T>())
-			return __get_opt_integral<T>(value);
-		if (std::is_floating_point<T>())
-			return __get_opt_floating<T>(value);
-	} catch (std::invalid_argument er) {
+		return __get_opt<T>(value, std::is_same<T, bool>(),
+							std::is_integral<T>(), std::is_floating_point<T>());
+	} catch (const std::invalid_argument &er) {
 	}
 	throw __error("invalid value " + value + " for type " + typeid(T).name());
 }
@@ -212,7 +206,7 @@ template <typename T> T opt(const std::string &key, const T &default_value) {
 	return __get_opt<T>(__named_opts[key]);
 }
 
-/* INTERNAL
+/*
  * Tries to fetch char from c string.
  */
 char __fetch_char(char *s, int idx) {
@@ -220,7 +214,7 @@ char __fetch_char(char *s, int idx) {
 	return s[idx];
 }
 
-/* INTERNAL
+/*
  * Reads non-empty string until it hits a ' ' or the string ends.
  */
 std::string __read_until(char *s) {
@@ -237,13 +231,10 @@ std::string __read_until(char *s) {
 	return read_str;
 }
 
-/* INTERNAL
+/*
  * Parses the opts into __pos_opts vector and __named_opts map.
  */
 void __parse_opts(int argc, char **argv) {
-	// Number of positional opts read.
-	int positional_cnt = 0;
-
 	// Starting from 1 to ignore the name of the executable.
 	for (int i = 1; i < argc; i++) {
 		std::string key = __read_until(argv[i]);
@@ -315,7 +306,8 @@ void register_gen(int argc, char **argv) {
 			seed.push_back(*s);
 		}
 	}
-	rnd.seed(seed);
+	std::seed_seq seq(seed.begin(), seed.end());
+	__rng.seed(seq);
 
 	__parse_opts(argc, argv);
 }
