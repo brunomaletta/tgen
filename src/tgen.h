@@ -40,17 +40,24 @@ struct random {
 	// Variable to generate numbers.
 	std::mt19937 rng;
 
-	// Incompatible with testlib!!
-	// Returns an equiprobable integer in [l, r).
-	int next(int l, int r) {
-		// TODO
-		return 0;
+	template <typename T> T __next_integral(T l, T r) {
+		std::uniform_int_distribution<T> dist(l, r);
+		return dist(rng);
 	}
 
-	// Compatible with testlib.
-	// Returns an equiprobable integer in [l, r).
-	void next(double l, double r) {
-		// TODO
+	double __next_double(double l, double r) {
+		std::uniform_real_distribution<double> dist(l, r);
+		return dist(rng);
+	}
+
+	// Returns a 'random' number in [l, r].
+	template <typename T> T next(T l, T r) {
+		if (std::is_integral<T>())
+			return __next_integral<T>(l, r);
+		if (std::is_same<T, double>())
+			return __next_double(l, r);
+		throw __error("invalid type for next (" +
+					  std::string(typeid(T).name()) + ")");
 	}
 
 	// Compatible with testlib.
@@ -61,29 +68,21 @@ struct random {
 		// TODO
 	}
 
-	// Compatible with testlib.
-	// Returns an equiprobable element from c.
-	template <typename Container> void any(const Container &c) {
-		// TODO
-	}
-
-	// Compatible with testlib.
 	// Shuffles [first, last) uniformly.
 	template <typename It> void shuffle(It first, It last) {
 		if (first == last)
 			return;
 
 		for (It i = first + 1; i != last; ++i)
-			std::iter_swap(i, first + next(0, int(i - first) + 1));
+			std::iter_swap(i, first + next(0, int(i - first)));
 	}
 
-	// Compatible with testlib.
 	// Returns uniformly element from [first, last).
 	template <typename It>
 	typename It::value_type any(const It &first, const It &last) {
 		int size = std::distance(first, last);
-		typename It::const_iterator it = first;
-		std::advance(it, next(0, size));
+		It it = first;
+		std::advance(it, next(0, size - 1));
 		return *it;
 	}
 
