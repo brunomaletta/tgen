@@ -8,8 +8,8 @@ int main(int argc, char** argv) {
 	tgen::register_gen(argc, argv);
 
 	int max_c = tgen::opt<int>("c");
-	int B = tgen::opt<bool>("b");
-	int f = tgen::opt<float>("f");
+	int B = tgen::opt<bool>("b", false);
+	float f = tgen::opt<float>("f", 3.14);
 
 	int a = tgen::rnd.next(0, max_c+1);
 	int b = tgen::rnd.next(0, max_c+1);
