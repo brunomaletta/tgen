@@ -1,4 +1,5 @@
 #include "tgen.h"
+#include "tgen_array.h"
 
 #include <iostream>
 #include <vector>
@@ -10,16 +11,12 @@ int main(int argc, char** argv) {
 
 	int n = tgen::opt<int>("n");
 
-	cout << tgen::next(1, 10) << endl;
+	auto array_gen = tgen::array_gen(n, 0, 10).set_value(1, 3).set_equal(0, 2);
+	array_gen.set_palindromic_substring(5, 9);
 
-	vector<int> v(n);
-	iota(v.begin(), v.end(), 0);
-
-	tgen::shuffle(v.begin(), v.end());
-	for (int i : v) cout << i << " ";
-	cout << endl;
-
-	cout << tgen::any(v.begin(), v.end()) << endl;
-
-	cout << tgen::opt<string>("x", "empty") << endl;
+	auto array1 = array_gen();
+	auto array2 = array_gen();
+	array1.print();
+	array2.sort().reverse().print();
+	array_gen().print();
 }
