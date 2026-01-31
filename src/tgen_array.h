@@ -34,7 +34,7 @@ template <typename T> struct array_gen {
 	}
 
 	// Restricts arrays for array[idx_1] = array[idx_2].
-	array_gen &set_equal_idx(int idx_1, int idx_2) {
+	array_gen &set_equal_idx_pair(int idx_1, int idx_2) {
 		ensure(0 <= std::min(idx_1, idx_2) and std::max(idx_1, idx_2) < __size,
 			   "indices must be valid");
 		if (idx_1 == idx_2)
@@ -45,11 +45,19 @@ template <typename T> struct array_gen {
 		return *this;
 	}
 
+	// Restricts arrays for array[left..right] to have all equal values.
+	array_gen &set_equal_substring(int left, int right) {
+		ensure(left <= right, "substring indices bust be valid");
+		for (int i = left; i < right; ++i)
+			set_equal_idx_pair(i, i + 1);
+		return *this;
+	}
+
 	// Restricts arrays for array[left..right] is a palindrome.
 	array_gen &set_palindromic_substring(int left, int right) {
 		ensure(left <= right, "substring indices bust be valid");
 		for (int i = left; right - (i - left) > left; i++)
-			set_equal_idx(i, right - (i - left));
+			set_equal_idx_pair(i, right - (i - left));
 		return *this;
 	}
 
