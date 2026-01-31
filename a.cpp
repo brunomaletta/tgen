@@ -11,14 +11,10 @@ int main(int argc, char **argv) {
 
 	int n = tgen::opt<int>("n", 12);
 
-	auto array_gen = tgen::array_gen<char>(n, 'a', 'd')
-						 .set_value_at_idx(1, 'b')
-						 .set_equal_idx_pair(0, 2);
-	array_gen.set_palindromic_substring(5, 9).set_equal_substring(9, 11);
+	auto array_gen = tgen::array_gen<int>(/*size=*/n, /*l=*/1, /*r=*/5)
+						 .set_distinct_idx_set(/*indices=*/{0, 1, 2})
+						 .set_value_at_idx(/*idx=*/1, /*value=*/2);
 
-	auto array1 = array_gen();
-	auto array2 = array_gen();
-	array1.print();
-	array2.sort().reverse().print();
-	array_gen().print();
+	for (int i = 0; i < 10; i++)
+		array_gen().print();
 }

@@ -38,10 +38,12 @@ std::mt19937 __rng;
 
 // Fetches next integral/double
 template <typename T> T __next_integral(T l, T r) {
+	ensure(l <= r, "range for `next` bust be valid");
 	std::uniform_int_distribution<T> dist(l, r);
 	return dist(__rng);
 }
 double __next_double(double l, double r) {
+	ensure(l <= r, "range for `next` bust be valid");
 	std::uniform_real_distribution<double> dist(l, r);
 	return dist(__rng);
 }
