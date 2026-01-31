@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 	for (int i = 0; i < 10; i++)
 		array_gen().print();
 
-	vector<int> nxt_array = array_gen().choose(5)();
+	vector<int> nxt_array = array_gen().choose(5).shuffle()();
 	for (int i : nxt_array)
 		cout << i << " ";
 	cout << endl;

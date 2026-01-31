@@ -102,20 +102,17 @@ template <typename T> struct array_gen {
 		return *this;
 	}
 
-	// Restricts arrays for array[left..right] is a palindrome.
-	array_gen &palindromic_range(int left, int right) {
-		ensure(0 <= left and left <= right and right < size,
-			   "range indices bust be valid");
-		for (int i = left; right - (i - left) > left; i++)
-			equal_idx_pair(i, right - (i - left));
-		return *this;
-	}
-
-	// Array tnstance.
+	// Array instance.
 	struct instance {
 		std::vector<T> vec;
 
 		instance(const std::vector<T> &vec_) : vec(vec_) {}
+
+		// Shuffles the values.
+		instance &shuffle() {
+			tgen::shuffle(vec.begin(), vec.end());
+			return *this;
+		}
 
 		// Sorts values in increasign order.
 		instance &sort() {
