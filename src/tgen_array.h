@@ -42,7 +42,7 @@ template <typename T> struct array_gen {
 	}
 
 	// Restricts arrays for array[idx] = value.
-	array_gen &set_value_at_idx(int idx, T value) {
+	array_gen &value_at_idx(int idx, T value) {
 		ensure(0 <= idx and idx < size, "index must be valid");
 		auto &[l, r] = val_range[idx];
 		ensure(l <= value and value <= r, "must have valid range intersection");
@@ -51,7 +51,7 @@ template <typename T> struct array_gen {
 	}
 
 	// Restricts arrays for array[idx_1] = array[idx_2].
-	array_gen &set_equal_idx_pair(int idx_1, int idx_2) {
+	array_gen &equal_idx_pair(int idx_1, int idx_2) {
 		ensure(0 <= std::min(idx_1, idx_2) and std::max(idx_1, idx_2) < size,
 			   "indices must be valid");
 		if (idx_1 == idx_2)
@@ -63,18 +63,18 @@ template <typename T> struct array_gen {
 	}
 
 	// Restricts arrays for array[left..right] to have all equal values.
-	array_gen &set_equal_range(int left, int right) {
+	array_gen &equal_range(int left, int right) {
 		ensure(0 <= left and left <= right and right < size,
 			   "range indices bust be valid");
 		for (int i = left; i < right; ++i)
-			set_equal_idx_pair(i, i + 1);
+			equal_idx_pair(i, i + 1);
 		return *this;
 	}
 
 	// Restricts arrays for array[S] to be distinct, for given subset S of
 	// indices.
 	// You can not add two of these restrictions with intersection.
-	array_gen &set_distinct_idx_set(const std::set<int> &indices) {
+	array_gen &distinct_idx_set(const std::set<int> &indices) {
 		for (int idx : indices) {
 			if (idx_distinct_constraints.count(idx))
 				throw __error(
@@ -87,27 +87,27 @@ template <typename T> struct array_gen {
 	}
 
 	// Restricts arrays for array[idx_1] != array[idx_2]
-	array_gen &set_different_idx_pair(int idx_1, int idx_2) {
+	array_gen &different_idx_pair(int idx_1, int idx_2) {
 		std::set<int> indices = {idx_1, idx_2};
-		set_distinct_idx_set(indices);
+		distinct_idx_set(indices);
 		return *this;
 	}
 
 	// Restricts arrays with distinct elements.
-	array_gen &set_distinct() {
+	array_gen &distinct() {
 		std::set<int> indices;
 		for (int i = 0; i < size; ++i)
 			indices.insert(i);
-		set_distinct_idx_set(indices);
+		distinct_idx_set(indices);
 		return *this;
 	}
 
 	// Restricts arrays for array[left..right] is a palindrome.
-	array_gen &set_palindromic_range(int left, int right) {
+	array_gen &palindromic_range(int left, int right) {
 		ensure(0 <= left and left <= right and right < size,
 			   "range indices bust be valid");
 		for (int i = left; right - (i - left) > left; i++)
-			set_equal_idx_pair(i, right - (i - left));
+			equal_idx_pair(i, right - (i - left));
 		return *this;
 	}
 
@@ -129,6 +129,24 @@ template <typename T> struct array_gen {
 			return *this;
 		}
 
+		// Chooses 'k' elements from the array, without repetition.
+		// Maintains the relative order.
+		instance &choose(int k) {
+			ensure(0 < k and k <= vec.size(),
+				   "number of elements to choose must be valid");
+			std::vector<T> new_vec;
+			int need = k;
+			for (int i = 0; need > 0; ++i) {
+				int left = vec.size() - i;
+				if (next(1, left) <= need) {
+					new_vec.push_back(vec[i]);
+					need--;
+				}
+			}
+			swap(vec, new_vec);
+			return *this;
+		}
+
 		// Prints in stdout, with space as separator.
 		instance &print(std::string sep = " ", std::string end = "\n") {
 			for (int i = 0; i < vec.size(); ++i) {
@@ -140,18 +158,8 @@ template <typename T> struct array_gen {
 			return *this;
 		}
 
-		// Chooses 'k' elements from the array, without repetition.
-		// Maintains the relative order.
-		instance &choose(int k) {
-			// TODO
-			return *this;
-		}
-
-		// Samples a random element from the array 'k' times.
-		instance &sample(int k) {
-			// TODO
-			return *this;
-		}
+		// Gets a std::vector representing the instance.
+		std::vector<int> operator()() { return vec; }
 	};
 
 	// Generate array instance.
@@ -225,7 +233,7 @@ template <typename T> struct array_gen {
 			if (distinct.size() > r - l + 1)
 				__array_contradiction_error(
 					"tried to generate " + std::to_string(distinct.size()) +
-					"distinct values, but the maximum is " +
+					" distinct values, but the maximum is " +
 					std::to_string(r - l + 1));
 
 			// Checks if two values in same component are marked as different.

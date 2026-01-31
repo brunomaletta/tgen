@@ -12,9 +12,15 @@ int main(int argc, char **argv) {
 	int n = tgen::opt<int>("n", 12);
 
 	auto array_gen = tgen::array_gen<int>(/*size=*/n, /*l=*/1, /*r=*/5)
-						 .set_distinct_idx_set(/*indices=*/{0, 1, 2})
-						 .set_value_at_idx(/*idx=*/1, /*value=*/2);
+						 .distinct_idx_set(/*indices=*/{0, 1, 2})
+						 .value_at_idx(/*idx=*/1, /*value=*/2)
+						 .distinct_idx_set(/*indices=*/{11, 10, 9, 8, 7});
 
 	for (int i = 0; i < 10; i++)
 		array_gen().print();
+
+	vector<int> nxt_array = array_gen().choose(5)();
+	for (int i : nxt_array)
+		cout << i << " ";
+	cout << endl;
 }
