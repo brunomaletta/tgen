@@ -13,24 +13,23 @@
 
 namespace tgen {
 
-// Tried to generate a contradicting array.
-void __array_contradiction_error(const std::string &msg = "") {
-	std::string error_msg = "invalid array (contradicting constraints)";
+// Tried to generate a contradicting sequence.
+void __sequence_contradiction_error(const std::string &msg = "") {
+	std::string error_msg = "invalid sequence (contradicting constraints)";
 	if (msg.size() > 0)
 		error_msg += ": " + msg;
 	throw __error(error_msg);
 }
 
 /*
- * Array generator.
+ * Sequence generator.
  */
-template <typename T> struct array {
-	using value_type = T; // Value type, for templates.
-	int size;			  // Size of array.
-	T value_l, value_r;	  // Range of defined values.
-	std::set<T> values;	  // Set of values. If empty, use range. if not,
-						  // represents the possible values, and the range
-						  // represents the index in this set)
+template <typename T> struct sequence {
+	int size;			// Size of sequence.
+	T value_l, value_r; // Range of defined values.
+	std::set<T> values; // Set of values. If empty, use range. if not,
+						// represents the possible values, and the range
+						// represents the index in this set)
 	std::map<T, int> value_idx_in_set; // Index of every value in the set above.
 	std::vector<std::pair<T, T>> val_range; // Range of values of each index.
 	std::vector<std::vector<int>> neigh;	// Adjacency list of equality.
@@ -39,16 +38,16 @@ template <typename T> struct array {
 	std::vector<std::set<int>>
 		distinct_constraints; // All distinct constraints.
 
-	// Creates generator for arrays of size 'size', with random T in [l, r]
-	array(int size_, T value_l_, T value_r_)
+	// Creates generator for sequences of size 'size', with random T in [l, r]
+	sequence(int size_, T value_l_, T value_r_)
 		: size(size_), value_l(value_l_), value_r(value_r_), neigh(size) {
 		ensure(value_l <= value_r, "value range must be valid");
 		for (int i = 0; i < size; ++i)
 			val_range.emplace_back(value_l, value_r);
 	}
 
-	// Creates array with value set.
-	array(int size_, const std::set<T> &values_)
+	// Creates sequence with value set.
+	sequence(int size_, const std::set<T> &values_)
 		: size(size_), values(values_), neigh(size) {
 		ensure(values.size() > 0, "must have at least one value");
 		value_l = 0, value_r = values.size() - 1;
@@ -58,13 +57,13 @@ template <typename T> struct array {
 		for (T value : values)
 			value_idx_in_set[value] = idx++;
 	}
-	array(int size_, const std::vector<T> &values_)
-		: array(size_, std::set<T>(values_.begin(), values_.end())) {}
-	array(int size_, const std::initializer_list<T> &values_)
-		: array(size_, std::set<T>(values_.begin(), values_.end())) {}
+	sequence(int size_, const std::vector<T> &values_)
+		: sequence(size_, std::set<T>(values_.begin(), values_.end())) {}
+	sequence(int size_, const std::initializer_list<T> &values_)
+		: sequence(size_, std::set<T>(values_.begin(), values_.end())) {}
 
-	// Restricts arrays for array[idx] = value.
-	array &value_at_idx(int idx, T value) {
+	// Restricts sequences for sequence[idx] = value.
+	sequence &value_at_idx(int idx, T value) {
 		ensure(0 <= idx and idx < size, "index must be valid");
 		if (values.size() == 0) {
 			auto &[left, right] = val_range[idx];
@@ -82,8 +81,8 @@ template <typename T> struct array {
 		return *this;
 	}
 
-	// Restricts arrays for array[idx_1] = array[idx_2].
-	array &equal_idx_pair(int idx_1, int idx_2) {
+	// Restricts sequences for sequence[idx_1] = sequence[idx_2].
+	sequence &equal_idx_pair(int idx_1, int idx_2) {
 		ensure(0 <= std::min(idx_1, idx_2) and std::max(idx_1, idx_2) < size,
 			   "indices must be valid");
 		if (idx_1 == idx_2)
@@ -94,8 +93,8 @@ template <typename T> struct array {
 		return *this;
 	}
 
-	// Restricts arrays for array[left..right] to have all equal values.
-	array &equal_range(int left, int right) {
+	// Restricts sequences for sequence[left..right] to have all equal values.
+	sequence &equal_range(int left, int right) {
 		ensure(0 <= left and left <= right and right < size,
 			   "range indices bust be valid");
 		for (int i = left; i < right; ++i)
@@ -103,10 +102,10 @@ template <typename T> struct array {
 		return *this;
 	}
 
-	// Restricts arrays for array[S] to be distinct, for given subset S of
+	// Restricts sequences for sequence[S] to be distinct, for given subset S of
 	// indices.
 	// You can not add two of these restrictions with intersection.
-	array &distinct_idx_set(const std::set<int> &indices) {
+	sequence &distinct_idx_set(const std::set<int> &indices) {
 		for (int idx : indices) {
 			if (idx_distinct_constraints.count(idx))
 				throw __error(
@@ -118,15 +117,15 @@ template <typename T> struct array {
 		return *this;
 	}
 
-	// Restricts arrays for array[idx_1] != array[idx_2]
-	array &different_idx_pair(int idx_1, int idx_2) {
+	// Restricts sequences for sequence[idx_1] != sequence[idx_2]
+	sequence &different_idx_pair(int idx_1, int idx_2) {
 		std::set<int> indices = {idx_1, idx_2};
 		distinct_idx_set(indices);
 		return *this;
 	}
 
-	// Restricts arrays with distinct elements.
-	array &distinct() {
+	// Restricts sequences with distinct elements.
+	sequence &distinct() {
 		std::set<int> indices;
 		for (int i = 0; i < size; ++i)
 			indices.insert(i);
@@ -134,11 +133,11 @@ template <typename T> struct array {
 		return *this;
 	}
 
-	// Array instance.
+	// Sequence instance.
 	// Operations on an instance are not random.
 	struct instance {
 		using value_type = T; // Value type, for templates.
-		std::vector<T> vec;	  // Array.
+		std::vector<T> vec;	  // Sequence.
 
 		instance(const std::vector<T> &vec_) : vec(vec_) {}
 
@@ -148,7 +147,7 @@ template <typename T> struct array {
 			return *this;
 		}
 
-		// Reverses array.
+		// Reverses sequence.
 		instance &reverse() {
 			std::reverse(vec.begin(), vec.end());
 			return *this;
@@ -169,7 +168,7 @@ template <typename T> struct array {
 		std::vector<T> stdvec() { return vec; }
 	};
 
-	// Generate array instance.
+	// Generate sequence instance.
 	instance gen() {
 		std::vector<T> vec(size);
 
@@ -205,7 +204,7 @@ template <typename T> struct array {
 							std::stringstream ss;
 							ss << "tried to set value to `" << new_value
 							   << "`, but it was already set as `" << l << "`";
-							__array_contradiction_error(ss.str());
+							__sequence_contradiction_error(ss.str());
 						}
 					}
 
@@ -238,7 +237,7 @@ template <typename T> struct array {
 		for (const std::set<int> &distinct : distinct_constraints) {
 			// Checks if there are too many distinct values.
 			if (distinct.size() > value_r - value_l + 1)
-				__array_contradiction_error(
+				__sequence_contradiction_error(
 					"tried to generate " + std::to_string(distinct.size()) +
 					" distinct values, but the maximum is " +
 					std::to_string(value_r - value_l + 1));
@@ -247,7 +246,7 @@ template <typename T> struct array {
 			std::set<int> comp_ids;
 			for (int idx : distinct) {
 				if (comp_ids.count(comp_id[idx]))
-					__array_contradiction_error(
+					__sequence_contradiction_error(
 						"tried to set indices two indices as equal and "
 						"different");
 				comp_ids.insert(comp_id[idx]);
@@ -264,20 +263,20 @@ template <typename T> struct array {
 			// lim = (r-l+1)-(defined_values.size()), and then map them to
 			// the correct range.
 			// We will run (distinct.size()-defined_values.size()) steps of
-			// Fisher–Yates, using a map to store a virtual array that starts
+			// Fisher–Yates, using a map to store a virtual sequence that starts
 			// with the a[i] = i.
 			int lim = (value_r - value_l + 1) - int(defined_values.size());
-			std::map<T, T> virtual_array;
+			std::map<T, T> virtual_sequence;
 			std::vector<T> initial_gen;
 			for (int i = 0; i < distinct.size() - int(defined_values.size());
 				 i++) {
 				T j = next<T>(i, lim - 1);
-				T vj = virtual_array.count(j) ? virtual_array[j] : j;
-				T vi = virtual_array.count(i) ? virtual_array[i] : T(i);
+				T vj = virtual_sequence.count(j) ? virtual_sequence[j] : j;
+				T vi = virtual_sequence.count(i) ? virtual_sequence[i] : T(i);
 
-				virtual_array[j] = vi, virtual_array[i] = vj;
+				virtual_sequence[j] = vi, virtual_sequence[i] = vj;
 
-				initial_gen.push_back(virtual_array[i]);
+				initial_gen.push_back(virtual_sequence[i]);
 			}
 
 			// Shifts back to correct range, but there might still be values
@@ -329,22 +328,24 @@ template <typename T> struct array {
 	}
 };
 
-// Array random operations.
-namespace array_op {
+/*
+ * Sequence random operations.
+ */
+namespace sequence_op {
 
-// Shuffles an array.
+// Shuffles an sequence.
 template <typename T> T shuffle(const T &inst) {
 	auto new_inst = inst;
 	tgen::shuffle(new_inst.vec);
 	return new_inst;
 }
 
-// Choses any value in the array.
+// Choses any value in the sequence.
 template <typename T> typename T::value_type any(const T &inst) {
 	return inst.vec[next(0, inst.vec.size() - 1)];
 }
 
-// Chooses k values from the array, as in a subsequence of size k.
+// Chooses k values from the sequence, as in a subsequence of size k.
 template <typename T> T choose(int k, const T &inst) {
 	ensure(0 < k and k <= inst.vec.size(),
 		   "number of elements to choose must be valid");
@@ -359,6 +360,6 @@ template <typename T> T choose(int k, const T &inst) {
 	}
 	return T(new_vec);
 }
-}; // namespace array_op
+}; // namespace sequence_op
 
 }; // namespace tgen
