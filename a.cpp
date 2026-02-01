@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
 			tgen::sequence<char>(/*size=*/5, /*value_l=*/'A', /*value_r=*/'E')
 				.distinct()
 				.gen())
-			.stdvec();
+			.to_std();
 
 	cout << tgen::sequence<char>(/*size=*/10, /*values=*/chars).gen() << endl;
 
