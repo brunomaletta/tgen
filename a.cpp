@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
 
 	int n = tgen::opt<int>("n", 12);
 
-	auto seq_gen = tgen::sequence<int>(/*size=*/n, /*l=*/1, /*r=*/5)
+	auto seq_gen = tgen::sequence<int>(/*size=*/n, /*value_l=*/1, /*value_r=*/5)
 					   .distinct_idx_set(/*indices=*/{0, 1, 2})
 					   .value_at_idx(/*idx=*/1, /*value=*/2)
 					   .distinct_idx_set(/*indices=*/{11, 10, 9, 8, 7});
@@ -21,25 +21,43 @@ int main(int argc, char **argv) {
 
 	cout << endl;
 
-	cout << tgen::sequence<char>(3, 'a', 'd').gen().sort().reverse() << " "
-		 << tgen::sequence<int>(10, 20, 30).equal_range(0, 9).gen() << endl;
+	cout << tgen::sequence<char>(/*size=*/3, /*value_l=*/'a', /*value_r=*/'d')
+				.gen()
+				.sort()
+				.reverse()
+		 << " "
+		 << tgen::sequence<int>(/*size=*/10, /*value_l=*/20, /*value_r=*/30)
+				.equal_range(/*left=*/0, /*right=*/9)
+				.gen()
+		 << endl;
 
 	vector<char> chars =
 		tgen::sequence_op::choose(
-			3, tgen::sequence<char>(5, 'A', 'E').distinct().gen())
+			3,
+			tgen::sequence<char>(/*size=*/5, /*value_l=*/'A', /*value_r=*/'E')
+				.distinct()
+				.gen())
 			.stdvec();
 
-	cout << tgen::sequence<char>(10, chars).gen() << endl;
+	cout << tgen::sequence<char>(/*size=*/10, /*values=*/chars).gen() << endl;
 
-	cout << tgen::sequence<int>(20, {1, 50, 100, 250, 1000})
+	cout << tgen::sequence<int>(/*size=*/20, /*values=*/{1, 50, 100, 250, 1000})
 				.value_at_idx(0, 50)
 				.equal_idx_pair(0, 2)
 				.distinct_idx_set({19, 18, 17, 16, 15})
 				.gen()
 		 << endl;
 
-	auto v = tgen::choose(5, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+	auto v = tgen::choose(/*k=*/5, /*list=*/{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
 	for (int i : v)
 		cout << i << " ";
 	cout << endl;
+
+	cout << tgen::sequence<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/10)
+				.distinct()
+				.gen_until(
+					/*max_tries=*/100,
+					/*predicate=*/
+					[](const auto &seq) { return seq[0] < seq[9]; })
+		 << endl;
 }

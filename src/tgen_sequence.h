@@ -141,6 +141,12 @@ template <typename T> struct sequence {
 
 		instance(const std::vector<T> &vec_) : vec(vec_) {}
 
+		// Fetches size.
+		size_t size() { return vec.size(); }
+
+		// Fetches position idx.
+		T operator[](int idx) const { return vec[idx]; }
+
 		// Sorts values in increasign order.
 		instance &sort() {
 			std::sort(vec.begin(), vec.end());
@@ -326,6 +332,21 @@ template <typename T> struct sequence {
 
 		return instance(vec);
 	}
+
+	// Calls the generator until predicate is true.
+	template <typename PRED>
+	instance gen_until(int max_tries, PRED predicate,
+					   bool random_default = false) {
+		for (int i = 0; i < max_tries; ++i) {
+			instance inst = gen();
+			if (predicate(inst))
+				return inst;
+		}
+		if (random_default)
+			return gen();
+		else
+			throw __error("could not generate instance matching predicate");
+	}
 };
 
 /*
@@ -334,22 +355,22 @@ template <typename T> struct sequence {
 namespace sequence_op {
 
 // Shuffles an sequence.
-template <typename T> T shuffle(const T &inst) {
-	auto new_inst = inst;
+template <typename INST> INST shuffle(const INST &inst) {
+	INST new_inst = inst;
 	tgen::shuffle(new_inst.vec);
 	return new_inst;
 }
 
 // Choses any value in the sequence.
-template <typename T> typename T::value_type any(const T &inst) {
+template <typename INST> typename INST::value_type any(const INST &inst) {
 	return inst.vec[next(0, inst.vec.size() - 1)];
 }
 
 // Chooses k values from the sequence, as in a subsequence of size k.
-template <typename T> T choose(int k, const T &inst) {
+template <typename INST> INST choose(int k, const INST &inst) {
 	ensure(0 < k and k <= inst.vec.size(),
 		   "number of elements to choose must be valid");
-	std::vector<typename T::value_type> new_vec;
+	std::vector<typename INST::value_type> new_vec;
 	int need = k;
 	for (int i = 0; need > 0; ++i) {
 		int left = inst.vec.size() - i;
@@ -358,7 +379,7 @@ template <typename T> T choose(int k, const T &inst) {
 			need--;
 		}
 	}
-	return T(new_vec);
+	return INST(new_vec);
 }
 
 }; // namespace sequence_op
