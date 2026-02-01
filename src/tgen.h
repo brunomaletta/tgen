@@ -66,7 +66,7 @@ void next(std::string s) {
 	// TODO
 }
 
-// Shuffles [first, last) uniformly.
+// Shuffles [first, last) inplace uniformly.
 template <typename It> void shuffle(It first, It last) {
 	if (first == last)
 		return;
@@ -75,7 +75,7 @@ template <typename It> void shuffle(It first, It last) {
 		std::iter_swap(i, first + next(0, int(i - first)));
 }
 
-// Shuffles container uniformly.
+// Shuffles container uniformly. Returns a copy.
 template <typename C> C shuffle(C container) {
 	shuffle(container.begin(), container.end());
 	return container;
@@ -92,6 +92,27 @@ template <typename It> typename It::value_type any(It first, It last) {
 // Returns uniformly element from container.
 template <typename C> typename C::value_type any(const C &container) {
 	return any(container.begin(), container.end());
+}
+
+// Chooses k values from the container, as in a subsequence of size k. Returns a
+// copy.
+template <typename C> C choose(int k, const C &container) {
+	ensure(0 < k and k <= container.size(),
+		   "number of elements to choose must be valid");
+	std::vector<typename C::value_type> new_vec;
+	C new_container;
+	int need = k, left = container.size();
+	for (auto cur_it = container.begin(); cur_it != container.end(); ++cur_it) {
+		if (next(1, left--) <= need) {
+			new_container.insert(new_container.end(), *cur_it);
+			need--;
+		}
+	}
+	return new_container;
+}
+template <typename T>
+std::vector<T> choose(int k, const std::initializer_list<T> &list) {
+	return choose(k, std::vector<T>(list.begin(), list.end()));
 }
 
 /*

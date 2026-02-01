@@ -37,4 +37,9 @@ int main(int argc, char **argv) {
 				.distinct_idx_set({19, 18, 17, 16, 15})
 				.gen()
 		 << endl;
+
+	auto v = tgen::choose(5, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+	for (int i : v)
+		cout << i << " ";
+	cout << endl;
 }

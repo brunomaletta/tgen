@@ -73,10 +73,10 @@ template <typename T> struct sequence {
 		} else {
 			ensure(values.count(value), "value must be in the set of values");
 			auto &[left, right] = val_range[idx];
-			int idx = value_idx_in_set[value];
-			ensure(left <= idx and idx <= right,
+			int new_val = value_idx_in_set[value];
+			ensure(left <= new_val and new_val <= right,
 				   "must not set to two different values");
-			left = right = idx;
+			left = right = new_val;
 		}
 		return *this;
 	}
@@ -360,6 +360,7 @@ template <typename T> T choose(int k, const T &inst) {
 	}
 	return T(new_vec);
 }
+
 }; // namespace sequence_op
 
 }; // namespace tgen
