@@ -60,8 +60,8 @@ template <typename T> T next(T l, T r) {
 
 // Compatible with testlib.
 // Returns an equiprobable value from the string s.
-// For example, next("one|two|three") returns an equiprobable element from
-// {"one", "two", "three"}.
+// For example, next("(a|b|c){10}|[a-c]{1,5}") returns either 10 chars in {'a, 'b',
+// 'c'}, or from 1 to 5 'c's.
 void next(std::string s) {
 	// TODO
 }
