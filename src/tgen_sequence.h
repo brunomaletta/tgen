@@ -335,7 +335,7 @@ template <typename T> struct sequence {
 
 	// Calls the generator until predicate is true.
 	template <typename PRED>
-	instance gen_until(int max_tries, PRED predicate,
+	instance gen_until(PRED predicate, int max_tries,
 					   bool random_default = false) {
 		for (int i = 0; i < max_tries; ++i) {
 			instance inst = gen();

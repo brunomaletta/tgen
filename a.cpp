@@ -56,8 +56,8 @@ int main(int argc, char **argv) {
 	cout << tgen::sequence<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/10)
 				.distinct()
 				.gen_until(
-					/*max_tries=*/100,
 					/*predicate=*/
-					[](const auto &seq) { return seq[0] < seq[9]; })
+					[](const auto &seq) { return seq[0] < seq[9]; },
+					/*max_tries=*/100)
 		 << endl;
 }
