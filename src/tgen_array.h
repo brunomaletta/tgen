@@ -24,34 +24,63 @@ void __array_contradiction_error(const std::string &msg = "") {
 /*
  * Array generator.
  */
-template <typename T> struct array_gen {
-	int size;								// size of array.
-	T l, r;									// range of defined values.
-	std::vector<std::pair<T, T>> val_range; // range of values of each index.
-	std::vector<std::vector<int>> neigh;	// adjacency list of equality.
+template <typename T> struct array {
+	using value_type = T; // Value type, for templates.
+	int size;			  // Size of array.
+	T l, r;				  // Range of defined values.
+	std::set<T> values;	  // Set of values. If empty, use range. if not,
+						  // represents the possible values, and the range
+						  // represents the index in this set)
+	std::map<T, int> value_idx_in_set; // Index of every value in the set above.
+	std::vector<std::pair<T, T>> val_range; // Range of values of each index.
+	std::vector<std::vector<int>> neigh;	// Adjacency list of equality.
 	std::set<int>
-		idx_distinct_constraints; // indices in some distinction constraint.
+		idx_distinct_constraints; // Indices in some distinction constraint.
 	std::vector<std::set<int>>
-		distinct_constraints; // all distinct constraints.
+		distinct_constraints; // All distinct constraints.
 
 	// Creates generator for arrays of size 'size', with random T in [l, r]
-	array_gen(int size_, T l_, T r_) : size(size_), l(l_), r(r_), neigh(size) {
+	array(int size_, T l_, T r_) : size(size_), l(l_), r(r_), neigh(size) {
 		ensure(l <= r, "value range must be valid");
 		for (int i = 0; i < size; ++i)
 			val_range.emplace_back(l, r);
 	}
 
+	// Creates array with value set.
+	array(int size_, const std::set<T> &values_)
+		: size(size_), values(values_), neigh(size) {
+		ensure(values.size() > 0, "must have at least one value");
+		l = 0, r = values.size() - 1;
+		for (int i = 0; i < size; ++i)
+			val_range.emplace_back(l, r);
+		int idx = 0;
+		for (T value : values)
+			value_idx_in_set[value] = idx++;
+	}
+	array(int size_, const std::vector<T> &values_)
+		: array(size_, std::set<T>(values_.begin(), values_.end())) {}
+	array(int size_, const std::initializer_list<T> &values_)
+		: array(size_, std::set<T>(values_.begin(), values_.end())) {}
+
 	// Restricts arrays for array[idx] = value.
-	array_gen &value_at_idx(int idx, T value) {
+	array &value_at_idx(int idx, T value) {
 		ensure(0 <= idx and idx < size, "index must be valid");
-		auto &[l, r] = val_range[idx];
-		ensure(l <= value and value <= r, "must have valid range intersection");
-		l = r = value;
+		if (values.size() == 0) {
+			auto &[l, r] = val_range[idx];
+			ensure(l <= value and value <= r,
+				   "value must be in the defined range");
+			l = r = value;
+		} else {
+			ensure(values.count(value), "value must be in the set of values");
+			int idx = value_idx_in_set[value];
+			ensure(l <= idx and idx <= r,
+				   "must not set to two different values");
+		}
 		return *this;
 	}
 
 	// Restricts arrays for array[idx_1] = array[idx_2].
-	array_gen &equal_idx_pair(int idx_1, int idx_2) {
+	array &equal_idx_pair(int idx_1, int idx_2) {
 		ensure(0 <= std::min(idx_1, idx_2) and std::max(idx_1, idx_2) < size,
 			   "indices must be valid");
 		if (idx_1 == idx_2)
@@ -63,7 +92,7 @@ template <typename T> struct array_gen {
 	}
 
 	// Restricts arrays for array[left..right] to have all equal values.
-	array_gen &equal_range(int left, int right) {
+	array &equal_range(int left, int right) {
 		ensure(0 <= left and left <= right and right < size,
 			   "range indices bust be valid");
 		for (int i = left; i < right; ++i)
@@ -74,7 +103,7 @@ template <typename T> struct array_gen {
 	// Restricts arrays for array[S] to be distinct, for given subset S of
 	// indices.
 	// You can not add two of these restrictions with intersection.
-	array_gen &distinct_idx_set(const std::set<int> &indices) {
+	array &distinct_idx_set(const std::set<int> &indices) {
 		for (int idx : indices) {
 			if (idx_distinct_constraints.count(idx))
 				throw __error(
@@ -87,14 +116,14 @@ template <typename T> struct array_gen {
 	}
 
 	// Restricts arrays for array[idx_1] != array[idx_2]
-	array_gen &different_idx_pair(int idx_1, int idx_2) {
+	array &different_idx_pair(int idx_1, int idx_2) {
 		std::set<int> indices = {idx_1, idx_2};
 		distinct_idx_set(indices);
 		return *this;
 	}
 
 	// Restricts arrays with distinct elements.
-	array_gen &distinct() {
+	array &distinct() {
 		std::set<int> indices;
 		for (int i = 0; i < size; ++i)
 			indices.insert(i);
@@ -103,16 +132,12 @@ template <typename T> struct array_gen {
 	}
 
 	// Array instance.
+	// Operations on an instance are not random.
 	struct instance {
-		std::vector<T> vec;
+		using value_type = T; // Value type, for templates.
+		std::vector<T> vec;	  // Array.
 
 		instance(const std::vector<T> &vec_) : vec(vec_) {}
-
-		// Shuffles the values.
-		instance &shuffle() {
-			tgen::shuffle(vec.begin(), vec.end());
-			return *this;
-		}
 
 		// Sorts values in increasign order.
 		instance &sort() {
@@ -126,41 +151,23 @@ template <typename T> struct array_gen {
 			return *this;
 		}
 
-		// Chooses 'k' elements from the array, without repetition.
-		// Maintains the relative order.
-		instance &choose(int k) {
-			ensure(0 < k and k <= vec.size(),
-				   "number of elements to choose must be valid");
-			std::vector<T> new_vec;
-			int need = k;
-			for (int i = 0; need > 0; ++i) {
-				int left = vec.size() - i;
-				if (next(1, left) <= need) {
-					new_vec.push_back(vec[i]);
-					need--;
-				}
-			}
-			swap(vec, new_vec);
-			return *this;
-		}
-
-		// Prints in stdout, with space as separator.
-		instance &print(std::string sep = " ", std::string end = "\n") {
-			for (int i = 0; i < vec.size(); ++i) {
+		// Prints in stdout, separated by spaces.
+		friend std::ostream &operator<<(std::ostream &out,
+										const instance &repr) {
+			for (int i = 0; i < repr.vec.size(); ++i) {
 				if (i > 0)
-					std::cout << sep;
-				std::cout << vec[i];
+					out << ' ';
+				out << repr.vec[i];
 			}
-			std::cout << end;
-			return *this;
+			return out;
 		}
 
 		// Gets a std::vector representing the instance.
-		std::vector<int> operator()() { return vec; }
+		std::vector<T> stdvec() { return vec; }
 	};
 
 	// Generate array instance.
-	instance operator()() {
+	instance gen() {
 		std::vector<T> vec(size);
 
 		std::vector<int> comp_id(size, -1);		  // component id of each index.
@@ -306,7 +313,49 @@ template <typename T> struct array_gen {
 			}
 		}
 
+		if (values.size() > 0) {
+			// Needs to fetch the values from the value set.
+			std::vector<T> value_vec(values.begin(), values.end());
+			std::vector<T> final_vec;
+			for (int i = 0; i < size; ++i)
+				final_vec.push_back(value_vec[vec[i]]);
+			swap(vec, final_vec);
+		}
+
 		return instance(vec);
 	}
 };
+
+// Array random operations.
+namespace array_op {
+
+// Shuffles an array.
+template <typename T> T shuffle(const T &inst) {
+	auto new_inst = inst;
+	tgen::shuffle(new_inst.vec);
+	return new_inst;
+}
+
+// Choses any value in the array.
+template <typename T> typename T::value_type any(const T &inst) {
+	return inst.vec[next(0, inst.vec.size() - 1)];
+}
+
+// Chooses k values from the array, as in a subsequence of size k.
+template <typename T> T choose(int k, const T &inst) {
+	ensure(0 < k and k <= inst.vec.size(),
+		   "number of elements to choose must be valid");
+	std::vector<typename T::value_type> new_vec;
+	int need = k;
+	for (int i = 0; need > 0; ++i) {
+		int left = inst.vec.size() - i;
+		if (next(1, left) <= need) {
+			new_vec.push_back(inst.vec[i]);
+			need--;
+		}
+	}
+	return T(new_vec);
+}
+}; // namespace array_op
+
 }; // namespace tgen

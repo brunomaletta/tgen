@@ -75,12 +75,23 @@ template <typename It> void shuffle(It first, It last) {
 		std::iter_swap(i, first + next(0, int(i - first)));
 }
 
+// Shuffles container uniformly.
+template <typename C> C shuffle(C container) {
+	shuffle(container.begin(), container.end());
+	return container;
+}
+
 // Returns uniformly element from [first, last).
 template <typename It> typename It::value_type any(It first, It last) {
 	int size = std::distance(first, last);
 	It it = first;
 	std::advance(it, next(0, size - 1));
 	return *it;
+}
+
+// Returns uniformly element from container.
+template <typename C> typename C::value_type any(const C &container) {
+	return any(container.begin(), container.end());
 }
 
 /*
