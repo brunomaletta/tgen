@@ -27,7 +27,7 @@ void __array_contradiction_error(const std::string &msg = "") {
 template <typename T> struct array {
 	using value_type = T; // Value type, for templates.
 	int size;			  // Size of array.
-	T l, r;				  // Range of defined values.
+	T value_l, value_r;	  // Range of defined values.
 	std::set<T> values;	  // Set of values. If empty, use range. if not,
 						  // represents the possible values, and the range
 						  // represents the index in this set)
@@ -40,19 +40,20 @@ template <typename T> struct array {
 		distinct_constraints; // All distinct constraints.
 
 	// Creates generator for arrays of size 'size', with random T in [l, r]
-	array(int size_, T l_, T r_) : size(size_), l(l_), r(r_), neigh(size) {
-		ensure(l <= r, "value range must be valid");
+	array(int size_, T value_l_, T value_r_)
+		: size(size_), value_l(value_l_), value_r(value_r_), neigh(size) {
+		ensure(value_l <= value_r, "value range must be valid");
 		for (int i = 0; i < size; ++i)
-			val_range.emplace_back(l, r);
+			val_range.emplace_back(value_l, value_r);
 	}
 
 	// Creates array with value set.
 	array(int size_, const std::set<T> &values_)
 		: size(size_), values(values_), neigh(size) {
 		ensure(values.size() > 0, "must have at least one value");
-		l = 0, r = values.size() - 1;
+		value_l = 0, value_r = values.size() - 1;
 		for (int i = 0; i < size; ++i)
-			val_range.emplace_back(l, r);
+			val_range.emplace_back(value_l, value_r);
 		int idx = 0;
 		for (T value : values)
 			value_idx_in_set[value] = idx++;
@@ -66,15 +67,17 @@ template <typename T> struct array {
 	array &value_at_idx(int idx, T value) {
 		ensure(0 <= idx and idx < size, "index must be valid");
 		if (values.size() == 0) {
-			auto &[l, r] = val_range[idx];
-			ensure(l <= value and value <= r,
+			auto &[left, right] = val_range[idx];
+			ensure(left <= value and value <= right,
 				   "value must be in the defined range");
-			l = r = value;
+			left = right = value;
 		} else {
 			ensure(values.count(value), "value must be in the set of values");
+			auto &[left, right] = val_range[idx];
 			int idx = value_idx_in_set[value];
-			ensure(l <= idx and idx <= r,
+			ensure(left <= idx and idx <= right,
 				   "must not set to two different values");
+			left = right = idx;
 		}
 		return *this;
 	}
@@ -234,11 +237,11 @@ template <typename T> struct array {
 		// Loops through distinct constraints.
 		for (const std::set<int> &distinct : distinct_constraints) {
 			// Checks if there are too many distinct values.
-			if (distinct.size() > r - l + 1)
+			if (distinct.size() > value_r - value_l + 1)
 				__array_contradiction_error(
 					"tried to generate " + std::to_string(distinct.size()) +
 					" distinct values, but the maximum is " +
-					std::to_string(r - l + 1));
+					std::to_string(value_r - value_l + 1));
 
 			// Checks if two values in same component are marked as different.
 			std::set<int> comp_ids;
@@ -263,7 +266,7 @@ template <typename T> struct array {
 			// We will run (distinct.size()-defined_values.size()) steps of
 			// Fisher–Yates, using a map to store a virtual array that starts
 			// with the a[i] = i.
-			int lim = (r - l + 1) - int(defined_values.size());
+			int lim = (value_r - value_l + 1) - int(defined_values.size());
 			std::map<T, T> virtual_array;
 			std::vector<T> initial_gen;
 			for (int i = 0; i < distinct.size() - int(defined_values.size());
@@ -280,7 +283,7 @@ template <typename T> struct array {
 			// Shifts back to correct range, but there might still be values
 			// that we can not use.
 			for (T &value : initial_gen)
-				value += l;
+				value += value_l;
 
 			// Now for every generated value that is in defined_values, we map
 			// it to [l + lim, l + lim + defined_values.size()).
@@ -296,7 +299,7 @@ template <typename T> struct array {
 			for (auto [val, idx] : values_to_map) {
 				while (*cur_it != val)
 					++cur_it, ++cur_defined_idx;
-				initial_gen[idx] = l + lim + cur_defined_idx;
+				initial_gen[idx] = value_l + lim + cur_defined_idx;
 			}
 
 			int cur = 0;

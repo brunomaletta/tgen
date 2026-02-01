@@ -30,5 +30,10 @@ int main(int argc, char **argv) {
 
 	cout << tgen::array<char>(10, chars).gen() << endl;
 
-	cout << tgen::array<int>(20, {1, 50, 100, 250, 1000}).gen() << endl;
+	cout << tgen::array<int>(20, {1, 50, 100, 250, 1000})
+				.value_at_idx(0, 50)
+				.equal_idx_pair(0, 2)
+				.distinct_idx_set({19, 18, 17, 16, 15})
+				.gen()
+		 << endl;
 }
