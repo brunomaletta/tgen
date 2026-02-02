@@ -1,9 +1,11 @@
 /**
- * @file general.dox
- * @brief High-level API documentation for tgen.
+ * @defgroup general Global Functions
+ * @brief Random generation utilities.
  */
 
+
 /**
+ * @ingroup general
  * @brief Generates a random selection of elements.
  *
  * ## Overview
@@ -24,6 +26,14 @@
  *     return x.size() >= 5;
  * });
  * ```
+ * 
+ *  <div class="tabbed">
+ * 
+ * - <b class="tab-title">Tab 1</b> This is the content of tab 1
+ * - <b class="tab-title">Tab 2</b> This is the content of tab 2
+ * 
+ * </div>
+ * 
  *
  * @param max_tries Maximum number of attempts.
  * @param predicate Callable of type `bool(instance)`.

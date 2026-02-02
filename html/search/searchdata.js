@@ -1,18 +1,18 @@
 var indexSectionsWithContent =
 {
-  0: "aegilopst",
+  0: "efgiops",
   1: "is",
   2: "g",
-  3: "g",
-  4: "aglt"
+  3: "fg",
+  4: "eop"
 };
 
 var indexSectionNames =
 {
   0: "all",
   1: "classes",
-  2: "files",
-  3: "functions",
+  2: "functions",
+  3: "groups",
   4: "pages"
 };
 
@@ -20,8 +20,8 @@ var indexSectionLabels =
 {
   0: "All",
   1: "Classes",
-  2: "Files",
-  3: "Functions",
+  2: "Functions",
+  3: "Modules",
   4: "Pages"
 };
 

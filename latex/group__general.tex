@@ -1,0 +1,69 @@
+\doxysection{Global Functions }
+\hypertarget{group__general}{}\label{group__general}\index{Global Functions@{Global Functions}}
+
+
+Random generation utilities.  
+
+
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+instance \mbox{\hyperlink{group__general_ga548c7a3c606a473538e2d014e5d9f0d2}{gen\+\_\+until}} (int max\+\_\+tries, Predicate predicate)
+\begin{DoxyCompactList}\small\item\em Generates a random selection of elements. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Random generation utilities. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{group__general_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{group__general_ga548c7a3c606a473538e2d014e5d9f0d2}\index{Global Functions@{Global Functions}!gen\_until@{gen\_until}}
+\index{gen\_until@{gen\_until}!Global Functions@{Global Functions}}
+\doxysubsubsection{\texorpdfstring{gen\_until()}{gen\_until()}}
+{\footnotesize\ttfamily \label{group__general_ga548c7a3c606a473538e2d014e5d9f0d2} 
+instance gen\+\_\+until (\begin{DoxyParamCaption}\item[{int}]{max\+\_\+tries}{, }\item[{Predicate}]{predicate}{}\end{DoxyParamCaption})}
+
+
+
+Generates a random selection of elements. 
+
+\hypertarget{group__general_autotoc_md0}{}\doxysubsubsection{\texorpdfstring{Overview}{Overview}}\label{group__general_autotoc_md0}
+{\ttfamily gen\+\_\+until} repeatedly calls a generator until a predicate returns {\ttfamily true}, or a maximum number of tries is reached.\hypertarget{group__general_autotoc_md1}{}\doxysubsubsubsection{\texorpdfstring{Properties}{Properties}}\label{group__general_autotoc_md1}
+
+\begin{DoxyItemize}
+\item Stops early if predicate succeeds
+\item Deterministic given a deterministic generator
+\item Throws on failure (or returns {\ttfamily std\+::optional})
+\end{DoxyItemize}\hypertarget{group__general_autotoc_md2}{}\doxysubsubsubsection{\texorpdfstring{Example}{Example}}\label{group__general_autotoc_md2}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{auto}\ inst\ =\ \mbox{\hyperlink{group__general_ga548c7a3c606a473538e2d014e5d9f0d2}{gen\_until}}(100,\ [](\textcolor{keyword}{const}\ instance\&\ x)\ \{}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{return}\ x.size()\ >=\ 5;}
+\DoxyCodeLine{\});}
+
+\end{DoxyCode}
+
+
+
+
+
+\begin{DoxyItemize}
+\item {\bfseries{Tab 1}} This is the content of tab 1
+\item {\bfseries{Tab 2}} This is the content of tab 2
+\end{DoxyItemize}
+
+ 
+
+
+\begin{DoxyParams}{Parameters}
+{\em max\+\_\+tries} & Maximum number of attempts. \\
+\hline
+{\em predicate} & Callable of type {\ttfamily bool(instance)}.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+This function is guaranteed to terminate if the predicate is satisfiable. 
+\end{DoxyNote}

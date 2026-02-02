@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['gen_5funtil_0',['gen_until',['../general_8dox.html#a548c7a3c606a473538e2d014e5d9f0d2',1,'general.dox']]],
-  ['general_2edox_1',['general.dox',['../general_8dox.html',1,'']]],
-  ['generate_20testcases_2',['A library to generate testcases',['../index.html',1,'']]]
+  ['gen_5funtil_0',['gen_until',['../group__general.html#ga548c7a3c606a473538e2d014e5d9f0d2',1,'general.dox']]],
+  ['global_20functions_1',['Global Functions',['../group__general.html',1,'']]]
 ];

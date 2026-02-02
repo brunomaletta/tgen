@@ -11,4 +11,4 @@ opendoc:
 	open html/index.html > /dev/null 2>&1 &
 
 clean:
-	rm -rf a html/ latex/
+	rm -rf a
