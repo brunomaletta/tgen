@@ -2873,4 +2873,4 @@ DISABLE_INDEX          = NO
 FULL_SIDEBAR           = NO
 HTML_COLORSTYLE        = LIGHT # required with Doxygen >= 1.9.5
 
-HTML_HEADER            = docs/doxygen-awesome-css/header.html
+HTML_HEADER            = docs/header.html
