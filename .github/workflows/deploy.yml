@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main   # change to master if your default branch is master
 
 permissions:
   contents: read
@@ -12,10 +12,6 @@ permissions:
 
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     runs-on: ubuntu-latest
 
     steps:
@@ -25,12 +21,11 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4
 
-      - name: Upload html folder
+      - name: Upload html folder as Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: html
 
       - name: Deploy to GitHub Pages
-        id: deployment
         uses: actions/deploy-pages@v2
 
