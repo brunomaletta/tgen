@@ -150,17 +150,17 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Generates a random selection of elements. </p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md0"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
 Overview</h2>
 <p><span class="tt">gen_until</span> repeatedly calls a generator until a predicate returns <span class="tt">true</span>, or a maximum number of tries is reached.</p>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md2"></a>
 Properties</h3>
 <ul>
 <li>Stops early if predicate succeeds</li>
 <li>Deterministic given a deterministic generator</li>
 <li>Throws on failure (or returns <span class="tt">std::optional</span>)</li>
 </ul>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md2"></a>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md3"></a>
 Example</h3>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> inst = <a class="code hl_function" href="#ga548c7a3c606a473538e2d014e5d9f0d2">gen_until</a>(100, [](<span class="keyword">const</span> instance&amp; x) {</div>
 <div class="line">    <span class="keywordflow">return</span> x.size() &gt;= 5;</div>

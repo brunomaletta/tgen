@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['functions_0',['Global Functions',['../group__general.html',1,'']]]
+  ['example_0',['Example',['../group__general.html#autotoc_md3',1,'']]]
 ];

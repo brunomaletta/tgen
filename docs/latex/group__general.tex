@@ -30,14 +30,14 @@ instance gen\+\_\+until (\begin{DoxyParamCaption}\item[{int}]{max\+\_\+tries}{, 
 
 Generates a random selection of elements. 
 
-\hypertarget{group__general_autotoc_md0}{}\doxysubsubsection{\texorpdfstring{Overview}{Overview}}\label{group__general_autotoc_md0}
-{\ttfamily gen\+\_\+until} repeatedly calls a generator until a predicate returns {\ttfamily true}, or a maximum number of tries is reached.\hypertarget{group__general_autotoc_md1}{}\doxysubsubsubsection{\texorpdfstring{Properties}{Properties}}\label{group__general_autotoc_md1}
+\hypertarget{group__general_autotoc_md1}{}\doxysubsubsection{\texorpdfstring{Overview}{Overview}}\label{group__general_autotoc_md1}
+{\ttfamily gen\+\_\+until} repeatedly calls a generator until a predicate returns {\ttfamily true}, or a maximum number of tries is reached.\hypertarget{group__general_autotoc_md2}{}\doxysubsubsubsection{\texorpdfstring{Properties}{Properties}}\label{group__general_autotoc_md2}
 
 \begin{DoxyItemize}
 \item Stops early if predicate succeeds
 \item Deterministic given a deterministic generator
 \item Throws on failure (or returns {\ttfamily std\+::optional})
-\end{DoxyItemize}\hypertarget{group__general_autotoc_md2}{}\doxysubsubsubsection{\texorpdfstring{Example}{Example}}\label{group__general_autotoc_md2}
+\end{DoxyItemize}\hypertarget{group__general_autotoc_md3}{}\doxysubsubsubsection{\texorpdfstring{Example}{Example}}\label{group__general_autotoc_md3}
 
 \begin{DoxyCode}{0}
 \DoxyCodeLine{\textcolor{keyword}{auto}\ inst\ =\ \mbox{\hyperlink{group__general_ga548c7a3c606a473538e2d014e5d9f0d2}{gen\_until}}(100,\ [](\textcolor{keyword}{const}\ instance\&\ x)\ \{}
