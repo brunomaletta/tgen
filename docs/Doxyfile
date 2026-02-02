@@ -2975,3 +2975,5 @@ HTML_HEADER            = docs/header.html
 HTML_COPY_CLIPBOARD=NO
 
 OUTPUT_DIRECTORY = docs
+
+SHOW_FILES = NO

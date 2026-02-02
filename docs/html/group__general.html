@@ -119,65 +119,134 @@ $(function(){initNavTree('group__general.html','',''); });
 </div><!--header-->
 <div class="contents">
 
-<p>Random generation utilities.  
+<p>Global setup and basic random generation.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-define-members" class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:gaef8ae1775782023fe7997cc08c885714" id="r_gaef8ae1775782023fe7997cc08c885714"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaef8ae1775782023fe7997cc08c885714">ensure</a>(cond, ...)</td></tr>
+<tr class="memdesc:gaef8ae1775782023fe7997cc08c885714"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ensures condition <span class="tt">cond</span> is true.  <br /></td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga548c7a3c606a473538e2d014e5d9f0d2" id="r_ga548c7a3c606a473538e2d014e5d9f0d2"><td class="memItemLeft" align="right" valign="top">instance&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga548c7a3c606a473538e2d014e5d9f0d2">gen_until</a> (int max_tries, Predicate predicate)</td></tr>
-<tr class="memdesc:ga548c7a3c606a473538e2d014e5d9f0d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random selection of elements.  <br /></td></tr>
+<tr class="memitem:gaaa870ed79a9d059a05d624ea6e117da6" id="r_gaaa870ed79a9d059a05d624ea6e117da6"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:gaaa870ed79a9d059a05d624ea6e117da6 template"><td class="memItemLeft" align="right" valign="top">T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaaa870ed79a9d059a05d624ea6e117da6">next</a> (T l, T r)</td></tr>
+<tr class="memdesc:gaaa870ed79a9d059a05d624ea6e117da6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a random number in <span class="tt">[l, r]</span>.  <br /></td></tr>
+<tr class="memitem:ga46d528b15832a236580a18fda06d4ae9" id="r_ga46d528b15832a236580a18fda06d4ae9"><td class="memTemplParams" colspan="2">template&lt;typename It&gt; </td></tr>
+<tr class="memitem:ga46d528b15832a236580a18fda06d4ae9 template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga46d528b15832a236580a18fda06d4ae9">shuffle</a> (It first, It last)</td></tr>
+<tr class="memdesc:ga46d528b15832a236580a18fda06d4ae9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles <span class="tt">[first, last)</span> inplace uniformly.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<p>Random generation utilities. </p>
-<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="ga548c7a3c606a473538e2d014e5d9f0d2" name="ga548c7a3c606a473538e2d014e5d9f0d2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga548c7a3c606a473538e2d014e5d9f0d2">&#9670;&#160;</a></span>gen_until()</h2>
+<p>Global setup and basic random generation. </p>
+<a name="doc-define-members" id="doc-define-members"></a><h2 id="header-doc-define-members" class="groupheader">Macro Definition Documentation</h2>
+<a id="gaef8ae1775782023fe7997cc08c885714" name="gaef8ae1775782023fe7997cc08c885714"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaef8ae1775782023fe7997cc08c885714">&#9670;&#160;</a></span>ensure</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">instance gen_until </td>
+          <td class="memname">#define ensure</td>
           <td>(</td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>max_tries</em></span>, </td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>cond</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Predicate</td>          <td class="paramname"><span class="paramname"><em>predicate</em></span>&#160;)</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em></em></span>...&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Generates a random selection of elements. </p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
-Overview</h2>
-<p><span class="tt">gen_until</span> repeatedly calls a generator until a predicate returns <span class="tt">true</span>, or a maximum number of tries is reached.</p>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md2"></a>
-Properties</h3>
-<ul>
-<li>Stops early if predicate succeeds</li>
-<li>Deterministic given a deterministic generator</li>
-<li>Throws on failure (or returns <span class="tt">std::optional</span>)</li>
-</ul>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md3"></a>
-Example</h3>
-<div class="fragment"><div class="line"><span class="keyword">auto</span> inst = <a class="code hl_function" href="#ga548c7a3c606a473538e2d014e5d9f0d2">gen_until</a>(100, [](<span class="keyword">const</span> instance&amp; x) {</div>
-<div class="line">    <span class="keywordflow">return</span> x.size() &gt;= 5;</div>
-<div class="line">});</div>
-<div class="ttc" id="agroup__general_html_ga548c7a3c606a473538e2d014e5d9f0d2"><div class="ttname"><a href="#ga548c7a3c606a473538e2d014e5d9f0d2">gen_until</a></div><div class="ttdeci">instance gen_until(int max_tries, Predicate predicate)</div><div class="ttdoc">Generates a random selection of elements.</div></div>
-</div><!-- fragment --><div class="tabbed"></div><div class="tabbed"><ul>
-<li><b class="tab-title">Tab 1</b> This is the content of tab 1</li>
-<li><b class="tab-title">Tab 2</b> This is the content of tab 2</li>
-</ul>
-</div><div class="tabbed"> </div><dl class="params"><dt>Parameters</dt><dd>
+<p>Ensures condition <span class="tt">cond</span> is true. </p>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">max_tries</td><td>Maximum number of attempts. </td></tr>
-    <tr><td class="paramname">predicate</td><td>Callable of type <span class="tt">bool(instance)</span>.</td></tr>
+    <tr><td class="paramname">cond</td><td>Condition to me ensured. </td></tr>
+    <tr><td class="paramname">...</td><td>Empty or a string with an error message.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>This function is guaranteed to terminate if the predicate is satisfiable. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>if <span class="tt">cond</span> is not true.</td></tr>
+  </table>
+  </dd>
+</dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
+Examples</h4>
+<div class="fragment"><div class="line"><span class="comment">// Without error message:</span></div>
+<div class="line"><a class="code hl_define" href="#gaef8ae1775782023fe7997cc08c885714">ensure</a>(a == b);</div>
+<div class="line"><span class="comment">// With error message:</span></div>
+<div class="line"><a class="code hl_define" href="#gaef8ae1775782023fe7997cc08c885714">ensure</a>(a == b, <span class="stringliteral">&quot;values must be the same&quot;</span>);</div>
+<div class="ttc" id="agroup__general_html_gaef8ae1775782023fe7997cc08c885714"><div class="ttname"><a href="#gaef8ae1775782023fe7997cc08c885714">ensure</a></div><div class="ttdeci">#define ensure(cond,...)</div><div class="ttdoc">Ensures condition cond is true.</div><div class="ttdef"><b>Definition</b> general.dox:25</div></div>
+</div><!-- fragment --> 
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<a id="gaaa870ed79a9d059a05d624ea6e117da6" name="gaaa870ed79a9d059a05d624ea6e117da6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaaa870ed79a9d059a05d624ea6e117da6">&#9670;&#160;</a></span>next()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">T next </td>
+          <td>(</td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>l</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>r</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns a random number in <span class="tt">[l, r]</span>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">l</td><td>Left endpoint of the range. </td></tr>
+    <tr><td class="paramname">r</td><td>Light endpoint of the range.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A random number in <span class="tt">[l, r]</span>, chosen uniformly.</dd></dl>
+<p><span class="tt">T</span> can be either an integral type (<span class="tt">int</span>, <span class="tt">long long</span>, ...) or floating point (<span class="tt">float</span>, <span class="tt">double</span>).</p>
+<dl class="section note"><dt>Note</dt><dd>tmp </dd></dl>
+
+</div>
+</div>
+<a id="ga46d528b15832a236580a18fda06d4ae9" name="ga46d528b15832a236580a18fda06d4ae9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga46d528b15832a236580a18fda06d4ae9">&#9670;&#160;</a></span>shuffle()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename It&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void shuffle </td>
+          <td>(</td>
+          <td class="paramtype">It</td>          <td class="paramname"><span class="paramname"><em>first</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">It</td>          <td class="paramname"><span class="paramname"><em>last</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Shuffles <span class="tt">[first, last)</span> inplace uniformly. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">first</td><td>First iterator of range. </td></tr>
+    <tr><td class="paramname">last</td><td>First iterator outside of range. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

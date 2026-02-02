@@ -2,68 +2,108 @@
 \hypertarget{group__general}{}\label{group__general}\index{Global Functions@{Global Functions}}
 
 
-Random generation utilities.  
+Global setup and basic random generation.  
 
 
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(cond, ...)
+\begin{DoxyCompactList}\small\item\em Ensures condition {\ttfamily cond} is true. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-instance \mbox{\hyperlink{group__general_ga548c7a3c606a473538e2d014e5d9f0d2}{gen\+\_\+until}} (int max\+\_\+tries, Predicate predicate)
-\begin{DoxyCompactList}\small\item\em Generates a random selection of elements. \end{DoxyCompactList}\end{DoxyCompactItemize}
+{\footnotesize template$<$typename T$>$ }\\T \mbox{\hyperlink{group__general_gaaa870ed79a9d059a05d624ea6e117da6}{next}} (T l, T r)
+\begin{DoxyCompactList}\small\item\em Returns a random number in {\ttfamily \mbox{[}l, r\mbox{]}}. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename It$>$ }\\void \mbox{\hyperlink{group__general_ga46d528b15832a236580a18fda06d4ae9}{shuffle}} (It first, It last)
+\begin{DoxyCompactList}\small\item\em Shuffles {\ttfamily \mbox{[}first, last)} inplace uniformly. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
-Random generation utilities. 
+Global setup and basic random generation. 
 
 
+
+\label{doc-define-members}
+\Hypertarget{group__general_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{group__general_gaef8ae1775782023fe7997cc08c885714}\index{Global Functions@{Global Functions}!ensure@{ensure}}
+\index{ensure@{ensure}!Global Functions@{Global Functions}}
+\doxysubsubsection{\texorpdfstring{ensure}{ensure}}
+{\footnotesize\ttfamily \label{group__general_gaef8ae1775782023fe7997cc08c885714} 
+\#define ensure(\begin{DoxyParamCaption}\item[{}]{cond}{, }\item[{}]{}...{}\end{DoxyParamCaption})}
+
+
+
+Ensures condition {\ttfamily cond} is true. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em cond} & Condition to me ensured. \\
+\hline
+{\em ...} & Empty or a string with an error message.\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em std\+::runtime\+\_\+error} & if {\ttfamily cond} is not true.\\
+\hline
+\end{DoxyExceptions}
+\hypertarget{group__general_autotoc_md1}{}\doxysubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__general_autotoc_md1}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{comment}{//\ Without\ error\ message:}}
+\DoxyCodeLine{\mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(a\ ==\ b);}
+\DoxyCodeLine{\textcolor{comment}{//\ With\ error\ message:}}
+\DoxyCodeLine{\mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(a\ ==\ b,\ \textcolor{stringliteral}{"{}values\ must\ be\ the\ same"{}});}
+
+\end{DoxyCode}
+ 
 
 \label{doc-func-members}
 \Hypertarget{group__general_doc-func-members}
 \doxysubsection{Function Documentation}
-\Hypertarget{group__general_ga548c7a3c606a473538e2d014e5d9f0d2}\index{Global Functions@{Global Functions}!gen\_until@{gen\_until}}
-\index{gen\_until@{gen\_until}!Global Functions@{Global Functions}}
-\doxysubsubsection{\texorpdfstring{gen\_until()}{gen\_until()}}
-{\footnotesize\ttfamily \label{group__general_ga548c7a3c606a473538e2d014e5d9f0d2} 
-instance gen\+\_\+until (\begin{DoxyParamCaption}\item[{int}]{max\+\_\+tries}{, }\item[{Predicate}]{predicate}{}\end{DoxyParamCaption})}
+\Hypertarget{group__general_gaaa870ed79a9d059a05d624ea6e117da6}\index{Global Functions@{Global Functions}!next@{next}}
+\index{next@{next}!Global Functions@{Global Functions}}
+\doxysubsubsection{\texorpdfstring{next()}{next()}}
+{\footnotesize\ttfamily \label{group__general_gaaa870ed79a9d059a05d624ea6e117da6} 
+template$<$typename T$>$ \\
+T next (\begin{DoxyParamCaption}\item[{T}]{l}{, }\item[{T}]{r}{}\end{DoxyParamCaption})}
 
 
 
-Generates a random selection of elements. 
-
-\hypertarget{group__general_autotoc_md1}{}\doxysubsubsection{\texorpdfstring{Overview}{Overview}}\label{group__general_autotoc_md1}
-{\ttfamily gen\+\_\+until} repeatedly calls a generator until a predicate returns {\ttfamily true}, or a maximum number of tries is reached.\hypertarget{group__general_autotoc_md2}{}\doxysubsubsubsection{\texorpdfstring{Properties}{Properties}}\label{group__general_autotoc_md2}
-
-\begin{DoxyItemize}
-\item Stops early if predicate succeeds
-\item Deterministic given a deterministic generator
-\item Throws on failure (or returns {\ttfamily std\+::optional})
-\end{DoxyItemize}\hypertarget{group__general_autotoc_md3}{}\doxysubsubsubsection{\texorpdfstring{Example}{Example}}\label{group__general_autotoc_md3}
-
-\begin{DoxyCode}{0}
-\DoxyCodeLine{\textcolor{keyword}{auto}\ inst\ =\ \mbox{\hyperlink{group__general_ga548c7a3c606a473538e2d014e5d9f0d2}{gen\_until}}(100,\ [](\textcolor{keyword}{const}\ instance\&\ x)\ \{}
-\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{return}\ x.size()\ >=\ 5;}
-\DoxyCodeLine{\});}
-
-\end{DoxyCode}
-
-
-
-
-
-\begin{DoxyItemize}
-\item {\bfseries{Tab 1}} This is the content of tab 1
-\item {\bfseries{Tab 2}} This is the content of tab 2
-\end{DoxyItemize}
-
- 
+Returns a random number in {\ttfamily \mbox{[}l, r\mbox{]}}. 
 
 
 \begin{DoxyParams}{Parameters}
-{\em max\+\_\+tries} & Maximum number of attempts. \\
+{\em l} & Left endpoint of the range. \\
 \hline
-{\em predicate} & Callable of type {\ttfamily bool(instance)}.\\
+{\em r} & Light endpoint of the range.\\
 \hline
 \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A random number in {\ttfamily \mbox{[}l, r\mbox{]}}, chosen uniformly.
+\end{DoxyReturn}
+{\ttfamily T} can be either an integral type ({\ttfamily int}, {\ttfamily long long}, ...) or floating point ({\ttfamily float}, {\ttfamily double}).
+
 \begin{DoxyNote}{Note}
-This function is guaranteed to terminate if the predicate is satisfiable. 
+tmp 
 \end{DoxyNote}
+\Hypertarget{group__general_ga46d528b15832a236580a18fda06d4ae9}\index{Global Functions@{Global Functions}!shuffle@{shuffle}}
+\index{shuffle@{shuffle}!Global Functions@{Global Functions}}
+\doxysubsubsection{\texorpdfstring{shuffle()}{shuffle()}}
+{\footnotesize\ttfamily \label{group__general_ga46d528b15832a236580a18fda06d4ae9} 
+template$<$typename It$>$ \\
+void shuffle (\begin{DoxyParamCaption}\item[{It}]{first}{, }\item[{It}]{last}{}\end{DoxyParamCaption})}
+
+
+
+Shuffles {\ttfamily \mbox{[}first, last)} inplace uniformly. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em first} & First iterator of range. \\
+\hline
+{\em last} & First iterator outside of range. \\
+\hline
+\end{DoxyParams}

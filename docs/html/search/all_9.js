@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['testcases_0',['A library to generate testcases',['../index.html',1,'']]],
-  ['to_20generate_20testcases_1',['A library to generate testcases',['../index.html',1,'']]]
+  ['sequence_0',['sequence',['../structtgen_1_1sequence.html',1,'tgen']]],
+  ['shuffle_1',['shuffle',['../group__general.html#ga46d528b15832a236580a18fda06d4ae9',1,'general.dox']]]
 ];

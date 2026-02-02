@@ -59,7 +59,7 @@ double __next_double(double l, double r) {
 	return dist(__rng);
 }
 
-// Returns a 'random' number in [l, r].
+// Returns a random number in [l, r].
 template <typename T> T next(T l, T r) {
 	if (std::is_integral<T>())
 		return __next_integral<T>(l, r);

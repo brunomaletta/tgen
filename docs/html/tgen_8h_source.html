@@ -169,17 +169,17 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>std::mt19937 __rng;</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; T __next_integral(T l, T r) {</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    ensure(l &lt;= r, <span class="stringliteral">&quot;range for `next` bust be valid&quot;</span>);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(l &lt;= r, <span class="stringliteral">&quot;range for `next` bust be valid&quot;</span>);</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    std::uniform_int_distribution&lt;T&gt; dist(l, r);</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordflow">return</span> dist(__rng);</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>}</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="keywordtype">double</span> __next_double(<span class="keywordtype">double</span> l, <span class="keywordtype">double</span> r) {</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    ensure(l &lt;= r, <span class="stringliteral">&quot;range for `next` bust be valid&quot;</span>);</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(l &lt;= r, <span class="stringliteral">&quot;range for `next` bust be valid&quot;</span>);</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    std::uniform_real_distribution&lt;double&gt; dist(l, r);</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordflow">return</span> dist(__rng);</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>}</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="comment">// Returns a &#39;random&#39; number in [l, r].</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="comment">// Returns a random number in [l, r].</span></div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; T next(T l, T r) {</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">if</span> (std::is_integral&lt;T&gt;())</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        <span class="keywordflow">return</span> __next_integral&lt;T&gt;(l, r);</div>
@@ -227,7 +227,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="comment">// Chooses k values from the container, as in a subsequence of size k. Returns a</span></div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="comment">// copy.</span></div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> C&gt; C choose(<span class="keywordtype">int</span> k, <span class="keyword">const</span> C &amp;container) {</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    ensure(0 &lt; k and k &lt;= container.size(),</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(0 &lt; k and k &lt;= container.size(),</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>           <span class="stringliteral">&quot;number of elements to choose must be valid&quot;</span>);</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    std::vector&lt;typename C::value_type&gt; new_vec;</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    C new_container;</div>
@@ -313,7 +313,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span> </div>
 <div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span><span class="comment">// Returns the parsed opt by a given index.</span></div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; T opt(<span class="keywordtype">int</span> index) {</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    ensure(has_opt(index), <span class="stringliteral">&quot;cannot find key with index &quot;</span> + index);</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(has_opt(index), <span class="stringliteral">&quot;cannot find key with index &quot;</span> + index);</div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="keywordflow">return</span> __get_opt&lt;T&gt;(__pos_opts[index]);</div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>}</div>
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
@@ -327,7 +327,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span><span class="comment">// Returns the parsed opt by a given key.</span></div>
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; T opt(<span class="keyword">const</span> std::string &amp;key) {</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    ensure(has_opt(key), <span class="stringliteral">&quot;cannot find key with key &quot;</span> + key);</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(has_opt(key), <span class="stringliteral">&quot;cannot find key with key &quot;</span> + key);</div>
 <div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    <span class="keywordflow">return</span> __get_opt&lt;T&gt;(__named_opts[key]);</div>
 <div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>}</div>
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span> </div>
@@ -340,7 +340,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>}</div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span> </div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span><span class="keywordtype">char</span> __fetch_char(<span class="keywordtype">char</span> *s, <span class="keywordtype">int</span> idx) {</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    ensure(s[idx] != <span class="charliteral">&#39;\n&#39;</span>, <span class="stringliteral">&quot;tried to fetch end of string&quot;</span>);</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(s[idx] != <span class="charliteral">&#39;\n&#39;</span>, <span class="stringliteral">&quot;tried to fetch end of string&quot;</span>);</div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keywordflow">return</span> s[idx];</div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>}</div>
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>std::string __read_until(<span class="keywordtype">char</span> *s) {</div>
@@ -354,7 +354,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>        read_str += nxt_char;</div>
 <div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    }</div>
 <div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span> </div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    ensure(read_str.size() &gt; 0, <span class="stringliteral">&quot;read string cannot be empty&quot;</span>);</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(read_str.size() &gt; 0, <span class="stringliteral">&quot;read string cannot be empty&quot;</span>);</div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    <span class="keywordflow">return</span> read_str;</div>
 <div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>}</div>
 <div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="keywordtype">void</span> __parse_opts(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv) {</div>
@@ -364,7 +364,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>        std::string key = __read_until(argv[i]);</div>
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>        <span class="keywordflow">if</span> (key[0] == <span class="charliteral">&#39;-&#39;</span>) {</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>            ensure(key.size() &gt; 1,</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(key.size() &gt; 1,</div>
 <div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>                   <span class="stringliteral">&quot;invalid opt (&quot;</span> + std::string(argv[i]) + <span class="stringliteral">&quot;)&quot;</span>);</div>
 <div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>            <span class="keywordflow">if</span> (isdigit(key[1])) {</div>
 <div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>                <span class="comment">// This case is a positional negative number argument</span></div>
@@ -382,7 +382,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
 <div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>        <span class="comment">// Pops a possible second char &#39;-&#39;.</span></div>
 <div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>        <span class="keywordflow">if</span> (key[0] == <span class="charliteral">&#39;-&#39;</span>) {</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>            ensure(key.size() &gt; 1,</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(key.size() &gt; 1,</div>
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>                   <span class="stringliteral">&quot;invalid opt (&quot;</span> + std::string(argv[i]) + <span class="stringliteral">&quot;)&quot;</span>);</div>
 <div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span> </div>
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>            <span class="comment">// pops first char &#39;-&#39;</span></div>
@@ -398,14 +398,14 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>            <span class="comment">// This is the &#39;--key=value&#39; case.</span></div>
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>            std::string value = key.substr(eq + 1);</div>
 <div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>            key = key.substr(0, eq);</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>            ensure(key.size() &gt; 0 and value.size() &gt; 0, <span class="stringliteral">&quot;expected non-empty\</span></div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(key.size() &gt; 0 and value.size() &gt; 0, <span class="stringliteral">&quot;expected non-empty\</span></div>
 <div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span><span class="stringliteral">                        key/value in opt (&quot;</span> + std::string(argv[1]));</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>            ensure(__named_opts.count(key) == 0, <span class="stringliteral">&quot;cannot have repeated keys&quot;</span>);</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(__named_opts.count(key) == 0, <span class="stringliteral">&quot;cannot have repeated keys&quot;</span>);</div>
 <div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>            __named_opts[key] = value;</div>
 <div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>        } <span class="keywordflow">else</span> {</div>
 <div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>            <span class="comment">// This is the &#39;--key value&#39; case.</span></div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>            ensure(__named_opts.count(key) == 0, <span class="stringliteral">&quot;cannot have repeated keys&quot;</span>);</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>            ensure(argv[i + 1], <span class="stringliteral">&quot;value cannot be empty&quot;</span>);</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(__named_opts.count(key) == 0, <span class="stringliteral">&quot;cannot have repeated keys&quot;</span>);</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(argv[i + 1], <span class="stringliteral">&quot;value cannot be empty&quot;</span>);</div>
 <div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>            __named_opts[key] = __read_until(argv[i + 1]);</div>
 <div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>            i++;</div>
 <div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>        }</div>
@@ -469,7 +469,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="comment">// Creates generator for sequences of size &#39;size&#39;, with random T in [l, r]</span></div>
 <div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>    sequence(<span class="keywordtype">int</span> size_, T value_l_, T value_r_)</div>
 <div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>        : size(size_), value_l(value_l_), value_r(value_r_), neigh(size) {</div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>        ensure(value_l &lt;= value_r, <span class="stringliteral">&quot;value range must be valid&quot;</span>);</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>        <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(value_l &lt;= value_r, <span class="stringliteral">&quot;value range must be valid&quot;</span>);</div>
 <div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
 <div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>            val_range.emplace_back(value_l, value_r);</div>
 <div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    }</div>
@@ -477,7 +477,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>    <span class="comment">// Creates sequence with value set.</span></div>
 <div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    sequence(<span class="keywordtype">int</span> size_, <span class="keyword">const</span> std::set&lt;T&gt; &amp;values_)</div>
 <div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>        : size(size_), values(values_), neigh(size) {</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>        ensure(values.size() &gt; 0, <span class="stringliteral">&quot;must have at least one value&quot;</span>);</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>        <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(values.size() &gt; 0, <span class="stringliteral">&quot;must have at least one value&quot;</span>);</div>
 <div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>        value_l = 0, value_r = values.size() - 1;</div>
 <div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
 <div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>            val_range.emplace_back(value_l, value_r);</div>
@@ -492,17 +492,17 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span> </div>
 <div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    <span class="comment">// Restricts sequences for sequence[idx] = value.</span></div>
 <div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    sequence &amp;value_at_idx(<span class="keywordtype">int</span> idx, T value) {</div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>        ensure(0 &lt;= idx and idx &lt; size, <span class="stringliteral">&quot;index must be valid&quot;</span>);</div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>        <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(0 &lt;= idx and idx &lt; size, <span class="stringliteral">&quot;index must be valid&quot;</span>);</div>
 <div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>        <span class="keywordflow">if</span> (values.size() == 0) {</div>
 <div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>            <span class="keyword">auto</span> &amp;[left, right] = val_range[idx];</div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>            ensure(left &lt;= value and value &lt;= right,</div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(left &lt;= value and value &lt;= right,</div>
 <div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>                   <span class="stringliteral">&quot;value must be in the defined range&quot;</span>);</div>
 <div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>            left = right = value;</div>
 <div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>        } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>            ensure(values.count(value), <span class="stringliteral">&quot;value must be in the set of values&quot;</span>);</div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(values.count(value), <span class="stringliteral">&quot;value must be in the set of values&quot;</span>);</div>
 <div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>            <span class="keyword">auto</span> &amp;[left, right] = val_range[idx];</div>
 <div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>            <span class="keywordtype">int</span> new_val = value_idx_in_set[value];</div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>            ensure(left &lt;= new_val and new_val &lt;= right,</div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(left &lt;= new_val and new_val &lt;= right,</div>
 <div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>                   <span class="stringliteral">&quot;must not set to two different values&quot;</span>);</div>
 <div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>            left = right = new_val;</div>
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>        }</div>
@@ -511,7 +511,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span> </div>
 <div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>    <span class="comment">// Restricts sequences for sequence[idx_1] = sequence[idx_2].</span></div>
 <div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>    sequence &amp;equal_idx_pair(<span class="keywordtype">int</span> idx_1, <span class="keywordtype">int</span> idx_2) {</div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>        ensure(0 &lt;= std::min(idx_1, idx_2) and std::max(idx_1, idx_2) &lt; size,</div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>        <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(0 &lt;= std::min(idx_1, idx_2) and std::max(idx_1, idx_2) &lt; size,</div>
 <div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>               <span class="stringliteral">&quot;indices must be valid&quot;</span>);</div>
 <div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>        <span class="keywordflow">if</span> (idx_1 == idx_2)</div>
 <div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>            <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
@@ -523,7 +523,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span> </div>
 <div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>    <span class="comment">// Restricts sequences for sequence[left..right] to have all equal values.</span></div>
 <div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>    sequence &amp;equal_range(<span class="keywordtype">int</span> left, <span class="keywordtype">int</span> right) {</div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>        ensure(0 &lt;= left and left &lt;= right and right &lt; size,</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>        <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(0 &lt;= left and left &lt;= right and right &lt; size,</div>
 <div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>               <span class="stringliteral">&quot;range indices bust be valid&quot;</span>);</div>
 <div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = left; i &lt; right; ++i)</div>
 <div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>            equal_idx_pair(i, i + 1);</div>
@@ -800,7 +800,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span> </div>
 <div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span><span class="comment">// Chooses k values from the sequence, as in a subsequence of size k.</span></div>
 <div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> INST&gt; INST choose(<span class="keywordtype">int</span> k, <span class="keyword">const</span> INST &amp;inst) {</div>
-<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>    ensure(0 &lt; k and k &lt;= inst.vec.size(),</div>
+<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(0 &lt; k and k &lt;= inst.vec.size(),</div>
 <div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>           <span class="stringliteral">&quot;number of elements to choose must be valid&quot;</span>);</div>
 <div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>    std::vector&lt;typename INST::value_type&gt; new_vec;</div>
 <div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>    <span class="keywordtype">int</span> need = k;</div>
@@ -817,6 +817,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00693" name="l00693"></a><span class="lineno">  693</span>}; <span class="comment">// namespace sequence_op</span></div>
 <div class="line"><a id="l00694" name="l00694"></a><span class="lineno">  694</span> </div>
 <div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span>}; <span class="comment">// namespace tgen</span></div>
+<div class="ttc" id="agroup__general_html_gaef8ae1775782023fe7997cc08c885714"><div class="ttname"><a href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a></div><div class="ttdeci">#define ensure(cond,...)</div><div class="ttdoc">Ensures condition cond is true.</div><div class="ttdef"><b>Definition</b> general.dox:25</div></div>
 <div class="ttc" id="astructtgen_1_1sequence_1_1instance_html"><div class="ttname"><a href="structtgen_1_1sequence_1_1instance.html">tgen::sequence::instance</a></div><div class="ttdef"><b>Definition</b> tgen.h:445</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

@@ -30,9 +30,6 @@ var NAVTREE =
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ]
-    ] ],
-    [ "Files", "files.html", [
-      [ "File List", "files.html", "files_dup" ]
     ] ]
   ] ]
 ];

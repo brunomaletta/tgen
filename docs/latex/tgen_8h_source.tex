@@ -53,17 +53,17 @@
 \DoxyCodeLine{00049\ std::mt19937\ \_\_rng;}
 \DoxyCodeLine{00050\ }
 \DoxyCodeLine{00051\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>\ T\ \_\_next\_integral(T\ l,\ T\ r)\ \{}
-\DoxyCodeLine{00052\ \ \ \ \ ensure(l\ <=\ r,\ \textcolor{stringliteral}{"{}range\ for\ \`{}next`\ bust\ be\ valid"{}});}
+\DoxyCodeLine{00052\ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(l\ <=\ r,\ \textcolor{stringliteral}{"{}range\ for\ \`{}next`\ bust\ be\ valid"{}});}
 \DoxyCodeLine{00053\ \ \ \ \ std::uniform\_int\_distribution<T>\ dist(l,\ r);}
 \DoxyCodeLine{00054\ \ \ \ \ \textcolor{keywordflow}{return}\ dist(\_\_rng);}
 \DoxyCodeLine{00055\ \}}
 \DoxyCodeLine{00056\ \textcolor{keywordtype}{double}\ \_\_next\_double(\textcolor{keywordtype}{double}\ l,\ \textcolor{keywordtype}{double}\ r)\ \{}
-\DoxyCodeLine{00057\ \ \ \ \ ensure(l\ <=\ r,\ \textcolor{stringliteral}{"{}range\ for\ \`{}next`\ bust\ be\ valid"{}});}
+\DoxyCodeLine{00057\ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(l\ <=\ r,\ \textcolor{stringliteral}{"{}range\ for\ \`{}next`\ bust\ be\ valid"{}});}
 \DoxyCodeLine{00058\ \ \ \ \ std::uniform\_real\_distribution<double>\ dist(l,\ r);}
 \DoxyCodeLine{00059\ \ \ \ \ \textcolor{keywordflow}{return}\ dist(\_\_rng);}
 \DoxyCodeLine{00060\ \}}
 \DoxyCodeLine{00061\ }
-\DoxyCodeLine{00062\ \textcolor{comment}{//\ Returns\ a\ 'random'\ number\ in\ [l,\ r].}}
+\DoxyCodeLine{00062\ \textcolor{comment}{//\ Returns\ a\ random\ number\ in\ [l,\ r].}}
 \DoxyCodeLine{00063\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>\ T\ next(T\ l,\ T\ r)\ \{}
 \DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordflow}{if}\ (std::is\_integral<T>())}
 \DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_\_next\_integral<T>(l,\ r);}
@@ -111,7 +111,7 @@
 \DoxyCodeLine{00107\ \textcolor{comment}{//\ Chooses\ k\ values\ from\ the\ container,\ as\ in\ a\ subsequence\ of\ size\ k.\ Returns\ a}}
 \DoxyCodeLine{00108\ \textcolor{comment}{//\ copy.}}
 \DoxyCodeLine{00109\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ C>\ C\ choose(\textcolor{keywordtype}{int}\ k,\ \textcolor{keyword}{const}\ C\ \&container)\ \{}
-\DoxyCodeLine{00110\ \ \ \ \ ensure(0\ <\ k\ and\ k\ <=\ container.size(),}
+\DoxyCodeLine{00110\ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(0\ <\ k\ and\ k\ <=\ container.size(),}
 \DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}number\ of\ elements\ to\ choose\ must\ be\ valid"{}});}
 \DoxyCodeLine{00112\ \ \ \ \ std::vector<typename\ C::value\_type>\ new\_vec;}
 \DoxyCodeLine{00113\ \ \ \ \ C\ new\_container;}
@@ -197,7 +197,7 @@
 \DoxyCodeLine{00193\ }
 \DoxyCodeLine{00194\ \textcolor{comment}{//\ Returns\ the\ parsed\ opt\ by\ a\ given\ index.}}
 \DoxyCodeLine{00195\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>\ T\ opt(\textcolor{keywordtype}{int}\ index)\ \{}
-\DoxyCodeLine{00196\ \ \ \ \ ensure(has\_opt(index),\ \textcolor{stringliteral}{"{}cannot\ find\ key\ with\ index\ "{}}\ +\ index);}
+\DoxyCodeLine{00196\ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(has\_opt(index),\ \textcolor{stringliteral}{"{}cannot\ find\ key\ with\ index\ "{}}\ +\ index);}
 \DoxyCodeLine{00197\ \ \ \ \ \textcolor{keywordflow}{return}\ \_\_get\_opt<T>(\_\_pos\_opts[index]);}
 \DoxyCodeLine{00198\ \}}
 \DoxyCodeLine{00199\ }
@@ -211,7 +211,7 @@
 \DoxyCodeLine{00207\ }
 \DoxyCodeLine{00208\ \textcolor{comment}{//\ Returns\ the\ parsed\ opt\ by\ a\ given\ key.}}
 \DoxyCodeLine{00209\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>\ T\ opt(\textcolor{keyword}{const}\ std::string\ \&key)\ \{}
-\DoxyCodeLine{00210\ \ \ \ \ ensure(has\_opt(key),\ \textcolor{stringliteral}{"{}cannot\ find\ key\ with\ key\ "{}}\ +\ key);}
+\DoxyCodeLine{00210\ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(has\_opt(key),\ \textcolor{stringliteral}{"{}cannot\ find\ key\ with\ key\ "{}}\ +\ key);}
 \DoxyCodeLine{00211\ \ \ \ \ \textcolor{keywordflow}{return}\ \_\_get\_opt<T>(\_\_named\_opts[key]);}
 \DoxyCodeLine{00212\ \}}
 \DoxyCodeLine{00213\ }
@@ -224,7 +224,7 @@
 \DoxyCodeLine{00220\ \}}
 \DoxyCodeLine{00221\ }
 \DoxyCodeLine{00222\ \textcolor{keywordtype}{char}\ \_\_fetch\_char(\textcolor{keywordtype}{char}\ *s,\ \textcolor{keywordtype}{int}\ idx)\ \{}
-\DoxyCodeLine{00223\ \ \ \ \ ensure(s[idx]\ !=\ \textcolor{charliteral}{'\(\backslash\)n'},\ \textcolor{stringliteral}{"{}tried\ to\ fetch\ end\ of\ string"{}});}
+\DoxyCodeLine{00223\ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(s[idx]\ !=\ \textcolor{charliteral}{'\(\backslash\)n'},\ \textcolor{stringliteral}{"{}tried\ to\ fetch\ end\ of\ string"{}});}
 \DoxyCodeLine{00224\ \ \ \ \ \textcolor{keywordflow}{return}\ s[idx];}
 \DoxyCodeLine{00225\ \}}
 \DoxyCodeLine{00226\ std::string\ \_\_read\_until(\textcolor{keywordtype}{char}\ *s)\ \{}
@@ -238,7 +238,7 @@
 \DoxyCodeLine{00234\ \ \ \ \ \ \ \ \ read\_str\ +=\ nxt\_char;}
 \DoxyCodeLine{00235\ \ \ \ \ \}}
 \DoxyCodeLine{00236\ }
-\DoxyCodeLine{00237\ \ \ \ \ ensure(read\_str.size()\ >\ 0,\ \textcolor{stringliteral}{"{}read\ string\ cannot\ be\ empty"{}});}
+\DoxyCodeLine{00237\ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(read\_str.size()\ >\ 0,\ \textcolor{stringliteral}{"{}read\ string\ cannot\ be\ empty"{}});}
 \DoxyCodeLine{00238\ \ \ \ \ \textcolor{keywordflow}{return}\ read\_str;}
 \DoxyCodeLine{00239\ \}}
 \DoxyCodeLine{00240\ \textcolor{keywordtype}{void}\ \_\_parse\_opts(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv)\ \{}
@@ -248,7 +248,7 @@
 \DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ std::string\ key\ =\ \_\_read\_until(argv[i]);}
 \DoxyCodeLine{00245\ }
 \DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (key[0]\ ==\ \textcolor{charliteral}{'-\/'})\ \{}
-\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ ensure(key.size()\ >\ 1,}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(key.size()\ >\ 1,}
 \DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}invalid\ opt\ ("{}}\ +\ std::string(argv[i])\ +\ \textcolor{stringliteral}{"{})"{}});}
 \DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (isdigit(key[1]))\ \{}
 \DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ This\ case\ is\ a\ positional\ negative\ number\ argument}}
@@ -266,7 +266,7 @@
 \DoxyCodeLine{00262\ }
 \DoxyCodeLine{00263\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Pops\ a\ possible\ second\ char\ '-\/'.}}
 \DoxyCodeLine{00264\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (key[0]\ ==\ \textcolor{charliteral}{'-\/'})\ \{}
-\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ \ \ \ \ ensure(key.size()\ >\ 1,}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(key.size()\ >\ 1,}
 \DoxyCodeLine{00266\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}invalid\ opt\ ("{}}\ +\ std::string(argv[i])\ +\ \textcolor{stringliteral}{"{})"{}});}
 \DoxyCodeLine{00267\ }
 \DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ pops\ first\ char\ '-\/'}}
@@ -282,14 +282,14 @@
 \DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ This\ is\ the\ '-\/-\/key=value'\ case.}}
 \DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \ \ \ \ std::string\ value\ =\ key.substr(eq\ +\ 1);}
 \DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \ \ \ \ key\ =\ key.substr(0,\ eq);}
-\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ \ \ \ \ ensure(key.size()\ >\ 0\ and\ value.size()\ >\ 0,\ \textcolor{stringliteral}{"{}expected\ non-\/empty\(\backslash\)}}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(key.size()\ >\ 0\ and\ value.size()\ >\ 0,\ \textcolor{stringliteral}{"{}expected\ non-\/empty\(\backslash\)}}
 \DoxyCodeLine{00282\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ key/value\ in\ opt\ ("{}}\ +\ std::string(argv[1]));}
-\DoxyCodeLine{00283\ \ \ \ \ \ \ \ \ \ \ \ \ ensure(\_\_named\_opts.count(key)\ ==\ 0,\ \textcolor{stringliteral}{"{}cannot\ have\ repeated\ keys"{}});}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(\_\_named\_opts.count(key)\ ==\ 0,\ \textcolor{stringliteral}{"{}cannot\ have\ repeated\ keys"{}});}
 \DoxyCodeLine{00284\ \ \ \ \ \ \ \ \ \ \ \ \ \_\_named\_opts[key]\ =\ value;}
 \DoxyCodeLine{00285\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
 \DoxyCodeLine{00286\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ This\ is\ the\ '-\/-\/key\ value'\ case.}}
-\DoxyCodeLine{00287\ \ \ \ \ \ \ \ \ \ \ \ \ ensure(\_\_named\_opts.count(key)\ ==\ 0,\ \textcolor{stringliteral}{"{}cannot\ have\ repeated\ keys"{}});}
-\DoxyCodeLine{00288\ \ \ \ \ \ \ \ \ \ \ \ \ ensure(argv[i\ +\ 1],\ \textcolor{stringliteral}{"{}value\ cannot\ be\ empty"{}});}
+\DoxyCodeLine{00287\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(\_\_named\_opts.count(key)\ ==\ 0,\ \textcolor{stringliteral}{"{}cannot\ have\ repeated\ keys"{}});}
+\DoxyCodeLine{00288\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(argv[i\ +\ 1],\ \textcolor{stringliteral}{"{}value\ cannot\ be\ empty"{}});}
 \DoxyCodeLine{00289\ \ \ \ \ \ \ \ \ \ \ \ \ \_\_named\_opts[key]\ =\ \_\_read\_until(argv[i\ +\ 1]);}
 \DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ \ \ \ \ i++;}
 \DoxyCodeLine{00291\ \ \ \ \ \ \ \ \ \}}
@@ -352,7 +352,7 @@
 \DoxyCodeLine{00348\ \ \ \ \ \textcolor{comment}{//\ Creates\ generator\ for\ sequences\ of\ size\ 'size',\ with\ random\ T\ in\ [l,\ r]}}
 \DoxyCodeLine{00349\ \ \ \ \ sequence(\textcolor{keywordtype}{int}\ size\_,\ T\ value\_l\_,\ T\ value\_r\_)}
 \DoxyCodeLine{00350\ \ \ \ \ \ \ \ \ :\ size(size\_),\ value\_l(value\_l\_),\ value\_r(value\_r\_),\ neigh(size)\ \{}
-\DoxyCodeLine{00351\ \ \ \ \ \ \ \ \ ensure(value\_l\ <=\ value\_r,\ \textcolor{stringliteral}{"{}value\ range\ must\ be\ valid"{}});}
+\DoxyCodeLine{00351\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(value\_l\ <=\ value\_r,\ \textcolor{stringliteral}{"{}value\ range\ must\ be\ valid"{}});}
 \DoxyCodeLine{00352\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ size;\ ++i)}
 \DoxyCodeLine{00353\ \ \ \ \ \ \ \ \ \ \ \ \ val\_range.emplace\_back(value\_l,\ value\_r);}
 \DoxyCodeLine{00354\ \ \ \ \ \}}
@@ -360,7 +360,7 @@
 \DoxyCodeLine{00356\ \ \ \ \ \textcolor{comment}{//\ Creates\ sequence\ with\ value\ set.}}
 \DoxyCodeLine{00357\ \ \ \ \ sequence(\textcolor{keywordtype}{int}\ size\_,\ \textcolor{keyword}{const}\ std::set<T>\ \&values\_)}
 \DoxyCodeLine{00358\ \ \ \ \ \ \ \ \ :\ size(size\_),\ values(values\_),\ neigh(size)\ \{}
-\DoxyCodeLine{00359\ \ \ \ \ \ \ \ \ ensure(values.size()\ >\ 0,\ \textcolor{stringliteral}{"{}must\ have\ at\ least\ one\ value"{}});}
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(values.size()\ >\ 0,\ \textcolor{stringliteral}{"{}must\ have\ at\ least\ one\ value"{}});}
 \DoxyCodeLine{00360\ \ \ \ \ \ \ \ \ value\_l\ =\ 0,\ value\_r\ =\ values.size()\ -\/\ 1;}
 \DoxyCodeLine{00361\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ size;\ ++i)}
 \DoxyCodeLine{00362\ \ \ \ \ \ \ \ \ \ \ \ \ val\_range.emplace\_back(value\_l,\ value\_r);}
@@ -375,17 +375,17 @@
 \DoxyCodeLine{00371\ }
 \DoxyCodeLine{00372\ \ \ \ \ \textcolor{comment}{//\ Restricts\ sequences\ for\ sequence[idx]\ =\ value.}}
 \DoxyCodeLine{00373\ \ \ \ \ sequence\ \&value\_at\_idx(\textcolor{keywordtype}{int}\ idx,\ T\ value)\ \{}
-\DoxyCodeLine{00374\ \ \ \ \ \ \ \ \ ensure(0\ <=\ idx\ and\ idx\ <\ size,\ \textcolor{stringliteral}{"{}index\ must\ be\ valid"{}});}
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(0\ <=\ idx\ and\ idx\ <\ size,\ \textcolor{stringliteral}{"{}index\ must\ be\ valid"{}});}
 \DoxyCodeLine{00375\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (values.size()\ ==\ 0)\ \{}
 \DoxyCodeLine{00376\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ \&[left,\ right]\ =\ val\_range[idx];}
-\DoxyCodeLine{00377\ \ \ \ \ \ \ \ \ \ \ \ \ ensure(left\ <=\ value\ and\ value\ <=\ right,}
+\DoxyCodeLine{00377\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(left\ <=\ value\ and\ value\ <=\ right,}
 \DoxyCodeLine{00378\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}value\ must\ be\ in\ the\ defined\ range"{}});}
 \DoxyCodeLine{00379\ \ \ \ \ \ \ \ \ \ \ \ \ left\ =\ right\ =\ value;}
 \DoxyCodeLine{00380\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
-\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \ \ \ \ ensure(values.count(value),\ \textcolor{stringliteral}{"{}value\ must\ be\ in\ the\ set\ of\ values"{}});}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(values.count(value),\ \textcolor{stringliteral}{"{}value\ must\ be\ in\ the\ set\ of\ values"{}});}
 \DoxyCodeLine{00382\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ \&[left,\ right]\ =\ val\_range[idx];}
 \DoxyCodeLine{00383\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ new\_val\ =\ value\_idx\_in\_set[value];}
-\DoxyCodeLine{00384\ \ \ \ \ \ \ \ \ \ \ \ \ ensure(left\ <=\ new\_val\ and\ new\_val\ <=\ right,}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(left\ <=\ new\_val\ and\ new\_val\ <=\ right,}
 \DoxyCodeLine{00385\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}must\ not\ set\ to\ two\ different\ values"{}});}
 \DoxyCodeLine{00386\ \ \ \ \ \ \ \ \ \ \ \ \ left\ =\ right\ =\ new\_val;}
 \DoxyCodeLine{00387\ \ \ \ \ \ \ \ \ \}}
@@ -394,7 +394,7 @@
 \DoxyCodeLine{00390\ }
 \DoxyCodeLine{00391\ \ \ \ \ \textcolor{comment}{//\ Restricts\ sequences\ for\ sequence[idx\_1]\ =\ sequence[idx\_2].}}
 \DoxyCodeLine{00392\ \ \ \ \ sequence\ \&equal\_idx\_pair(\textcolor{keywordtype}{int}\ idx\_1,\ \textcolor{keywordtype}{int}\ idx\_2)\ \{}
-\DoxyCodeLine{00393\ \ \ \ \ \ \ \ \ ensure(0\ <=\ std::min(idx\_1,\ idx\_2)\ and\ std::max(idx\_1,\ idx\_2)\ <\ size,}
+\DoxyCodeLine{00393\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(0\ <=\ std::min(idx\_1,\ idx\_2)\ and\ std::max(idx\_1,\ idx\_2)\ <\ size,}
 \DoxyCodeLine{00394\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}indices\ must\ be\ valid"{}});}
 \DoxyCodeLine{00395\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (idx\_1\ ==\ idx\_2)}
 \DoxyCodeLine{00396\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
@@ -406,7 +406,7 @@
 \DoxyCodeLine{00402\ }
 \DoxyCodeLine{00403\ \ \ \ \ \textcolor{comment}{//\ Restricts\ sequences\ for\ sequence[left..right]\ to\ have\ all\ equal\ values.}}
 \DoxyCodeLine{00404\ \ \ \ \ sequence\ \&equal\_range(\textcolor{keywordtype}{int}\ left,\ \textcolor{keywordtype}{int}\ right)\ \{}
-\DoxyCodeLine{00405\ \ \ \ \ \ \ \ \ ensure(0\ <=\ left\ and\ left\ <=\ right\ and\ right\ <\ size,}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(0\ <=\ left\ and\ left\ <=\ right\ and\ right\ <\ size,}
 \DoxyCodeLine{00406\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}range\ indices\ bust\ be\ valid"{}});}
 \DoxyCodeLine{00407\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ left;\ i\ <\ right;\ ++i)}
 \DoxyCodeLine{00408\ \ \ \ \ \ \ \ \ \ \ \ \ equal\_idx\_pair(i,\ i\ +\ 1);}
@@ -680,7 +680,7 @@
 \DoxyCodeLine{00676\ }
 \DoxyCodeLine{00677\ \textcolor{comment}{//\ Chooses\ k\ values\ from\ the\ sequence,\ as\ in\ a\ subsequence\ of\ size\ k.}}
 \DoxyCodeLine{00678\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ INST>\ INST\ choose(\textcolor{keywordtype}{int}\ k,\ \textcolor{keyword}{const}\ INST\ \&inst)\ \{}
-\DoxyCodeLine{00679\ \ \ \ \ ensure(0\ <\ k\ and\ k\ <=\ inst.vec.size(),}
+\DoxyCodeLine{00679\ \ \ \ \ \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(0\ <\ k\ and\ k\ <=\ inst.vec.size(),}
 \DoxyCodeLine{00680\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}number\ of\ elements\ to\ choose\ must\ be\ valid"{}});}
 \DoxyCodeLine{00681\ \ \ \ \ std::vector<typename\ INST::value\_type>\ new\_vec;}
 \DoxyCodeLine{00682\ \ \ \ \ \textcolor{keywordtype}{int}\ need\ =\ k;}

@@ -1,44 +1,52 @@
 /**
  * @defgroup general Global Functions
- * @brief Random generation utilities.
+ * @brief Global setup and basic random generation.
  */
 
 
 /**
  * @ingroup general
- * @brief Generates a random selection of elements.
+ * @brief Ensures condition `cond` is true.
  *
- * ## Overview
+ * @param cond Condition to me ensured.
+ * @param ... Empty or a string with an error message.
  *
- * `gen_until` repeatedly calls a generator until a predicate
- * returns `true`, or a maximum number of tries is reached.
+ * @throws std::runtime_error if `cond` is not true.
  *
- * ### Properties
- *
- * - Stops early if predicate succeeds
- * - Deterministic given a deterministic generator
- * - Throws on failure (or returns `std::optional`)
- *
- * ### Example
+ * #### Examples
  *
  * ```cpp
- * auto inst = gen_until(100, [](const instance& x) {
- *     return x.size() >= 5;
- * });
+ * // Without error message:
+ * ensure(a == b);
+ * // With error message:
+ * ensure(a == b, "values must be the same");
  * ```
- * 
- *  <div class="tabbed">
- * 
- * - <b class="tab-title">Tab 1</b> This is the content of tab 1
- * - <b class="tab-title">Tab 2</b> This is the content of tab 2
- * 
- * </div>
- * 
- *
- * @param max_tries Maximum number of attempts.
- * @param predicate Callable of type `bool(instance)`.
- *
- * @note This function is guaranteed to terminate if
- *       the predicate is satisfiable.
  */
-instance gen_until(int max_tries, Predicate predicate);
+#define ensure(cond, ...)
+
+
+/**
+ * @ingroup general
+ * @brief Returns a random number in `[l, r]`.
+*
+ * @param l Left endpoint of the range.
+ * @param r Light endpoint of the range.
+ *
+ * @returns A random number in `[l, r]`, chosen uniformly.
+ *
+ * `T` can be either an integral type (`int`, `long long`, ...) or floating point (`float`, `double`).
+ 
+ * @note tmp
+ */
+template <typename T> T next(T l, T r);
+
+
+/**
+ * @ingroup general
+ * @brief Shuffles `[first, last)` inplace uniformly.
+*
+ * @param first First iterator of range.
+ * @param last First iterator outside of range.
+ *
+ */
+template <typename It> void shuffle(It first, It last);
