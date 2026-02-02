@@ -15,9 +15,11 @@
 
 namespace tgen {
 
-/********************
- * Global functions *
- ********************/
+/************************
+ *                      *
+ *   GLOBAL FUNCTIONS   *
+ *                      *
+ ************************/
 
 /*
  * Error handling.
@@ -311,9 +313,11 @@ void register_gen(int argc, char **argv) {
 	__parse_opts(argc, argv);
 }
 
-/********** *
- * Sequence *
- ************/
+/****************
+ *              *
+ *   SEQUENCE   *
+ *              *
+ ****************/
 
 void __sequence_contradiction_error(const std::string &msg = "") {
 	// Tried to generate a contradicting sequence.

@@ -1,0 +1,34 @@
+/**
+ * @file general.dox
+ * @brief High-level API documentation for tgen.
+ */
+
+/**
+ * @brief Generates a random selection of elements.
+ *
+ * ## Overview
+ *
+ * `gen_until` repeatedly calls a generator until a predicate
+ * returns `true`, or a maximum number of tries is reached.
+ *
+ * ### Properties
+ *
+ * - Stops early if predicate succeeds
+ * - Deterministic given a deterministic generator
+ * - Throws on failure (or returns `std::optional`)
+ *
+ * ### Example
+ *
+ * ```cpp
+ * auto inst = gen_until(100, [](const instance& x) {
+ *     return x.size() >= 5;
+ * });
+ * ```
+ *
+ * @param max_tries Maximum number of attempts.
+ * @param predicate Callable of type `bool(instance)`.
+ *
+ * @note This function is guaranteed to terminate if
+ *       the predicate is satisfiable.
+ */
+instance gen_until(int max_tries, Predicate predicate);
