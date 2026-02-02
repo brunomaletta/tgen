@@ -1,6 +1,6 @@
 # A library to generate testcases
 
-There are [general operations](https://brunomaletta.github.io/tgen/group__general.html) and operations on specific data types:
+There are [general operations](group__general.html) and operations on specific data types:
 
 - Sequences
 
