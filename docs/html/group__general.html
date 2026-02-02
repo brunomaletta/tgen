@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.14.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tgen: Global Functions</title>
+<title>tgen: General Operations</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -115,7 +115,7 @@ $(function(){initNavTree('group__general.html','',''); });
 </div>
 
 <div class="header">
-  <div class="headertitle"><div class="title">Global Functions </div></div>
+  <div class="headertitle"><div class="title">General Operations </div></div>
 </div><!--header-->
 <div class="contents">
 
@@ -124,29 +124,36 @@ $(function(){initNavTree('group__general.html','',''); });
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-define-members" class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:gaef8ae1775782023fe7997cc08c885714" id="r_gaef8ae1775782023fe7997cc08c885714"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaef8ae1775782023fe7997cc08c885714">ensure</a>(cond, ...)</td></tr>
-<tr class="memdesc:gaef8ae1775782023fe7997cc08c885714"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ensures condition <span class="tt">cond</span> is true.  <br /></td></tr>
+<tr class="memitem:gabc423cf4476d436001120351be24e896" id="r_gabc423cf4476d436001120351be24e896"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(cond, ...)</td></tr>
+<tr class="memdesc:gabc423cf4476d436001120351be24e896"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ensures condition <span class="tt">cond</span> is true.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:gaaa870ed79a9d059a05d624ea6e117da6" id="r_gaaa870ed79a9d059a05d624ea6e117da6"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
-<tr class="memitem:gaaa870ed79a9d059a05d624ea6e117da6 template"><td class="memItemLeft" align="right" valign="top">T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaaa870ed79a9d059a05d624ea6e117da6">next</a> (T l, T r)</td></tr>
-<tr class="memdesc:gaaa870ed79a9d059a05d624ea6e117da6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a random number in <span class="tt">[l, r]</span>.  <br /></td></tr>
-<tr class="memitem:ga46d528b15832a236580a18fda06d4ae9" id="r_ga46d528b15832a236580a18fda06d4ae9"><td class="memTemplParams" colspan="2">template&lt;typename It&gt; </td></tr>
-<tr class="memitem:ga46d528b15832a236580a18fda06d4ae9 template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga46d528b15832a236580a18fda06d4ae9">shuffle</a> (It first, It last)</td></tr>
-<tr class="memdesc:ga46d528b15832a236580a18fda06d4ae9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles <span class="tt">[first, last)</span> inplace uniformly.  <br /></td></tr>
+<tr class="memitem:ga44280fe72b435b46efd36b37000d72c3" id="r_ga44280fe72b435b46efd36b37000d72c3"><td class="memTemplParams" colspan="2">template&lt;typename C&gt; </td></tr>
+<tr class="memitem:ga44280fe72b435b46efd36b37000d72c3 template"><td class="memItemLeft" align="right" valign="top">C&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga44280fe72b435b46efd36b37000d72c3">shuffle</a> (C container)</td></tr>
+<tr class="memdesc:ga44280fe72b435b46efd36b37000d72c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles container uniformly. Returns a copy.  <br /></td></tr>
+<tr class="memitem:gac364a95e2272eb264f3133ee47660219" id="r_gac364a95e2272eb264f3133ee47660219"><td class="memTemplParams" colspan="2">template&lt;typename It&gt; </td></tr>
+<tr class="memitem:gac364a95e2272eb264f3133ee47660219 template"><td class="memItemLeft" align="right" valign="top">It::value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gac364a95e2272eb264f3133ee47660219">any</a> (It first, It last)</td></tr>
+<tr class="memdesc:gac364a95e2272eb264f3133ee47660219"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a random element from [first, last).  <br /></td></tr>
+<tr class="memitem:gaa007cf5e254380332a3548711d5f9b16" id="r_gaa007cf5e254380332a3548711d5f9b16"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:gaa007cf5e254380332a3548711d5f9b16 template"><td class="memItemLeft" align="right" valign="top">T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a> (T l, T r)</td></tr>
+<tr class="memdesc:gaa007cf5e254380332a3548711d5f9b16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a random number in <span class="tt">[l, r]</span>.  <br /></td></tr>
+<tr class="memitem:ga5494e4e347f9d1dc5b88695e0777f65b" id="r_ga5494e4e347f9d1dc5b88695e0777f65b"><td class="memTemplParams" colspan="2">template&lt;typename It&gt; </td></tr>
+<tr class="memitem:ga5494e4e347f9d1dc5b88695e0777f65b template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a> (It first, It last)</td></tr>
+<tr class="memdesc:ga5494e4e347f9d1dc5b88695e0777f65b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles <span class="tt">[first, last)</span> inplace uniformly.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <p>Global setup and basic random generation. </p>
+<p>Detailed description of General Operations. </p>
 <a name="doc-define-members" id="doc-define-members"></a><h2 id="header-doc-define-members" class="groupheader">Macro Definition Documentation</h2>
-<a id="gaef8ae1775782023fe7997cc08c885714" name="gaef8ae1775782023fe7997cc08c885714"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaef8ae1775782023fe7997cc08c885714">&#9670;&#160;</a></span>ensure</h2>
+<a id="gabc423cf4476d436001120351be24e896" name="gabc423cf4476d436001120351be24e896"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabc423cf4476d436001120351be24e896">&#9670;&#160;</a></span>tgen_ensure</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define ensure</td>
+          <td class="memname">#define tgen_ensure</td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>cond</em></span>, </td>
         </tr>
@@ -175,16 +182,49 @@ Functions</h2></td></tr>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Without error message:</span></div>
-<div class="line"><a class="code hl_define" href="#gaef8ae1775782023fe7997cc08c885714">ensure</a>(a == b);</div>
+<div class="line"><a class="code hl_define" href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(a == b);</div>
 <div class="line"><span class="comment">// With error message:</span></div>
-<div class="line"><a class="code hl_define" href="#gaef8ae1775782023fe7997cc08c885714">ensure</a>(a == b, <span class="stringliteral">&quot;values must be the same&quot;</span>);</div>
-<div class="ttc" id="agroup__general_html_gaef8ae1775782023fe7997cc08c885714"><div class="ttname"><a href="#gaef8ae1775782023fe7997cc08c885714">ensure</a></div><div class="ttdeci">#define ensure(cond,...)</div><div class="ttdoc">Ensures condition cond is true.</div><div class="ttdef"><b>Definition</b> general.dox:25</div></div>
+<div class="line"><a class="code hl_define" href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(a == b, <span class="stringliteral">&quot;values must be the same&quot;</span>);</div>
+<div class="ttc" id="agroup__general_html_gabc423cf4476d436001120351be24e896"><div class="ttname"><a href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a></div><div class="ttdeci">#define tgen_ensure(cond,...)</div><div class="ttdoc">Ensures condition cond is true.</div><div class="ttdef"><b>Definition</b> general.dox:27</div></div>
 </div><!-- fragment --> 
 </div>
 </div>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="gaaa870ed79a9d059a05d624ea6e117da6" name="gaaa870ed79a9d059a05d624ea6e117da6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaaa870ed79a9d059a05d624ea6e117da6">&#9670;&#160;</a></span>next()</h2>
+<a id="gac364a95e2272eb264f3133ee47660219" name="gac364a95e2272eb264f3133ee47660219"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac364a95e2272eb264f3133ee47660219">&#9670;&#160;</a></span>any()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename It&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">It::value_type any </td>
+          <td>(</td>
+          <td class="paramtype">It</td>          <td class="paramname"><span class="paramname"><em>first</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">It</td>          <td class="paramname"><span class="paramname"><em>last</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns a random element from [first, last). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">first</td><td>First iterator of range. </td></tr>
+    <tr><td class="paramname">last</td><td>First iterator outside of range.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A uniformly random element from the range <span class="tt">[first, last)</span>. </dd></dl>
+
+</div>
+</div>
+<a id="gaa007cf5e254380332a3548711d5f9b16" name="gaa007cf5e254380332a3548711d5f9b16"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa007cf5e254380332a3548711d5f9b16">&#9670;&#160;</a></span>next()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -192,7 +232,7 @@ Examples</h4>
 template&lt;typename T&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">T next </td>
+          <td class="memname">T tgen::next </td>
           <td>(</td>
           <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>l</em></span>, </td>
         </tr>
@@ -214,12 +254,44 @@ template&lt;typename T&gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A random number in <span class="tt">[l, r]</span>, chosen uniformly.</dd></dl>
 <p><span class="tt">T</span> can be either an integral type (<span class="tt">int</span>, <span class="tt">long long</span>, ...) or floating point (<span class="tt">float</span>, <span class="tt">double</span>).</p>
-<dl class="section note"><dt>Note</dt><dd>tmp </dd></dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md2"></a>
+Examples</h4>
+<div class="fragment"><div class="line"><span class="comment">// Random value from 1 to 10.</span></div>
+<div class="line"><span class="keywordtype">int</span> value = <a class="code hl_function" href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a>(1, 10);</div>
+<div class="ttc" id="agroup__general_html_gaa007cf5e254380332a3548711d5f9b16"><div class="ttname"><a href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a></div><div class="ttdeci">T next(T l, T r)</div><div class="ttdoc">Returns a random number in [l, r].</div><div class="ttdef"><b>Definition</b> tgen.h:63</div></div>
+</div><!-- fragment --> 
+</div>
+</div>
+<a id="ga44280fe72b435b46efd36b37000d72c3" name="ga44280fe72b435b46efd36b37000d72c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga44280fe72b435b46efd36b37000d72c3">&#9670;&#160;</a></span>shuffle() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename C&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">C shuffle </td>
+          <td>(</td>
+          <td class="paramtype">C</td>          <td class="paramname"><span class="paramname"><em>container</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Shuffles container uniformly. Returns a copy. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">container</td><td>Container to be shuffled.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A copy of the shuffled container. </dd></dl>
 
 </div>
 </div>
-<a id="ga46d528b15832a236580a18fda06d4ae9" name="ga46d528b15832a236580a18fda06d4ae9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga46d528b15832a236580a18fda06d4ae9">&#9670;&#160;</a></span>shuffle()</h2>
+<a id="ga5494e4e347f9d1dc5b88695e0777f65b" name="ga5494e4e347f9d1dc5b88695e0777f65b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5494e4e347f9d1dc5b88695e0777f65b">&#9670;&#160;</a></span>shuffle() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -227,7 +299,7 @@ template&lt;typename T&gt; </div>
 template&lt;typename It&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">void shuffle </td>
+          <td class="memname">void tgen::shuffle </td>
           <td>(</td>
           <td class="paramtype">It</td>          <td class="paramname"><span class="paramname"><em>first</em></span>, </td>
         </tr>

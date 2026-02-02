@@ -15,11 +15,11 @@
 
 namespace tgen {
 
-/************************
- *                      *
- *   GLOBAL FUNCTIONS   *
- *                      *
- ************************/
+/**************************
+ *                        *
+ *   GENERAL OPERATIONS   *
+ *                        *
+ **************************/
 
 /*
  * Error handling.
@@ -38,7 +38,7 @@ std::runtime_error __error(const std::string &msg) {
 }
 
 // Ensures condition is true, with nice debug.
-#define ensure(cond, ...)                                                      \
+#define tgen_ensure(cond, ...)                                                 \
 	if (!(cond))                                                               \
 		__throw_assertion_error(#cond, __VA_ARGS__);
 
@@ -49,12 +49,12 @@ std::runtime_error __error(const std::string &msg) {
 std::mt19937 __rng;
 
 template <typename T> T __next_integral(T l, T r) {
-	ensure(l <= r, "range for `next` bust be valid");
+	tgen_ensure(l <= r, "range for `next` bust be valid");
 	std::uniform_int_distribution<T> dist(l, r);
 	return dist(__rng);
 }
 double __next_double(double l, double r) {
-	ensure(l <= r, "range for `next` bust be valid");
+	tgen_ensure(l <= r, "range for `next` bust be valid");
 	std::uniform_real_distribution<double> dist(l, r);
 	return dist(__rng);
 }
@@ -91,7 +91,7 @@ template <typename C> C shuffle(C container) {
 	return container;
 }
 
-// Returns uniformly element from [first, last).
+// Returns a random element from [first, last).
 template <typename It> typename It::value_type any(It first, It last) {
 	int size = std::distance(first, last);
 	It it = first;
@@ -99,7 +99,7 @@ template <typename It> typename It::value_type any(It first, It last) {
 	return *it;
 }
 
-// Returns uniformly element from container.
+// Returns a random element from container.
 template <typename C> typename C::value_type any(const C &container) {
 	return any(container.begin(), container.end());
 }
@@ -107,8 +107,8 @@ template <typename C> typename C::value_type any(const C &container) {
 // Chooses k values from the container, as in a subsequence of size k. Returns a
 // copy.
 template <typename C> C choose(int k, const C &container) {
-	ensure(0 < k and k <= container.size(),
-		   "number of elements to choose must be valid");
+	tgen_ensure(0 < k and k <= container.size(),
+				"number of elements to choose must be valid");
 	std::vector<typename C::value_type> new_vec;
 	C new_container;
 	int need = k, left = container.size();
@@ -193,7 +193,7 @@ template <typename T> T __get_opt(const std::string &value) {
 
 // Returns the parsed opt by a given index.
 template <typename T> T opt(int index) {
-	ensure(has_opt(index), "cannot find key with index " + index);
+	tgen_ensure(has_opt(index), "cannot find key with index " + index);
 	return __get_opt<T>(__pos_opts[index]);
 }
 
@@ -207,7 +207,7 @@ template <typename T> T opt(int index, const T &default_value) {
 
 // Returns the parsed opt by a given key.
 template <typename T> T opt(const std::string &key) {
-	ensure(has_opt(key), "cannot find key with key " + key);
+	tgen_ensure(has_opt(key), "cannot find key with key " + key);
 	return __get_opt<T>(__named_opts[key]);
 }
 
@@ -220,7 +220,7 @@ template <typename T> T opt(const std::string &key, const T &default_value) {
 }
 
 char __fetch_char(char *s, int idx) {
-	ensure(s[idx] != '\n', "tried to fetch end of string");
+	tgen_ensure(s[idx] != '\n', "tried to fetch end of string");
 	return s[idx];
 }
 std::string __read_until(char *s) {
@@ -234,7 +234,7 @@ std::string __read_until(char *s) {
 		read_str += nxt_char;
 	}
 
-	ensure(read_str.size() > 0, "read string cannot be empty");
+	tgen_ensure(read_str.size() > 0, "read string cannot be empty");
 	return read_str;
 }
 void __parse_opts(int argc, char **argv) {
@@ -244,8 +244,8 @@ void __parse_opts(int argc, char **argv) {
 		std::string key = __read_until(argv[i]);
 
 		if (key[0] == '-') {
-			ensure(key.size() > 1,
-				   "invalid opt (" + std::string(argv[i]) + ")");
+			tgen_ensure(key.size() > 1,
+						"invalid opt (" + std::string(argv[i]) + ")");
 			if (isdigit(key[1])) {
 				// This case is a positional negative number argument
 				__pos_opts.push_back(key);
@@ -262,8 +262,8 @@ void __parse_opts(int argc, char **argv) {
 
 		// Pops a possible second char '-'.
 		if (key[0] == '-') {
-			ensure(key.size() > 1,
-				   "invalid opt (" + std::string(argv[i]) + ")");
+			tgen_ensure(key.size() > 1,
+						"invalid opt (" + std::string(argv[i]) + ")");
 
 			// pops first char '-'
 			key = key.substr(1);
@@ -278,14 +278,17 @@ void __parse_opts(int argc, char **argv) {
 			// This is the '--key=value' case.
 			std::string value = key.substr(eq + 1);
 			key = key.substr(0, eq);
-			ensure(key.size() > 0 and value.size() > 0, "expected non-empty\
+			tgen_ensure(
+				key.size() > 0 and value.size() > 0, "expected non-empty\
 						key/value in opt (" + std::string(argv[1]));
-			ensure(__named_opts.count(key) == 0, "cannot have repeated keys");
+			tgen_ensure(__named_opts.count(key) == 0,
+						"cannot have repeated keys");
 			__named_opts[key] = value;
 		} else {
 			// This is the '--key value' case.
-			ensure(__named_opts.count(key) == 0, "cannot have repeated keys");
-			ensure(argv[i + 1], "value cannot be empty");
+			tgen_ensure(__named_opts.count(key) == 0,
+						"cannot have repeated keys");
+			tgen_ensure(argv[i + 1], "value cannot be empty");
 			__named_opts[key] = __read_until(argv[i + 1]);
 			i++;
 		}
@@ -348,7 +351,7 @@ template <typename T> struct sequence {
 	// Creates generator for sequences of size 'size', with random T in [l, r]
 	sequence(int size_, T value_l_, T value_r_)
 		: size(size_), value_l(value_l_), value_r(value_r_), neigh(size) {
-		ensure(value_l <= value_r, "value range must be valid");
+		tgen_ensure(value_l <= value_r, "value range must be valid");
 		for (int i = 0; i < size; ++i)
 			val_range.emplace_back(value_l, value_r);
 	}
@@ -356,7 +359,7 @@ template <typename T> struct sequence {
 	// Creates sequence with value set.
 	sequence(int size_, const std::set<T> &values_)
 		: size(size_), values(values_), neigh(size) {
-		ensure(values.size() > 0, "must have at least one value");
+		tgen_ensure(values.size() > 0, "must have at least one value");
 		value_l = 0, value_r = values.size() - 1;
 		for (int i = 0; i < size; ++i)
 			val_range.emplace_back(value_l, value_r);
@@ -371,18 +374,19 @@ template <typename T> struct sequence {
 
 	// Restricts sequences for sequence[idx] = value.
 	sequence &value_at_idx(int idx, T value) {
-		ensure(0 <= idx and idx < size, "index must be valid");
+		tgen_ensure(0 <= idx and idx < size, "index must be valid");
 		if (values.size() == 0) {
 			auto &[left, right] = val_range[idx];
-			ensure(left <= value and value <= right,
-				   "value must be in the defined range");
+			tgen_ensure(left <= value and value <= right,
+						"value must be in the defined range");
 			left = right = value;
 		} else {
-			ensure(values.count(value), "value must be in the set of values");
+			tgen_ensure(values.count(value),
+						"value must be in the set of values");
 			auto &[left, right] = val_range[idx];
 			int new_val = value_idx_in_set[value];
-			ensure(left <= new_val and new_val <= right,
-				   "must not set to two different values");
+			tgen_ensure(left <= new_val and new_val <= right,
+						"must not set to two different values");
 			left = right = new_val;
 		}
 		return *this;
@@ -390,8 +394,9 @@ template <typename T> struct sequence {
 
 	// Restricts sequences for sequence[idx_1] = sequence[idx_2].
 	sequence &equal_idx_pair(int idx_1, int idx_2) {
-		ensure(0 <= std::min(idx_1, idx_2) and std::max(idx_1, idx_2) < size,
-			   "indices must be valid");
+		tgen_ensure(0 <= std::min(idx_1, idx_2) and
+						std::max(idx_1, idx_2) < size,
+					"indices must be valid");
 		if (idx_1 == idx_2)
 			return *this;
 
@@ -402,8 +407,8 @@ template <typename T> struct sequence {
 
 	// Restricts sequences for sequence[left..right] to have all equal values.
 	sequence &equal_range(int left, int right) {
-		ensure(0 <= left and left <= right and right < size,
-			   "range indices bust be valid");
+		tgen_ensure(0 <= left and left <= right and right < size,
+					"range indices bust be valid");
 		for (int i = left; i < right; ++i)
 			equal_idx_pair(i, i + 1);
 		return *this;
@@ -676,8 +681,8 @@ template <typename INST> typename INST::value_type any(const INST &inst) {
 
 // Chooses k values from the sequence, as in a subsequence of size k.
 template <typename INST> INST choose(int k, const INST &inst) {
-	ensure(0 < k and k <= inst.vec.size(),
-		   "number of elements to choose must be valid");
+	tgen_ensure(0 < k and k <= inst.vec.size(),
+				"number of elements to choose must be valid");
 	std::vector<typename INST::value_type> new_vec;
 	int need = k;
 	for (int i = 0; need > 0; ++i) {

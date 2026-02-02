@@ -1,6 +1,8 @@
 /**
- * @defgroup general Global Functions
+ * @defgroup general General Operations
  * @brief Global setup and basic random generation.
+ *
+ * Detailed description of General Operations.
  */
 
 
@@ -17,12 +19,12 @@
  *
  * ```cpp
  * // Without error message:
- * ensure(a == b);
+ * tgen_ensure(a == b);
  * // With error message:
- * ensure(a == b, "values must be the same");
+ * tgen_ensure(a == b, "values must be the same");
  * ```
  */
-#define ensure(cond, ...)
+#define tgen_ensure(cond, ...)
 
 
 /**
@@ -35,18 +37,48 @@
  * @returns A random number in `[l, r]`, chosen uniformly.
  *
  * `T` can be either an integral type (`int`, `long long`, ...) or floating point (`float`, `double`).
- 
- * @note tmp
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Random value from 1 to 10.
+ * int value = tgen::next(1, 10);
+ * ```
  */
-template <typename T> T next(T l, T r);
+template <typename T> T tgen::next(T l, T r);
 
 
 /**
  * @ingroup general
  * @brief Shuffles `[first, last)` inplace uniformly.
-*
+ *
  * @param first First iterator of range.
  * @param last First iterator outside of range.
  *
  */
-template <typename It> void shuffle(It first, It last);
+template <typename It> void tgen::shuffle(It first, It last);
+
+
+/**
+ * @ingroup general
+ * @brief Shuffles container uniformly. Returns a copy.
+ *
+ * @param container Container to be shuffled.
+ *
+ * @returns A copy of the shuffled container.
+ *
+ */
+template <typename C> C shuffle(C container);
+
+
+/**
+ * @ingroup general
+ * @brief Returns a random element from [first, last).
+ *
+ * @param first First iterator of range.
+ * @param last First iterator outside of range.
+ *
+ * @returns A uniformly random element from the range `[first, last)`.
+ *
+ */
+template <typename It> typename It::value_type any(It first, It last);

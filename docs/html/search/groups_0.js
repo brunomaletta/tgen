@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['functions_0',['Global Functions',['../group__general.html',1,'']]]
+  ['general_20operations_0',['General Operations',['../group__general.html',1,'']]]
 ];

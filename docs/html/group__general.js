@@ -1,6 +1,8 @@
 var group__general =
 [
-    [ "ensure", "group__general.html#gaef8ae1775782023fe7997cc08c885714", null ],
-    [ "next", "group__general.html#gaaa870ed79a9d059a05d624ea6e117da6", null ],
-    [ "shuffle", "group__general.html#ga46d528b15832a236580a18fda06d4ae9", null ]
+    [ "tgen_ensure", "group__general.html#gabc423cf4476d436001120351be24e896", null ],
+    [ "any", "group__general.html#gac364a95e2272eb264f3133ee47660219", null ],
+    [ "tgen::next", "group__general.html#gaa007cf5e254380332a3548711d5f9b16", null ],
+    [ "shuffle", "group__general.html#ga44280fe72b435b46efd36b37000d72c3", null ],
+    [ "tgen::shuffle", "group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b", null ]
 ];

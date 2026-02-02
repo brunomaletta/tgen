@@ -1,4 +1,4 @@
 var topics =
 [
-    [ "Global Functions", "group__general.html", "group__general" ]
+    [ "General Operations", "group__general.html", "group__general" ]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['shuffle_0',['shuffle',['../group__general.html#ga46d528b15832a236580a18fda06d4ae9',1,'general.dox']]]
+  ['next_0',['next',['../group__general.html#gaa007cf5e254380332a3548711d5f9b16',1,'tgen']]]
 ];

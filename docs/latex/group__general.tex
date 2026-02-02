@@ -1,5 +1,5 @@
-\doxysection{Global Functions }
-\hypertarget{group__general}{}\label{group__general}\index{Global Functions@{Global Functions}}
+\doxysection{General Operations }
+\hypertarget{group__general}{}\label{group__general}\index{General Operations@{General Operations}}
 
 
 Global setup and basic random generation.  
@@ -8,30 +8,34 @@ Global setup and basic random generation.
 \doxysubsubsection*{Macros}
 \begin{DoxyCompactItemize}
 \item 
-\#define \mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(cond, ...)
+\#define \mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\+\_\+ensure}}(cond, ...)
 \begin{DoxyCompactList}\small\item\em Ensures condition {\ttfamily cond} is true. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\footnotesize template$<$typename T$>$ }\\T \mbox{\hyperlink{group__general_gaaa870ed79a9d059a05d624ea6e117da6}{next}} (T l, T r)
+{\footnotesize template$<$typename C$>$ }\\C \mbox{\hyperlink{group__general_ga44280fe72b435b46efd36b37000d72c3}{shuffle}} (C container)
+\begin{DoxyCompactList}\small\item\em Shuffles container uniformly. Returns a copy. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename It$>$ }\\It\+::value\+\_\+type \mbox{\hyperlink{group__general_gac364a95e2272eb264f3133ee47660219}{any}} (It first, It last)
+\begin{DoxyCompactList}\small\item\em Returns a random element from \mbox{[}first, last). \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename T$>$ }\\T \mbox{\hyperlink{group__general_gaa007cf5e254380332a3548711d5f9b16}{tgen\+::next}} (T l, T r)
 \begin{DoxyCompactList}\small\item\em Returns a random number in {\ttfamily \mbox{[}l, r\mbox{]}}. \end{DoxyCompactList}\item 
-{\footnotesize template$<$typename It$>$ }\\void \mbox{\hyperlink{group__general_ga46d528b15832a236580a18fda06d4ae9}{shuffle}} (It first, It last)
+{\footnotesize template$<$typename It$>$ }\\void \mbox{\hyperlink{group__general_ga5494e4e347f9d1dc5b88695e0777f65b}{tgen\+::shuffle}} (It first, It last)
 \begin{DoxyCompactList}\small\item\em Shuffles {\ttfamily \mbox{[}first, last)} inplace uniformly. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
 Global setup and basic random generation. 
 
-
+Detailed description of General Operations. 
 
 \label{doc-define-members}
 \Hypertarget{group__general_doc-define-members}
 \doxysubsection{Macro Definition Documentation}
-\Hypertarget{group__general_gaef8ae1775782023fe7997cc08c885714}\index{Global Functions@{Global Functions}!ensure@{ensure}}
-\index{ensure@{ensure}!Global Functions@{Global Functions}}
-\doxysubsubsection{\texorpdfstring{ensure}{ensure}}
-{\footnotesize\ttfamily \label{group__general_gaef8ae1775782023fe7997cc08c885714} 
-\#define ensure(\begin{DoxyParamCaption}\item[{}]{cond}{, }\item[{}]{}...{}\end{DoxyParamCaption})}
+\Hypertarget{group__general_gabc423cf4476d436001120351be24e896}\index{General Operations@{General Operations}!tgen\_ensure@{tgen\_ensure}}
+\index{tgen\_ensure@{tgen\_ensure}!General Operations@{General Operations}}
+\doxysubsubsection{\texorpdfstring{tgen\_ensure}{tgen\_ensure}}
+{\footnotesize\ttfamily \label{group__general_gabc423cf4476d436001120351be24e896} 
+\#define tgen\+\_\+ensure(\begin{DoxyParamCaption}\item[{}]{cond}{, }\item[{}]{}...{}\end{DoxyParamCaption})}
 
 
 
@@ -53,9 +57,9 @@ Ensures condition {\ttfamily cond} is true.
 
 \begin{DoxyCode}{0}
 \DoxyCodeLine{\textcolor{comment}{//\ Without\ error\ message:}}
-\DoxyCodeLine{\mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(a\ ==\ b);}
+\DoxyCodeLine{\mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\_ensure}}(a\ ==\ b);}
 \DoxyCodeLine{\textcolor{comment}{//\ With\ error\ message:}}
-\DoxyCodeLine{\mbox{\hyperlink{group__general_gaef8ae1775782023fe7997cc08c885714}{ensure}}(a\ ==\ b,\ \textcolor{stringliteral}{"{}values\ must\ be\ the\ same"{}});}
+\DoxyCodeLine{\mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\_ensure}}(a\ ==\ b,\ \textcolor{stringliteral}{"{}values\ must\ be\ the\ same"{}});}
 
 \end{DoxyCode}
  
@@ -63,12 +67,33 @@ Ensures condition {\ttfamily cond} is true.
 \label{doc-func-members}
 \Hypertarget{group__general_doc-func-members}
 \doxysubsection{Function Documentation}
-\Hypertarget{group__general_gaaa870ed79a9d059a05d624ea6e117da6}\index{Global Functions@{Global Functions}!next@{next}}
-\index{next@{next}!Global Functions@{Global Functions}}
+\Hypertarget{group__general_gac364a95e2272eb264f3133ee47660219}\index{General Operations@{General Operations}!any@{any}}
+\index{any@{any}!General Operations@{General Operations}}
+\doxysubsubsection{\texorpdfstring{any()}{any()}}
+{\footnotesize\ttfamily \label{group__general_gac364a95e2272eb264f3133ee47660219} 
+template$<$typename It$>$ \\
+It\+::value\+\_\+type any (\begin{DoxyParamCaption}\item[{It}]{first}{, }\item[{It}]{last}{}\end{DoxyParamCaption})}
+
+
+
+Returns a random element from \mbox{[}first, last). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em first} & First iterator of range. \\
+\hline
+{\em last} & First iterator outside of range.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A uniformly random element from the range {\ttfamily \mbox{[}first, last)}. 
+\end{DoxyReturn}
+\Hypertarget{group__general_gaa007cf5e254380332a3548711d5f9b16}\index{General Operations@{General Operations}!next@{next}}
+\index{next@{next}!General Operations@{General Operations}}
 \doxysubsubsection{\texorpdfstring{next()}{next()}}
-{\footnotesize\ttfamily \label{group__general_gaaa870ed79a9d059a05d624ea6e117da6} 
+{\footnotesize\ttfamily \label{group__general_gaa007cf5e254380332a3548711d5f9b16} 
 template$<$typename T$>$ \\
-T next (\begin{DoxyParamCaption}\item[{T}]{l}{, }\item[{T}]{r}{}\end{DoxyParamCaption})}
+T tgen\+::next (\begin{DoxyParamCaption}\item[{T}]{l}{, }\item[{T}]{r}{}\end{DoxyParamCaption})}
 
 
 
@@ -84,17 +109,38 @@ Returns a random number in {\ttfamily \mbox{[}l, r\mbox{]}}.
 \begin{DoxyReturn}{Returns}
 A random number in {\ttfamily \mbox{[}l, r\mbox{]}}, chosen uniformly.
 \end{DoxyReturn}
-{\ttfamily T} can be either an integral type ({\ttfamily int}, {\ttfamily long long}, ...) or floating point ({\ttfamily float}, {\ttfamily double}).
+{\ttfamily T} can be either an integral type ({\ttfamily int}, {\ttfamily long long}, ...) or floating point ({\ttfamily float}, {\ttfamily double}).\hypertarget{group__general_autotoc_md2}{}\doxysubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__general_autotoc_md2}
 
-\begin{DoxyNote}{Note}
-tmp 
-\end{DoxyNote}
-\Hypertarget{group__general_ga46d528b15832a236580a18fda06d4ae9}\index{Global Functions@{Global Functions}!shuffle@{shuffle}}
-\index{shuffle@{shuffle}!Global Functions@{Global Functions}}
-\doxysubsubsection{\texorpdfstring{shuffle()}{shuffle()}}
-{\footnotesize\ttfamily \label{group__general_ga46d528b15832a236580a18fda06d4ae9} 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{comment}{//\ Random\ value\ from\ 1\ to\ 10.}}
+\DoxyCodeLine{\textcolor{keywordtype}{int}\ value\ =\ \mbox{\hyperlink{group__general_gaa007cf5e254380332a3548711d5f9b16}{tgen::next}}(1,\ 10);}
+
+\end{DoxyCode}
+ \Hypertarget{group__general_ga44280fe72b435b46efd36b37000d72c3}\index{General Operations@{General Operations}!shuffle@{shuffle}}
+\index{shuffle@{shuffle}!General Operations@{General Operations}}
+\doxysubsubsection{\texorpdfstring{shuffle()}{shuffle()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \label{group__general_ga44280fe72b435b46efd36b37000d72c3} 
+template$<$typename C$>$ \\
+C shuffle (\begin{DoxyParamCaption}\item[{C}]{container}{}\end{DoxyParamCaption})}
+
+
+
+Shuffles container uniformly. Returns a copy. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em container} & Container to be shuffled.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A copy of the shuffled container. 
+\end{DoxyReturn}
+\Hypertarget{group__general_ga5494e4e347f9d1dc5b88695e0777f65b}\index{General Operations@{General Operations}!shuffle@{shuffle}}
+\index{shuffle@{shuffle}!General Operations@{General Operations}}
+\doxysubsubsection{\texorpdfstring{shuffle()}{shuffle()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \label{group__general_ga5494e4e347f9d1dc5b88695e0777f65b} 
 template$<$typename It$>$ \\
-void shuffle (\begin{DoxyParamCaption}\item[{It}]{first}{, }\item[{It}]{last}{}\end{DoxyParamCaption})}
+void tgen\+::shuffle (\begin{DoxyParamCaption}\item[{It}]{first}{, }\item[{It}]{last}{}\end{DoxyParamCaption})}
 
 
 

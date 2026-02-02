@@ -135,11 +135,11 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">namespace </span>tgen {</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">/************************</span></div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment"> *                      *</span></div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment"> *   GLOBAL FUNCTIONS   *</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment"> *                      *</span></div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="comment"> ************************/</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">/**************************</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment"> *                        *</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment"> *   GENERAL OPERATIONS   *</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment"> *                        *</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="comment"> **************************/</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">/*</span></div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment"> * Error handling.</span></div>
@@ -158,7 +158,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>}</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="comment">// Ensures condition is true, with nice debug.</span></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="preprocessor">#define ensure(cond, ...)                                                      \</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="preprocessor">#define tgen_ensure(cond, ...)                                                 \</span></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">    if (!(cond))                                                               \</span></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="preprocessor">        __throw_assertion_error(#cond, __VA_ARGS__);</span></div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
@@ -169,18 +169,19 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>std::mt19937 __rng;</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; T __next_integral(T l, T r) {</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(l &lt;= r, <span class="stringliteral">&quot;range for `next` bust be valid&quot;</span>);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(l &lt;= r, <span class="stringliteral">&quot;range for `next` bust be valid&quot;</span>);</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    std::uniform_int_distribution&lt;T&gt; dist(l, r);</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordflow">return</span> dist(__rng);</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>}</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="keywordtype">double</span> __next_double(<span class="keywordtype">double</span> l, <span class="keywordtype">double</span> r) {</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(l &lt;= r, <span class="stringliteral">&quot;range for `next` bust be valid&quot;</span>);</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(l &lt;= r, <span class="stringliteral">&quot;range for `next` bust be valid&quot;</span>);</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    std::uniform_real_distribution&lt;double&gt; dist(l, r);</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordflow">return</span> dist(__rng);</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>}</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="comment">// Returns a random number in [l, r].</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; T next(T l, T r) {</div>
+<div class="foldopen" id="foldopen00063" data-start="{" data-end="}">
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno"><a class="line" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">   63</a></span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; T <a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next</a>(T l, T r) {</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">if</span> (std::is_integral&lt;T&gt;())</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        <span class="keywordflow">return</span> __next_integral&lt;T&gt;(l, r);</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="keywordflow">if</span> (std::is_floating_point&lt;T&gt;())</div>
@@ -188,38 +189,41 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keywordflow">throw</span> __error(<span class="stringliteral">&quot;invalid type for next (&quot;</span> + std::string(<span class="keyword">typeid</span>(T).name()) +</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>                  <span class="stringliteral">&quot;)&quot;</span>);</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>}</div>
+</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="comment">// Returns an equiprobable value from the regex.</span></div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="comment">// For example, next(&quot;(a|b|c){10}|[a-c]{1,5}&quot;) returns either 10 chars in {&#39;a&#39;,</span></div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="comment">// &#39;b&#39;, &#39;c&#39;}, or from 1 to 5 &#39;c&#39;s.</span></div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="keywordtype">void</span> next(std::string regex) {</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="keywordtype">void</span> <a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next</a>(std::string regex) {</div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="comment">// TODO</span></div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>}</div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="comment">// Shuffles [first, last) inplace uniformly.</span></div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> It&gt; <span class="keywordtype">void</span> shuffle(It first, It last) {</div>
+<div class="foldopen" id="foldopen00080" data-start="{" data-end="}">
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno"><a class="line" href="group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b">   80</a></span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> It&gt; <span class="keywordtype">void</span> <a class="code hl_function" href="group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b">shuffle</a>(It first, It last) {</div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keywordflow">if</span> (first == last)</div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        <span class="keywordflow">return</span>;</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="keywordflow">for</span> (It i = first + 1; i != last; ++i)</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        std::iter_swap(i, first + next(0, <span class="keywordtype">int</span>(i - first)));</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        std::iter_swap(i, first + <a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next</a>(0, <span class="keywordtype">int</span>(i - first)));</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>}</div>
+</div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span><span class="comment">// Shuffles container uniformly. Returns a copy.</span></div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> C&gt; C shuffle(C container) {</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    shuffle(container.begin(), container.end());</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> C&gt; C <a class="code hl_function" href="group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b">shuffle</a>(C container) {</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <a class="code hl_function" href="group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b">shuffle</a>(container.begin(), container.end());</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordflow">return</span> container;</div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>}</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="comment">// Returns uniformly element from [first, last).</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="comment">// Returns a random element from [first, last).</span></div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> It&gt; <span class="keyword">typename</span> It::value_type any(It first, It last) {</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keywordtype">int</span> size = std::distance(first, last);</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    It it = first;</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    std::advance(it, next(0, size - 1));</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    std::advance(it, <a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next</a>(0, size - 1));</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordflow">return</span> *it;</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>}</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="comment">// Returns uniformly element from container.</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="comment">// Returns a random element from container.</span></div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> C&gt; <span class="keyword">typename</span> C::value_type any(<span class="keyword">const</span> C &amp;container) {</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <span class="keywordflow">return</span> any(container.begin(), container.end());</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>}</div>
@@ -227,13 +231,13 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="comment">// Chooses k values from the container, as in a subsequence of size k. Returns a</span></div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="comment">// copy.</span></div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> C&gt; C choose(<span class="keywordtype">int</span> k, <span class="keyword">const</span> C &amp;container) {</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(0 &lt; k and k &lt;= container.size(),</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>           <span class="stringliteral">&quot;number of elements to choose must be valid&quot;</span>);</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(0 &lt; k and k &lt;= container.size(),</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>                <span class="stringliteral">&quot;number of elements to choose must be valid&quot;</span>);</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    std::vector&lt;typename C::value_type&gt; new_vec;</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    C new_container;</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordtype">int</span> need = k, left = container.size();</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> cur_it = container.begin(); cur_it != container.end(); ++cur_it) {</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        <span class="keywordflow">if</span> (next(1, left--) &lt;= need) {</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        <span class="keywordflow">if</span> (<a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next</a>(1, left--) &lt;= need) {</div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>            new_container.insert(new_container.end(), *cur_it);</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>            need--;</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        }</div>
@@ -313,7 +317,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span> </div>
 <div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span><span class="comment">// Returns the parsed opt by a given index.</span></div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; T opt(<span class="keywordtype">int</span> index) {</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(has_opt(index), <span class="stringliteral">&quot;cannot find key with index &quot;</span> + index);</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(has_opt(index), <span class="stringliteral">&quot;cannot find key with index &quot;</span> + index);</div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="keywordflow">return</span> __get_opt&lt;T&gt;(__pos_opts[index]);</div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>}</div>
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
@@ -327,7 +331,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span><span class="comment">// Returns the parsed opt by a given key.</span></div>
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; T opt(<span class="keyword">const</span> std::string &amp;key) {</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(has_opt(key), <span class="stringliteral">&quot;cannot find key with key &quot;</span> + key);</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(has_opt(key), <span class="stringliteral">&quot;cannot find key with key &quot;</span> + key);</div>
 <div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    <span class="keywordflow">return</span> __get_opt&lt;T&gt;(__named_opts[key]);</div>
 <div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>}</div>
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span> </div>
@@ -340,7 +344,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>}</div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span> </div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span><span class="keywordtype">char</span> __fetch_char(<span class="keywordtype">char</span> *s, <span class="keywordtype">int</span> idx) {</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(s[idx] != <span class="charliteral">&#39;\n&#39;</span>, <span class="stringliteral">&quot;tried to fetch end of string&quot;</span>);</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(s[idx] != <span class="charliteral">&#39;\n&#39;</span>, <span class="stringliteral">&quot;tried to fetch end of string&quot;</span>);</div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keywordflow">return</span> s[idx];</div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>}</div>
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>std::string __read_until(<span class="keywordtype">char</span> *s) {</div>
@@ -354,7 +358,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>        read_str += nxt_char;</div>
 <div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    }</div>
 <div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span> </div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(read_str.size() &gt; 0, <span class="stringliteral">&quot;read string cannot be empty&quot;</span>);</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(read_str.size() &gt; 0, <span class="stringliteral">&quot;read string cannot be empty&quot;</span>);</div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    <span class="keywordflow">return</span> read_str;</div>
 <div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>}</div>
 <div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="keywordtype">void</span> __parse_opts(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv) {</div>
@@ -364,8 +368,8 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>        std::string key = __read_until(argv[i]);</div>
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>        <span class="keywordflow">if</span> (key[0] == <span class="charliteral">&#39;-&#39;</span>) {</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(key.size() &gt; 1,</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>                   <span class="stringliteral">&quot;invalid opt (&quot;</span> + std::string(argv[i]) + <span class="stringliteral">&quot;)&quot;</span>);</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>            <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(key.size() &gt; 1,</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>                        <span class="stringliteral">&quot;invalid opt (&quot;</span> + std::string(argv[i]) + <span class="stringliteral">&quot;)&quot;</span>);</div>
 <div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>            <span class="keywordflow">if</span> (isdigit(key[1])) {</div>
 <div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>                <span class="comment">// This case is a positional negative number argument</span></div>
 <div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>                __pos_opts.push_back(key);</div>
@@ -382,8 +386,8 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
 <div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>        <span class="comment">// Pops a possible second char &#39;-&#39;.</span></div>
 <div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>        <span class="keywordflow">if</span> (key[0] == <span class="charliteral">&#39;-&#39;</span>) {</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(key.size() &gt; 1,</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>                   <span class="stringliteral">&quot;invalid opt (&quot;</span> + std::string(argv[i]) + <span class="stringliteral">&quot;)&quot;</span>);</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>            <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(key.size() &gt; 1,</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>                        <span class="stringliteral">&quot;invalid opt (&quot;</span> + std::string(argv[i]) + <span class="stringliteral">&quot;)&quot;</span>);</div>
 <div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span> </div>
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>            <span class="comment">// pops first char &#39;-&#39;</span></div>
 <div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>            key = key.substr(1);</div>
@@ -398,427 +402,434 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>            <span class="comment">// This is the &#39;--key=value&#39; case.</span></div>
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>            std::string value = key.substr(eq + 1);</div>
 <div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>            key = key.substr(0, eq);</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(key.size() &gt; 0 and value.size() &gt; 0, <span class="stringliteral">&quot;expected non-empty\</span></div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span><span class="stringliteral">                        key/value in opt (&quot;</span> + std::string(argv[1]));</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(__named_opts.count(key) == 0, <span class="stringliteral">&quot;cannot have repeated keys&quot;</span>);</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>            __named_opts[key] = value;</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>        } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>            <span class="comment">// This is the &#39;--key value&#39; case.</span></div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(__named_opts.count(key) == 0, <span class="stringliteral">&quot;cannot have repeated keys&quot;</span>);</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(argv[i + 1], <span class="stringliteral">&quot;value cannot be empty&quot;</span>);</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>            __named_opts[key] = __read_until(argv[i + 1]);</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>            i++;</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>        }</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    }</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>}</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span> </div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span><span class="comment">// Registers generator by initializing rnd and parsing opts.</span></div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span><span class="comment">// Argument &#39;version&#39; is unused.</span></div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span><span class="keywordtype">void</span> register_gen(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv) {</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>    std::vector&lt;uint32_t&gt; seed;</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    <span class="comment">// Starting from 1 to ignore the name of the executable.</span></div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt; argc; ++i) {</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>        <span class="comment">// We append the number of chars, and then the list of chars.</span></div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>        <span class="keywordtype">int</span> size_pos = seed.size();</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>        seed.push_back(0);</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>        <span class="keywordflow">for</span> (<span class="keywordtype">char</span> *s = argv[i]; *s != <span class="charliteral">&#39;\0&#39;</span>; ++s) {</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>            ++seed[size_pos];</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>            seed.push_back(*s);</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>        }</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>    }</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>    std::seed_seq seq(seed.begin(), seed.end());</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>    __rng.seed(seq);</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>    __parse_opts(argc, argv);</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>}</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>            <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>                key.size() &gt; 0 and value.size() &gt; 0, <span class="stringliteral">&quot;expected non-empty\</span></div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span><span class="stringliteral">                        key/value in opt (&quot;</span> + std::string(argv[1]));</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>            <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(__named_opts.count(key) == 0,</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>                        <span class="stringliteral">&quot;cannot have repeated keys&quot;</span>);</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>            __named_opts[key] = value;</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>        } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>            <span class="comment">// This is the &#39;--key value&#39; case.</span></div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>            <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(__named_opts.count(key) == 0,</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>                        <span class="stringliteral">&quot;cannot have repeated keys&quot;</span>);</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>            <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(argv[i + 1], <span class="stringliteral">&quot;value cannot be empty&quot;</span>);</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>            __named_opts[key] = __read_until(argv[i + 1]);</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>            i++;</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>        }</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>    }</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>}</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span><span class="comment">// Registers generator by initializing rnd and parsing opts.</span></div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span><span class="comment">// Argument &#39;version&#39; is unused.</span></div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span><span class="keywordtype">void</span> register_gen(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv) {</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    std::vector&lt;uint32_t&gt; seed;</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span> </div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    <span class="comment">// Starting from 1 to ignore the name of the executable.</span></div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt; argc; ++i) {</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>        <span class="comment">// We append the number of chars, and then the list of chars.</span></div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>        <span class="keywordtype">int</span> size_pos = seed.size();</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>        seed.push_back(0);</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>        <span class="keywordflow">for</span> (<span class="keywordtype">char</span> *s = argv[i]; *s != <span class="charliteral">&#39;\0&#39;</span>; ++s) {</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>            ++seed[size_pos];</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>            seed.push_back(*s);</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>        }</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>    }</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>    std::seed_seq seq(seed.begin(), seed.end());</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>    __rng.seed(seq);</div>
 <div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span> </div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span><span class="comment">/****************</span></div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span><span class="comment"> *              *</span></div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span><span class="comment"> *   SEQUENCE   *</span></div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span><span class="comment"> *              *</span></div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span><span class="comment"> ****************/</span></div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span> </div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span><span class="keywordtype">void</span> __sequence_contradiction_error(<span class="keyword">const</span> std::string &amp;msg = <span class="stringliteral">&quot;&quot;</span>) {</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    <span class="comment">// Tried to generate a contradicting sequence.</span></div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    std::string error_msg = <span class="stringliteral">&quot;invalid sequence (contradicting constraints)&quot;</span>;</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordflow">if</span> (msg.size() &gt; 0)</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>        error_msg += <span class="stringliteral">&quot;: &quot;</span> + msg;</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="keywordflow">throw</span> __error(error_msg);</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>}</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span> </div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span><span class="comment"> * Sequence generator.</span></div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span> </div>
-<div class="foldopen" id="foldopen00334" data-start="{" data-end="};">
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno"><a class="line" href="structtgen_1_1sequence.html">  334</a></span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="keyword">struct </span>sequence {</div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>    <span class="keywordtype">int</span> size;           <span class="comment">// Size of sequence.</span></div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    T value_l, value_r; <span class="comment">// Range of defined values.</span></div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    std::set&lt;T&gt; values; <span class="comment">// Set of values. If empty, use range. if not,</span></div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>                        <span class="comment">// represents the possible values, and the range</span></div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>                        <span class="comment">// represents the index in this set)</span></div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    std::map&lt;T, int&gt; value_idx_in_set; <span class="comment">// Index of every value in the set above.</span></div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    std::vector&lt;std::pair&lt;T, T&gt;&gt; val_range; <span class="comment">// Range of values of each index.</span></div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>    std::vector&lt;std::vector&lt;int&gt;&gt; neigh;    <span class="comment">// Adjacency list of equality.</span></div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    std::set&lt;int&gt;</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>        idx_distinct_constraints; <span class="comment">// Indices in some distinction constraint.</span></div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    std::vector&lt;std::set&lt;int&gt;&gt;</div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>        distinct_constraints; <span class="comment">// All distinct constraints.</span></div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span> </div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="comment">// Creates generator for sequences of size &#39;size&#39;, with random T in [l, r]</span></div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>    sequence(<span class="keywordtype">int</span> size_, T value_l_, T value_r_)</div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>        : size(size_), value_l(value_l_), value_r(value_r_), neigh(size) {</div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>        <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(value_l &lt;= value_r, <span class="stringliteral">&quot;value range must be valid&quot;</span>);</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>            val_range.emplace_back(value_l, value_r);</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    }</div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span> </div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>    <span class="comment">// Creates sequence with value set.</span></div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    sequence(<span class="keywordtype">int</span> size_, <span class="keyword">const</span> std::set&lt;T&gt; &amp;values_)</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>        : size(size_), values(values_), neigh(size) {</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>        <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(values.size() &gt; 0, <span class="stringliteral">&quot;must have at least one value&quot;</span>);</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>        value_l = 0, value_r = values.size() - 1;</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>            val_range.emplace_back(value_l, value_r);</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>        <span class="keywordtype">int</span> idx = 0;</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>        <span class="keywordflow">for</span> (T value : values)</div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>            value_idx_in_set[value] = idx++;</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>    }</div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    sequence(<span class="keywordtype">int</span> size_, <span class="keyword">const</span> std::vector&lt;T&gt; &amp;values_)</div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>        : sequence(size_, std::set&lt;T&gt;(values_.begin(), values_.end())) {}</div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>    sequence(<span class="keywordtype">int</span> size_, <span class="keyword">const</span> std::initializer_list&lt;T&gt; &amp;values_)</div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>        : sequence(size_, std::set&lt;T&gt;(values_.begin(), values_.end())) {}</div>
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span> </div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    <span class="comment">// Restricts sequences for sequence[idx] = value.</span></div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    sequence &amp;value_at_idx(<span class="keywordtype">int</span> idx, T value) {</div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>        <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(0 &lt;= idx and idx &lt; size, <span class="stringliteral">&quot;index must be valid&quot;</span>);</div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>        <span class="keywordflow">if</span> (values.size() == 0) {</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>            <span class="keyword">auto</span> &amp;[left, right] = val_range[idx];</div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(left &lt;= value and value &lt;= right,</div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>                   <span class="stringliteral">&quot;value must be in the defined range&quot;</span>);</div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>            left = right = value;</div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>        } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(values.count(value), <span class="stringliteral">&quot;value must be in the set of values&quot;</span>);</div>
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>            <span class="keyword">auto</span> &amp;[left, right] = val_range[idx];</div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>            <span class="keywordtype">int</span> new_val = value_idx_in_set[value];</div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>            <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(left &lt;= new_val and new_val &lt;= right,</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>                   <span class="stringliteral">&quot;must not set to two different values&quot;</span>);</div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>            left = right = new_val;</div>
-<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>        }</div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>    }</div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span> </div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>    <span class="comment">// Restricts sequences for sequence[idx_1] = sequence[idx_2].</span></div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>    sequence &amp;equal_idx_pair(<span class="keywordtype">int</span> idx_1, <span class="keywordtype">int</span> idx_2) {</div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>        <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(0 &lt;= std::min(idx_1, idx_2) and std::max(idx_1, idx_2) &lt; size,</div>
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>               <span class="stringliteral">&quot;indices must be valid&quot;</span>);</div>
-<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>        <span class="keywordflow">if</span> (idx_1 == idx_2)</div>
-<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>            <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span> </div>
-<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>        neigh[idx_1].push_back(idx_2);</div>
-<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>        neigh[idx_2].push_back(idx_1);</div>
-<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>    }</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>    __parse_opts(argc, argv);</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>}</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span> </div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span><span class="comment">/****************</span></div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span><span class="comment"> *              *</span></div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span><span class="comment"> *   SEQUENCE   *</span></div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span><span class="comment"> *              *</span></div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span><span class="comment"> ****************/</span></div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span> </div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span><span class="keywordtype">void</span> __sequence_contradiction_error(<span class="keyword">const</span> std::string &amp;msg = <span class="stringliteral">&quot;&quot;</span>) {</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="comment">// Tried to generate a contradicting sequence.</span></div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    std::string error_msg = <span class="stringliteral">&quot;invalid sequence (contradicting constraints)&quot;</span>;</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>    <span class="keywordflow">if</span> (msg.size() &gt; 0)</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>        error_msg += <span class="stringliteral">&quot;: &quot;</span> + msg;</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>    <span class="keywordflow">throw</span> __error(error_msg);</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>}</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span> </div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span><span class="comment">/*</span></div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span><span class="comment"> * Sequence generator.</span></div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span> </div>
+<div class="foldopen" id="foldopen00337" data-start="{" data-end="};">
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno"><a class="line" href="structtgen_1_1sequence.html">  337</a></span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="keyword">struct </span>sequence {</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    <span class="keywordtype">int</span> size;           <span class="comment">// Size of sequence.</span></div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    T value_l, value_r; <span class="comment">// Range of defined values.</span></div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    std::set&lt;T&gt; values; <span class="comment">// Set of values. If empty, use range. if not,</span></div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>                        <span class="comment">// represents the possible values, and the range</span></div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>                        <span class="comment">// represents the index in this set)</span></div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    std::map&lt;T, int&gt; value_idx_in_set; <span class="comment">// Index of every value in the set above.</span></div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    std::vector&lt;std::pair&lt;T, T&gt;&gt; val_range; <span class="comment">// Range of values of each index.</span></div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    std::vector&lt;std::vector&lt;int&gt;&gt; neigh;    <span class="comment">// Adjacency list of equality.</span></div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>    std::set&lt;int&gt;</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>        idx_distinct_constraints; <span class="comment">// Indices in some distinction constraint.</span></div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    std::vector&lt;std::set&lt;int&gt;&gt;</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>        distinct_constraints; <span class="comment">// All distinct constraints.</span></div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span> </div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>    <span class="comment">// Creates generator for sequences of size &#39;size&#39;, with random T in [l, r]</span></div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    sequence(<span class="keywordtype">int</span> size_, T value_l_, T value_r_)</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>        : size(size_), value_l(value_l_), value_r(value_r_), neigh(size) {</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>        <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(value_l &lt;= value_r, <span class="stringliteral">&quot;value range must be valid&quot;</span>);</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>            val_range.emplace_back(value_l, value_r);</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    }</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span> </div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    <span class="comment">// Creates sequence with value set.</span></div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    sequence(<span class="keywordtype">int</span> size_, <span class="keyword">const</span> std::set&lt;T&gt; &amp;values_)</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>        : size(size_), values(values_), neigh(size) {</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>        <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(values.size() &gt; 0, <span class="stringliteral">&quot;must have at least one value&quot;</span>);</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>        value_l = 0, value_r = values.size() - 1;</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>            val_range.emplace_back(value_l, value_r);</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>        <span class="keywordtype">int</span> idx = 0;</div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>        <span class="keywordflow">for</span> (T value : values)</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>            value_idx_in_set[value] = idx++;</div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>    }</div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>    sequence(<span class="keywordtype">int</span> size_, <span class="keyword">const</span> std::vector&lt;T&gt; &amp;values_)</div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>        : sequence(size_, std::set&lt;T&gt;(values_.begin(), values_.end())) {}</div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    sequence(<span class="keywordtype">int</span> size_, <span class="keyword">const</span> std::initializer_list&lt;T&gt; &amp;values_)</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>        : sequence(size_, std::set&lt;T&gt;(values_.begin(), values_.end())) {}</div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span> </div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>    <span class="comment">// Restricts sequences for sequence[idx] = value.</span></div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>    sequence &amp;value_at_idx(<span class="keywordtype">int</span> idx, T value) {</div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>        <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(0 &lt;= idx and idx &lt; size, <span class="stringliteral">&quot;index must be valid&quot;</span>);</div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>        <span class="keywordflow">if</span> (values.size() == 0) {</div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>            <span class="keyword">auto</span> &amp;[left, right] = val_range[idx];</div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>            <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(left &lt;= value and value &lt;= right,</div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>                        <span class="stringliteral">&quot;value must be in the defined range&quot;</span>);</div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>            left = right = value;</div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>        } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>            <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(values.count(value),</div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>                        <span class="stringliteral">&quot;value must be in the set of values&quot;</span>);</div>
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>            <span class="keyword">auto</span> &amp;[left, right] = val_range[idx];</div>
+<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>            <span class="keywordtype">int</span> new_val = value_idx_in_set[value];</div>
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>            <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(left &lt;= new_val and new_val &lt;= right,</div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>                        <span class="stringliteral">&quot;must not set to two different values&quot;</span>);</div>
+<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>            left = right = new_val;</div>
+<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>        }</div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>    }</div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span> </div>
+<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>    <span class="comment">// Restricts sequences for sequence[idx_1] = sequence[idx_2].</span></div>
+<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>    sequence &amp;equal_idx_pair(<span class="keywordtype">int</span> idx_1, <span class="keywordtype">int</span> idx_2) {</div>
+<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>        <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(0 &lt;= std::min(idx_1, idx_2) and</div>
+<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>                        std::max(idx_1, idx_2) &lt; size,</div>
+<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>                    <span class="stringliteral">&quot;indices must be valid&quot;</span>);</div>
+<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>        <span class="keywordflow">if</span> (idx_1 == idx_2)</div>
+<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>            <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
 <div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span> </div>
-<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>    <span class="comment">// Restricts sequences for sequence[left..right] to have all equal values.</span></div>
-<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>    sequence &amp;equal_range(<span class="keywordtype">int</span> left, <span class="keywordtype">int</span> right) {</div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>        <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(0 &lt;= left and left &lt;= right and right &lt; size,</div>
-<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>               <span class="stringliteral">&quot;range indices bust be valid&quot;</span>);</div>
-<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = left; i &lt; right; ++i)</div>
-<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>            equal_idx_pair(i, i + 1);</div>
-<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>    }</div>
-<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span> </div>
-<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>    <span class="comment">// Restricts sequences for sequence[S] to be distinct, for given subset S of</span></div>
-<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>    <span class="comment">// indices.</span></div>
-<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>    <span class="comment">// You can not add two of these restrictions with intersection.</span></div>
-<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>    sequence &amp;distinct_idx_set(<span class="keyword">const</span> std::set&lt;int&gt; &amp;indices) {</div>
-<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx : indices) {</div>
-<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>            <span class="keywordflow">if</span> (idx_distinct_constraints.count(idx))</div>
-<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>                <span class="keywordflow">throw</span> __error(</div>
-<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>                    <span class="stringliteral">&quot;cannot add same index in two distinct constraints&quot;</span>);</div>
-<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>            idx_distinct_constraints.insert(idx);</div>
-<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>        }</div>
-<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span> </div>
-<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>        distinct_constraints.push_back(indices);</div>
-<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>    }</div>
-<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span> </div>
-<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>    <span class="comment">// Restricts sequences for sequence[idx_1] != sequence[idx_2]</span></div>
-<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>    sequence &amp;different_idx_pair(<span class="keywordtype">int</span> idx_1, <span class="keywordtype">int</span> idx_2) {</div>
-<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span>        std::set&lt;int&gt; indices = {idx_1, idx_2};</div>
-<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>        distinct_idx_set(indices);</div>
-<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>    }</div>
-<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span> </div>
-<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>    <span class="comment">// Restricts sequences with distinct elements.</span></div>
-<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>    sequence &amp;distinct() {</div>
-<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span>        std::set&lt;int&gt; indices;</div>
-<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
-<div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span>            indices.insert(i);</div>
-<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span>        distinct_idx_set(indices);</div>
-<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span>    }</div>
-<div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span> </div>
-<div class="line"><a id="l00443" name="l00443"></a><span class="lineno">  443</span>    <span class="comment">// Sequence instance.</span></div>
-<div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span>    <span class="comment">// Operations on an instance are not random.</span></div>
-<div class="foldopen" id="foldopen00445" data-start="{" data-end="};">
-<div class="line"><a id="l00445" name="l00445"></a><span class="lineno"><a class="line" href="structtgen_1_1sequence_1_1instance.html">  445</a></span>    <span class="keyword">struct </span>instance {</div>
-<div class="line"><a id="l00446" name="l00446"></a><span class="lineno">  446</span>        <span class="keyword">using </span>value_type = T; <span class="comment">// Value type, for templates.</span></div>
-<div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span>        std::vector&lt;T&gt; vec;   <span class="comment">// Sequence.</span></div>
-<div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span> </div>
-<div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span>        instance(<span class="keyword">const</span> std::vector&lt;T&gt; &amp;vec_) : vec(vec_) {}</div>
-<div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span> </div>
-<div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>        <span class="comment">// Fetches size.</span></div>
-<div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span>        <span class="keywordtype">size_t</span> size() { <span class="keywordflow">return</span> vec.size(); }</div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>        neigh[idx_1].push_back(idx_2);</div>
+<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>        neigh[idx_2].push_back(idx_1);</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>    }</div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span> </div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>    <span class="comment">// Restricts sequences for sequence[left..right] to have all equal values.</span></div>
+<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>    sequence &amp;equal_range(<span class="keywordtype">int</span> left, <span class="keywordtype">int</span> right) {</div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>        <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(0 &lt;= left and left &lt;= right and right &lt; size,</div>
+<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>                    <span class="stringliteral">&quot;range indices bust be valid&quot;</span>);</div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = left; i &lt; right; ++i)</div>
+<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>            equal_idx_pair(i, i + 1);</div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>    }</div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span> </div>
+<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>    <span class="comment">// Restricts sequences for sequence[S] to be distinct, for given subset S of</span></div>
+<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>    <span class="comment">// indices.</span></div>
+<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>    <span class="comment">// You can not add two of these restrictions with intersection.</span></div>
+<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>    sequence &amp;distinct_idx_set(<span class="keyword">const</span> std::set&lt;int&gt; &amp;indices) {</div>
+<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx : indices) {</div>
+<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>            <span class="keywordflow">if</span> (idx_distinct_constraints.count(idx))</div>
+<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>                <span class="keywordflow">throw</span> __error(</div>
+<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>                    <span class="stringliteral">&quot;cannot add same index in two distinct constraints&quot;</span>);</div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>            idx_distinct_constraints.insert(idx);</div>
+<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>        }</div>
+<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span> </div>
+<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>        distinct_constraints.push_back(indices);</div>
+<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>    }</div>
+<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span> </div>
+<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>    <span class="comment">// Restricts sequences for sequence[idx_1] != sequence[idx_2]</span></div>
+<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>    sequence &amp;different_idx_pair(<span class="keywordtype">int</span> idx_1, <span class="keywordtype">int</span> idx_2) {</div>
+<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>        std::set&lt;int&gt; indices = {idx_1, idx_2};</div>
+<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>        distinct_idx_set(indices);</div>
+<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span>    }</div>
+<div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span> </div>
+<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span>    <span class="comment">// Restricts sequences with distinct elements.</span></div>
+<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span>    sequence &amp;distinct() {</div>
+<div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span>        std::set&lt;int&gt; indices;</div>
+<div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
+<div class="line"><a id="l00443" name="l00443"></a><span class="lineno">  443</span>            indices.insert(i);</div>
+<div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span>        distinct_idx_set(indices);</div>
+<div class="line"><a id="l00445" name="l00445"></a><span class="lineno">  445</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00446" name="l00446"></a><span class="lineno">  446</span>    }</div>
+<div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span> </div>
+<div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span>    <span class="comment">// Sequence instance.</span></div>
+<div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span>    <span class="comment">// Operations on an instance are not random.</span></div>
+<div class="foldopen" id="foldopen00450" data-start="{" data-end="};">
+<div class="line"><a id="l00450" name="l00450"></a><span class="lineno"><a class="line" href="structtgen_1_1sequence_1_1instance.html">  450</a></span>    <span class="keyword">struct </span>instance {</div>
+<div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>        <span class="keyword">using </span>value_type = T; <span class="comment">// Value type, for templates.</span></div>
+<div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span>        std::vector&lt;T&gt; vec;   <span class="comment">// Sequence.</span></div>
 <div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span> </div>
-<div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span>        <span class="comment">// Fetches position idx.</span></div>
-<div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span>        T operator[](<span class="keywordtype">int</span> idx)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> vec[idx]; }</div>
-<div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span> </div>
-<div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span>        <span class="comment">// Sorts values in increasign order.</span></div>
-<div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span>        instance &amp;sort() {</div>
-<div class="line"><a id="l00459" name="l00459"></a><span class="lineno">  459</span>            std::sort(vec.begin(), vec.end());</div>
-<div class="line"><a id="l00460" name="l00460"></a><span class="lineno">  460</span>            <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00461" name="l00461"></a><span class="lineno">  461</span>        }</div>
-<div class="line"><a id="l00462" name="l00462"></a><span class="lineno">  462</span> </div>
-<div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span>        <span class="comment">// Reverses sequence.</span></div>
-<div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span>        instance &amp;reverse() {</div>
-<div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span>            std::reverse(vec.begin(), vec.end());</div>
-<div class="line"><a id="l00466" name="l00466"></a><span class="lineno">  466</span>            <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00467" name="l00467"></a><span class="lineno">  467</span>        }</div>
-<div class="line"><a id="l00468" name="l00468"></a><span class="lineno">  468</span> </div>
-<div class="line"><a id="l00469" name="l00469"></a><span class="lineno">  469</span>        <span class="comment">// Prints in stdout, separated by spaces.</span></div>
-<div class="line"><a id="l00470" name="l00470"></a><span class="lineno">  470</span>        <span class="keyword">friend</span> std::ostream &amp;operator&lt;&lt;(std::ostream &amp;out,</div>
-<div class="line"><a id="l00471" name="l00471"></a><span class="lineno">  471</span>                                        <span class="keyword">const</span> instance &amp;repr) {</div>
-<div class="line"><a id="l00472" name="l00472"></a><span class="lineno">  472</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; repr.vec.size(); ++i) {</div>
-<div class="line"><a id="l00473" name="l00473"></a><span class="lineno">  473</span>                <span class="keywordflow">if</span> (i &gt; 0)</div>
-<div class="line"><a id="l00474" name="l00474"></a><span class="lineno">  474</span>                    out &lt;&lt; <span class="charliteral">&#39; &#39;</span>;</div>
-<div class="line"><a id="l00475" name="l00475"></a><span class="lineno">  475</span>                out &lt;&lt; repr.vec[i];</div>
-<div class="line"><a id="l00476" name="l00476"></a><span class="lineno">  476</span>            }</div>
-<div class="line"><a id="l00477" name="l00477"></a><span class="lineno">  477</span>            <span class="keywordflow">return</span> out;</div>
-<div class="line"><a id="l00478" name="l00478"></a><span class="lineno">  478</span>        }</div>
-<div class="line"><a id="l00479" name="l00479"></a><span class="lineno">  479</span> </div>
-<div class="line"><a id="l00480" name="l00480"></a><span class="lineno">  480</span>        <span class="comment">// Gets a std::vector representing the instance.</span></div>
-<div class="line"><a id="l00481" name="l00481"></a><span class="lineno">  481</span>        std::vector&lt;T&gt; to_std() { <span class="keywordflow">return</span> vec; }</div>
-<div class="line"><a id="l00482" name="l00482"></a><span class="lineno">  482</span>    };</div>
+<div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span>        instance(<span class="keyword">const</span> std::vector&lt;T&gt; &amp;vec_) : vec(vec_) {}</div>
+<div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span> </div>
+<div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span>        <span class="comment">// Fetches size.</span></div>
+<div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span>        <span class="keywordtype">size_t</span> size() { <span class="keywordflow">return</span> vec.size(); }</div>
+<div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span> </div>
+<div class="line"><a id="l00459" name="l00459"></a><span class="lineno">  459</span>        <span class="comment">// Fetches position idx.</span></div>
+<div class="line"><a id="l00460" name="l00460"></a><span class="lineno">  460</span>        T operator[](<span class="keywordtype">int</span> idx)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> vec[idx]; }</div>
+<div class="line"><a id="l00461" name="l00461"></a><span class="lineno">  461</span> </div>
+<div class="line"><a id="l00462" name="l00462"></a><span class="lineno">  462</span>        <span class="comment">// Sorts values in increasign order.</span></div>
+<div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span>        instance &amp;sort() {</div>
+<div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span>            std::sort(vec.begin(), vec.end());</div>
+<div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span>            <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00466" name="l00466"></a><span class="lineno">  466</span>        }</div>
+<div class="line"><a id="l00467" name="l00467"></a><span class="lineno">  467</span> </div>
+<div class="line"><a id="l00468" name="l00468"></a><span class="lineno">  468</span>        <span class="comment">// Reverses sequence.</span></div>
+<div class="line"><a id="l00469" name="l00469"></a><span class="lineno">  469</span>        instance &amp;reverse() {</div>
+<div class="line"><a id="l00470" name="l00470"></a><span class="lineno">  470</span>            std::reverse(vec.begin(), vec.end());</div>
+<div class="line"><a id="l00471" name="l00471"></a><span class="lineno">  471</span>            <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00472" name="l00472"></a><span class="lineno">  472</span>        }</div>
+<div class="line"><a id="l00473" name="l00473"></a><span class="lineno">  473</span> </div>
+<div class="line"><a id="l00474" name="l00474"></a><span class="lineno">  474</span>        <span class="comment">// Prints in stdout, separated by spaces.</span></div>
+<div class="line"><a id="l00475" name="l00475"></a><span class="lineno">  475</span>        <span class="keyword">friend</span> std::ostream &amp;operator&lt;&lt;(std::ostream &amp;out,</div>
+<div class="line"><a id="l00476" name="l00476"></a><span class="lineno">  476</span>                                        <span class="keyword">const</span> instance &amp;repr) {</div>
+<div class="line"><a id="l00477" name="l00477"></a><span class="lineno">  477</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; repr.vec.size(); ++i) {</div>
+<div class="line"><a id="l00478" name="l00478"></a><span class="lineno">  478</span>                <span class="keywordflow">if</span> (i &gt; 0)</div>
+<div class="line"><a id="l00479" name="l00479"></a><span class="lineno">  479</span>                    out &lt;&lt; <span class="charliteral">&#39; &#39;</span>;</div>
+<div class="line"><a id="l00480" name="l00480"></a><span class="lineno">  480</span>                out &lt;&lt; repr.vec[i];</div>
+<div class="line"><a id="l00481" name="l00481"></a><span class="lineno">  481</span>            }</div>
+<div class="line"><a id="l00482" name="l00482"></a><span class="lineno">  482</span>            <span class="keywordflow">return</span> out;</div>
+<div class="line"><a id="l00483" name="l00483"></a><span class="lineno">  483</span>        }</div>
+<div class="line"><a id="l00484" name="l00484"></a><span class="lineno">  484</span> </div>
+<div class="line"><a id="l00485" name="l00485"></a><span class="lineno">  485</span>        <span class="comment">// Gets a std::vector representing the instance.</span></div>
+<div class="line"><a id="l00486" name="l00486"></a><span class="lineno">  486</span>        std::vector&lt;T&gt; to_std() { <span class="keywordflow">return</span> vec; }</div>
+<div class="line"><a id="l00487" name="l00487"></a><span class="lineno">  487</span>    };</div>
 </div>
-<div class="line"><a id="l00483" name="l00483"></a><span class="lineno">  483</span> </div>
-<div class="line"><a id="l00484" name="l00484"></a><span class="lineno">  484</span>    <span class="comment">// Generate sequence instance.</span></div>
-<div class="line"><a id="l00485" name="l00485"></a><span class="lineno">  485</span>    <a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">instance</a> gen() {</div>
-<div class="line"><a id="l00486" name="l00486"></a><span class="lineno">  486</span>        std::vector&lt;T&gt; vec(size);</div>
-<div class="line"><a id="l00487" name="l00487"></a><span class="lineno">  487</span> </div>
-<div class="line"><a id="l00488" name="l00488"></a><span class="lineno">  488</span>        std::vector&lt;int&gt; comp_id(size, -1);       <span class="comment">// component id of each index.</span></div>
-<div class="line"><a id="l00489" name="l00489"></a><span class="lineno">  489</span>        std::vector&lt;std::vector&lt;int&gt;&gt; comp(size); <span class="comment">// component of each comp-id.</span></div>
-<div class="line"><a id="l00490" name="l00490"></a><span class="lineno">  490</span>        <span class="keywordtype">int</span> comp_count = 0; <span class="comment">// number of different components.</span></div>
-<div class="line"><a id="l00491" name="l00491"></a><span class="lineno">  491</span>        std::vector&lt;bool&gt; vis(size, <span class="keyword">false</span>);</div>
-<div class="line"><a id="l00492" name="l00492"></a><span class="lineno">  492</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
-<div class="line"><a id="l00493" name="l00493"></a><span class="lineno">  493</span>            <span class="keywordflow">if</span> (!vis[i]) {</div>
-<div class="line"><a id="l00494" name="l00494"></a><span class="lineno">  494</span>                T new_value;</div>
-<div class="line"><a id="l00495" name="l00495"></a><span class="lineno">  495</span>                <span class="keywordtype">bool</span> value_set = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00496" name="l00496"></a><span class="lineno">  496</span> </div>
-<div class="line"><a id="l00497" name="l00497"></a><span class="lineno">  497</span>                <span class="comment">// BFS to visit the connected component, grouping equal values.</span></div>
-<div class="line"><a id="l00498" name="l00498"></a><span class="lineno">  498</span>                std::queue&lt;int&gt; q;</div>
-<div class="line"><a id="l00499" name="l00499"></a><span class="lineno">  499</span>                q.push(i);</div>
-<div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span>                vis[i] = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00501" name="l00501"></a><span class="lineno">  501</span>                std::vector&lt;int&gt; component;</div>
-<div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span>                <span class="keywordflow">while</span> (q.size()) {</div>
-<div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>                    <span class="keywordtype">int</span> j = q.front();</div>
-<div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span>                    q.pop();</div>
-<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span> </div>
-<div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>                    component.push_back(j);</div>
-<div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span> </div>
-<div class="line"><a id="l00508" name="l00508"></a><span class="lineno">  508</span>                    <span class="comment">// Checks value.</span></div>
-<div class="line"><a id="l00509" name="l00509"></a><span class="lineno">  509</span>                    <span class="keyword">auto</span> [l, r] = val_range[j];</div>
-<div class="line"><a id="l00510" name="l00510"></a><span class="lineno">  510</span>                    <span class="keywordflow">if</span> (l == r) {</div>
-<div class="line"><a id="l00511" name="l00511"></a><span class="lineno">  511</span>                        <span class="keywordflow">if</span> (!value_set) {</div>
-<div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>                            <span class="comment">// We found the value.</span></div>
-<div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span>                            value_set = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>                            new_value = l;</div>
-<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>                        } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (new_value != l) {</div>
-<div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span>                            <span class="comment">// We found a contradiction</span></div>
-<div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>                            std::stringstream ss;</div>
-<div class="line"><a id="l00518" name="l00518"></a><span class="lineno">  518</span>                            ss &lt;&lt; <span class="stringliteral">&quot;tried to set value to `&quot;</span> &lt;&lt; new_value</div>
-<div class="line"><a id="l00519" name="l00519"></a><span class="lineno">  519</span>                               &lt;&lt; <span class="stringliteral">&quot;`, but it was already set as `&quot;</span> &lt;&lt; l &lt;&lt; <span class="stringliteral">&quot;`&quot;</span>;</div>
-<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span>                            __sequence_contradiction_error(ss.str());</div>
-<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>                        }</div>
-<div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>                    }</div>
-<div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span> </div>
-<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>                    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k : neigh[j]) {</div>
-<div class="line"><a id="l00525" name="l00525"></a><span class="lineno">  525</span>                        <span class="keywordflow">if</span> (!vis[k]) {</div>
-<div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span>                            vis[k] = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span>                            q.push(k);</div>
-<div class="line"><a id="l00528" name="l00528"></a><span class="lineno">  528</span>                        }</div>
-<div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span>                    }</div>
-<div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>                }</div>
-<div class="line"><a id="l00531" name="l00531"></a><span class="lineno">  531</span> </div>
-<div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span>                <span class="comment">// Group entire component, checking if value is defined.</span></div>
-<div class="line"><a id="l00533" name="l00533"></a><span class="lineno">  533</span>                <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j : component) {</div>
-<div class="line"><a id="l00534" name="l00534"></a><span class="lineno">  534</span>                    <span class="keywordflow">if</span> (value_set)</div>
-<div class="line"><a id="l00535" name="l00535"></a><span class="lineno">  535</span>                        val_range[j].first = val_range[j].second = new_value;</div>
-<div class="line"><a id="l00536" name="l00536"></a><span class="lineno">  536</span>                    comp_id[j] = comp_count;</div>
-<div class="line"><a id="l00537" name="l00537"></a><span class="lineno">  537</span>                    comp[comp_id[j]].push_back(j);</div>
-<div class="line"><a id="l00538" name="l00538"></a><span class="lineno">  538</span>                }</div>
-<div class="line"><a id="l00539" name="l00539"></a><span class="lineno">  539</span>                ++comp_count;</div>
-<div class="line"><a id="l00540" name="l00540"></a><span class="lineno">  540</span>            }</div>
-<div class="line"><a id="l00541" name="l00541"></a><span class="lineno">  541</span> </div>
-<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span>        <span class="comment">// Adds artificial distinct constraints.</span></div>
-<div class="line"><a id="l00543" name="l00543"></a><span class="lineno">  543</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
-<div class="line"><a id="l00544" name="l00544"></a><span class="lineno">  544</span>            <span class="keywordflow">if</span> (!idx_distinct_constraints.count(i)) {</div>
-<div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span>                std::set&lt;int&gt; cur = {i};</div>
-<div class="line"><a id="l00546" name="l00546"></a><span class="lineno">  546</span>                distinct_constraints.push_back(cur);</div>
-<div class="line"><a id="l00547" name="l00547"></a><span class="lineno">  547</span>            }</div>
-<div class="line"><a id="l00548" name="l00548"></a><span class="lineno">  548</span> </div>
-<div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span>        <span class="comment">// Loops through distinct constraints.</span></div>
-<div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>        <span class="keywordflow">for</span> (<span class="keyword">const</span> std::set&lt;int&gt; &amp;distinct : distinct_constraints) {</div>
-<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>            <span class="comment">// Checks if there are too many distinct values.</span></div>
-<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>            <span class="keywordflow">if</span> (distinct.size() &gt; value_r - value_l + 1)</div>
-<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>                __sequence_contradiction_error(</div>
-<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>                    <span class="stringliteral">&quot;tried to generate &quot;</span> + std::to_string(distinct.size()) +</div>
-<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>                    <span class="stringliteral">&quot; distinct values, but the maximum is &quot;</span> +</div>
-<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>                    std::to_string(value_r - value_l + 1));</div>
-<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span> </div>
-<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>            <span class="comment">// Checks if two values in same component are marked as different.</span></div>
-<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>            std::set&lt;int&gt; comp_ids;</div>
-<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx : distinct) {</div>
-<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>                <span class="keywordflow">if</span> (comp_ids.count(comp_id[idx]))</div>
-<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>                    __sequence_contradiction_error(</div>
-<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span>                        <span class="stringliteral">&quot;tried to set indices two indices as equal and &quot;</span></div>
-<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span>                        <span class="stringliteral">&quot;different&quot;</span>);</div>
-<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>                comp_ids.insert(comp_id[idx]);</div>
-<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span>            }</div>
-<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span> </div>
-<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>            <span class="comment">// Generates set of already defined values.</span></div>
-<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>            std::set&lt;T&gt; defined_values;</div>
-<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx : distinct)</div>
-<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>                <span class="keywordflow">if</span> (val_range[idx].first == val_range[idx].second)</div>
-<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>                    defined_values.insert(val_range[idx].first);</div>
-<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span> </div>
-<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>            <span class="comment">// We have values in [l, r], but those in defined_values are</span></div>
-<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>            <span class="comment">// taken. We generate our numbers in the range [0, lim) with</span></div>
-<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>            <span class="comment">// lim = (r-l+1)-(defined_values.size()), and then map them to</span></div>
-<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>            <span class="comment">// the correct range.</span></div>
-<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>            <span class="comment">// We will run (distinct.size()-defined_values.size()) steps of</span></div>
-<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>            <span class="comment">// Fisher–Yates, using a map to store a virtual sequence that starts</span></div>
-<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>            <span class="comment">// with the a[i] = i.</span></div>
-<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>            <span class="keywordtype">int</span> lim = (value_r - value_l + 1) - <span class="keywordtype">int</span>(defined_values.size());</div>
-<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>            std::map&lt;T, T&gt; virtual_sequence;</div>
-<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>            std::vector&lt;T&gt; initial_gen;</div>
-<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; distinct.size() - <span class="keywordtype">int</span>(defined_values.size());</div>
-<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>                 i++) {</div>
-<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span>                T j = next&lt;T&gt;(i, lim - 1);</div>
-<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>                T vj = virtual_sequence.count(j) ? virtual_sequence[j] : j;</div>
-<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>                T vi = virtual_sequence.count(i) ? virtual_sequence[i] : T(i);</div>
-<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span> </div>
-<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>                virtual_sequence[j] = vi, virtual_sequence[i] = vj;</div>
-<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span> </div>
-<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>                initial_gen.push_back(virtual_sequence[i]);</div>
-<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>            }</div>
+<div class="line"><a id="l00488" name="l00488"></a><span class="lineno">  488</span> </div>
+<div class="line"><a id="l00489" name="l00489"></a><span class="lineno">  489</span>    <span class="comment">// Generate sequence instance.</span></div>
+<div class="line"><a id="l00490" name="l00490"></a><span class="lineno">  490</span>    <a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">instance</a> gen() {</div>
+<div class="line"><a id="l00491" name="l00491"></a><span class="lineno">  491</span>        std::vector&lt;T&gt; vec(size);</div>
+<div class="line"><a id="l00492" name="l00492"></a><span class="lineno">  492</span> </div>
+<div class="line"><a id="l00493" name="l00493"></a><span class="lineno">  493</span>        std::vector&lt;int&gt; comp_id(size, -1);       <span class="comment">// component id of each index.</span></div>
+<div class="line"><a id="l00494" name="l00494"></a><span class="lineno">  494</span>        std::vector&lt;std::vector&lt;int&gt;&gt; comp(size); <span class="comment">// component of each comp-id.</span></div>
+<div class="line"><a id="l00495" name="l00495"></a><span class="lineno">  495</span>        <span class="keywordtype">int</span> comp_count = 0; <span class="comment">// number of different components.</span></div>
+<div class="line"><a id="l00496" name="l00496"></a><span class="lineno">  496</span>        std::vector&lt;bool&gt; vis(size, <span class="keyword">false</span>);</div>
+<div class="line"><a id="l00497" name="l00497"></a><span class="lineno">  497</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
+<div class="line"><a id="l00498" name="l00498"></a><span class="lineno">  498</span>            <span class="keywordflow">if</span> (!vis[i]) {</div>
+<div class="line"><a id="l00499" name="l00499"></a><span class="lineno">  499</span>                T new_value;</div>
+<div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span>                <span class="keywordtype">bool</span> value_set = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00501" name="l00501"></a><span class="lineno">  501</span> </div>
+<div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span>                <span class="comment">// BFS to visit the connected component, grouping equal values.</span></div>
+<div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>                std::queue&lt;int&gt; q;</div>
+<div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span>                q.push(i);</div>
+<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>                vis[i] = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>                std::vector&lt;int&gt; component;</div>
+<div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span>                <span class="keywordflow">while</span> (q.size()) {</div>
+<div class="line"><a id="l00508" name="l00508"></a><span class="lineno">  508</span>                    <span class="keywordtype">int</span> j = q.front();</div>
+<div class="line"><a id="l00509" name="l00509"></a><span class="lineno">  509</span>                    q.pop();</div>
+<div class="line"><a id="l00510" name="l00510"></a><span class="lineno">  510</span> </div>
+<div class="line"><a id="l00511" name="l00511"></a><span class="lineno">  511</span>                    component.push_back(j);</div>
+<div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span> </div>
+<div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span>                    <span class="comment">// Checks value.</span></div>
+<div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>                    <span class="keyword">auto</span> [l, r] = val_range[j];</div>
+<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>                    <span class="keywordflow">if</span> (l == r) {</div>
+<div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span>                        <span class="keywordflow">if</span> (!value_set) {</div>
+<div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>                            <span class="comment">// We found the value.</span></div>
+<div class="line"><a id="l00518" name="l00518"></a><span class="lineno">  518</span>                            value_set = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00519" name="l00519"></a><span class="lineno">  519</span>                            new_value = l;</div>
+<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span>                        } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (new_value != l) {</div>
+<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>                            <span class="comment">// We found a contradiction</span></div>
+<div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>                            std::stringstream ss;</div>
+<div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span>                            ss &lt;&lt; <span class="stringliteral">&quot;tried to set value to `&quot;</span> &lt;&lt; new_value</div>
+<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>                               &lt;&lt; <span class="stringliteral">&quot;`, but it was already set as `&quot;</span> &lt;&lt; l &lt;&lt; <span class="stringliteral">&quot;`&quot;</span>;</div>
+<div class="line"><a id="l00525" name="l00525"></a><span class="lineno">  525</span>                            __sequence_contradiction_error(ss.str());</div>
+<div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span>                        }</div>
+<div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span>                    }</div>
+<div class="line"><a id="l00528" name="l00528"></a><span class="lineno">  528</span> </div>
+<div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span>                    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k : neigh[j]) {</div>
+<div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>                        <span class="keywordflow">if</span> (!vis[k]) {</div>
+<div class="line"><a id="l00531" name="l00531"></a><span class="lineno">  531</span>                            vis[k] = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span>                            q.push(k);</div>
+<div class="line"><a id="l00533" name="l00533"></a><span class="lineno">  533</span>                        }</div>
+<div class="line"><a id="l00534" name="l00534"></a><span class="lineno">  534</span>                    }</div>
+<div class="line"><a id="l00535" name="l00535"></a><span class="lineno">  535</span>                }</div>
+<div class="line"><a id="l00536" name="l00536"></a><span class="lineno">  536</span> </div>
+<div class="line"><a id="l00537" name="l00537"></a><span class="lineno">  537</span>                <span class="comment">// Group entire component, checking if value is defined.</span></div>
+<div class="line"><a id="l00538" name="l00538"></a><span class="lineno">  538</span>                <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j : component) {</div>
+<div class="line"><a id="l00539" name="l00539"></a><span class="lineno">  539</span>                    <span class="keywordflow">if</span> (value_set)</div>
+<div class="line"><a id="l00540" name="l00540"></a><span class="lineno">  540</span>                        val_range[j].first = val_range[j].second = new_value;</div>
+<div class="line"><a id="l00541" name="l00541"></a><span class="lineno">  541</span>                    comp_id[j] = comp_count;</div>
+<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span>                    comp[comp_id[j]].push_back(j);</div>
+<div class="line"><a id="l00543" name="l00543"></a><span class="lineno">  543</span>                }</div>
+<div class="line"><a id="l00544" name="l00544"></a><span class="lineno">  544</span>                ++comp_count;</div>
+<div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span>            }</div>
+<div class="line"><a id="l00546" name="l00546"></a><span class="lineno">  546</span> </div>
+<div class="line"><a id="l00547" name="l00547"></a><span class="lineno">  547</span>        <span class="comment">// Adds artificial distinct constraints.</span></div>
+<div class="line"><a id="l00548" name="l00548"></a><span class="lineno">  548</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
+<div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span>            <span class="keywordflow">if</span> (!idx_distinct_constraints.count(i)) {</div>
+<div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>                std::set&lt;int&gt; cur = {i};</div>
+<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>                distinct_constraints.push_back(cur);</div>
+<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>            }</div>
+<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span> </div>
+<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>        <span class="comment">// Loops through distinct constraints.</span></div>
+<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>        <span class="keywordflow">for</span> (<span class="keyword">const</span> std::set&lt;int&gt; &amp;distinct : distinct_constraints) {</div>
+<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>            <span class="comment">// Checks if there are too many distinct values.</span></div>
+<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>            <span class="keywordflow">if</span> (distinct.size() &gt; value_r - value_l + 1)</div>
+<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>                __sequence_contradiction_error(</div>
+<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>                    <span class="stringliteral">&quot;tried to generate &quot;</span> + std::to_string(distinct.size()) +</div>
+<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>                    <span class="stringliteral">&quot; distinct values, but the maximum is &quot;</span> +</div>
+<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>                    std::to_string(value_r - value_l + 1));</div>
+<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span> </div>
+<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span>            <span class="comment">// Checks if two values in same component are marked as different.</span></div>
+<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span>            std::set&lt;int&gt; comp_ids;</div>
+<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx : distinct) {</div>
+<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span>                <span class="keywordflow">if</span> (comp_ids.count(comp_id[idx]))</div>
+<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>                    __sequence_contradiction_error(</div>
+<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>                        <span class="stringliteral">&quot;tried to set indices two indices as equal and &quot;</span></div>
+<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>                        <span class="stringliteral">&quot;different&quot;</span>);</div>
+<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>                comp_ids.insert(comp_id[idx]);</div>
+<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>            }</div>
+<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span> </div>
+<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span>            <span class="comment">// Generates set of already defined values.</span></div>
+<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>            std::set&lt;T&gt; defined_values;</div>
+<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx : distinct)</div>
+<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>                <span class="keywordflow">if</span> (val_range[idx].first == val_range[idx].second)</div>
+<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>                    defined_values.insert(val_range[idx].first);</div>
+<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span> </div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>            <span class="comment">// We have values in [l, r], but those in defined_values are</span></div>
+<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>            <span class="comment">// taken. We generate our numbers in the range [0, lim) with</span></div>
+<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>            <span class="comment">// lim = (r-l+1)-(defined_values.size()), and then map them to</span></div>
+<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>            <span class="comment">// the correct range.</span></div>
+<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>            <span class="comment">// We will run (distinct.size()-defined_values.size()) steps of</span></div>
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>            <span class="comment">// Fisher–Yates, using a map to store a virtual sequence that starts</span></div>
+<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>            <span class="comment">// with the a[i] = i.</span></div>
+<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span>            <span class="keywordtype">int</span> lim = (value_r - value_l + 1) - <span class="keywordtype">int</span>(defined_values.size());</div>
+<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>            std::map&lt;T, T&gt; virtual_sequence;</div>
+<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>            std::vector&lt;T&gt; initial_gen;</div>
+<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; distinct.size() - <span class="keywordtype">int</span>(defined_values.size());</div>
+<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>                 i++) {</div>
+<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>                T j = <a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next&lt;T&gt;</a>(i, lim - 1);</div>
+<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>                T vj = virtual_sequence.count(j) ? virtual_sequence[j] : j;</div>
+<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>                T vi = virtual_sequence.count(i) ? virtual_sequence[i] : T(i);</div>
 <div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span> </div>
-<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>            <span class="comment">// Shifts back to correct range, but there might still be values</span></div>
-<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>            <span class="comment">// that we can not use.</span></div>
-<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>            <span class="keywordflow">for</span> (T &amp;value : initial_gen)</div>
-<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>                value += value_l;</div>
+<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>                virtual_sequence[j] = vi, virtual_sequence[i] = vj;</div>
+<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span> </div>
+<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>                initial_gen.push_back(virtual_sequence[i]);</div>
+<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>            }</div>
 <div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span> </div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>            <span class="comment">// Now for every generated value that is in defined_values, we map</span></div>
-<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>            <span class="comment">// it to [l + lim, l + lim + defined_values.size()).</span></div>
-<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>            std::vector&lt;std::pair&lt;T, int&gt;&gt; values_to_map;</div>
-<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; initial_gen.size(); ++i)</div>
-<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>                <span class="keywordflow">if</span> (defined_values.count(initial_gen[i])) {</div>
-<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>                    values_to_map.emplace_back(initial_gen[i], i);</div>
-<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>                }</div>
-<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span>            <span class="comment">// We iterate through them in increasing order.</span></div>
-<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>            std::sort(values_to_map.begin(), values_to_map.end());</div>
-<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span>            <span class="keyword">auto</span> cur_it = defined_values.begin();</div>
-<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>            <span class="keywordtype">int</span> cur_defined_idx = 0;</div>
-<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>            <span class="keywordflow">for</span> (<span class="keyword">auto</span> [val, idx] : values_to_map) {</div>
-<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span>                <span class="keywordflow">while</span> (*cur_it != val)</div>
-<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>                    ++cur_it, ++cur_defined_idx;</div>
-<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>                initial_gen[idx] = value_l + lim + cur_defined_idx;</div>
-<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>            }</div>
-<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span> </div>
-<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>            <span class="keywordtype">int</span> cur = 0;</div>
-<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx : distinct) {</div>
-<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>                T value;</div>
-<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>                <span class="keywordflow">if</span> (val_range[idx].first == val_range[idx].second)</div>
-<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>                    value = val_range[idx].first; <span class="comment">// Value was already set.</span></div>
-<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>                <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>                    value = initial_gen[cur++]; <span class="comment">// Use a generated random value.</span></div>
-<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span> </div>
-<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>                <span class="comment">// For every index in this component, sets it.</span></div>
-<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>                <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i : comp[comp_id[idx]])</div>
-<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>                    vec[i] = value;</div>
-<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>            }</div>
-<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span>        }</div>
-<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span> </div>
-<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>        <span class="keywordflow">if</span> (values.size() &gt; 0) {</div>
-<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>            <span class="comment">// Needs to fetch the values from the value set.</span></div>
-<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span>            std::vector&lt;T&gt; value_vec(values.begin(), values.end());</div>
-<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>            std::vector&lt;T&gt; final_vec;</div>
-<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
-<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span>                final_vec.push_back(value_vec[vec[i]]);</div>
-<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span>            swap(vec, final_vec);</div>
-<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span>        }</div>
-<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span> </div>
-<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>        <span class="keywordflow">return</span> <a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">instance</a>(vec);</div>
-<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>    }</div>
-<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span> </div>
-<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>    <span class="comment">// Calls the generator until predicate is true.</span></div>
-<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PRED&gt;</div>
-<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span>    <a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">instance</a> gen_until(PRED predicate, <span class="keywordtype">int</span> max_tries,</div>
-<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span>                       <span class="keywordtype">bool</span> random_default = <span class="keyword">false</span>) {</div>
-<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; max_tries; ++i) {</div>
-<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span>            <a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">instance</a> inst = gen();</div>
-<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span>            <span class="keywordflow">if</span> (predicate(inst))</div>
-<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span>                <span class="keywordflow">return</span> inst;</div>
-<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span>        }</div>
-<div class="line"><a id="l00652" name="l00652"></a><span class="lineno">  652</span>        <span class="keywordflow">if</span> (random_default)</div>
-<div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span>            <span class="keywordflow">return</span> gen();</div>
-<div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>        <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span>            <span class="keywordflow">throw</span> __error(<span class="stringliteral">&quot;could not generate instance matching predicate&quot;</span>);</div>
-<div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span>    }</div>
-<div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>};</div>
+<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>            <span class="comment">// Shifts back to correct range, but there might still be values</span></div>
+<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>            <span class="comment">// that we can not use.</span></div>
+<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>            <span class="keywordflow">for</span> (T &amp;value : initial_gen)</div>
+<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>                value += value_l;</div>
+<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span> </div>
+<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>            <span class="comment">// Now for every generated value that is in defined_values, we map</span></div>
+<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>            <span class="comment">// it to [l + lim, l + lim + defined_values.size()).</span></div>
+<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span>            std::vector&lt;std::pair&lt;T, int&gt;&gt; values_to_map;</div>
+<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; initial_gen.size(); ++i)</div>
+<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span>                <span class="keywordflow">if</span> (defined_values.count(initial_gen[i])) {</div>
+<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>                    values_to_map.emplace_back(initial_gen[i], i);</div>
+<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>                }</div>
+<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span>            <span class="comment">// We iterate through them in increasing order.</span></div>
+<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>            std::sort(values_to_map.begin(), values_to_map.end());</div>
+<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>            <span class="keyword">auto</span> cur_it = defined_values.begin();</div>
+<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>            <span class="keywordtype">int</span> cur_defined_idx = 0;</div>
+<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>            <span class="keywordflow">for</span> (<span class="keyword">auto</span> [val, idx] : values_to_map) {</div>
+<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>                <span class="keywordflow">while</span> (*cur_it != val)</div>
+<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>                    ++cur_it, ++cur_defined_idx;</div>
+<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>                initial_gen[idx] = value_l + lim + cur_defined_idx;</div>
+<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>            }</div>
+<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span> </div>
+<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>            <span class="keywordtype">int</span> cur = 0;</div>
+<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx : distinct) {</div>
+<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>                T value;</div>
+<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>                <span class="keywordflow">if</span> (val_range[idx].first == val_range[idx].second)</div>
+<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>                    value = val_range[idx].first; <span class="comment">// Value was already set.</span></div>
+<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>                <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>                    value = initial_gen[cur++]; <span class="comment">// Use a generated random value.</span></div>
+<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span> </div>
+<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>                <span class="comment">// For every index in this component, sets it.</span></div>
+<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>                <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i : comp[comp_id[idx]])</div>
+<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>                    vec[i] = value;</div>
+<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span>            }</div>
+<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>        }</div>
+<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span> </div>
+<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span>        <span class="keywordflow">if</span> (values.size() &gt; 0) {</div>
+<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span>            <span class="comment">// Needs to fetch the values from the value set.</span></div>
+<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span>            std::vector&lt;T&gt; value_vec(values.begin(), values.end());</div>
+<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>            std::vector&lt;T&gt; final_vec;</div>
+<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i)</div>
+<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>                final_vec.push_back(value_vec[vec[i]]);</div>
+<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span>            swap(vec, final_vec);</div>
+<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>        }</div>
+<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span> </div>
+<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span>        <span class="keywordflow">return</span> <a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">instance</a>(vec);</div>
+<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span>    }</div>
+<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span> </div>
+<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span>    <span class="comment">// Calls the generator until predicate is true.</span></div>
+<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PRED&gt;</div>
+<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span>    <a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">instance</a> gen_until(PRED predicate, <span class="keywordtype">int</span> max_tries,</div>
+<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span>                       <span class="keywordtype">bool</span> random_default = <span class="keyword">false</span>) {</div>
+<div class="line"><a id="l00652" name="l00652"></a><span class="lineno">  652</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; max_tries; ++i) {</div>
+<div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span>            <a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">instance</a> inst = gen();</div>
+<div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>            <span class="keywordflow">if</span> (predicate(inst))</div>
+<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span>                <span class="keywordflow">return</span> inst;</div>
+<div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span>        }</div>
+<div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>        <span class="keywordflow">if</span> (random_default)</div>
+<div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>            <span class="keywordflow">return</span> gen();</div>
+<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>        <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span>            <span class="keywordflow">throw</span> __error(<span class="stringliteral">&quot;could not generate instance matching predicate&quot;</span>);</div>
+<div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span>    }</div>
+<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span>};</div>
 </div>
-<div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span> </div>
-<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span><span class="comment"> * Sequence random operations.</span></div>
-<div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span> </div>
-<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span><span class="keyword">namespace </span>sequence_op {</div>
-<div class="line"><a id="l00664" name="l00664"></a><span class="lineno">  664</span> </div>
-<div class="line"><a id="l00665" name="l00665"></a><span class="lineno">  665</span><span class="comment">// Shuffles an sequence.</span></div>
-<div class="line"><a id="l00666" name="l00666"></a><span class="lineno">  666</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> INST&gt; INST shuffle(<span class="keyword">const</span> INST &amp;inst) {</div>
-<div class="line"><a id="l00667" name="l00667"></a><span class="lineno">  667</span>    INST new_inst = inst;</div>
-<div class="line"><a id="l00668" name="l00668"></a><span class="lineno">  668</span>    tgen::shuffle(new_inst.vec);</div>
-<div class="line"><a id="l00669" name="l00669"></a><span class="lineno">  669</span>    <span class="keywordflow">return</span> new_inst;</div>
-<div class="line"><a id="l00670" name="l00670"></a><span class="lineno">  670</span>}</div>
-<div class="line"><a id="l00671" name="l00671"></a><span class="lineno">  671</span> </div>
-<div class="line"><a id="l00672" name="l00672"></a><span class="lineno">  672</span><span class="comment">// Choses any value in the sequence.</span></div>
-<div class="line"><a id="l00673" name="l00673"></a><span class="lineno">  673</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> INST&gt; <span class="keyword">typename</span> INST::value_type any(<span class="keyword">const</span> INST &amp;inst) {</div>
-<div class="line"><a id="l00674" name="l00674"></a><span class="lineno">  674</span>    <span class="keywordflow">return</span> inst.vec[next(0, inst.vec.size() - 1)];</div>
+<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span> </div>
+<div class="line"><a id="l00664" name="l00664"></a><span class="lineno">  664</span><span class="comment">/*</span></div>
+<div class="line"><a id="l00665" name="l00665"></a><span class="lineno">  665</span><span class="comment"> * Sequence random operations.</span></div>
+<div class="line"><a id="l00666" name="l00666"></a><span class="lineno">  666</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00667" name="l00667"></a><span class="lineno">  667</span> </div>
+<div class="line"><a id="l00668" name="l00668"></a><span class="lineno">  668</span><span class="keyword">namespace </span>sequence_op {</div>
+<div class="line"><a id="l00669" name="l00669"></a><span class="lineno">  669</span> </div>
+<div class="line"><a id="l00670" name="l00670"></a><span class="lineno">  670</span><span class="comment">// Shuffles an sequence.</span></div>
+<div class="line"><a id="l00671" name="l00671"></a><span class="lineno">  671</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> INST&gt; INST shuffle(<span class="keyword">const</span> INST &amp;inst) {</div>
+<div class="line"><a id="l00672" name="l00672"></a><span class="lineno">  672</span>    INST new_inst = inst;</div>
+<div class="line"><a id="l00673" name="l00673"></a><span class="lineno">  673</span>    <a class="code hl_function" href="group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(new_inst.vec);</div>
+<div class="line"><a id="l00674" name="l00674"></a><span class="lineno">  674</span>    <span class="keywordflow">return</span> new_inst;</div>
 <div class="line"><a id="l00675" name="l00675"></a><span class="lineno">  675</span>}</div>
 <div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span> </div>
-<div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span><span class="comment">// Chooses k values from the sequence, as in a subsequence of size k.</span></div>
-<div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> INST&gt; INST choose(<span class="keywordtype">int</span> k, <span class="keyword">const</span> INST &amp;inst) {</div>
-<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>    <a class="code hl_define" href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a>(0 &lt; k and k &lt;= inst.vec.size(),</div>
-<div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>           <span class="stringliteral">&quot;number of elements to choose must be valid&quot;</span>);</div>
-<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>    std::vector&lt;typename INST::value_type&gt; new_vec;</div>
-<div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>    <span class="keywordtype">int</span> need = k;</div>
-<div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; need &gt; 0; ++i) {</div>
-<div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span>        <span class="keywordtype">int</span> left = inst.vec.size() - i;</div>
-<div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span>        <span class="keywordflow">if</span> (next(1, left) &lt;= need) {</div>
-<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>            new_vec.push_back(inst.vec[i]);</div>
-<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>            need--;</div>
-<div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span>        }</div>
-<div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span>    }</div>
-<div class="line"><a id="l00690" name="l00690"></a><span class="lineno">  690</span>    <span class="keywordflow">return</span> INST(new_vec);</div>
-<div class="line"><a id="l00691" name="l00691"></a><span class="lineno">  691</span>}</div>
-<div class="line"><a id="l00692" name="l00692"></a><span class="lineno">  692</span> </div>
-<div class="line"><a id="l00693" name="l00693"></a><span class="lineno">  693</span>}; <span class="comment">// namespace sequence_op</span></div>
-<div class="line"><a id="l00694" name="l00694"></a><span class="lineno">  694</span> </div>
-<div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span>}; <span class="comment">// namespace tgen</span></div>
-<div class="ttc" id="agroup__general_html_gaef8ae1775782023fe7997cc08c885714"><div class="ttname"><a href="group__general.html#gaef8ae1775782023fe7997cc08c885714">ensure</a></div><div class="ttdeci">#define ensure(cond,...)</div><div class="ttdoc">Ensures condition cond is true.</div><div class="ttdef"><b>Definition</b> general.dox:25</div></div>
-<div class="ttc" id="astructtgen_1_1sequence_1_1instance_html"><div class="ttname"><a href="structtgen_1_1sequence_1_1instance.html">tgen::sequence::instance</a></div><div class="ttdef"><b>Definition</b> tgen.h:445</div></div>
+<div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span><span class="comment">// Choses any value in the sequence.</span></div>
+<div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> INST&gt; <span class="keyword">typename</span> INST::value_type any(<span class="keyword">const</span> INST &amp;inst) {</div>
+<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>    <span class="keywordflow">return</span> inst.vec[<a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next</a>(0, inst.vec.size() - 1)];</div>
+<div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>}</div>
+<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span> </div>
+<div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span><span class="comment">// Chooses k values from the sequence, as in a subsequence of size k.</span></div>
+<div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> INST&gt; INST choose(<span class="keywordtype">int</span> k, <span class="keyword">const</span> INST &amp;inst) {</div>
+<div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(0 &lt; k and k &lt;= inst.vec.size(),</div>
+<div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span>                <span class="stringliteral">&quot;number of elements to choose must be valid&quot;</span>);</div>
+<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>    std::vector&lt;typename INST::value_type&gt; new_vec;</div>
+<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>    <span class="keywordtype">int</span> need = k;</div>
+<div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; need &gt; 0; ++i) {</div>
+<div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span>        <span class="keywordtype">int</span> left = inst.vec.size() - i;</div>
+<div class="line"><a id="l00690" name="l00690"></a><span class="lineno">  690</span>        <span class="keywordflow">if</span> (<a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next</a>(1, left) &lt;= need) {</div>
+<div class="line"><a id="l00691" name="l00691"></a><span class="lineno">  691</span>            new_vec.push_back(inst.vec[i]);</div>
+<div class="line"><a id="l00692" name="l00692"></a><span class="lineno">  692</span>            need--;</div>
+<div class="line"><a id="l00693" name="l00693"></a><span class="lineno">  693</span>        }</div>
+<div class="line"><a id="l00694" name="l00694"></a><span class="lineno">  694</span>    }</div>
+<div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span>    <span class="keywordflow">return</span> INST(new_vec);</div>
+<div class="line"><a id="l00696" name="l00696"></a><span class="lineno">  696</span>}</div>
+<div class="line"><a id="l00697" name="l00697"></a><span class="lineno">  697</span> </div>
+<div class="line"><a id="l00698" name="l00698"></a><span class="lineno">  698</span>}; <span class="comment">// namespace sequence_op</span></div>
+<div class="line"><a id="l00699" name="l00699"></a><span class="lineno">  699</span> </div>
+<div class="line"><a id="l00700" name="l00700"></a><span class="lineno">  700</span>}; <span class="comment">// namespace tgen</span></div>
+<div class="ttc" id="agroup__general_html_ga5494e4e347f9d1dc5b88695e0777f65b"><div class="ttname"><a href="group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a></div><div class="ttdeci">void shuffle(It first, It last)</div><div class="ttdoc">Shuffles [first, last) inplace uniformly.</div><div class="ttdef"><b>Definition</b> tgen.h:80</div></div>
+<div class="ttc" id="agroup__general_html_gaa007cf5e254380332a3548711d5f9b16"><div class="ttname"><a href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a></div><div class="ttdeci">T next(T l, T r)</div><div class="ttdoc">Returns a random number in [l, r].</div><div class="ttdef"><b>Definition</b> tgen.h:63</div></div>
+<div class="ttc" id="agroup__general_html_gabc423cf4476d436001120351be24e896"><div class="ttname"><a href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a></div><div class="ttdeci">#define tgen_ensure(cond,...)</div><div class="ttdoc">Ensures condition cond is true.</div><div class="ttdef"><b>Definition</b> general.dox:27</div></div>
+<div class="ttc" id="astructtgen_1_1sequence_1_1instance_html"><div class="ttname"><a href="structtgen_1_1sequence_1_1instance.html">tgen::sequence::instance</a></div><div class="ttdef"><b>Definition</b> tgen.h:450</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->
