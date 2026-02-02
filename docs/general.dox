@@ -1,8 +1,13 @@
 /**
  * @defgroup general General Operations
- * @brief Global setup and basic random generation.
+ * @brief Operations for basic number generation and basic random operations.
  *
- * Detailed description of General Operations.
+ * ### Examples
+ *
+ * ```cpp
+ * int val = tgen::next(1, 10); // Random number from 1 to 10.
+ * ```
+ *
  */
 
 
@@ -23,14 +28,15 @@
  * // With error message:
  * tgen_ensure(a == b, "values must be the same");
  * ```
+ * \hideinitializer
+ * \def tgen_ensure(cond, ...)
  */
-#define tgen_ensure(cond, ...)
 
 
 /**
  * @ingroup general
  * @brief Returns a random number in `[l, r]`.
-*
+ *
  * @param l Left endpoint of the range.
  * @param r Light endpoint of the range.
  *
@@ -54,31 +60,52 @@ template <typename T> T tgen::next(T l, T r);
  *
  * @param first First iterator of range.
  * @param last First iterator outside of range.
- *
  */
 template <typename It> void tgen::shuffle(It first, It last);
 
 
 /**
  * @ingroup general
- * @brief Shuffles container uniformly. Returns a copy.
+ * @brief Shuffles `container` uniformly. Returns a copy.
  *
  * @param container Container to be shuffled.
  *
  * @returns A copy of the shuffled container.
- *
  */
-template <typename C> C shuffle(C container);
+template <typename C> C tgen::shuffle(C container);
 
 
 /**
  * @ingroup general
- * @brief Returns a random element from [first, last).
+ * @brief Returns a random element from `[first, last)`.
  *
  * @param first First iterator of range.
  * @param last First iterator outside of range.
  *
  * @returns A uniformly random element from the range `[first, last)`.
- *
  */
-template <typename It> typename It::value_type any(It first, It last);
+template <typename It> typename It::value_type tgen::any(It first, It last);
+
+
+/**
+ * @ingroup general
+ * @brief Returns a random element from `container`.
+ *
+ * @param container Container to choose from.
+ *
+ * @returns A uniformly random element from `container`.
+ */
+template <typename C> typename C::value_type tgen::any(const C &container);
+
+
+/**
+ * @ingroup general
+ * @brief Chooses k values from the container, as in a subsequence of size k. Returns a copy.
+ *
+ * @param k Number of elements to be chosen.
+ * @param container Container to choose from.
+ *
+ * @returns A uniformly random subsequence of length k.
+ */
+template <typename C> C tgen::choose(int k, const C &container);
+

@@ -1,0 +1,241 @@
+\doxysection{Registering and Opts }
+\hypertarget{group__opts}{}\label{group__opts}\index{Registering and Opts@{Registering and Opts}}
+
+
+Registering and opts parsing.  
+
+
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{group__opts_ga1f65eceb6a4e6e2299c66797131f0c5f}{tgen\+::has\+\_\+opt}} (int index)
+\begin{DoxyCompactList}\small\item\em Checks if opt with at {\ttfamily index} exists. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{group__opts_ga87fb2f31789744477371960792b7540f}{tgen\+::has\+\_\+opt}} (const std\+::string \&key)
+\begin{DoxyCompactList}\small\item\em Checks if opt with with {\ttfamily key} exists. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename T$>$ }\\T \mbox{\hyperlink{group__opts_ga3a0c1de577e6b0c2bf1e119107f274db}{tgen\+::opt}} (int index)
+\begin{DoxyCompactList}\small\item\em Gets opt at {\ttfamily index}. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename T$>$ }\\T \mbox{\hyperlink{group__opts_ga6c7a3ec6c638336feb28157279218066}{tgen\+::opt}} (int index, const T \&default\+\_\+value)
+\begin{DoxyCompactList}\small\item\em Gets opt at {\ttfamily index}. If not found, returns {\ttfamily default\+\_\+value}. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename T$>$ }\\T \mbox{\hyperlink{group__opts_gaceb7bdc16f9749b22bc6ebd6404340d5}{tgen\+::opt}} (const std\+::string \&key)
+\begin{DoxyCompactList}\small\item\em Gets opt of {\ttfamily key}. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename T$>$ }\\T \mbox{\hyperlink{group__opts_gaf271a5e200375d2038f4704dea300921}{tgen\+::opt}} (const std\+::string \&key, const T \&default\+\_\+value)
+\begin{DoxyCompactList}\small\item\em Gets opt of {\ttfamily key}. If not found, returns {\ttfamily default\+\_\+value}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group__opts_gae8eca919976894c15b44713f00f33bd8}{tgen\+::register\+\_\+gen}} (int argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv)
+\begin{DoxyCompactList}\small\item\em Sets up the generator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Registering and opts parsing. 
+
+\hypertarget{group__opts_autotoc_md7}{}\doxysubsubsubsection{\texorpdfstring{Registering}{Registering}}\label{group__opts_autotoc_md7}
+The first line of your generator should be\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{preprocessor}{\#include\ "{}tgen.h"{}}}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordtype}{int}\ main(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}**\ argv)\ \{}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{group__opts_gae8eca919976894c15b44713f00f33bd8}{tgen::register\_gen}}(argc,\ argv);}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+This does two things\+:
+\begin{DoxyEnumerate}
+\item Sets up the seed for random generator based on the arguments (excluding the executable name). That is, {\ttfamily ./a.out -\/n 10} and {\ttfamily ./b.out -\/n 10} will use the same seed.
+\item Parses the opts (given in the arguments).
+\end{DoxyEnumerate}\hypertarget{group__opts_autotoc_md8}{}\doxysubsubsubsection{\texorpdfstring{Opts}{Opts}}\label{group__opts_autotoc_md8}
+Opts are a list of either named or positional options.
+
+Named options is given in one of the following formats\+:
+\begin{DoxyEnumerate}
+\item {\ttfamily -\/keyname=value} or {\ttfamily -\/-\/keyname=value} (ex. {\ttfamily -\/n=10}, {\ttfamily -\/-\/test-\/count=20})
+\item {\ttfamily -\/keyname value} or {\ttfamily -\/-\/keyname value} (ex. {\ttfamily -\/n 10}, {\ttfamily -\/-\/test-\/count 20})
+\end{DoxyEnumerate}
+
+Positional options are numbered from 0 sequentially. For example, for {\ttfamily 10 -\/n=20 str} positional option 1 is the string {\ttfamily str}.\hypertarget{group__opts_autotoc_md9}{}\doxysubsubsubsubsection{\texorpdfstring{Consuming opts}{Consuming opts}}\label{group__opts_autotoc_md9}
+You can consume the opts by using {\ttfamily opt\texorpdfstring{$<$}{<}\texorpdfstring{$>$}{>}}\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keywordtype}{int}\ n\ =\ opt<int>(\textcolor{stringliteral}{"{}n"{}});}
+\DoxyCodeLine{\textcolor{keywordtype}{int}\ q\ =\ opt<int>(\textcolor{stringliteral}{"{}q"{}},\ n);\ \textcolor{comment}{//\ default\ value,\ if\ opt\ is\ not\ found}}
+
+\end{DoxyCode}
+ 
+
+\label{doc-func-members}
+\Hypertarget{group__opts_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{group__opts_ga87fb2f31789744477371960792b7540f}\index{Registering and Opts@{Registering and Opts}!has\_opt@{has\_opt}}
+\index{has\_opt@{has\_opt}!Registering and Opts@{Registering and Opts}}
+\doxysubsubsection{\texorpdfstring{has\_opt()}{has\_opt()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \label{group__opts_ga87fb2f31789744477371960792b7540f} 
+bool tgen\+::has\+\_\+opt (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{key}{}\end{DoxyParamCaption})}
+
+
+
+Checks if opt with with {\ttfamily key} exists. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & Key of named opt.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+If there is named opt with {\ttfamily key}. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00151}{151}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+
+\Hypertarget{group__opts_ga1f65eceb6a4e6e2299c66797131f0c5f}\index{Registering and Opts@{Registering and Opts}!has\_opt@{has\_opt}}
+\index{has\_opt@{has\_opt}!Registering and Opts@{Registering and Opts}}
+\doxysubsubsection{\texorpdfstring{has\_opt()}{has\_opt()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \label{group__opts_ga1f65eceb6a4e6e2299c66797131f0c5f} 
+bool tgen\+::has\+\_\+opt (\begin{DoxyParamCaption}\item[{int}]{index}{}\end{DoxyParamCaption})}
+
+
+
+Checks if opt with at {\ttfamily index} exists. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & Index of positional opt.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+If there is positional opt at {\ttfamily index}. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00148}{148}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+
+\Hypertarget{group__opts_gaceb7bdc16f9749b22bc6ebd6404340d5}\index{Registering and Opts@{Registering and Opts}!opt@{opt}}
+\index{opt@{opt}!Registering and Opts@{Registering and Opts}}
+\doxysubsubsection{\texorpdfstring{opt()}{opt()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily \label{group__opts_gaceb7bdc16f9749b22bc6ebd6404340d5} 
+template$<$typename T$>$ \\
+T tgen\+::opt (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{key}{}\end{DoxyParamCaption})}
+
+
+
+Gets opt of {\ttfamily key}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & Key of named opt.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The value of opt of {\ttfamily key}.
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em std\+::runtime\+\_\+error} & opt is not found. \\
+\hline
+\end{DoxyExceptions}
+
+
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00208}{208}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+
+\Hypertarget{group__opts_gaf271a5e200375d2038f4704dea300921}\index{Registering and Opts@{Registering and Opts}!opt@{opt}}
+\index{opt@{opt}!Registering and Opts@{Registering and Opts}}
+\doxysubsubsection{\texorpdfstring{opt()}{opt()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily \label{group__opts_gaf271a5e200375d2038f4704dea300921} 
+template$<$typename T$>$ \\
+T tgen\+::opt (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{key}{, }\item[{const T \&}]{default\+\_\+value}{}\end{DoxyParamCaption})}
+
+
+
+Gets opt of {\ttfamily key}. If not found, returns {\ttfamily default\+\_\+value}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & Key of named opt. \\
+\hline
+{\em default\+\_\+value} & Default value, if opt is not found.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The value of opt of {\ttfamily key}, or {\ttfamily default\+\_\+value} if not found. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00215}{215}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+
+\Hypertarget{group__opts_ga3a0c1de577e6b0c2bf1e119107f274db}\index{Registering and Opts@{Registering and Opts}!opt@{opt}}
+\index{opt@{opt}!Registering and Opts@{Registering and Opts}}
+\doxysubsubsection{\texorpdfstring{opt()}{opt()}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily \label{group__opts_ga3a0c1de577e6b0c2bf1e119107f274db} 
+template$<$typename T$>$ \\
+T tgen\+::opt (\begin{DoxyParamCaption}\item[{int}]{index}{}\end{DoxyParamCaption})}
+
+
+
+Gets opt at {\ttfamily index}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & Index of positional opt.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The value of opt at {\ttfamily index}.
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em std\+::runtime\+\_\+error} & opt is not found. \\
+\hline
+\end{DoxyExceptions}
+
+
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00194}{194}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+
+\Hypertarget{group__opts_ga6c7a3ec6c638336feb28157279218066}\index{Registering and Opts@{Registering and Opts}!opt@{opt}}
+\index{opt@{opt}!Registering and Opts@{Registering and Opts}}
+\doxysubsubsection{\texorpdfstring{opt()}{opt()}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily \label{group__opts_ga6c7a3ec6c638336feb28157279218066} 
+template$<$typename T$>$ \\
+T tgen\+::opt (\begin{DoxyParamCaption}\item[{int}]{index}{, }\item[{const T \&}]{default\+\_\+value}{}\end{DoxyParamCaption})}
+
+
+
+Gets opt at {\ttfamily index}. If not found, returns {\ttfamily default\+\_\+value}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & Index of positional opt. \\
+\hline
+{\em default\+\_\+value} & Default value, if opt is not found.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The value of opt at {\ttfamily index}, or {\ttfamily default\+\_\+value} if not found. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00201}{201}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+
+\Hypertarget{group__opts_gae8eca919976894c15b44713f00f33bd8}\index{Registering and Opts@{Registering and Opts}!register\_gen@{register\_gen}}
+\index{register\_gen@{register\_gen}!Registering and Opts@{Registering and Opts}}
+\doxysubsubsection{\texorpdfstring{register\_gen()}{register\_gen()}}
+{\footnotesize\ttfamily \label{group__opts_gae8eca919976894c15b44713f00f33bd8} 
+void tgen\+::register\+\_\+gen (\begin{DoxyParamCaption}\item[{int}]{argc}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{argv}{}\end{DoxyParamCaption})}
+
+
+
+Sets up the generator. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em argc} & Argument count, from the main function. \\
+\hline
+{\em argv} & Argument vector, from the main function.\\
+\hline
+\end{DoxyParams}
+Sets up the opts, and the seed of the random number generator. The seed is dependent on the arguments (excluding the executable name). 
+
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00299}{299}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+

@@ -119,7 +119,8 @@ $(function(){initNavTree('index.html','',''); });
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a></p>
-<p>There are <a href="group__general.html">general operations</a> and operations on specific data types:</p>
+<p>First, you <a href="group__opts.html">register the generator</a>. That defines the seed for random generation and parses the opts.</p>
+<p>There are <a href="group__general.html">general operations</a> and operations for specific data types:</p>
 <ul>
 <li>Sequences</li>
 </ul>
@@ -132,13 +133,14 @@ Opts configuration</h2>
 <div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span></div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>** argv) {</div>
-<div class="line">    tgen::register_gen(argc, argv);</div>
+<div class="line">    <a class="code hl_function" href="group__opts.html#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a>(argc, argv);</div>
 <div class="line"> </div>
 <div class="line">    <span class="keywordtype">int</span> n_max = get&lt;int&gt;(<span class="stringliteral">&quot;n&quot;</span>);</div>
 <div class="line"> </div>
 <div class="line">    std::cout &lt;&lt; <a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a>(1, n) &lt;&lt; std;:endl;</div>
 <div class="line">}</div>
-<div class="ttc" id="agroup__general_html_gaa007cf5e254380332a3548711d5f9b16"><div class="ttname"><a href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a></div><div class="ttdeci">T next(T l, T r)</div><div class="ttdoc">Returns a random number in [l, r].</div><div class="ttdef"><b>Definition</b> tgen.h:63</div></div>
+<div class="ttc" id="agroup__general_html_gaa007cf5e254380332a3548711d5f9b16"><div class="ttname"><a href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a></div><div class="ttdeci">T next(T l, T r)</div><div class="ttdoc">Returns a random number in [l, r].</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00063">tgen.h:63</a></div></div>
+<div class="ttc" id="agroup__opts_html_gae8eca919976894c15b44713f00f33bd8"><div class="ttname"><a href="group__opts.html#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a></div><div class="ttdeci">void register_gen(int argc, char **argv)</div><div class="ttdoc">Sets up the generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00299">tgen.h:299</a></div></div>
 </div><!-- fragment --><p>Calling this code with <span class="tt">./a.out -n 100</span> will generate a random number from 1 to 100.</p>
 <h2 class="doxsection"><a class="anchor" id="autotoc_md3"></a>
 Generation</h2>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['general_20operations_0',['General Operations',['../group__general.html',1,'']]]
+  ['and_20opts_0',['Registering and Opts',['../group__opts.html',1,'']]]
 ];

@@ -1,6 +1,8 @@
 # A library to generate testcases
 
-There are [general operations](group__general.html) and operations on specific data types:
+First, you [register the generator](group__opts.html). That defines the seed for random generation and parses the opts.
+
+There are [general operations](group__general.html) and operations for specific data types:
 
 - Sequences
 

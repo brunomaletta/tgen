@@ -69,13 +69,6 @@ template <typename T> T next(T l, T r) {
 				  ")");
 }
 
-// Returns an equiprobable value from the regex.
-// For example, next("(a|b|c){10}|[a-c]{1,5}") returns either 10 chars in {'a',
-// 'b', 'c'}, or from 1 to 5 'c's.
-void next(std::string regex) {
-	// TODO
-}
-
 // Shuffles [first, last) inplace uniformly.
 template <typename It> void shuffle(It first, It last) {
 	if (first == last)
@@ -125,6 +118,12 @@ std::vector<T> choose(int k, const std::initializer_list<T> &list) {
 	return choose(k, std::vector<T>(list.begin(), list.end()));
 }
 
+/************
+ *          *
+ *   OPTS   *
+ *          *
+ ************/
+
 /*
  * Opts - options given to the generator.
  *
@@ -132,12 +131,12 @@ std::vector<T> choose(int k, const std::initializer_list<T> &list) {
  *
  * Opts are a list of either positional or named options.
  *
- * Positional options are number from 0 sequentially.
- * For example, for "10 -n=20 str" positional option 1 is the string "str".
- *
  * Named options is given in one of the following formats:
  * 1) -keyname=value or --keyname=value (ex. -n=10   , --test-count=20)
  * 2) -keyname value or --keyname value (ex. -n 10   , --test-count 20)
+ *
+ * Positional options are number from 0 sequentially.
+ * For example, for "10 -n=20 str" positional option 1 is the string "str".
  */
 
 std::vector<std::string>

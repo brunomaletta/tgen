@@ -4,7 +4,9 @@
 \Hypertarget{index_md_README}%
 
 
-There are \href{group__general.html}{\texttt{general operations}} and operations on specific data types\+:
+First, you \href{group__opts.html}{\texttt{register the generator}}. That defines the seed for random generation and parses the opts.
+
+There are \href{group__general.html}{\texttt{general operations}} and operations for specific data types\+:
 
 
 \begin{DoxyItemize}
@@ -18,7 +20,7 @@ There are \href{group__general.html}{\texttt{general operations}} and operations
 \DoxyCodeLine{\textcolor{preprocessor}{\#include\ <iostream>}}
 \DoxyCodeLine{}
 \DoxyCodeLine{\textcolor{keywordtype}{int}\ main(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}**\ argv)\ \{}
-\DoxyCodeLine{\ \ \ \ tgen::register\_gen(argc,\ argv);}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{group__opts_gae8eca919976894c15b44713f00f33bd8}{tgen::register\_gen}}(argc,\ argv);}
 \DoxyCodeLine{}
 \DoxyCodeLine{\ \ \ \ \textcolor{keywordtype}{int}\ n\_max\ =\ get<int>(\textcolor{stringliteral}{"{}n"{}});}
 \DoxyCodeLine{}

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['testcases_0',['A library to generate testcases',['../index.html',1,'']]],
-  ['tgen_5fensure_1',['tgen_ensure',['../group__general.html#gabc423cf4476d436001120351be24e896',1,'general.dox']]],
-  ['to_20generate_20testcases_2',['A library to generate testcases',['../index.html',1,'']]]
+  ['register_5fgen_0',['register_gen',['../group__opts.html#gae8eca919976894c15b44713f00f33bd8',1,'tgen']]],
+  ['registering_1',['Registering',['../group__opts.html#autotoc_md7',1,'']]],
+  ['registering_20and_20opts_2',['Registering and Opts',['../group__opts.html',1,'']]]
 ];

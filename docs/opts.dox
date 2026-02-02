@@ -1,0 +1,128 @@
+/**
+ * @defgroup opts Registering and Opts
+ * @brief Registering and opts parsing.
+ *
+ * ### Registering
+ *
+ * The first line of your generator should be:
+ *
+ * ```cpp
+ * #include "tgen.h"
+ * 
+ * int main(int argc, char** argv) {
+ *     tgen::register_gen(argc, argv);
+ * }
+ * ```
+ * 
+ * This does two things:
+ * 1. Sets up the seed for random generator based on the arguments
+ *    (excluding the executable name). That is, `./a.out -n 10` and
+ *    `./b.out -n 10` will use the same seed.
+ * 2. Parses the opts (given in the arguments).
+ *
+ * ### Opts
+ * 
+ * Opts are a list of either named or positional options.
+ *
+ * Named options is given in one of the following formats:
+ * 1. `-keyname=value` or `--keyname=value` (ex. `-n=10`, `--test-count=20`)
+ * 2. `-keyname value` or `--keyname value` (ex. `-n 10`, `--test-count 20`)
+ *
+ * Positional options are numbered from 0 sequentially.
+ * For example, for `10 -n=20 str` positional option 1 is the string `str`.
+ * 
+ * #### Consuming opts
+ * 
+ * You can consume the opts by using `opt<>`:
+ * 
+ * ```cpp
+ * int n = opt<int>("n");
+ * int q = opt<int>("q", n); // default value, if opt is not found
+ * ```
+ */
+
+
+
+/**
+ * @ingroup opts
+ * @brief Checks if opt with at `index` exists.
+ *
+ * @param index Index of positional opt.
+ *
+ * @returns If there is positional opt at `index`.
+ */
+bool tgen::has_opt(int index);
+
+
+/**
+ * @ingroup opts
+ * @brief Checks if opt with with `key` exists.
+ *
+ * @param key Key of named opt.
+ *
+ * @returns If there is named opt with `key`.
+ */
+bool tgen::has_opt(const std::string &key);
+
+
+/**
+ * @ingroup opts
+ * @brief Gets opt at `index`.
+ *
+ * @param index Index of positional opt.
+ *
+ * @returns The value of opt at `index`.
+ *
+ * @throws std::runtime_error opt is not found.
+ */
+template <typename T> T tgen::opt(int index);
+
+
+/**
+ * @ingroup opts
+ * @brief Gets opt at `index`. If not found, returns `default_value`.
+ *
+ * @param index Index of positional opt.
+ * @param default_value Default value, if opt is not found.
+ *
+ * @returns The value of opt at `index`, or `default_value` if not found.
+ */
+template <typename T> T tgen::opt(int index, const T &default_value);
+
+
+/**
+ * @ingroup opts
+ * @brief Gets opt of `key`.
+ *
+ * @param key Key of named opt.
+ *
+ * @returns The value of opt of `key`.
+ *
+ * @throws std::runtime_error opt is not found.
+ */
+template <typename T> T tgen::opt(const std::string &key);
+
+
+/**
+ * @ingroup opts
+ * @brief Gets opt of `key`. If not found, returns `default_value`.
+ *
+ * @param key Key of named opt.
+ * @param default_value Default value, if opt is not found.
+ *
+ * @returns The value of opt of `key`, or `default_value` if not found.
+ */
+template <typename T> T tgen::opt(const std::string &key, const T &default_value);
+
+
+/**
+ * @ingroup opts
+ * @brief Sets up the generator.
+ *
+ * @param argc Argument count, from the main function.
+ * @param argv Argument vector, from the main function.
+ *
+ * Sets up the opts, and the seed of the random number generator.
+ * The seed is dependent on the arguments (excluding the executable name).
+ */
+void tgen::register_gen(int argc, char **argv);
