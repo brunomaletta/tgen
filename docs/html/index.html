@@ -119,6 +119,31 @@ $(function(){initNavTree('index.html','',''); });
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a></p>
+<p>There are <a href="https://brunomaletta.github.io/tgen/group__general.html">general operations</a> and operations on specific data types:</p>
+<ul>
+<li>Sequences</li>
+</ul>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
+Examples</h1>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md2"></a>
+Opts configuration</h2>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;tgen.h&quot;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>** argv) {</div>
+<div class="line">    tgen::register_gen(argc, argv);</div>
+<div class="line"> </div>
+<div class="line">    <span class="keywordtype">int</span> n_max = get&lt;int&gt;(<span class="stringliteral">&quot;n&quot;</span>);</div>
+<div class="line"> </div>
+<div class="line">    std::cout &lt;&lt; <a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a>(1, n) &lt;&lt; std;:endl;</div>
+<div class="line">}</div>
+<div class="ttc" id="agroup__general_html_gaa007cf5e254380332a3548711d5f9b16"><div class="ttname"><a href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a></div><div class="ttdeci">T next(T l, T r)</div><div class="ttdoc">Returns a random number in [l, r].</div><div class="ttdef"><b>Definition</b> tgen.h:63</div></div>
+</div><!-- fragment --><p>Calling this code with <span class="tt">./a.out -n 100</span> will generate a random number from 1 to 100.</p>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md3"></a>
+Generation</h2>
+<div class="fragment"><div class="line">std::cout &lt;&lt; tgen::sequence&lt;int&gt;(100, 1, 100).distinct().gen() &lt;&lt; std::endl;</div>
+</div><!-- fragment --><p>This code generates a random sequence of 100 distinct numbers. </p>
 </div></div><!-- PageDoc -->
 <a href="doxygen_crawl.html"></a>
 </div><!-- contents -->

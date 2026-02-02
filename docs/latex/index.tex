@@ -2,3 +2,38 @@
 \hypertarget{index}{}\label{index}\index{A library to generate testcases@{A library to generate testcases}}
 \label{index_md_README}%
 \Hypertarget{index_md_README}%
+
+
+There are \href{https://brunomaletta.github.io/tgen/group__general.html}{\texttt{general operations}} and operations on specific data types\+:
+
+
+\begin{DoxyItemize}
+\item Sequences
+\end{DoxyItemize}\hypertarget{index_autotoc_md1}{}\doxysection{\texorpdfstring{Examples}{Examples}}\label{index_autotoc_md1}
+\hypertarget{index_autotoc_md2}{}\doxysubsection{\texorpdfstring{Opts configuration}{Opts configuration}}\label{index_autotoc_md2}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{preprocessor}{\#include\ "{}tgen.h"{}}}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{preprocessor}{\#include\ <iostream>}}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordtype}{int}\ main(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}**\ argv)\ \{}
+\DoxyCodeLine{\ \ \ \ tgen::register\_gen(argc,\ argv);}
+\DoxyCodeLine{}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordtype}{int}\ n\_max\ =\ get<int>(\textcolor{stringliteral}{"{}n"{}});}
+\DoxyCodeLine{}
+\DoxyCodeLine{\ \ \ \ std::cout\ <<\ \mbox{\hyperlink{group__general_gaa007cf5e254380332a3548711d5f9b16}{tgen::next}}(1,\ n)\ <<\ std;:endl;}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Calling this code with {\ttfamily ./a.out -\/n 100} will generate a random number from 1 to 100.\hypertarget{index_autotoc_md3}{}\doxysubsection{\texorpdfstring{Generation}{Generation}}\label{index_autotoc_md3}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{std::cout\ <<\ tgen::sequence<int>(100,\ 1,\ 100).distinct().gen()\ <<\ std::endl;}
+
+\end{DoxyCode}
+
+
+This code generates a random sequence of 100 distinct numbers. 
