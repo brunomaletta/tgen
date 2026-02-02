@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.14.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>My Project: Global Functions</title>
+<title>My Project: docs Directory Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,6 +21,7 @@
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
+<link href="custom.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
 <script type="text/javascript">
 	DoxygenAwesomeDarkModeToggle.lightModeIcon = '🌞'
@@ -88,7 +89,7 @@ $(function() {
   </div>
 </div>
 <script type="text/javascript">
-$(function(){initNavTree('group__general.html','',''); });
+$(function(){initNavTree('dir_49e56c817e5e54854c35e136979f97ca.html','',''); });
 </script>
 <div id="container">
 <div id="doc-content">
@@ -114,72 +115,9 @@ $(function(){initNavTree('group__general.html','',''); });
 </div>
 
 <div class="header">
-  <div class="headertitle"><div class="title">Global Functions </div></div>
+  <div class="headertitle"><div class="title">docs Directory Reference</div></div>
 </div><!--header-->
 <div class="contents">
-
-<p>Random generation utilities.  
-<a href="#details">More...</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:ga548c7a3c606a473538e2d014e5d9f0d2" id="r_ga548c7a3c606a473538e2d014e5d9f0d2"><td class="memItemLeft" align="right" valign="top">instance&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga548c7a3c606a473538e2d014e5d9f0d2">gen_until</a> (int max_tries, Predicate predicate)</td></tr>
-<tr class="memdesc:ga548c7a3c606a473538e2d014e5d9f0d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random selection of elements.  <br /></td></tr>
-</table>
-<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<p>Random generation utilities. </p>
-<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="ga548c7a3c606a473538e2d014e5d9f0d2" name="ga548c7a3c606a473538e2d014e5d9f0d2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga548c7a3c606a473538e2d014e5d9f0d2">&#9670;&#160;</a></span>gen_until()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">instance gen_until </td>
-          <td>(</td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>max_tries</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Predicate</td>          <td class="paramname"><span class="paramname"><em>predicate</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Generates a random selection of elements. </p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md0"></a>
-Overview</h2>
-<p><span class="tt">gen_until</span> repeatedly calls a generator until a predicate returns <span class="tt">true</span>, or a maximum number of tries is reached.</p>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
-Properties</h3>
-<ul>
-<li>Stops early if predicate succeeds</li>
-<li>Deterministic given a deterministic generator</li>
-<li>Throws on failure (or returns <span class="tt">std::optional</span>)</li>
-</ul>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md2"></a>
-Example</h3>
-<div class="fragment"><div class="line"><span class="keyword">auto</span> inst = <a class="code hl_function" href="#ga548c7a3c606a473538e2d014e5d9f0d2">gen_until</a>(100, [](<span class="keyword">const</span> instance&amp; x) {</div>
-<div class="line">    <span class="keywordflow">return</span> x.size() &gt;= 5;</div>
-<div class="line">});</div>
-<div class="ttc" id="agroup__general_html_ga548c7a3c606a473538e2d014e5d9f0d2"><div class="ttname"><a href="#ga548c7a3c606a473538e2d014e5d9f0d2">gen_until</a></div><div class="ttdeci">instance gen_until(int max_tries, Predicate predicate)</div><div class="ttdoc">Generates a random selection of elements.</div></div>
-</div><!-- fragment --><div class="tabbed"></div><div class="tabbed"><ul>
-<li><b class="tab-title">Tab 1</b> This is the content of tab 1</li>
-<li><b class="tab-title">Tab 2</b> This is the content of tab 2</li>
-</ul>
-</div><div class="tabbed"> </div><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">max_tries</td><td>Maximum number of attempts. </td></tr>
-    <tr><td class="paramname">predicate</td><td>Callable of type <span class="tt">bool(instance)</span>.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section note"><dt>Note</dt><dd>This function is guaranteed to terminate if the predicate is satisfiable. </dd></dl>
-
-</div>
-</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <div id="page-nav" class="page-nav-panel">
@@ -193,6 +131,7 @@ Example</h3>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
+    <li class="navelem"><a href="dir_49e56c817e5e54854c35e136979f97ca.html">docs</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.14.0 </li>
   </ul>
 </div>

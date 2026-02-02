@@ -24,15 +24,23 @@
 */
 var NAVTREE =
 [
-  [ "Doxygen Awesome", "index.html", [
-    [ "A library to generate testcases", "index.html", null ]
+  [ "My Project", "index.html", [
+    [ "Topics", "topics.html", "topics" ],
+    [ "Classes", "annotated.html", [
+      [ "Class List", "annotated.html", "annotated_dup" ],
+      [ "Class Index", "classes.html", null ]
+    ] ],
+    [ "Files", "files.html", [
+      [ "File List", "files.html", "files_dup" ]
+    ] ]
   ] ]
 ];
 
 var NAVTREEINDEX =
 [
-"index.html"
+"annotated.html"
 ];
 
-var SYNCONMSG = 'click to disable panel synchronisation';
-var SYNCOFFMSG = 'click to enable panel synchronisation';
+var SYNCONMSG = 'click to disable panel synchronization';
+var SYNCOFFMSG = 'click to enable panel synchronization';
+var LISTOFALLMEMBERS = 'List of all members';
