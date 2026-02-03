@@ -6,11 +6,12 @@
  *
  * ```cpp
  * // Generates 100 distinct integers.
- * std::cout <<
+ * std::cout << 
  *     tgen::sequence<int>(100, 1, 100).distinct().gen() << std::endl;
  * // Generates 10 sorted small powers of 2.
+ * std::set<int> powers = {1, 2, 4, 8};
  * std::cout <<
- *     tgen::sequence<int>(10, {1, 2, 4, 8}).gen().sort() << std::endl;
+ *     tgen::sequence<int>(10, powers).gen().sort() << std::endl;
  * ```
  *
  */
@@ -200,13 +201,13 @@ tgen::sequence &tgen::sequence::different_idx_pair(int idx_1, int idx_2);
  * @ingroup sequence
  * @brief Restricts generator s.t. all values are distinct.
  *
+ * @note If you add this restriction, you cannot add a `tgen::sequence::distinct_idx_set` restriction!
+ *
  * #### Examples
  *
  * ```cpp
  * // Sequences of 5 distinct ints from 1 to 5.
  * auto seq_gen = tgen::sequence<int>(5, 1, 5).distinct();
- *
- * @note If you add this restriction, you cannot add a `distinct_idx_set` restriction!
  * ```
  */
 tgen::sequence &tgen::sequence::distinct();
@@ -288,6 +289,9 @@ template <typename T> struct tgen::sequence::instance;
  * std::vector<int> v = {1, 2, 3};
  * tgen::sequence<int>::instance inst(v);
  * std::cout << inst << std::endl; // Prints "1 2 3".
+ * 
+ * inst = {5, 4};
+ * std::cout << inst << std::endl; // Prints "5 4".
  * ```
  */
 template <typename T> struct tgen::sequence::instance::instance(const std::vector<T>& vec);
@@ -303,8 +307,7 @@ template <typename T> struct tgen::sequence::instance::instance(const std::vecto
  *
  * ```cpp
  * // Creates and prints an instance from a std::vector
- * std::vector<int> v = {1, 2, 3};
- * tgen::sequence<int>::instance inst(v);
+ * tgen::sequence<int>::instance inst = {1, 2, 3};
  * std::cout <<
  *     inst.size() << std::endl; // Prints "3".
  * ```
@@ -324,8 +327,7 @@ size_t tgen::sequence::instance::size();
  *
  * ```cpp
  * // Creates and prints an instance from a std::vector
- * std::vector<int> v = {1, 2, 3};
- * tgen::sequence<int>::instance inst(v);
+ * tgen::sequence<int>::instance inst = {1, 2, 3};
  * std::cout << inst[1] << std::endl; // Prints "2".
  * ```
  */
@@ -340,8 +342,7 @@ T tgen::sequence::instance::operator[](int idx) const;
  *
  * ```cpp
  * // Sorts and prints an instance.
- * std::vector<int> v = {3, 1, 2};
- * tgen::sequence<int>::instance inst(v);
+ * tgen::sequence<int>::instance inst = {3, 1, 2};
  * std::cout <<
  *     inst.sort() << std::endl; // Prints "1 2 3".
  * ```
@@ -357,8 +358,7 @@ instance &tgen::sequence::instance::sort();
  *
  * ```cpp
  * // Reverses and prints an instance.
- * std::vector<int> v = {3, 1, 2};
- * tgen::sequence<int>::instance inst(v);
+ * tgen::sequence<int>::instance inst = {3, 1, 2};
  * std::cout <<
  *     inst.reverse() << std::endl; // Prints "2 1 3".
  * ```
@@ -377,9 +377,8 @@ instance &tgen::sequence::instance::reverse();
  *
  * ```cpp
  * // Prints an instance.
- * std::vector<int> v = {3, 1, 2};
- * tgen::sequence<int>::instance inst(v);
- * std::cout << inst << std::endl; // Prints "3 1 2".
+ * std::cout << 
+ *     tgen::sequence<int>::instance({3, 1, 2}) << std::endl; // Prints "3 1 2".
  * ```
  */
 friend std::ostream &tgen::sequence::instance::operator<<(std::ostream &out, const instance &inst);
@@ -394,7 +393,7 @@ friend std::ostream &tgen::sequence::instance::operator<<(std::ostream &out, con
  * #### Examples
  *
  * ```cpp
- * // Prints an instance.
+ * // Convoluted way to reverse a vector.
  * std::vector<int> v = {3, 1, 2};
  * v = tgen::sequence<int>::instance(v).reverse().to_std();
  * // v = {2, 1, 3}.
@@ -420,8 +419,7 @@ std::vector<T> tgen::sequence::instance::to_std();
  *
  * ```cpp
  * // Shuffles and prints an instance.
- * std::vector<int> v = {3, 1, 2};
- * tgen::sequence<int>::instance inst(v);
+ * tgen::sequence<int>::instance inst = {3, 1, 2};
  * std::cout <<
  *     tgen::sequence_op::shuffle(inst) << std::endl;
  * ```
@@ -443,8 +441,7 @@ INST tgen::sequence_op::shuffle(const INST &inst);
  *
  * ```cpp
  * // Prints a random element from v.
- * std::vector<int> v = {3, 1, 2};
- * tgen::sequence<int>::instance inst(v);
+ * tgen::sequence<int>::instance inst = {3, 1, 2};
  * std::cout <<
  *     tgen::sequence_op::any(inst) << std::endl;
  * ```
@@ -456,6 +453,7 @@ typename INST::value_type tgen::sequence_op::any(const INST &inst);
  * @ingroup sequence
  * @brief Chooses `k` values from the sequence instance, as in a subsequence of size `k`.
  *
+ * @param k The size of the subsequence.
  * @param inst the original instance.
  *
  * @return A uniformly random subsequence of length k.
@@ -466,8 +464,7 @@ typename INST::value_type tgen::sequence_op::any(const INST &inst);
  *
  * ```cpp
  * // Prints a subsequenec of length 2 from v.
- * std::vector<int> v = {3, 1, 2};
- * tgen::sequence<int>::instance inst(v);
+ * tgen::sequence<int>::instance inst = {3, 1, 2};
  * std::cout <<
  *     tgen::sequence_op::choose(2, inst) << std::endl;
  * ```

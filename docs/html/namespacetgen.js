@@ -1,9 +1,9 @@
 var namespacetgen =
 [
     [ "sequence_op", "namespacetgen_1_1sequence__op.html", [
-      [ "any", "namespacetgen_1_1sequence__op.html#a2d3aae3685b2a2003d737cfa3221f367", null ],
-      [ "choose", "namespacetgen_1_1sequence__op.html#ae983696fba517df4aa22a44ffaa88ba2", null ],
-      [ "shuffle", "namespacetgen_1_1sequence__op.html#a6dbb723e2e97121cfaa7a2d2d6e63e68", null ]
+      [ "any", "group__sequence.html#ga2d3aae3685b2a2003d737cfa3221f367", null ],
+      [ "choose", "group__sequence.html#gae983696fba517df4aa22a44ffaa88ba2", null ],
+      [ "shuffle", "group__sequence.html#ga6dbb723e2e97121cfaa7a2d2d6e63e68", null ]
     ] ],
     [ "sequence", "structtgen_1_1sequence.html", "structtgen_1_1sequence" ],
     [ "__contradiction_error", "namespacetgen.html#af07fe767fb0cf04dbcdbf2967c988b91", null ],

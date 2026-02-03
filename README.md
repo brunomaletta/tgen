@@ -13,7 +13,7 @@ There are [general operations](https://brunomaletta.github.io/tgen/group__genera
 All types specified above define a **generator**, that when called upon will generate a uniformly random **instance** with the given constraints. Let's see an example with `tgen::sequence`:
 
 ```cpp
-auto seq_gen = tgen::sequence<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/100);
+tgen::sequence<int> seq_gen = tgen::sequence<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/100);
 ```
 
 This will create a sequence generator representing the set of all sequences with 10 values from 1 to 100.
@@ -30,7 +30,7 @@ std::cout <<
 The nice thing is that we can add restrictions (specific to each type) to the generator, shrinking the set of valid arrays. For example, we can add the restriction that the first and second elements of the sequence have to be the same.
 
 ```cpp
-std::sequence<int>::instance inst = seq_gen.equal_idx_pair(/*idx_1=*/0, /*idx_2=*/1).gen();
+tgen::sequence<int>::instance inst = seq_gen.equal_idx_pair(/*idx_1=*/0, /*idx_2=*/1).gen();
 ```
 
 The returned instance can also be modified by some deterministic operations (specific to each type).

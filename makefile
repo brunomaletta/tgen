@@ -7,6 +7,8 @@ as:
 doc:
 	doxygen docs/Doxyfile
 
+docs: doc
+
 opendoc:
 	open docs/html/index.html > /dev/null 2>&1 &
 

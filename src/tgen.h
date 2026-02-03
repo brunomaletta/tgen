@@ -453,6 +453,8 @@ template <typename T> struct sequence {
 		std::vector<T> vec;	  // Sequence.
 
 		instance(const std::vector<T> &vec) : vec(vec) {}
+		instance(const std::initializer_list<T> &list)
+			: vec(list.begin(), list.end()) {}
 
 		// Fetches size.
 		size_t size() { return vec.size(); }
@@ -679,7 +681,7 @@ template <typename INST> INST shuffle(const INST &inst) {
 
 // Choses any value in the sequence.
 template <typename INST> typename INST::value_type any(const INST &inst) {
-	return inst.vec[next(0, inst.vec.size() - 1)];
+	return inst.vec[next<int>(0, inst.vec.size() - 1)];
 }
 
 // Chooses k values from the sequence, as in a subsequence of size k.

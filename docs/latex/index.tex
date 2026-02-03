@@ -18,7 +18,7 @@ All types specified above define a {\bfseries{generator}}, that when called upon
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{\textcolor{keyword}{auto}\ seq\_gen\ =\ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(\textcolor{comment}{/*size=*/}10,\ \textcolor{comment}{/*value\_l=*/}1,\ \textcolor{comment}{/*value\_r=*/}100);}
+\DoxyCodeLine{\mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}\ seq\_gen\ =\ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(\textcolor{comment}{/*size=*/}10,\ \textcolor{comment}{/*value\_l=*/}1,\ \textcolor{comment}{/*value\_r=*/}100);}
 
 \end{DoxyCode}
 
@@ -32,7 +32,7 @@ In our example, we can call {\ttfamily gen()} to generate and print a random seq
 
 \begin{DoxyCode}{0}
 \DoxyCodeLine{std::cout\ <<}
-\DoxyCodeLine{\ \ \ \ seq\_gen.gen()\ <<\ std::endl;}
+\DoxyCodeLine{\ \ \ \ seq\_gen.\mbox{\hyperlink{group__sequence_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}()\ <<\ std::endl;}
 
 \end{DoxyCode}
 
@@ -41,7 +41,7 @@ The nice thing is that we can add restrictions (specific to each type) to the ge
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{std::sequence<int>::instance\ inst\ =\ seq\_gen.equal\_idx\_pair(\textcolor{comment}{/*idx\_1=*/}0,\ \textcolor{comment}{/*idx\_2=*/}1).gen();}
+\DoxyCodeLine{\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{tgen::sequence<int>::instance}}\ inst\ =\ seq\_gen.\mbox{\hyperlink{group__sequence_ga7b3d4a90dac3ffafa88c95177ada6725}{equal\_idx\_pair}}(\textcolor{comment}{/*idx\_1=*/}0,\ \textcolor{comment}{/*idx\_2=*/}1).\mbox{\hyperlink{group__sequence_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}();}
 
 \end{DoxyCode}
 
@@ -50,7 +50,7 @@ The returned instance can also be modified by some deterministic operations (spe
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{inst.reverse();}
+\DoxyCodeLine{inst.\mbox{\hyperlink{group__sequence_ga2fef50f7e022b0432142fd19ef2f6bad}{reverse}}();}
 
 \end{DoxyCode}
 

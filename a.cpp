@@ -57,6 +57,6 @@ int main(int argc, char **argv) {
 					/*max_tries=*/100)
 		 << endl;
 
-	cout << tgen::any({1, 2, 3}) << endl;
-
+	tgen::sequence<int>::instance inst = {1, 2, 3};
+	cout << tgen::sequence_op::any(inst) << endl;
 }
