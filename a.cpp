@@ -58,4 +58,5 @@ int main(int argc, char **argv) {
 		 << endl;
 
 	cout << tgen::any({1, 2, 3}) << endl;
+
 }
