@@ -15,9 +15,6 @@ int main(int argc, char **argv) {
 					   .value_at_idx(/*idx=*/1, /*value=*/2)
 					   .distinct_idx_set(/*indices=*/{11, 10, 9, 8, 7});
 
-	for (int i = 0; i < 10; i++)
-		cout << seq_gen.gen() << endl;
-
 	cout << endl;
 
 	cout << tgen::sequence<char>(/*size=*/3, /*value_l=*/'a', /*value_r=*/'d')
