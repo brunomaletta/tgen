@@ -150,7 +150,7 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <p>Operations for basic number generation and basic random operations. </p>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md4"></a>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md5"></a>
 Examples</h3>
 <div class="fragment"><div class="line"><span class="comment">// Random number from 10 to 20.</span></div>
 <div class="line"><span class="keywordtype">int</span> size = <a class="code hl_function" href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a>(10, 20);</div>
@@ -204,7 +204,7 @@ Examples</h3>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md5"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md6"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Without error message:</span></div>
 <div class="line"><a class="code hl_define" href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(a == b);</div>
@@ -241,7 +241,7 @@ template&lt;typename C&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random element from <span class="tt">container</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md10"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md11"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
 <div class="line"><span class="keywordtype">int</span> value = <a class="code hl_function" href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a>(v);</div>
@@ -280,7 +280,7 @@ template&lt;typename It&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random element from the range <span class="tt">[first, last)</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md9"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md10"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::set&lt;int&gt; st = {1, 2, 3, 4, 5};</div>
 <div class="line"><span class="keywordtype">int</span> value = <a class="code hl_function" href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a>(st.begin(), st.end());</div>
@@ -319,7 +319,7 @@ template&lt;typename C&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random subsequence of length k.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md11"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md12"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
 <div class="line">v = <a class="code hl_function" href="#ga5deceed8488585530188dbd266739771">tgen::choose</a>(3, v); <span class="comment">// Chooses 3 elements from v.</span></div>
@@ -359,7 +359,7 @@ template&lt;typename T&gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A random number in <span class="tt">[l, r]</span>, chosen uniformly.</dd></dl>
 <p><span class="tt">T</span> can be either an integral type (<span class="tt">int</span>, <span class="tt">long long</span>, ...) or floating point (<span class="tt">float</span>, <span class="tt">double</span>).</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md6"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md7"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Random value from 1 to 10.</span></div>
 <div class="line"><span class="keywordtype">int</span> value = <a class="code hl_function" href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a>(1, 10);</div>
@@ -393,7 +393,7 @@ template&lt;typename C&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A copy of the shuffled container.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md8"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md9"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::set&lt;int&gt; st = {1, 2, 3, 4, 5};</div>
 <div class="line"><a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(st);</div>
@@ -431,7 +431,7 @@ template&lt;typename It&gt; </div>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md7"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md8"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
 <div class="line"><a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(v.begin(), v.end());</div>

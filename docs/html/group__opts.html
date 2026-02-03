@@ -145,7 +145,7 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <p>Registering and opts parsing. </p>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md12"></a>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md13"></a>
 Registering</h3>
 <p>The first line of your generator should be:</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;tgen.h&quot;</span></div>
@@ -160,7 +160,7 @@ Registering</h3>
 <li>Sets up the seed for random generator based on the arguments (excluding the executable name). That is, <span class="tt">./a.out -n 10</span> and <span class="tt">./b.out -n 10</span> will use the same seed.</li>
 <li>Parses the opts (given in the arguments).</li>
 </ol>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md13"></a>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md14"></a>
 Opts</h3>
 <p>Opts are a list of either named or positional options.</p>
 <p>Named options is given in one of the following formats:</p><ol type="1">
@@ -180,7 +180,7 @@ Opts</h3>
 </ul>
 </li>
 </ul>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md14"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md15"></a>
 Consuming opts</h4>
 <p>You can consume the opts by using <span class="tt">opt&lt;&gt;</span>:</p>
 <div class="fragment"><div class="line"><span class="keywordtype">int</span> n = <a class="code hl_function" href="#ga3a0c1de577e6b0c2bf1e119107f274db">tgen::opt&lt;int&gt;</a>(<span class="stringliteral">&quot;n&quot;</span>);</div>
