@@ -1,0 +1,479 @@
+/**
+ * @defgroup sequence Sequence Operations
+ * @brief Operations on sequences.
+ *
+ * ### Examples
+ *
+ * ```cpp
+ * // Generates 100 distinct integers.
+ * std::cout <<
+ *     tgen::sequence<int>(100, 1, 100).distinct().gen() << std::endl;
+ * // Generates 10 sorted small powers of 2.
+ * std::cout <<
+ *     tgen::sequence<int>(10, {1, 2, 4, 8}).gen().sort() << std::endl;
+ * ```
+ *
+ */
+
+
+
+
+
+/**
+ * @ingroup sequence
+ * @brief Sequence generator.
+ *
+ * \see @ref sequence.
+ */
+template <typename T> struct tgen::sequence;
+
+
+/**
+ * @ingroup sequence
+ * @brief Creates sequence generator define by size and range of values.
+ *
+ * @param size Size of the sequence.
+ * @param value_l Left endpoint of value range.
+ * @param value_r Right endpoint of value range.
+ *
+ * Defines a generator of sequences of length `size` with values in
+ * `[value_l, value_r]`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sequences of 10 ints from 1 to 100.
+ * auto seq_gen = tgen::sequence<int>(10, 1, 100);
+ * ```
+ */
+template <typename T> struct tgen::sequence::sequence(int size, T value_l, T value_r);
+
+
+/**
+ * @ingroup sequence
+ * @brief Creates sequence generator define by value set.
+ *
+ * @param size Size of the sequence.
+ * @param values Value set.
+ *
+ * Defines a generator of sequences of length `size` with values in `values`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sequences of 10 ints that are either 3, 6, or 9.
+ * auto seq_gen = tgen::sequence<int>(10, std::set<int>({3, 6, 9}));
+ * ```
+ */
+template <typename T> struct tgen::sequence::sequence(int size, const std::set<T> &values);
+
+
+/**
+ * @ingroup sequence
+ * @brief Creates sequence generator define by value set.
+ *
+ * @param size Size of the sequence.
+ * @param values Value set.
+ *
+ * Defines a generator of sequences of length `size` with values in `values`.
+ * Disconsiders duplicates in `values`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sequences of 10 ints that are either 3, 6, or 9.
+ * auto seq_gen = tgen::sequence<int>(10, std::vector<int>({6, 3, 9, 3}));
+ * ```
+ */
+template <typename T> struct tgen::sequence::sequence(int size, const std::vector<T> &values);
+
+
+/**
+ * @ingroup sequence
+ * @brief Creates sequence generator define by value set.
+ *
+ * @param size Size of the sequence.
+ * @param values Value set.
+ *
+ * Defines a generator of sequences of length `size` with values in `values`.
+ * Disconsiders duplicates in `values`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sequences of 10 ints that are either 3, 6, or 9.
+ * auto seq_gen = tgen::sequence<int>(10, {6, 3, 9, 3});
+ * ```
+ */
+template <typename T> struct tgen::sequence::sequence(int size, const std::initializer_list<T> &values);
+
+
+/**
+ * @ingroup sequence
+ * @brief Restricts generator s.t. value at index `idx` is `value`.
+ *
+ * @param idx Index
+ * @param value Value.
+ *
+ * @throws std::runtime_error if `value` is not in the value range/set.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sequences of 10 ints from 1 to 5 that start with 1.
+ * auto seq_gen = tgen::sequence<int>(10, 1, 5).value_at_idx(0, 1);
+ * ```
+ */
+tgen::sequence &tgen::sequence::value_at_idx(int idx, T value);
+
+
+/**
+ * @ingroup sequence
+ * @brief Restricts generator s.t. value at index `idx_1` is the same as value at index `idx_2`.
+ *
+ * @param idx_1 First index.
+ * @param idx_2 Second index.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sequences of 10 ints from 1 to 5 that start and end with the same value.
+ * auto seq_gen = tgen::sequence<int>(10, 1, 5).equal_idx_pair(0, 9);
+ * ```
+ */
+tgen::sequence &tgen::sequence::equal_idx_pair(int idx_1, int idx_2);
+
+
+/**
+ * @ingroup sequence
+ * @brief Restricts generator s.t. all values at indices in `[left, right]` are the same.
+ *
+ * @param left Left endpoint of index range.
+ * @param right Right endpoint of index range.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sequences of 10 ints from 1 to 5 with the first half all equal.
+ * auto seq_gen = tgen::sequence<int>(10, 1, 5).equal_range(0, 4);
+ * ```
+ */
+tgen::sequence &tgen::sequence::equal_range(int left, int right);
+
+
+/**
+ * @ingroup sequence
+ * @brief Restricts generator s.t. all values at indices in `indices` are distinct.
+ *
+ * @param indices Index set.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sequences of 10 ints from 1 to 5 with the first half distinct.
+ * auto seq_gen = tgen::sequence<int>(10, 1, 5).distinct_idx_set(std::set<int>({0, 1, 2, 3, 4}));
+ * ```
+ *
+ * @note You cannot add two of these restrictions with intersecting indices!
+ */
+tgen::sequence &tgen::sequence::distinct_idx_set(const std::set<int> &indices);
+
+
+/**
+ * @ingroup sequence
+ * @brief Restricts generator s.t. value at index `idx_1` is different from value at index `idx_2`.
+ *
+ * @param idx_1 First index.
+ * @param idx_2 Second index.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sequences of 10 ints from 1 to 5 with the first and last values different.
+ * auto seq_gen = tgen::sequence<int>(10, 1, 5).different_idx_pair(0, 9);
+ * ```
+ */
+tgen::sequence &tgen::sequence::different_idx_pair(int idx_1, int idx_2);
+
+
+/**
+ * @ingroup sequence
+ * @brief Restricts generator s.t. all values are distinct.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sequences of 5 distinct ints from 1 to 5.
+ * auto seq_gen = tgen::sequence<int>(5, 1, 5).distinct();
+ *
+ * @note If you add this restriction, you cannot add a `distinct_idx_set` restriction!
+ * ```
+ */
+tgen::sequence &tgen::sequence::distinct();
+
+
+/**
+ * @ingroup sequence
+ * @brief Generates a random instance from the set of valid sequences.
+ *
+ * @return A uniformly random instance from the set of valid sequences, given the added constraints.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Generates and prints a random sequence of 5 ints from 1 to 5.
+ * auto inst = tgen::sequence<int>(5, 1, 5).gen();
+ * std::cout << inst << std::endl;
+ * ```
+ *
+ * @throws std::runtime_error if there is no valid sequence satisfying all added constraints.
+ */
+tgen::sequence::instance tgen::sequence::gen();
+
+
+/**
+ * @ingroup sequence
+ * @brief Generates a random instance from the set of valid sequences until a condition is met.
+ *
+ * @param predicate Condition to be checked. Should be a function that takes in a
+ *        `tgen::sequence::instance`, and returns a `bool`.
+ * @param max_tries The maximum number of times the function will try to generate a valid instance
+ *        satisfying `predicate`.
+ * @param random_default If a random valid instance is to be returned if no valid instance
+ *        satisfying `predicate` is found after `max_tries` tries.
+ *
+ * @return An instance found by repeatedly choosing a uniformly random valid sequence and checking
+ * if it satisfies `predicate`. If no such instance is found after `max_tries` tries and
+ * `random_default` is set to `true`, returns a uniformly random valid sequence.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints a sequence of 10 distinct ints from 1 to 10 such that the first element is larger than the last.
+ * std::cout <<
+ *     tgen::sequence<int>(10, 1, 10)
+ *         .distinct()
+ *         .gen_until([](const auto &seq) { return seq[0] < seq[9]; }, 100)
+ * 	 << std::endl;
+ * ```
+ *
+ * @throws std::runtime_error if no valid instance satisfying `predicate` is found after `max_tries`
+ *         tries and `random_default` is set to `false`.
+ */
+tgen::sequence::instance tgen::sequence::gen_until(PRED predicate, int max_tries, bool random_default = false);
+
+
+
+
+
+/**
+ * @ingroup sequence
+ * @brief Sequence instance.
+ *
+ * \see @ref sequence.
+ */
+template <typename T> struct tgen::sequence::instance;
+
+
+/**
+ * @ingroup sequence
+ * @brief Creates a sequence instance from a `std::vector`.
+ *
+ * @param vec Right The `std::vector` representing the instance.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Creates and prints an instance from a std::vector
+ * std::vector<int> v = {1, 2, 3};
+ * tgen::sequence<int>::instance inst(v);
+ * std::cout << inst << std::endl; // Prints "1 2 3".
+ * ```
+ */
+template <typename T> struct tgen::sequence::instance::instance(const std::vector<T>& vec);
+
+
+/**
+ * @ingroup sequence
+ * @brief Returns the size of the sequence instance.
+ *
+ * @return The size (number of elements) of the sequence instance.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Creates and prints an instance from a std::vector
+ * std::vector<int> v = {1, 2, 3};
+ * tgen::sequence<int>::instance inst(v);
+ * std::cout <<
+ *     inst.size() << std::endl; // Prints "3".
+ * ```
+ */
+size_t tgen::sequence::instance::size();
+
+
+/**
+ * @ingroup sequence
+ * @brief Returns the value at some position of the instance.
+ *
+ * @param idx The index to be accessed.
+ *
+ * @return The value at index `idx`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Creates and prints an instance from a std::vector
+ * std::vector<int> v = {1, 2, 3};
+ * tgen::sequence<int>::instance inst(v);
+ * std::cout << inst[1] << std::endl; // Prints "2".
+ * ```
+ */
+T tgen::sequence::instance::operator[](int idx) const;
+
+
+/**
+ * @ingroup sequence
+ * @brief Sorts the instance in non-decreasing order.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sorts and prints an instance.
+ * std::vector<int> v = {3, 1, 2};
+ * tgen::sequence<int>::instance inst(v);
+ * std::cout <<
+ *     inst.sort() << std::endl; // Prints "1 2 3".
+ * ```
+ */
+instance &tgen::sequence::instance::sort();
+
+
+/**
+ * @ingroup sequence
+ * @brief Reverses the instance.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Reverses and prints an instance.
+ * std::vector<int> v = {3, 1, 2};
+ * tgen::sequence<int>::instance inst(v);
+ * std::cout <<
+ *     inst.reverse() << std::endl; // Prints "2 1 3".
+ * ```
+ */
+instance &tgen::sequence::instance::reverse();
+
+
+/**
+ * @ingroup sequence
+ * @brief Prints the instance to a `std::ostream`.
+ *
+ * The values are printed with one space as a separator,
+ * and with no end of line.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints an instance.
+ * std::vector<int> v = {3, 1, 2};
+ * tgen::sequence<int>::instance inst(v);
+ * std::cout << inst << std::endl; // Prints "3 1 2".
+ * ```
+ */
+friend std::ostream &tgen::sequence::instance::operator<<(std::ostream &out, const instance &inst);
+
+
+/**
+ * @ingroup sequence
+ * @brief Converts the instance to a `std::vector`.
+ *
+ * @return A `std::vector` representing the instance.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints an instance.
+ * std::vector<int> v = {3, 1, 2};
+ * v = tgen::sequence<int>::instance(v).reverse().to_std();
+ * // v = {2, 1, 3}.
+ * ```
+ */
+std::vector<T> tgen::sequence::instance::to_std();
+
+
+
+
+
+/**
+ * @ingroup sequence
+ * @brief Shuffles a sequence instance.
+ *
+ * @param inst the original instance.
+ *
+ * @return The shuffled instance.
+ *
+ * `INST` must be a `tgen::sequence::instance`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Shuffles and prints an instance.
+ * std::vector<int> v = {3, 1, 2};
+ * tgen::sequence<int>::instance inst(v);
+ * std::cout <<
+ *     tgen::sequence_op::shuffle(inst) << std::endl;
+ * ```
+ */
+INST tgen::sequence_op::shuffle(const INST &inst);
+
+
+/**
+ * @ingroup sequence
+ * @brief Choses a random element from the sequence instance.
+ *
+ * @param inst the original instance.
+ *
+ * @return A uniformly random element from the instance.
+ *
+ * @note `INST` must be a `tgen::sequence::instance`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints a random element from v.
+ * std::vector<int> v = {3, 1, 2};
+ * tgen::sequence<int>::instance inst(v);
+ * std::cout <<
+ *     tgen::sequence_op::any(inst) << std::endl;
+ * ```
+ */
+typename INST::value_type tgen::sequence_op::any(const INST &inst);
+
+
+/**
+ * @ingroup sequence
+ * @brief Chooses `k` values from the sequence instance, as in a subsequence of size `k`.
+ *
+ * @param inst the original instance.
+ *
+ * @return A uniformly random subsequence of length k.
+ *
+ * @note `INST` must be a `tgen::sequence::instance`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints a subsequenec of length 2 from v.
+ * std::vector<int> v = {3, 1, 2};
+ * tgen::sequence<int>::instance inst(v);
+ * std::cout <<
+ *     tgen::sequence_op::choose(2, inst) << std::endl;
+ * ```
+ */
+INST tgen::sequence_op::choose(int k, const INST &inst) {
+
+
+
+

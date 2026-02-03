@@ -1,10 +1,11 @@
 var indexSectionsWithContent =
 {
-  0: "aceghilnorst",
+  0: "acdeghinorstv",
   1: "is",
-  2: "achnors",
-  3: "agor",
-  4: "acegilort"
+  2: "acdeghinorstv",
+  3: "o",
+  4: "agors",
+  5: "acegiort"
 };
 
 var indexSectionNames =
@@ -12,8 +13,9 @@ var indexSectionNames =
   0: "all",
   1: "classes",
   2: "functions",
-  3: "groups",
-  4: "pages"
+  3: "related",
+  4: "groups",
+  5: "pages"
 };
 
 var indexSectionLabels =
@@ -21,7 +23,8 @@ var indexSectionLabels =
   0: "All",
   1: "Classes",
   2: "Functions",
-  3: "Modules",
-  4: "Pages"
+  3: "Friends",
+  4: "Modules",
+  5: "Pages"
 };
 

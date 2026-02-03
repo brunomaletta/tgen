@@ -59,7 +59,7 @@
  *
  * @param index Index of positional opt.
  *
- * @returns If there is positional opt at `index`.
+ * @return If there is positional opt at `index`.
  */
 bool tgen::has_opt(int index);
 
@@ -70,7 +70,7 @@ bool tgen::has_opt(int index);
  *
  * @param key Key of named opt.
  *
- * @returns If there is named opt with `key`.
+ * @return If there is named opt with `key`.
  */
 bool tgen::has_opt(const std::string &key);
 
@@ -81,7 +81,7 @@ bool tgen::has_opt(const std::string &key);
  *
  * @param index Index of positional opt.
  *
- * @returns The value of opt at `index`.
+ * @return The value of opt at `index`.
  *
  * @throws std::runtime_error if opt is not found.
  */
@@ -95,7 +95,7 @@ template <typename T> T tgen::opt(int index);
  * @param index Index of positional opt.
  * @param default_value Default value, if opt is not found.
  *
- * @returns The value of opt at `index`, or `default_value` if not found.
+ * @return The value of opt at `index`, or `default_value` if not found.
  */
 template <typename T> T tgen::opt(int index, const T &default_value);
 
@@ -106,7 +106,7 @@ template <typename T> T tgen::opt(int index, const T &default_value);
  *
  * @param key Key of named opt.
  *
- * @returns The value of opt of `key`.
+ * @return The value of opt of `key`.
  *
  * @throws std::runtime_error if opt is not found.
  */
@@ -120,7 +120,7 @@ template <typename T> T tgen::opt(const std::string &key);
  * @param key Key of named opt.
  * @param default_value Default value, if opt is not found.
  *
- * @returns The value of opt of `key`, or `default_value` if not found.
+ * @return The value of opt of `key`, or `default_value` if not found.
  */
 template <typename T> T tgen::opt(const std::string &key, const T &default_value);
 

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.14.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tgen: A library to generate testcases</title>
+<title>tgen: Overview</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -115,32 +115,37 @@ $(function(){initNavTree('index.html','',''); });
 </div>
 
 <div><div class="header">
-  <div class="headertitle"><div class="title">A library to generate testcases </div></div>
+  <div class="headertitle"><div class="title">Overview </div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a></p>
-<p>First, you <a href="https://brunomaletta.github.io/tgen/group__opts.html">register the generator</a>. That defines the seed for random generation and parses the opts.</p>
+<p><span class="tt">tgen</span> is a <span class="tt">C++</span> library to help you generate random stuff, useful for testcase generation (such as <a href="https://github.com/ifsmirnov/jngen">jngen</a> or <a href="https://github.com/MikeMirzayanov/testlib">testlib</a>).</p>
+<p>The first thing is to <a href="https://brunomaletta.github.io/tgen/group__opts.html">register the generator</a>. That defines the seed for random generation and parses the opts.</p>
 <p>There are <a href="https://brunomaletta.github.io/tgen/group__general.html">general operations</a> and operations for specific data types:</p>
 <ul>
-<li>Sequences</li>
+<li><a href="https://brunomaletta.github.io/tgen/group__sequence.html">Sequences</a></li>
 </ul>
 <h2 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
 Type generators and instances</h2>
 <p>All types specified above define a <b>generator</b>, that when called upon will generate a uniformly random <b>instance</b> with the given constraints. Let's see an example with <span class="tt">tgen::sequence</span>:</p>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(<span class="comment">/*size=*/</span>10, <span class="comment">/*value_l=*/</span>1, <span class="comment">/*value_r=*/</span>100);</div>
-<div class="ttc" id="astructtgen_1_1sequence_html"><div class="ttname"><a href="structtgen_1_1sequence.html">tgen::sequence</a></div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00339">tgen.h:339</a></div></div>
+<div class="ttc" id="astructtgen_1_1sequence_html"><div class="ttname"><a href="structtgen_1_1sequence.html">tgen::sequence</a></div><div class="ttdoc">Sequence generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00338">tgen.h:338</a></div></div>
 </div><!-- fragment --><p>This will create a sequence generator representing the set of all sequences with 10 values from 1 to 100.</p>
 <p>Every generator of type <span class="tt">GEN</span> has a method <span class="tt">gen()</span>, that returns a <span class="tt">GEN::instance</span> representing an element chosen uniformly at random from the set of all valid elements from the current state of the generator. A <span class="tt">GEN::instance</span> can be fed to <span class="tt">std::cout</span> to be printed.</p>
 <p>In our example, we can call <span class="tt">gen()</span> to generate and print a random sequence of 10 elements from 1 to 100.</p>
-<div class="fragment"><div class="line">std::cout &lt;&lt; seq_gen.gen() &lt;&lt; std::endl;</div>
+<div class="fragment"><div class="line">std::cout &lt;&lt;</div>
+<div class="line">    seq_gen.gen() &lt;&lt; std::endl;</div>
 </div><!-- fragment --><p>The nice thing is that we can add restrictions (specific to each type) to the generator, shrinking the set of valid arrays. For example, we can add the restriction that the first and second elements of the sequence have to be the same.</p>
 <div class="fragment"><div class="line">std::sequence&lt;int&gt;::instance inst = seq_gen.equal_idx_pair(<span class="comment">/*idx_1=*/</span>0, <span class="comment">/*idx_2=*/</span>1).gen();</div>
 </div><!-- fragment --><p>The returned instance can also be modified by some deterministic operations (specific to each type).</p>
 <div class="fragment"><div class="line">inst.reverse();</div>
 </div><!-- fragment --><p>Finally, there can be random operations defined for the type.</p>
-<div class="fragment"><div class="line">std::cout &lt;&lt; tgen::sequence_op::any(inst) &lt;&lt; std::endl;</div>
+<div class="fragment"><div class="line">std::cout &lt;&lt;</div>
+<div class="line">    <a class="code hl_function" href="group__sequence.html#ga2d3aae3685b2a2003d737cfa3221f367">tgen::sequence_op::any</a>(inst) &lt;&lt; std::endl;</div>
+<div class="ttc" id="agroup__sequence_html_ga2d3aae3685b2a2003d737cfa3221f367"><div class="ttname"><a href="group__sequence.html#ga2d3aae3685b2a2003d737cfa3221f367">tgen::sequence_op::any</a></div><div class="ttdeci">INST::value_type any(const INST &amp;inst)</div><div class="ttdoc">Choses a random element from the sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00681">tgen.h:681</a></div></div>
 </div><!-- fragment --><p>Combining everything into one line:</p>
-<div class="fragment"><div class="line">std::cout &lt;&lt; tgen::sequence_op::any(</div>
+<div class="fragment"><div class="line">std::cout &lt;&lt;</div>
+<div class="line">    <a class="code hl_function" href="group__sequence.html#ga2d3aae3685b2a2003d737cfa3221f367">tgen::sequence_op::any</a>(</div>
 <div class="line">        <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 100).equal_idx_pair(0, 1).gen().reverse()</div>
 <div class="line">    ) &lt;&lt; std::endl;</div>
 </div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md2"></a>
@@ -158,13 +163,16 @@ Opts configuration</h2>
 <div class="line"> </div>
 <div class="line">    std::cout &lt;&lt; <a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a>(1, n) &lt;&lt; std::endl;</div>
 <div class="line">}</div>
-<div class="ttc" id="agroup__general_html_gaa007cf5e254380332a3548711d5f9b16"><div class="ttname"><a href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a></div><div class="ttdeci">T next(T l, T r)</div><div class="ttdoc">Returns a random number in [l, r].</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00063">tgen.h:63</a></div></div>
-<div class="ttc" id="agroup__opts_html_ga3a0c1de577e6b0c2bf1e119107f274db"><div class="ttname"><a href="group__opts.html#ga3a0c1de577e6b0c2bf1e119107f274db">tgen::opt</a></div><div class="ttdeci">T opt(int index)</div><div class="ttdoc">Gets opt at index.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00197">tgen.h:197</a></div></div>
-<div class="ttc" id="agroup__opts_html_gae8eca919976894c15b44713f00f33bd8"><div class="ttname"><a href="group__opts.html#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a></div><div class="ttdeci">void register_gen(int argc, char **argv)</div><div class="ttdoc">Sets up the generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00302">tgen.h:302</a></div></div>
+<div class="ttc" id="agroup__general_html_gaa007cf5e254380332a3548711d5f9b16"><div class="ttname"><a href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a></div><div class="ttdeci">T next(T l, T r)</div><div class="ttdoc">Returns a random number in [l, r].</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00071">tgen.h:71</a></div></div>
+<div class="ttc" id="agroup__opts_html_ga3a0c1de577e6b0c2bf1e119107f274db"><div class="ttname"><a href="group__opts.html#ga3a0c1de577e6b0c2bf1e119107f274db">tgen::opt</a></div><div class="ttdeci">T opt(int index)</div><div class="ttdoc">Gets opt at index.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00205">tgen.h:205</a></div></div>
+<div class="ttc" id="agroup__opts_html_gae8eca919976894c15b44713f00f33bd8"><div class="ttname"><a href="group__opts.html#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a></div><div class="ttdeci">void register_gen(int argc, char **argv)</div><div class="ttdoc">Sets up the generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00309">tgen.h:309</a></div></div>
 </div><!-- fragment --><p>Calling this code with <span class="tt">./a.out -n 100</span> will generate a random number from 1 to 100.</p>
 <h2 class="doxsection"><a class="anchor" id="autotoc_md4"></a>
 Generation</h2>
-<div class="fragment"><div class="line">std::cout &lt;&lt; tgen::sequence&lt;int&gt;(100, 1, 100).distinct().gen() &lt;&lt; std::endl;</div>
+<div class="fragment"><div class="line">std::cout &lt;&lt;</div>
+<div class="line">    <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(100, 1, 100).<a class="code hl_function" href="group__sequence.html#ga09c96c92fc2f97328c75e6d260a6ee27">distinct</a>().<a class="code hl_function" href="group__sequence.html#ga0dc45ca71b1cc8087eac28188334dc91">gen</a>() &lt;&lt; std::endl;</div>
+<div class="ttc" id="agroup__sequence_html_ga09c96c92fc2f97328c75e6d260a6ee27"><div class="ttname"><a href="group__sequence.html#ga09c96c92fc2f97328c75e6d260a6ee27">tgen::sequence::distinct</a></div><div class="ttdeci">sequence &amp; distinct()</div><div class="ttdoc">Restricts generator s.t. all values are distinct.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00441">tgen.h:441</a></div></div>
+<div class="ttc" id="agroup__sequence_html_ga0dc45ca71b1cc8087eac28188334dc91"><div class="ttname"><a href="group__sequence.html#ga0dc45ca71b1cc8087eac28188334dc91">tgen::sequence::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid sequences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00491">tgen.h:491</a></div></div>
 </div><!-- fragment --><p>This code generates a random sequence of 100 distinct numbers. </p>
 </div></div><!-- PageDoc -->
 <a href="doxygen_crawl.html"></a>

@@ -1,16 +1,18 @@
-\chapter{A library to generate testcases }
-\hypertarget{index}{}\label{index}\index{A library to generate testcases@{A library to generate testcases}}
+\chapter{Overview }
+\hypertarget{index}{}\label{index}\index{Overview@{Overview}}
 \label{index_md_README}%
 \Hypertarget{index_md_README}%
 
 
-First, you \href{https://brunomaletta.github.io/tgen/group__opts.html}{\texttt{register the generator}}. That defines the seed for random generation and parses the opts.
+{\ttfamily tgen} is a {\ttfamily C++} library to help you generate random stuff, useful for testcase generation (such as \href{https://github.com/ifsmirnov/jngen}{\texttt{jngen}} or \href{https://github.com/MikeMirzayanov/testlib}{\texttt{testlib}}).
+
+The first thing is to \href{https://brunomaletta.github.io/tgen/group__opts.html}{\texttt{register the generator}}. That defines the seed for random generation and parses the opts.
 
 There are \href{https://brunomaletta.github.io/tgen/group__general.html}{\texttt{general operations}} and operations for specific data types\+:
 
 
 \begin{DoxyItemize}
-\item Sequences
+\item \href{https://brunomaletta.github.io/tgen/group__sequence.html}{\texttt{Sequences}}
 \end{DoxyItemize}\hypertarget{index_autotoc_md1}{}\doxysubsection{\texorpdfstring{Type generators and instances}{Type generators and instances}}\label{index_autotoc_md1}
 All types specified above define a {\bfseries{generator}}, that when called upon will generate a uniformly random {\bfseries{instance}} with the given constraints. Let\textquotesingle{}s see an example with {\ttfamily \doxylink{structtgen_1_1sequence}{tgen\+::sequence}}\+:
 
@@ -29,7 +31,8 @@ In our example, we can call {\ttfamily gen()} to generate and print a random seq
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{std::cout\ <<\ seq\_gen.gen()\ <<\ std::endl;}
+\DoxyCodeLine{std::cout\ <<}
+\DoxyCodeLine{\ \ \ \ seq\_gen.gen()\ <<\ std::endl;}
 
 \end{DoxyCode}
 
@@ -56,7 +59,8 @@ Finally, there can be random operations defined for the type.
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{std::cout\ <<\ tgen::sequence\_op::any(inst)\ <<\ std::endl;}
+\DoxyCodeLine{std::cout\ <<}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{group__sequence_ga2d3aae3685b2a2003d737cfa3221f367}{tgen::sequence\_op::any}}(inst)\ <<\ std::endl;}
 
 \end{DoxyCode}
 
@@ -65,7 +69,8 @@ Combining everything into one line\+:
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{std::cout\ <<\ tgen::sequence\_op::any(}
+\DoxyCodeLine{std::cout\ <<}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{group__sequence_ga2d3aae3685b2a2003d737cfa3221f367}{tgen::sequence\_op::any}}(}
 \DoxyCodeLine{\ \ \ \ \ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(10,\ 1,\ 100).equal\_idx\_pair(0,\ 1).gen().reverse()}
 \DoxyCodeLine{\ \ \ \ )\ <<\ std::endl;}
 
@@ -92,7 +97,8 @@ Combining everything into one line\+:
 Calling this code with {\ttfamily ./a.out -\/n 100} will generate a random number from 1 to 100.\hypertarget{index_autotoc_md4}{}\doxysubsection{\texorpdfstring{Generation}{Generation}}\label{index_autotoc_md4}
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{std::cout\ <<\ tgen::sequence<int>(100,\ 1,\ 100).distinct().gen()\ <<\ std::endl;}
+\DoxyCodeLine{std::cout\ <<}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(100,\ 1,\ 100).\mbox{\hyperlink{group__sequence_ga09c96c92fc2f97328c75e6d260a6ee27}{distinct}}().\mbox{\hyperlink{group__sequence_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}()\ <<\ std::endl;}
 
 \end{DoxyCode}
 

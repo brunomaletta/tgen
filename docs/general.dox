@@ -52,7 +52,7 @@
  * @param l Left endpoint of the range.
  * @param r Light endpoint of the range.
  *
- * @returns A random number in `[l, r]`, chosen uniformly.
+ * @return A random number in `[l, r]`, chosen uniformly.
  *
  * `T` can be either an integral type (`int`, `long long`, ...) or floating point (`float`, `double`).
  *
@@ -89,7 +89,7 @@ template <typename It> void tgen::shuffle(It first, It last);
  *
  * @param container Container to be shuffled.
  *
- * @returns A copy of the shuffled container.
+ * @return A copy of the shuffled container.
  *
  * #### Examples
  *
@@ -108,7 +108,7 @@ template <typename C> C tgen::shuffle(C container);
  * @param first First iterator of range.
  * @param last First iterator outside of range.
  *
- * @returns A uniformly random element from the range `[first, last)`.
+ * @return A uniformly random element from the range `[first, last)`.
  *
  * #### Examples
  *
@@ -126,7 +126,7 @@ template <typename It> typename It::value_type tgen::any(It first, It last);
  *
  * @param container Container to choose from.
  *
- * @returns A uniformly random element from `container`.
+ * @return A uniformly random element from `container`.
  *
  * #### Examples
  *
@@ -140,12 +140,12 @@ template <typename C> typename C::value_type tgen::any(const C &container);
 
 /**
  * @ingroup general
- * @brief Chooses k values from the container, as in a subsequence of size k.
+ * @brief Chooses `k` values from the container, as in a subsequence of size `k`.
  *
  * @param k Number of elements to be chosen.
  * @param container Container to choose from.
  *
- * @returns A uniformly random subsequence of length k.
+ * @return A uniformly random subsequence of length `k`.
  *
  * #### Examples
  *

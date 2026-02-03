@@ -1,170 +1,47 @@
 \doxysection{tgen\+::sequence\texorpdfstring{$<$}{<} T \texorpdfstring{$>$}{>}\+::instance Struct Reference}
 \hypertarget{structtgen_1_1sequence_1_1instance}{}\label{structtgen_1_1sequence_1_1instance}\index{tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}}
-\doxysubsubsection*{Public Types}
-\begin{DoxyCompactItemize}
-\item 
-using \mbox{\hyperlink{structtgen_1_1sequence_1_1instance_aee420d97fd16766439fdc564381b4582}{value\+\_\+type}} = T
-\end{DoxyCompactItemize}
+
+
+Sequence instance.  
+
+
 \doxysubsubsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\hyperlink{structtgen_1_1sequence_1_1instance_a2e97349d22767dd03edab001183e258d}{instance}} (const std\+::vector$<$ T $>$ \&vec\+\_\+)
-\item 
-size\+\_\+t \mbox{\hyperlink{structtgen_1_1sequence_1_1instance_a5e3b818698efb4b3adb616219aff2c3d}{size}} ()
-\item 
-T \mbox{\hyperlink{structtgen_1_1sequence_1_1instance_ab89252fa4a7905fdbf421bc64a76c623}{operator\mbox{[}$\,$\mbox{]}}} (int idx) const
-\item 
-\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}} \& \mbox{\hyperlink{structtgen_1_1sequence_1_1instance_aabbbd20653bd6b4149aea1914267db56}{sort}} ()
-\item 
-\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}} \& \mbox{\hyperlink{structtgen_1_1sequence_1_1instance_a2fef50f7e022b0432142fd19ef2f6bad}{reverse}} ()
-\item 
-std\+::vector$<$ T $>$ \mbox{\hyperlink{structtgen_1_1sequence_1_1instance_a9df679623d89ecbd4bd1b5670ba3e24a}{to\+\_\+std}} ()
-\end{DoxyCompactItemize}
-\doxysubsubsection*{Public Attributes}
-\begin{DoxyCompactItemize}
-\item 
-std\+::vector$<$ T $>$ \mbox{\hyperlink{structtgen_1_1sequence_1_1instance_a600a32265179130416370e5d4925fd9b}{vec}}
-\end{DoxyCompactItemize}
+\mbox{\hyperlink{group__sequence_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{instance}} (const std\+::vector$<$ T $>$ \&vec)
+\begin{DoxyCompactList}\small\item\em Creates a sequence instance from a {\ttfamily std\+::vector}. \end{DoxyCompactList}\item 
+size\+\_\+t \mbox{\hyperlink{group__sequence_ga5e3b818698efb4b3adb616219aff2c3d}{size}} ()
+\begin{DoxyCompactList}\small\item\em Returns the size of the sequence instance. \end{DoxyCompactList}\item 
+T \mbox{\hyperlink{group__sequence_gab89252fa4a7905fdbf421bc64a76c623}{operator\mbox{[}$\,$\mbox{]}}} (int idx) const
+\begin{DoxyCompactList}\small\item\em Returns the value at some position of the instance. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}} \& \mbox{\hyperlink{group__sequence_gaabbbd20653bd6b4149aea1914267db56}{sort}} ()
+\begin{DoxyCompactList}\small\item\em Sorts the instance in non-\/decreasing order. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}} \& \mbox{\hyperlink{group__sequence_ga2fef50f7e022b0432142fd19ef2f6bad}{reverse}} ()
+\begin{DoxyCompactList}\small\item\em Reverses the instance. \end{DoxyCompactList}\item 
+std\+::vector$<$ T $>$ \mbox{\hyperlink{group__sequence_ga9df679623d89ecbd4bd1b5670ba3e24a}{to\+\_\+std}} ()
+\begin{DoxyCompactList}\small\item\em Converts the instance to a {\ttfamily std\+::vector}. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsubsection*{Friends}
 \begin{DoxyCompactItemize}
 \item 
-std\+::ostream \& \mbox{\hyperlink{structtgen_1_1sequence_1_1instance_ab374a5cc1c240d62313a68dc0b5feda5}{operator$<$$<$}} (std\+::ostream \&out, const \mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}} \&repr)
-\end{DoxyCompactItemize}
+std\+::ostream \& \mbox{\hyperlink{group__sequence_gac5aa4456b0e4503a152e2113a48d8465}{operator$<$$<$}} (std\+::ostream \&out, const \mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}} \&inst)
+\begin{DoxyCompactList}\small\item\em Prints the instance to a {\ttfamily std\+::ostream}. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
 \subsubsection*{template$<$typename T$>$\newline
 struct tgen\+::sequence$<$ T $>$\+::instance}
+Sequence instance. 
+
+\begin{DoxySeeAlso}{See also}
+\doxylink{group__sequence}{Sequence Operations}. 
+\end{DoxySeeAlso}
 
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00452}{452}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
-
-
-
-\label{doc-typedef-members}
-\Hypertarget{structtgen_1_1sequence_1_1instance_doc-typedef-members}
-\doxysubsection{Member Typedef Documentation}
-\Hypertarget{structtgen_1_1sequence_1_1instance_aee420d97fd16766439fdc564381b4582}\index{tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}!value\_type@{value\_type}}
-\index{value\_type@{value\_type}!tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}}
-\doxysubsubsection{\texorpdfstring{value\_type}{value\_type}}
-{\footnotesize\ttfamily \label{structtgen_1_1sequence_1_1instance_aee420d97fd16766439fdc564381b4582} 
-template$<$typename T$>$ \\
-using \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::instance\+::value\+\_\+type = T}
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00451}{451}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00453}{453}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
-
-
-
-\label{doc-constructors}
-\Hypertarget{structtgen_1_1sequence_1_1instance_doc-constructors}
-\doxysubsection{Constructor \& Destructor Documentation}
-\Hypertarget{structtgen_1_1sequence_1_1instance_a2e97349d22767dd03edab001183e258d}\index{tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}!instance@{instance}}
-\index{instance@{instance}!tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}}
-\doxysubsubsection{\texorpdfstring{instance()}{instance()}}
-{\footnotesize\ttfamily \label{structtgen_1_1sequence_1_1instance_a2e97349d22767dd03edab001183e258d} 
-template$<$typename T$>$ \\
-\mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::instance\+::instance (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ T $>$ \&}]{vec\+\_\+}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
-
-
-
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00456}{456}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
-
-
-
-\label{doc-func-members}
-\Hypertarget{structtgen_1_1sequence_1_1instance_doc-func-members}
-\doxysubsection{Member Function Documentation}
-\Hypertarget{structtgen_1_1sequence_1_1instance_ab89252fa4a7905fdbf421bc64a76c623}\index{tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}!operator\mbox{[}\mbox{]}@{operator[]}}
-\index{operator\mbox{[}\mbox{]}@{operator[]}!tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}}
-\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}}
-{\footnotesize\ttfamily \label{structtgen_1_1sequence_1_1instance_ab89252fa4a7905fdbf421bc64a76c623} 
-template$<$typename T$>$ \\
-T \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::instance\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{int}]{idx}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
-
-
-
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00462}{462}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
-
-\Hypertarget{structtgen_1_1sequence_1_1instance_a2fef50f7e022b0432142fd19ef2f6bad}\index{tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}!reverse@{reverse}}
-\index{reverse@{reverse}!tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}}
-\doxysubsubsection{\texorpdfstring{reverse()}{reverse()}}
-{\footnotesize\ttfamily \label{structtgen_1_1sequence_1_1instance_a2fef50f7e022b0432142fd19ef2f6bad} 
-template$<$typename T$>$ \\
-\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}} \& \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::instance\+::reverse (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
-
-
-
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00471}{471}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
-
-\Hypertarget{structtgen_1_1sequence_1_1instance_a5e3b818698efb4b3adb616219aff2c3d}\index{tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}!size@{size}}
-\index{size@{size}!tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}}
-\doxysubsubsection{\texorpdfstring{size()}{size()}}
-{\footnotesize\ttfamily \label{structtgen_1_1sequence_1_1instance_a5e3b818698efb4b3adb616219aff2c3d} 
-template$<$typename T$>$ \\
-size\+\_\+t \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::instance\+::size (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
-
-
-
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00459}{459}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
-
-\Hypertarget{structtgen_1_1sequence_1_1instance_aabbbd20653bd6b4149aea1914267db56}\index{tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}!sort@{sort}}
-\index{sort@{sort}!tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}}
-\doxysubsubsection{\texorpdfstring{sort()}{sort()}}
-{\footnotesize\ttfamily \label{structtgen_1_1sequence_1_1instance_aabbbd20653bd6b4149aea1914267db56} 
-template$<$typename T$>$ \\
-\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}} \& \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::instance\+::sort (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
-
-
-
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00465}{465}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
-
-\Hypertarget{structtgen_1_1sequence_1_1instance_a9df679623d89ecbd4bd1b5670ba3e24a}\index{tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}!to\_std@{to\_std}}
-\index{to\_std@{to\_std}!tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}}
-\doxysubsubsection{\texorpdfstring{to\_std()}{to\_std()}}
-{\footnotesize\ttfamily \label{structtgen_1_1sequence_1_1instance_a9df679623d89ecbd4bd1b5670ba3e24a} 
-template$<$typename T$>$ \\
-std\+::vector$<$ T $>$ \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::instance\+::to\+\_\+std (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
-
-
-
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00488}{488}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
-
-
-
-\label{doc-related-members}
-\Hypertarget{structtgen_1_1sequence_1_1instance_doc-related-members}
-\doxysubsection{Friends And Related Symbol Documentation}
-\Hypertarget{structtgen_1_1sequence_1_1instance_ab374a5cc1c240d62313a68dc0b5feda5}\index{tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}!operator$<$$<$@{operator$<$$<$}}
-\index{operator$<$$<$@{operator$<$$<$}!tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}}
-\doxysubsubsection{\texorpdfstring{operator$<$$<$}{operator<<}}
-{\footnotesize\ttfamily \label{structtgen_1_1sequence_1_1instance_ab374a5cc1c240d62313a68dc0b5feda5} 
-template$<$typename T$>$ \\
-std\+::ostream \& operator$<$$<$ (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{out}{, }\item[{const \mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}} \&}]{repr}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
-
-
-
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00477}{477}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
-
-
-
-\label{doc-variable-members}
-\Hypertarget{structtgen_1_1sequence_1_1instance_doc-variable-members}
-\doxysubsection{Member Data Documentation}
-\Hypertarget{structtgen_1_1sequence_1_1instance_a600a32265179130416370e5d4925fd9b}\index{tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}!vec@{vec}}
-\index{vec@{vec}!tgen::sequence$<$ T $>$::instance@{tgen::sequence$<$ T $>$::instance}}
-\doxysubsubsection{\texorpdfstring{vec}{vec}}
-{\footnotesize\ttfamily \label{structtgen_1_1sequence_1_1instance_a600a32265179130416370e5d4925fd9b} 
-template$<$typename T$>$ \\
-std\+::vector$<$T$>$ \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::instance\+::vec}
-
-
-
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00454}{454}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
-
-
-
-The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-src/tgen.\+h\end{DoxyCompactItemize}
+src/tgen.\+h\item 
+docs/sequence.\+dox\end{DoxyCompactItemize}

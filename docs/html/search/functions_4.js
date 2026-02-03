@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['opt_0',['opt',['../group__opts.html#ga3a0c1de577e6b0c2bf1e119107f274db',1,'tgen::opt(int index)'],['../group__opts.html#ga6c7a3ec6c638336feb28157279218066',1,'tgen::opt(int index, const T &amp;default_value)'],['../group__opts.html#gaceb7bdc16f9749b22bc6ebd6404340d5',1,'tgen::opt(const std::string &amp;key)'],['../group__opts.html#gaf271a5e200375d2038f4704dea300921',1,'tgen::opt(const std::string &amp;key, const T &amp;default_value)']]]
+  ['gen_0',['gen',['../group__sequence.html#ga0dc45ca71b1cc8087eac28188334dc91',1,'tgen::sequence']]],
+  ['gen_5funtil_1',['gen_until',['../group__sequence.html#gaf614e6563861fb01b5de5f22c4beab2e',1,'tgen::sequence']]]
 ];

@@ -36,6 +36,14 @@ void __throw_assertion_error(const std::string &condition) {
 std::runtime_error __error(const std::string &msg) {
 	return std::runtime_error("tgen: " + msg);
 }
+void __contradiction_error(const std::string &type,
+						   const std::string &msg = "") {
+	// Tried to generate a contradicting sequence.
+	std::string error_msg = "invalid " + type + " (contradicting constraints)";
+	if (msg.size() > 0)
+		error_msg += ": " + msg;
+	throw __error(error_msg);
+}
 
 // Ensures condition is true, with nice debug.
 #define tgen_ensure(cond, ...)                                                 \
@@ -298,7 +306,6 @@ void __parse_opts(int argc, char **argv) {
 }
 
 // Registers generator by initializing rnd and parsing opts.
-// Argument 'version' is unused.
 void register_gen(int argc, char **argv) {
 	std::vector<uint32_t> seed;
 
@@ -324,14 +331,6 @@ void register_gen(int argc, char **argv) {
  *              *
  ****************/
 
-void __sequence_contradiction_error(const std::string &msg = "") {
-	// Tried to generate a contradicting sequence.
-	std::string error_msg = "invalid sequence (contradicting constraints)";
-	if (msg.size() > 0)
-		error_msg += ": " + msg;
-	throw __error(error_msg);
-}
-
 /*
  * Sequence generator.
  */
@@ -351,16 +350,16 @@ template <typename T> struct sequence {
 		distinct_constraints; // All distinct constraints.
 
 	// Creates generator for sequences of size 'size', with random T in [l, r]
-	sequence(int size_, T value_l_, T value_r_)
-		: size(size_), value_l(value_l_), value_r(value_r_), neigh(size) {
+	sequence(int size, T value_l, T value_r)
+		: size(size), value_l(value_l), value_r(value_r), neigh(size) {
 		tgen_ensure(value_l <= value_r, "value range must be valid");
 		for (int i = 0; i < size; ++i)
 			val_range.emplace_back(value_l, value_r);
 	}
 
 	// Creates sequence with value set.
-	sequence(int size_, const std::set<T> &values_)
-		: size(size_), values(values_), neigh(size) {
+	sequence(int size, const std::set<T> &values)
+		: size(size), values(values), neigh(size) {
 		tgen_ensure(values.size() > 0, "must have at least one value");
 		value_l = 0, value_r = values.size() - 1;
 		for (int i = 0; i < size; ++i)
@@ -369,10 +368,10 @@ template <typename T> struct sequence {
 		for (T value : values)
 			value_idx_in_set[value] = idx++;
 	}
-	sequence(int size_, const std::vector<T> &values_)
-		: sequence(size_, std::set<T>(values_.begin(), values_.end())) {}
-	sequence(int size_, const std::initializer_list<T> &values_)
-		: sequence(size_, std::set<T>(values_.begin(), values_.end())) {}
+	sequence(int size, const std::vector<T> &values)
+		: sequence(size, std::set<T>(values.begin(), values.end())) {}
+	sequence(int size, const std::initializer_list<T> &values)
+		: sequence(size, std::set<T>(values.begin(), values.end())) {}
 
 	// Restricts sequences for sequence[idx] = value.
 	sequence &value_at_idx(int idx, T value) {
@@ -453,7 +452,7 @@ template <typename T> struct sequence {
 		using value_type = T; // Value type, for templates.
 		std::vector<T> vec;	  // Sequence.
 
-		instance(const std::vector<T> &vec_) : vec(vec_) {}
+		instance(const std::vector<T> &vec) : vec(vec) {}
 
 		// Fetches size.
 		size_t size() { return vec.size(); }
@@ -475,11 +474,11 @@ template <typename T> struct sequence {
 
 		// Prints in stdout, separated by spaces.
 		friend std::ostream &operator<<(std::ostream &out,
-										const instance &repr) {
-			for (int i = 0; i < repr.vec.size(); ++i) {
+										const instance &inst) {
+			for (int i = 0; i < inst.vec.size(); ++i) {
 				if (i > 0)
 					out << ' ';
-				out << repr.vec[i];
+				out << inst.vec[i];
 			}
 			return out;
 		}
@@ -524,7 +523,7 @@ template <typename T> struct sequence {
 							std::stringstream ss;
 							ss << "tried to set value to `" << new_value
 							   << "`, but it was already set as `" << l << "`";
-							__sequence_contradiction_error(ss.str());
+							__contradiction_error("sequence", ss.str());
 						}
 					}
 
@@ -557,16 +556,18 @@ template <typename T> struct sequence {
 		for (const std::set<int> &distinct : distinct_constraints) {
 			// Checks if there are too many distinct values.
 			if (distinct.size() > value_r - value_l + 1)
-				__sequence_contradiction_error(
-					"tried to generate " + std::to_string(distinct.size()) +
-					" distinct values, but the maximum is " +
-					std::to_string(value_r - value_l + 1));
+				__contradiction_error(
+					"sequence", "tried to generate " +
+									std::to_string(distinct.size()) +
+									" distinct values, but the maximum is " +
+									std::to_string(value_r - value_l + 1));
 
 			// Checks if two values in same component are marked as different.
 			std::set<int> comp_ids;
 			for (int idx : distinct) {
 				if (comp_ids.count(comp_id[idx]))
-					__sequence_contradiction_error(
+					__contradiction_error(
+						"sequence",
 						"tried to set indices two indices as equal and "
 						"different");
 				comp_ids.insert(comp_id[idx]);

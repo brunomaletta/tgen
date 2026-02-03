@@ -25,18 +25,14 @@
 var NAVTREE =
 [
   [ "tgen", "index.html", [
-    [ "A library to generate testcases", "index.html", "index" ],
-    [ "Topics", "topics.html", "topics" ],
-    [ "Classes", "annotated.html", [
-      [ "Class List", "annotated.html", "annotated_dup" ],
-      [ "Class Index", "classes.html", null ]
-    ] ]
+    [ "Overview", "index.html", "index" ],
+    [ "Topics", "topics.html", "topics" ]
   ] ]
 ];
 
 var NAVTREEINDEX =
 [
-"annotated.html"
+"group__general.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronization';

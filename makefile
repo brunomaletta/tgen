@@ -8,7 +8,7 @@ doc:
 	doxygen docs/Doxyfile
 
 opendoc:
-	open html/index.html > /dev/null 2>&1 &
+	open docs/html/index.html > /dev/null 2>&1 &
 
 clean:
 	rm -rf a
