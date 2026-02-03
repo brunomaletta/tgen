@@ -16,15 +16,15 @@ Operations for basic number generation and basic random operations.
 {\footnotesize template$<$typename T$>$ }\\T \mbox{\hyperlink{group__general_gaa007cf5e254380332a3548711d5f9b16}{tgen\+::next}} (T l, T r)
 \begin{DoxyCompactList}\small\item\em Returns a random number in {\ttfamily \mbox{[}l, r\mbox{]}}. \end{DoxyCompactList}\item 
 {\footnotesize template$<$typename It$>$ }\\void \mbox{\hyperlink{group__general_ga5494e4e347f9d1dc5b88695e0777f65b}{tgen\+::shuffle}} (It first, It last)
-\begin{DoxyCompactList}\small\item\em Shuffles {\ttfamily \mbox{[}first, last)} inplace uniformly. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Shuffles {\ttfamily \mbox{[}first, last)} inplace. \end{DoxyCompactList}\item 
 {\footnotesize template$<$typename C$>$ }\\C \mbox{\hyperlink{group__general_ga0b5cc288fd3b6e0572b929effb47e930}{tgen\+::shuffle}} (C container)
-\begin{DoxyCompactList}\small\item\em Shuffles {\ttfamily container} uniformly. Returns a copy. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Shuffles {\ttfamily container} inplace. Returns a copy. \end{DoxyCompactList}\item 
 {\footnotesize template$<$typename It$>$ }\\It\+::value\+\_\+type \mbox{\hyperlink{group__general_ga9c1c0431948210b949f5d1500e7235ec}{tgen\+::any}} (It first, It last)
-\begin{DoxyCompactList}\small\item\em Returns a random element from {\ttfamily \mbox{[}first, last)}. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Choses a random element from {\ttfamily \mbox{[}first, last)}. \end{DoxyCompactList}\item 
 {\footnotesize template$<$typename C$>$ }\\C\+::value\+\_\+type \mbox{\hyperlink{group__general_gac3b0462e9690fa58b370b24e687d6be0}{tgen\+::any}} (const C \&container)
-\begin{DoxyCompactList}\small\item\em Returns a random element from {\ttfamily container}. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Choses a random element from {\ttfamily container}. \end{DoxyCompactList}\item 
 {\footnotesize template$<$typename C$>$ }\\C \mbox{\hyperlink{group__general_ga5deceed8488585530188dbd266739771}{tgen\+::choose}} (int k, const C \&container)
-\begin{DoxyCompactList}\small\item\em Chooses k values from the container, as in a subsequence of size k. Returns a copy. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Chooses k values from the container, as in a subsequence of size k. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
@@ -33,7 +33,19 @@ Operations for basic number generation and basic random operations.
 \hypertarget{group__general_autotoc_md4}{}\doxysubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__general_autotoc_md4}
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{\textcolor{keywordtype}{int}\ val\ =\ \mbox{\hyperlink{group__general_gaa007cf5e254380332a3548711d5f9b16}{tgen::next}}(1,\ 10);\ \textcolor{comment}{//\ Random\ number\ from\ 1\ to\ 10.}}
+\DoxyCodeLine{\textcolor{comment}{//\ Random\ number\ from\ 10\ to\ 20.}}
+\DoxyCodeLine{\textcolor{keywordtype}{int}\ size\ =\ \mbox{\hyperlink{group__general_gaa007cf5e254380332a3548711d5f9b16}{tgen::next}}(10,\ 20);}
+\DoxyCodeLine{\mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\_ensure}}(size\ <=\ 20);}
+\DoxyCodeLine{}
+\DoxyCodeLine{Several\ numbers\ in\ \{5,\ 10,\ 15,\ 20\}.}
+\DoxyCodeLine{std::vector<\textcolor{keywordtype}{int}>\ v(size);}
+\DoxyCodeLine{\textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\&\ i\ :\ v)\ i\ =\ \mbox{\hyperlink{group__general_ga9c1c0431948210b949f5d1500e7235ec}{tgen::any}}(\{5,\ 10,\ 15,\ 20\});}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{//\ Shuffles\ the\ numbers.}}
+\DoxyCodeLine{\mbox{\hyperlink{group__general_ga5494e4e347f9d1dc5b88695e0777f65b}{tgen::shuffle}}(v);}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{//\ Choses\ a\ subsequence\ of\ length\ 5.}}
+\DoxyCodeLine{v\ =\ \mbox{\hyperlink{group__general_ga5deceed8488585530188dbd266739771}{tgen::choose}}(5,\ v);}
 
 \end{DoxyCode}
  
@@ -90,7 +102,7 @@ C\+::value\+\_\+type tgen\+::any (\begin{DoxyParamCaption}\item[{const C \&}]{co
 
 
 
-Returns a random element from {\ttfamily container}. 
+Choses a random element from {\ttfamily container}. 
 
 
 \begin{DoxyParams}{Parameters}
@@ -98,9 +110,16 @@ Returns a random element from {\ttfamily container}.
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-A uniformly random element from {\ttfamily container}. 
+A uniformly random element from {\ttfamily container}.
 \end{DoxyReturn}
+\hypertarget{group__general_autotoc_md10}{}\doxysubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__general_autotoc_md10}
 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{std::vector<int>\ v\ =\ \{1,\ 2,\ 3,\ 4,\ 5\};}
+\DoxyCodeLine{\textcolor{keywordtype}{int}\ value\ =\ \mbox{\hyperlink{group__general_ga9c1c0431948210b949f5d1500e7235ec}{tgen::any}}(v);}
+
+\end{DoxyCode}
+ 
 
 Definition at line \mbox{\hyperlink{tgen_8h_source_l00096}{96}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
@@ -113,7 +132,7 @@ It\+::value\+\_\+type tgen\+::any (\begin{DoxyParamCaption}\item[{It}]{first}{, 
 
 
 
-Returns a random element from {\ttfamily \mbox{[}first, last)}. 
+Choses a random element from {\ttfamily \mbox{[}first, last)}. 
 
 
 \begin{DoxyParams}{Parameters}
@@ -123,9 +142,16 @@ Returns a random element from {\ttfamily \mbox{[}first, last)}.
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-A uniformly random element from the range {\ttfamily \mbox{[}first, last)}. 
+A uniformly random element from the range {\ttfamily \mbox{[}first, last)}.
 \end{DoxyReturn}
+\hypertarget{group__general_autotoc_md9}{}\doxysubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__general_autotoc_md9}
 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{std::set<int>\ st\ =\ \{1,\ 2,\ 3,\ 4,\ 5\};}
+\DoxyCodeLine{\textcolor{keywordtype}{int}\ value\ =\ \mbox{\hyperlink{group__general_ga9c1c0431948210b949f5d1500e7235ec}{tgen::any}}(st.begin(),\ st.end());}
+
+\end{DoxyCode}
+ 
 
 Definition at line \mbox{\hyperlink{tgen_8h_source_l00088}{88}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
@@ -138,7 +164,7 @@ C tgen\+::choose (\begin{DoxyParamCaption}\item[{int}]{k}{, }\item[{const C \&}]
 
 
 
-Chooses k values from the container, as in a subsequence of size k. Returns a copy. 
+Chooses k values from the container, as in a subsequence of size k. 
 
 
 \begin{DoxyParams}{Parameters}
@@ -148,11 +174,18 @@ Chooses k values from the container, as in a subsequence of size k. Returns a co
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-A uniformly random subsequence of length k. 
+A uniformly random subsequence of length k.
 \end{DoxyReturn}
+\hypertarget{group__general_autotoc_md11}{}\doxysubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__general_autotoc_md11}
 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{std::vector<int>\ v\ =\ \{1,\ 2,\ 3,\ 4,\ 5\};}
+\DoxyCodeLine{v\ =\ \mbox{\hyperlink{group__general_ga5deceed8488585530188dbd266739771}{tgen::choose}}(3,\ v);\ \textcolor{comment}{//\ Chooses\ 3\ elements\ from\ v.}}
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00102}{102}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+\end{DoxyCode}
+ 
+
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00105}{105}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__general_gaa007cf5e254380332a3548711d5f9b16}\index{General Operations@{General Operations}!next@{next}}
 \index{next@{next}!General Operations@{General Operations}}
@@ -195,7 +228,7 @@ C tgen\+::shuffle (\begin{DoxyParamCaption}\item[{C}]{container}{}\end{DoxyParam
 
 
 
-Shuffles {\ttfamily container} uniformly. Returns a copy. 
+Shuffles {\ttfamily container} inplace. Returns a copy. 
 
 
 \begin{DoxyParams}{Parameters}
@@ -203,9 +236,16 @@ Shuffles {\ttfamily container} uniformly. Returns a copy.
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-A copy of the shuffled container. 
+A copy of the shuffled container.
 \end{DoxyReturn}
+\hypertarget{group__general_autotoc_md8}{}\doxysubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__general_autotoc_md8}
 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{std::set<int>\ st\ =\ \{1,\ 2,\ 3,\ 4,\ 5\};}
+\DoxyCodeLine{\mbox{\hyperlink{group__general_ga5494e4e347f9d1dc5b88695e0777f65b}{tgen::shuffle}}(st);}
+
+\end{DoxyCode}
+ 
 
 Definition at line \mbox{\hyperlink{tgen_8h_source_l00082}{82}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
@@ -218,16 +258,23 @@ void tgen\+::shuffle (\begin{DoxyParamCaption}\item[{It}]{first}{, }\item[{It}]{
 
 
 
-Shuffles {\ttfamily \mbox{[}first, last)} inplace uniformly. 
+Shuffles {\ttfamily \mbox{[}first, last)} inplace. 
 
 
 \begin{DoxyParams}{Parameters}
 {\em first} & First iterator of range. \\
 \hline
-{\em last} & First iterator outside of range. \\
+{\em last} & First iterator outside of range.\\
 \hline
 \end{DoxyParams}
+\hypertarget{group__general_autotoc_md7}{}\doxysubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__general_autotoc_md7}
 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{std::vector<int>\ v\ =\ \{1,\ 2,\ 3,\ 4,\ 5\};}
+\DoxyCodeLine{\mbox{\hyperlink{group__general_ga5494e4e347f9d1dc5b88695e0777f65b}{tgen::shuffle}}(v.begin(),\ v.end());}
+
+\end{DoxyCode}
+ 
 
 Definition at line \mbox{\hyperlink{tgen_8h_source_l00073}{73}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 

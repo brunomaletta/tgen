@@ -5,7 +5,19 @@
  * ### Examples
  *
  * ```cpp
- * int val = tgen::next(1, 10); // Random number from 1 to 10.
+ * // Random number from 10 to 20.
+ * int size = tgen::next(10, 20);
+ * tgen_ensure(size <= 20);
+ *
+ * Several numbers in {5, 10, 15, 20}.
+ * std::vector<int> v(size);
+ * for (int& i : v) i = tgen::any({5, 10, 15, 20});
+ *
+ * // Shuffles the numbers.
+ * tgen::shuffle(v);
+ *
+ * // Choses a subsequence of length 5.
+ * v = tgen::choose(5, v);
  * ```
  *
  */
@@ -56,56 +68,91 @@ template <typename T> T tgen::next(T l, T r);
 
 /**
  * @ingroup general
- * @brief Shuffles `[first, last)` inplace uniformly.
+ * @brief Shuffles `[first, last)` inplace.
  *
  * @param first First iterator of range.
  * @param last First iterator outside of range.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * std::vector<int> v = {1, 2, 3, 4, 5};
+ * tgen::shuffle(v.begin(), v.end());
+ * ```
  */
 template <typename It> void tgen::shuffle(It first, It last);
 
 
 /**
  * @ingroup general
- * @brief Shuffles `container` uniformly. Returns a copy.
+ * @brief Shuffles `container` inplace. Returns a copy.
  *
  * @param container Container to be shuffled.
  *
  * @returns A copy of the shuffled container.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * std::set<int> st = {1, 2, 3, 4, 5};
+ * tgen::shuffle(st);
+ * ```
  */
 template <typename C> C tgen::shuffle(C container);
 
 
 /**
  * @ingroup general
- * @brief Returns a random element from `[first, last)`.
+ * @brief Choses a random element from `[first, last)`.
  *
  * @param first First iterator of range.
  * @param last First iterator outside of range.
  *
  * @returns A uniformly random element from the range `[first, last)`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * std::set<int> st = {1, 2, 3, 4, 5};
+ * int value = tgen::any(st.begin(), st.end());
+ * ```
  */
 template <typename It> typename It::value_type tgen::any(It first, It last);
 
 
 /**
  * @ingroup general
- * @brief Returns a random element from `container`.
+ * @brief Choses a random element from `container`.
  *
  * @param container Container to choose from.
  *
  * @returns A uniformly random element from `container`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * std::vector<int> v = {1, 2, 3, 4, 5};
+ * int value = tgen::any(v);
+ * ```
  */
 template <typename C> typename C::value_type tgen::any(const C &container);
 
 
 /**
  * @ingroup general
- * @brief Chooses k values from the container, as in a subsequence of size k. Returns a copy.
+ * @brief Chooses k values from the container, as in a subsequence of size k.
  *
  * @param k Number of elements to be chosen.
  * @param container Container to choose from.
  *
  * @returns A uniformly random subsequence of length k.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * std::vector<int> v = {1, 2, 3, 4, 5};
+ * v = tgen::choose(3, v); // Chooses 3 elements from v.
+ * ```
  */
 template <typename C> C tgen::choose(int k, const C &container);
 

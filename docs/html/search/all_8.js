@@ -2,7 +2,7 @@ var searchData=
 [
   ['operations_0',['General Operations',['../group__general.html',1,'']]],
   ['opt_1',['opt',['../group__opts.html#ga3a0c1de577e6b0c2bf1e119107f274db',1,'tgen::opt(int index)'],['../group__opts.html#ga6c7a3ec6c638336feb28157279218066',1,'tgen::opt(int index, const T &amp;default_value)'],['../group__opts.html#gaceb7bdc16f9749b22bc6ebd6404340d5',1,'tgen::opt(const std::string &amp;key)'],['../group__opts.html#gaf271a5e200375d2038f4704dea300921',1,'tgen::opt(const std::string &amp;key, const T &amp;default_value)']]],
-  ['opts_2',['Opts',['../group__opts.html#autotoc_md8',1,'Opts'],['../group__opts.html',1,'Registering and Opts']]],
-  ['opts_3',['Consuming opts',['../group__opts.html#autotoc_md9',1,'']]],
+  ['opts_2',['Opts',['../group__opts.html#autotoc_md13',1,'Opts'],['../group__opts.html',1,'Registering and Opts']]],
+  ['opts_3',['Consuming opts',['../group__opts.html#autotoc_md14',1,'']]],
   ['opts_20configuration_4',['Opts configuration',['../index.html#autotoc_md2',1,'']]]
 ];

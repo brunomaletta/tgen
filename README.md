@@ -1,8 +1,8 @@
 # A library to generate testcases
 
-First, you [register the generator](group__opts.html). That defines the seed for random generation and parses the opts.
+First, you [register the generator](https://brunomaletta.github.io/tgen/group__opts.html). That defines the seed for random generation and parses the opts.
 
-There are [general operations](group__general.html) and operations for specific data types:
+There are [general operations](https://brunomaletta.github.io/tgen/group__general.html) and operations for specific data types:
 
 - Sequences
 
@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 
 	int n_max = get<int>("n");
 
-	std::cout << tgen::next(1, n) << std;:endl;
+	std::cout << tgen::next(1, n) << std::endl;
 }
 ```
 

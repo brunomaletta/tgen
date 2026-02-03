@@ -59,4 +59,6 @@ int main(int argc, char **argv) {
 					[](const auto &seq) { return seq[0] < seq[9]; },
 					/*max_tries=*/100)
 		 << endl;
+
+	cout << tgen::any({1, 2, 3}) << endl;
 }

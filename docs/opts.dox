@@ -11,6 +11,8 @@
  * 
  * int main(int argc, char** argv) {
  *     tgen::register_gen(argc, argv);
+ *     
+ *     // Rest of the generator.
  * }
  * ```
  * 
@@ -29,15 +31,23 @@
  * 2. `-keyname value` or `--keyname value` (ex. `-n 10`, `--test-count 20`)
  *
  * Positional options are numbered from 0 sequentially.
- * For example, for `10 -n=20 str` positional option 1 is the string `str`.
+ *
+ * For example, if you compile your code to `a.out`, calling
+ * `./a.out -n 10 str --q=5 -1.1e2` results in the following opts:
+ * - Named
+ *   - `n`: `10`
+ *   - `q`: `5`
+ * - Positional
+ *   - `0`: `str`
+ *   - `1`: `-110`
  * 
  * #### Consuming opts
  * 
  * You can consume the opts by using `opt<>`:
  * 
  * ```cpp
- * int n = opt<int>("n");
- * int q = opt<int>("q", n); // default value, if opt is not found
+ * int n = tgen::opt<int>("n");
+ * std::string s = tgen::opt<std::string>(0, ""); // Default value, if opt is not found.
  * ```
  */
 
@@ -73,7 +83,7 @@ bool tgen::has_opt(const std::string &key);
  *
  * @returns The value of opt at `index`.
  *
- * @throws std::runtime_error opt is not found.
+ * @throws std::runtime_error if opt is not found.
  */
 template <typename T> T tgen::opt(int index);
 
@@ -98,7 +108,7 @@ template <typename T> T tgen::opt(int index, const T &default_value);
  *
  * @returns The value of opt of `key`.
  *
- * @throws std::runtime_error opt is not found.
+ * @throws std::runtime_error if opt is not found.
  */
 template <typename T> T tgen::opt(const std::string &key);
 

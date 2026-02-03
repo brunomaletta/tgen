@@ -27,7 +27,7 @@ void \mbox{\hyperlink{group__opts_gae8eca919976894c15b44713f00f33bd8}{tgen\+::re
 \doxysubsection{Detailed Description}
 Registering and opts parsing. 
 
-\hypertarget{group__opts_autotoc_md7}{}\doxysubsubsubsection{\texorpdfstring{Registering}{Registering}}\label{group__opts_autotoc_md7}
+\hypertarget{group__opts_autotoc_md12}{}\doxysubsubsubsection{\texorpdfstring{Registering}{Registering}}\label{group__opts_autotoc_md12}
 The first line of your generator should be\+:
 
 
@@ -36,6 +36,8 @@ The first line of your generator should be\+:
 \DoxyCodeLine{}
 \DoxyCodeLine{\textcolor{keywordtype}{int}\ main(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}**\ argv)\ \{}
 \DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{group__opts_gae8eca919976894c15b44713f00f33bd8}{tgen::register\_gen}}(argc,\ argv);}
+\DoxyCodeLine{\ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \textcolor{comment}{//\ Rest\ of\ the\ generator.}}
 \DoxyCodeLine{\}}
 
 \end{DoxyCode}
@@ -45,7 +47,7 @@ This does two things\+:
 \begin{DoxyEnumerate}
 \item Sets up the seed for random generator based on the arguments (excluding the executable name). That is, {\ttfamily ./a.out -\/n 10} and {\ttfamily ./b.out -\/n 10} will use the same seed.
 \item Parses the opts (given in the arguments).
-\end{DoxyEnumerate}\hypertarget{group__opts_autotoc_md8}{}\doxysubsubsubsection{\texorpdfstring{Opts}{Opts}}\label{group__opts_autotoc_md8}
+\end{DoxyEnumerate}\hypertarget{group__opts_autotoc_md13}{}\doxysubsubsubsection{\texorpdfstring{Opts}{Opts}}\label{group__opts_autotoc_md13}
 Opts are a list of either named or positional options.
 
 Named options is given in one of the following formats\+:
@@ -54,13 +56,27 @@ Named options is given in one of the following formats\+:
 \item {\ttfamily -\/keyname value} or {\ttfamily -\/-\/keyname value} (ex. {\ttfamily -\/n 10}, {\ttfamily -\/-\/test-\/count 20})
 \end{DoxyEnumerate}
 
-Positional options are numbered from 0 sequentially. For example, for {\ttfamily 10 -\/n=20 str} positional option 1 is the string {\ttfamily str}.\hypertarget{group__opts_autotoc_md9}{}\doxysubsubsubsubsection{\texorpdfstring{Consuming opts}{Consuming opts}}\label{group__opts_autotoc_md9}
+Positional options are numbered from 0 sequentially.
+
+For example, if you compile your code to {\ttfamily a.\+out}, calling {\ttfamily ./a.out -\/n 10 str -\/-\/q=5 -\/1.\+1e2} results in the following opts\+:
+\begin{DoxyItemize}
+\item Named
+\begin{DoxyItemize}
+\item {\ttfamily n}\+: {\ttfamily 10}
+\item {\ttfamily q}\+: {\ttfamily 5}
+\end{DoxyItemize}
+\item Positional
+\begin{DoxyItemize}
+\item {\ttfamily 0}\+: {\ttfamily str}
+\item {\ttfamily 1}\+: {\ttfamily -\/110}
+\end{DoxyItemize}
+\end{DoxyItemize}\hypertarget{group__opts_autotoc_md14}{}\doxysubsubsubsubsection{\texorpdfstring{Consuming opts}{Consuming opts}}\label{group__opts_autotoc_md14}
 You can consume the opts by using {\ttfamily opt\texorpdfstring{$<$}{<}\texorpdfstring{$>$}{>}}\+:
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{\textcolor{keywordtype}{int}\ n\ =\ opt<int>(\textcolor{stringliteral}{"{}n"{}});}
-\DoxyCodeLine{\textcolor{keywordtype}{int}\ q\ =\ opt<int>(\textcolor{stringliteral}{"{}q"{}},\ n);\ \textcolor{comment}{//\ default\ value,\ if\ opt\ is\ not\ found}}
+\DoxyCodeLine{\textcolor{keywordtype}{int}\ n\ =\ \mbox{\hyperlink{group__opts_ga3a0c1de577e6b0c2bf1e119107f274db}{tgen::opt<int>}}(\textcolor{stringliteral}{"{}n"{}});}
+\DoxyCodeLine{std::string\ s\ =\ \mbox{\hyperlink{group__opts_ga3a0c1de577e6b0c2bf1e119107f274db}{tgen::opt<std::string>}}(0,\ \textcolor{stringliteral}{"{}"{}});\ \textcolor{comment}{//\ Default\ value,\ if\ opt\ is\ not\ found.}}
 
 \end{DoxyCode}
  
@@ -88,7 +104,7 @@ If there is named opt with {\ttfamily key}.
 \end{DoxyReturn}
 
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00151}{151}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00154}{154}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__opts_ga1f65eceb6a4e6e2299c66797131f0c5f}\index{Registering and Opts@{Registering and Opts}!has\_opt@{has\_opt}}
 \index{has\_opt@{has\_opt}!Registering and Opts@{Registering and Opts}}
@@ -110,7 +126,7 @@ If there is positional opt at {\ttfamily index}.
 \end{DoxyReturn}
 
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00148}{148}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00151}{151}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__opts_gaceb7bdc16f9749b22bc6ebd6404340d5}\index{Registering and Opts@{Registering and Opts}!opt@{opt}}
 \index{opt@{opt}!Registering and Opts@{Registering and Opts}}
@@ -133,12 +149,12 @@ The value of opt of {\ttfamily key}.
 \end{DoxyReturn}
 
 \begin{DoxyExceptions}{Exceptions}
-{\em std\+::runtime\+\_\+error} & opt is not found. \\
+{\em std\+::runtime\+\_\+error} & if opt is not found. \\
 \hline
 \end{DoxyExceptions}
 
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00208}{208}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00211}{211}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__opts_gaf271a5e200375d2038f4704dea300921}\index{Registering and Opts@{Registering and Opts}!opt@{opt}}
 \index{opt@{opt}!Registering and Opts@{Registering and Opts}}
@@ -163,7 +179,7 @@ The value of opt of {\ttfamily key}, or {\ttfamily default\+\_\+value} if not fo
 \end{DoxyReturn}
 
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00215}{215}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00218}{218}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__opts_ga3a0c1de577e6b0c2bf1e119107f274db}\index{Registering and Opts@{Registering and Opts}!opt@{opt}}
 \index{opt@{opt}!Registering and Opts@{Registering and Opts}}
@@ -186,12 +202,12 @@ The value of opt at {\ttfamily index}.
 \end{DoxyReturn}
 
 \begin{DoxyExceptions}{Exceptions}
-{\em std\+::runtime\+\_\+error} & opt is not found. \\
+{\em std\+::runtime\+\_\+error} & if opt is not found. \\
 \hline
 \end{DoxyExceptions}
 
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00194}{194}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00197}{197}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__opts_ga6c7a3ec6c638336feb28157279218066}\index{Registering and Opts@{Registering and Opts}!opt@{opt}}
 \index{opt@{opt}!Registering and Opts@{Registering and Opts}}
@@ -216,7 +232,7 @@ The value of opt at {\ttfamily index}, or {\ttfamily default\+\_\+value} if not 
 \end{DoxyReturn}
 
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00201}{201}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00204}{204}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__opts_gae8eca919976894c15b44713f00f33bd8}\index{Registering and Opts@{Registering and Opts}!register\_gen@{register\_gen}}
 \index{register\_gen@{register\_gen}!Registering and Opts@{Registering and Opts}}
@@ -237,5 +253,5 @@ Sets up the generator.
 \end{DoxyParams}
 Sets up the opts, and the seed of the random number generator. The seed is dependent on the arguments (excluding the executable name). 
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00299}{299}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00302}{302}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 

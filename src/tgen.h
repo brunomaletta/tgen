@@ -40,7 +40,7 @@ std::runtime_error __error(const std::string &msg) {
 // Ensures condition is true, with nice debug.
 #define tgen_ensure(cond, ...)                                                 \
 	if (!(cond))                                                               \
-		__throw_assertion_error(#cond, __VA_ARGS__);
+		tgen::__throw_assertion_error(#cond, ##__VA_ARGS__);
 
 /*
  * Global random operations.
@@ -95,6 +95,9 @@ template <typename It> typename It::value_type any(It first, It last) {
 // Returns a random element from container.
 template <typename C> typename C::value_type any(const C &container) {
 	return any(container.begin(), container.end());
+}
+template <typename T> T any(const std::initializer_list<T> &list) {
+	return any(std::vector<T>(list.begin(), list.end()));
 }
 
 // Chooses k values from the container, as in a subsequence of size k. Returns a
