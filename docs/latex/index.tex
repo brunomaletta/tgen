@@ -6,6 +6,13 @@
 
 {\ttfamily tgen} is a {\ttfamily C++} library to help you generate random stuff, useful for testcase generation (such as \href{https://github.com/ifsmirnov/jngen}{\texttt{jngen}} or \href{https://github.com/MikeMirzayanov/testlib}{\texttt{testlib}}). The code is in a single file \href{https://github.com/brunomaletta/tgen/blob/main/src/tgen.h}{\texttt{tgen.\+h}}, that should be added to your directory.
 
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{preprocessor}{\#include\ "{}tgen.h"{}}}
+
+\end{DoxyCode}
+
+
 The first thing is to \href{https://brunomaletta.github.io/tgen/group__opts.html}{\texttt{register the generator}}. That defines the seed for random generation and parses the opts.
 
 There are \href{https://brunomaletta.github.io/tgen/group__general.html}{\texttt{general operations}} and operations for specific data types\+:

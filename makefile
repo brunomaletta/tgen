@@ -13,7 +13,7 @@ opendoc:
 	open docs/html/index.html > /dev/null 2>&1 &
 
 lint:
-	bash lint.sh
+	find a.cpp src/* -iname '*.h' -o -iname '*.cpp' | xargs clang-format -i
 
 clean:
 	rm -rf a

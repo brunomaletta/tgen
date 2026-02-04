@@ -22,6 +22,11 @@
 /**
  * @defgroup sequence_gen Sequence generators
  * @ingroup sequence
+ * @brief Defines a set of sequences, subject to restrictions.
+ *
+ * A uniformly random `tgen::sequence::instance`
+ * (see @ref sequence_inst) from this set of sequences (that satisfies the restrictions) can be
+ * generated with `tgen::sequence::gen`.
  */
 
 /**
@@ -276,6 +281,10 @@ tgen::sequence::instance tgen::sequence::gen_until(PRED predicate, int max_tries
 /**
  * @defgroup sequence_inst Sequence instances
  * @ingroup sequence
+ * @brief Instance of a sequence.
+ *
+ * It can be deterministically operated upon (see @ref sequence_op for random operations) 
+ * and printed through `std::cout`.
  */
 
 /**
@@ -420,6 +429,9 @@ std::vector<T> tgen::sequence::instance::to_std();
 /**
  * @defgroup sequence_op Sequence operations
  * @ingroup sequence
+ * @brief Random operations on sequence instances.
+ *
+ * These operations make random decisions.
  */
 
 /**

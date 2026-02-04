@@ -120,7 +120,8 @@ $(function(){initNavTree('index.html','',''); });
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a></p>
 <p><span class="tt">tgen</span> is a <span class="tt">C++</span> library to help you generate random stuff, useful for testcase generation (such as <a href="https://github.com/ifsmirnov/jngen">jngen</a> or <a href="https://github.com/MikeMirzayanov/testlib">testlib</a>). The code is in a single file <a href="https://github.com/brunomaletta/tgen/blob/main/src/tgen.h">tgen.h</a>, that should be added to your directory.</p>
-<p>The first thing is to <a href="https://brunomaletta.github.io/tgen/group__opts.html">register the generator</a>. That defines the seed for random generation and parses the opts.</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;tgen.h&quot;</span></div>
+</div><!-- fragment --><p>The first thing is to <a href="https://brunomaletta.github.io/tgen/group__opts.html">register the generator</a>. That defines the seed for random generation and parses the opts.</p>
 <p>There are <a href="https://brunomaletta.github.io/tgen/group__general.html">general operations</a> and operations for specific data types:</p>
 <ul>
 <li><a href="https://brunomaletta.github.io/tgen/group__sequence.html">Sequences</a></li>

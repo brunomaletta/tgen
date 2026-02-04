@@ -2,6 +2,10 @@
 
 `tgen` is a `C++` library to help you generate random stuff, useful for testcase generation (such as [jngen](https://github.com/ifsmirnov/jngen) or [testlib](https://github.com/MikeMirzayanov/testlib)). The code is in a single file [tgen.h](https://github.com/brunomaletta/tgen/blob/main/src/tgen.h), that should be added to your directory.
 
+```cpp
+#include "tgen.h"
+```
+
 The first thing is to [register the generator](https://brunomaletta.github.io/tgen/group__opts.html). That defines the seed for random generation and parses the opts.
 
 There are [general operations](https://brunomaletta.github.io/tgen/group__general.html) and operations for specific data types:
