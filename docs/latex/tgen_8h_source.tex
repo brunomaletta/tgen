@@ -339,7 +339,7 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00335}00335\ \textcolor{comment}{\ *\ Sequence\ generator.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00336}00336\ \textcolor{comment}{\ */}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00337}00337\ }
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00338}\mbox{\hyperlink{structtgen_1_1sequence}{00338}}\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{group__sequence_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00338}\mbox{\hyperlink{structtgen_1_1sequence}{00338}}\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{group__sequence__gen_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00339}00339\ \ \ \ \ \textcolor{keywordtype}{int}\ size;\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Size\ of\ sequence.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00340}00340\ \ \ \ \ T\ value\_l,\ value\_r;\ \textcolor{comment}{//\ Range\ of\ defined\ values.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00341}00341\ \ \ \ \ std::set<T>\ values;\ \textcolor{comment}{//\ Set\ of\ values.\ If\ empty,\ use\ range.\ if\ not,}}
@@ -354,7 +354,7 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00350}00350\ \ \ \ \ \ \ \ \ distinct\_constraints;\ \textcolor{comment}{//\ All\ distinct\ constraints.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00351}00351\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00352}00352\ \ \ \ \ \textcolor{comment}{//\ Creates\ generator\ for\ sequences\ of\ size\ 'size',\ with\ random\ T\ in\ [l,\ r]}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00353}\mbox{\hyperlink{group__sequence_ga4238ffc66ac290692a12eccf93ac689d}{00353}}\ \ \ \ \ \mbox{\hyperlink{group__sequence_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}(\textcolor{keywordtype}{int}\ size,\ T\ value\_l,\ T\ value\_r)}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00353}\mbox{\hyperlink{group__sequence__gen_ga4238ffc66ac290692a12eccf93ac689d}{00353}}\ \ \ \ \ \mbox{\hyperlink{group__sequence__gen_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}(\textcolor{keywordtype}{int}\ size,\ T\ value\_l,\ T\ value\_r)}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00354}00354\ \ \ \ \ \ \ \ \ :\ size(size),\ value\_l(value\_l),\ value\_r(value\_r),\ neigh(size)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00355}00355\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\_ensure}}(value\_l\ <=\ value\_r,\ \textcolor{stringliteral}{"{}value\ range\ must\ be\ valid"{}});}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00356}00356\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ size;\ ++i)}
@@ -362,7 +362,7 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00358}00358\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00359}00359\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00360}00360\ \ \ \ \ \textcolor{comment}{//\ Creates\ sequence\ with\ value\ set.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00361}\mbox{\hyperlink{group__sequence_ga35c05c1453be02b90fe08a46dc8c9729}{00361}}\ \ \ \ \ \mbox{\hyperlink{group__sequence_ga35c05c1453be02b90fe08a46dc8c9729}{sequence}}(\textcolor{keywordtype}{int}\ size,\ \textcolor{keyword}{const}\ std::set<T>\ \&values)}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00361}\mbox{\hyperlink{group__sequence__gen_ga35c05c1453be02b90fe08a46dc8c9729}{00361}}\ \ \ \ \ \mbox{\hyperlink{group__sequence__gen_ga35c05c1453be02b90fe08a46dc8c9729}{sequence}}(\textcolor{keywordtype}{int}\ size,\ \textcolor{keyword}{const}\ std::set<T>\ \&values)}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00362}00362\ \ \ \ \ \ \ \ \ :\ size(size),\ values(values),\ neigh(size)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00363}00363\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\_ensure}}(values.size()\ >\ 0,\ \textcolor{stringliteral}{"{}must\ have\ at\ least\ one\ value"{}});}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00364}00364\ \ \ \ \ \ \ \ \ value\_l\ =\ 0,\ value\_r\ =\ values.size()\ -\/\ 1;}
@@ -372,13 +372,13 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00368}00368\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (T\ value\ :\ values)}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00369}00369\ \ \ \ \ \ \ \ \ \ \ \ \ value\_idx\_in\_set[value]\ =\ idx++;}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00370}00370\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00371}\mbox{\hyperlink{group__sequence_ga80f023fb5e7305d146e9c74f8a4c00bf}{00371}}\ \ \ \ \ \mbox{\hyperlink{group__sequence_ga80f023fb5e7305d146e9c74f8a4c00bf}{sequence}}(\textcolor{keywordtype}{int}\ size,\ \textcolor{keyword}{const}\ std::vector<T>\ \&values)}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00372}00372\ \ \ \ \ \ \ \ \ :\ \mbox{\hyperlink{group__sequence_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}(size,\ std::\mbox{\hyperlink{group__sequence_gaff196db1265936038bcb8761192f5a8c}{set}}<T>(values.begin(),\ values.end()))\ \{\}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00373}\mbox{\hyperlink{group__sequence_gafed6e97f0f5ea48c6965399aa041a7c0}{00373}}\ \ \ \ \ \mbox{\hyperlink{group__sequence_gafed6e97f0f5ea48c6965399aa041a7c0}{sequence}}(\textcolor{keywordtype}{int}\ size,\ \textcolor{keyword}{const}\ std::initializer\_list<T>\ \&values)}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00374}00374\ \ \ \ \ \ \ \ \ :\ \mbox{\hyperlink{group__sequence_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}(size,\ std::\mbox{\hyperlink{group__sequence_gaff196db1265936038bcb8761192f5a8c}{set}}<T>(values.begin(),\ values.end()))\ \{\}}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00371}\mbox{\hyperlink{group__sequence__gen_ga80f023fb5e7305d146e9c74f8a4c00bf}{00371}}\ \ \ \ \ \mbox{\hyperlink{group__sequence__gen_ga80f023fb5e7305d146e9c74f8a4c00bf}{sequence}}(\textcolor{keywordtype}{int}\ size,\ \textcolor{keyword}{const}\ std::vector<T>\ \&values)}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00372}00372\ \ \ \ \ \ \ \ \ :\ \mbox{\hyperlink{group__sequence__gen_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}(size,\ std::\mbox{\hyperlink{group__sequence__gen_gaff196db1265936038bcb8761192f5a8c}{set}}<T>(values.begin(),\ values.end()))\ \{\}}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00373}\mbox{\hyperlink{group__sequence__gen_gafed6e97f0f5ea48c6965399aa041a7c0}{00373}}\ \ \ \ \ \mbox{\hyperlink{group__sequence__gen_gafed6e97f0f5ea48c6965399aa041a7c0}{sequence}}(\textcolor{keywordtype}{int}\ size,\ \textcolor{keyword}{const}\ std::initializer\_list<T>\ \&values)}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00374}00374\ \ \ \ \ \ \ \ \ :\ \mbox{\hyperlink{group__sequence__gen_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}(size,\ std::\mbox{\hyperlink{group__sequence__gen_gaff196db1265936038bcb8761192f5a8c}{set}}<T>(values.begin(),\ values.end()))\ \{\}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00375}00375\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00376}00376\ \ \ \ \ \textcolor{comment}{//\ Restricts\ sequences\ for\ sequence[idx]\ =\ value.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00377}\mbox{\hyperlink{group__sequence_gaff196db1265936038bcb8761192f5a8c}{00377}}\ \ \ \ \ \mbox{\hyperlink{group__sequence_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \&\mbox{\hyperlink{group__sequence_gaff196db1265936038bcb8761192f5a8c}{set}}(\textcolor{keywordtype}{int}\ idx,\ T\ value)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00377}\mbox{\hyperlink{group__sequence__gen_gaff196db1265936038bcb8761192f5a8c}{00377}}\ \ \ \ \ \mbox{\hyperlink{group__sequence__gen_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \&\mbox{\hyperlink{group__sequence__gen_gaff196db1265936038bcb8761192f5a8c}{set}}(\textcolor{keywordtype}{int}\ idx,\ T\ value)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00378}00378\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\_ensure}}(0\ <=\ idx\ and\ idx\ <\ size,\ \textcolor{stringliteral}{"{}index\ must\ be\ valid"{}});}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00379}00379\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (values.size()\ ==\ 0)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00380}00380\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ \&[left,\ right]\ =\ val\_range[idx];}
@@ -398,7 +398,7 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00394}00394\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00395}00395\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00396}00396\ \ \ \ \ \textcolor{comment}{//\ Restricts\ sequences\ for\ sequence[idx\_1]\ =\ sequence[idx\_2].}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00397}\mbox{\hyperlink{group__sequence_ga4beb1b5e29f21f329346d005fada1c9b}{00397}}\ \ \ \ \ \mbox{\hyperlink{group__sequence_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \&\mbox{\hyperlink{group__sequence_ga4beb1b5e29f21f329346d005fada1c9b}{equal}}(\textcolor{keywordtype}{int}\ idx\_1,\ \textcolor{keywordtype}{int}\ idx\_2)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00397}\mbox{\hyperlink{group__sequence__gen_ga4beb1b5e29f21f329346d005fada1c9b}{00397}}\ \ \ \ \ \mbox{\hyperlink{group__sequence__gen_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \&\mbox{\hyperlink{group__sequence__gen_ga4beb1b5e29f21f329346d005fada1c9b}{equal}}(\textcolor{keywordtype}{int}\ idx\_1,\ \textcolor{keywordtype}{int}\ idx\_2)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00398}00398\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\_ensure}}(0\ <=\ std::min(idx\_1,\ idx\_2)\ and}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00399}00399\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::max(idx\_1,\ idx\_2)\ <\ size,}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00400}00400\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}indices\ must\ be\ valid"{}});}
@@ -411,18 +411,18 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00407}00407\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00408}00408\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00409}00409\ \ \ \ \ \textcolor{comment}{//\ Restricts\ sequences\ for\ sequence[left..right]\ to\ have\ all\ equal\ values.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00410}\mbox{\hyperlink{group__sequence_gaa6ca6fc2e5c9edcf0d25165f9f25ad12}{00410}}\ \ \ \ \ \mbox{\hyperlink{group__sequence_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \&\mbox{\hyperlink{group__sequence_gaa6ca6fc2e5c9edcf0d25165f9f25ad12}{equal\_range}}(\textcolor{keywordtype}{int}\ left,\ \textcolor{keywordtype}{int}\ right)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00410}\mbox{\hyperlink{group__sequence__gen_gaa6ca6fc2e5c9edcf0d25165f9f25ad12}{00410}}\ \ \ \ \ \mbox{\hyperlink{group__sequence__gen_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \&\mbox{\hyperlink{group__sequence__gen_gaa6ca6fc2e5c9edcf0d25165f9f25ad12}{equal\_range}}(\textcolor{keywordtype}{int}\ left,\ \textcolor{keywordtype}{int}\ right)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00411}00411\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\_ensure}}(0\ <=\ left\ and\ left\ <=\ right\ and\ right\ <\ size,}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00412}00412\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}range\ indices\ bust\ be\ valid"{}});}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00413}00413\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ left;\ i\ <\ right;\ ++i)}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00414}00414\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence_ga4beb1b5e29f21f329346d005fada1c9b}{equal}}(i,\ i\ +\ 1);}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00414}00414\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence__gen_ga4beb1b5e29f21f329346d005fada1c9b}{equal}}(i,\ i\ +\ 1);}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00415}00415\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00416}00416\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00417}00417\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00418}00418\ \ \ \ \ \textcolor{comment}{//\ Restricts\ sequences\ for\ sequence[S]\ to\ be\ distinct,\ for\ given\ subset\ S\ of}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00419}00419\ \ \ \ \ \textcolor{comment}{//\ indices.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00420}00420\ \ \ \ \ \textcolor{comment}{//\ You\ can\ not\ add\ two\ of\ these\ restrictions\ with\ intersection.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00421}\mbox{\hyperlink{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}{00421}}\ \ \ \ \ \mbox{\hyperlink{group__sequence_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \&\mbox{\hyperlink{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}(\textcolor{keyword}{const}\ std::set<int>\ \&indices)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00421}\mbox{\hyperlink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{00421}}\ \ \ \ \ \mbox{\hyperlink{group__sequence__gen_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \&\mbox{\hyperlink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}(\textcolor{keyword}{const}\ std::set<int>\ \&indices)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00422}00422\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ idx\ :\ indices)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00423}00423\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (idx\_distinct\_constraints.count(idx))}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00424}00424\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \_\_error(}
@@ -433,57 +433,57 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00429}00429\ \ \ \ \ \ \ \ \ distinct\_constraints.push\_back(indices);}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00430}00430\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00431}00431\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00432}00432\ \ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{sequence}}\ \&\mbox{\hyperlink{group__sequence_ga09c96c92fc2f97328c75e6d260a6ee27}{distinct}}(\textcolor{keyword}{const}\ std::initializer\_list<int>\ \&indices)\ \{}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00433}00433\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{group__sequence_ga09c96c92fc2f97328c75e6d260a6ee27}{distinct}}(std::set<int>(indices.begin(),\ indices.end()));}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00432}00432\ \ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{sequence}}\ \&\mbox{\hyperlink{group__sequence__gen_ga09c96c92fc2f97328c75e6d260a6ee27}{distinct}}(\textcolor{keyword}{const}\ std::initializer\_list<int>\ \&indices)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00433}00433\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{group__sequence__gen_ga09c96c92fc2f97328c75e6d260a6ee27}{distinct}}(std::set<int>(indices.begin(),\ indices.end()));}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00434}00434\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00435}00435\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00436}00436\ \ \ \ \ \textcolor{comment}{//\ Restricts\ sequences\ for\ sequence[idx\_1]\ !=\ sequence[idx\_2]}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00437}\mbox{\hyperlink{group__sequence_gad430f6b0f40960ff302eabbcaaba7b68}{00437}}\ \ \ \ \ \mbox{\hyperlink{group__sequence_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \&\mbox{\hyperlink{group__sequence_gad430f6b0f40960ff302eabbcaaba7b68}{different}}(\textcolor{keywordtype}{int}\ idx\_1,\ \textcolor{keywordtype}{int}\ idx\_2)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00437}\mbox{\hyperlink{group__sequence__gen_gad430f6b0f40960ff302eabbcaaba7b68}{00437}}\ \ \ \ \ \mbox{\hyperlink{group__sequence__gen_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \&\mbox{\hyperlink{group__sequence__gen_gad430f6b0f40960ff302eabbcaaba7b68}{different}}(\textcolor{keywordtype}{int}\ idx\_1,\ \textcolor{keywordtype}{int}\ idx\_2)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00438}00438\ \ \ \ \ \ \ \ \ std::set<int>\ indices\ =\ \{idx\_1,\ idx\_2\};}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00439}00439\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence_ga09c96c92fc2f97328c75e6d260a6ee27}{distinct}}(indices);}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00439}00439\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence__gen_ga09c96c92fc2f97328c75e6d260a6ee27}{distinct}}(indices);}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00440}00440\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00441}00441\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00442}00442\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00443}00443\ \ \ \ \ \textcolor{comment}{//\ Restricts\ sequences\ with\ distinct\ elements.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00444}\mbox{\hyperlink{group__sequence_ga09c96c92fc2f97328c75e6d260a6ee27}{00444}}\ \ \ \ \ \mbox{\hyperlink{group__sequence_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \&\mbox{\hyperlink{group__sequence_ga09c96c92fc2f97328c75e6d260a6ee27}{distinct}}()\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00444}\mbox{\hyperlink{group__sequence__gen_ga09c96c92fc2f97328c75e6d260a6ee27}{00444}}\ \ \ \ \ \mbox{\hyperlink{group__sequence__gen_ga4238ffc66ac290692a12eccf93ac689d}{sequence}}\ \&\mbox{\hyperlink{group__sequence__gen_ga09c96c92fc2f97328c75e6d260a6ee27}{distinct}}()\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00445}00445\ \ \ \ \ \ \ \ \ std::set<int>\ indices;}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00446}00446\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ size;\ ++i)}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00447}00447\ \ \ \ \ \ \ \ \ \ \ \ \ indices.insert(i);}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00448}00448\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence_ga09c96c92fc2f97328c75e6d260a6ee27}{distinct}}(indices);}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00448}00448\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence__gen_ga09c96c92fc2f97328c75e6d260a6ee27}{distinct}}(indices);}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00449}00449\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00450}00450\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00451}00451\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00452}00452\ \ \ \ \ \textcolor{comment}{//\ Sequence\ instance.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00453}00453\ \ \ \ \ \textcolor{comment}{//\ Operations\ on\ an\ instance\ are\ not\ random.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00454}\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{00454}}\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{group__sequence_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{instance}}\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00454}\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{00454}}\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{group__sequence__inst_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{instance}}\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00455}00455\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }value\_type\ =\ T;\ \textcolor{comment}{//\ Value\ type,\ for\ templates.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00456}00456\ \ \ \ \ \ \ \ \ std::vector<T>\ vec;\ \ \ \textcolor{comment}{//\ Sequence.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00457}00457\ }
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00458}\mbox{\hyperlink{group__sequence_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{00458}}\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{instance}}(\textcolor{keyword}{const}\ std::vector<T>\ \&vec)\ :\ vec(vec)\ \{\}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00459}00459\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{instance}}(\textcolor{keyword}{const}\ std::initializer\_list<T>\ \&list)}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00458}\mbox{\hyperlink{group__sequence__inst_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{00458}}\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence__inst_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{instance}}(\textcolor{keyword}{const}\ std::vector<T>\ \&vec)\ :\ vec(vec)\ \{\}}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00459}00459\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence__inst_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{instance}}(\textcolor{keyword}{const}\ std::initializer\_list<T>\ \&list)}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00460}00460\ \ \ \ \ \ \ \ \ \ \ \ \ :\ vec(list.begin(),\ list.end())\ \{\}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00461}00461\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00462}00462\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Fetches\ size.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00463}\mbox{\hyperlink{group__sequence_ga5e3b818698efb4b3adb616219aff2c3d}{00463}}\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{group__sequence_ga5e3b818698efb4b3adb616219aff2c3d}{size}}()\ \{\ \textcolor{keywordflow}{return}\ vec.size();\ \}}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00463}\mbox{\hyperlink{group__sequence__inst_ga5e3b818698efb4b3adb616219aff2c3d}{00463}}\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{group__sequence__inst_ga5e3b818698efb4b3adb616219aff2c3d}{size}}()\ \{\ \textcolor{keywordflow}{return}\ vec.size();\ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00464}00464\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00465}00465\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Fetches\ position\ idx.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00466}\mbox{\hyperlink{group__sequence_gab89252fa4a7905fdbf421bc64a76c623}{00466}}\ \ \ \ \ \ \ \ \ T\ \mbox{\hyperlink{group__sequence_gab89252fa4a7905fdbf421bc64a76c623}{operator[]}}(\textcolor{keywordtype}{int}\ idx)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ vec[idx];\ \}}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00466}\mbox{\hyperlink{group__sequence__inst_gab89252fa4a7905fdbf421bc64a76c623}{00466}}\ \ \ \ \ \ \ \ \ T\ \mbox{\hyperlink{group__sequence__inst_gab89252fa4a7905fdbf421bc64a76c623}{operator[]}}(\textcolor{keywordtype}{int}\ idx)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ vec[idx];\ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00467}00467\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00468}00468\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sorts\ values\ in\ increasign\ order.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00469}\mbox{\hyperlink{group__sequence_gaabbbd20653bd6b4149aea1914267db56}{00469}}\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{instance}}\ \&\mbox{\hyperlink{group__sequence_gaabbbd20653bd6b4149aea1914267db56}{sort}}()\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00469}\mbox{\hyperlink{group__sequence__inst_gaabbbd20653bd6b4149aea1914267db56}{00469}}\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence__inst_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{instance}}\ \&\mbox{\hyperlink{group__sequence__inst_gaabbbd20653bd6b4149aea1914267db56}{sort}}()\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00470}00470\ \ \ \ \ \ \ \ \ \ \ \ \ std::sort(vec.begin(),\ vec.end());}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00471}00471\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00472}00472\ \ \ \ \ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00473}00473\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00474}00474\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Reverses\ sequence.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00475}\mbox{\hyperlink{group__sequence_ga2fef50f7e022b0432142fd19ef2f6bad}{00475}}\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{instance}}\ \&\mbox{\hyperlink{group__sequence_ga2fef50f7e022b0432142fd19ef2f6bad}{reverse}}()\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00475}\mbox{\hyperlink{group__sequence__inst_ga2fef50f7e022b0432142fd19ef2f6bad}{00475}}\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{group__sequence__inst_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{instance}}\ \&\mbox{\hyperlink{group__sequence__inst_ga2fef50f7e022b0432142fd19ef2f6bad}{reverse}}()\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00476}00476\ \ \ \ \ \ \ \ \ \ \ \ \ std::reverse(vec.begin(),\ vec.end());}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00477}00477\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00478}00478\ \ \ \ \ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00479}00479\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00480}00480\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Prints\ in\ stdout,\ separated\ by\ spaces.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00481}\mbox{\hyperlink{group__sequence_gac5aa4456b0e4503a152e2113a48d8465}{00481}}\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ std::ostream\ \&\mbox{\hyperlink{group__sequence_gac5aa4456b0e4503a152e2113a48d8465}{operator<<}}(std::ostream\ \&out,}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00482}00482\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{group__sequence_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{instance}}\ \&inst)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00481}\mbox{\hyperlink{group__sequence__inst_gac5aa4456b0e4503a152e2113a48d8465}{00481}}\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ std::ostream\ \&\mbox{\hyperlink{group__sequence__inst_gac5aa4456b0e4503a152e2113a48d8465}{operator<<}}(std::ostream\ \&out,}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00482}00482\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{group__sequence__inst_ga9eb0d4dcf6732346c6ce1bff5c2c4590}{instance}}\ \&inst)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00483}00483\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ inst.vec.size();\ ++i)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00484}00484\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ >\ 0)}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00485}00485\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\ <<\ \textcolor{charliteral}{'\ '};}
@@ -493,11 +493,11 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00489}00489\ \ \ \ \ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00490}00490\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00491}00491\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Gets\ a\ std::vector\ representing\ the\ instance.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00492}\mbox{\hyperlink{group__sequence_ga9df679623d89ecbd4bd1b5670ba3e24a}{00492}}\ \ \ \ \ \ \ \ \ std::vector<T>\ \mbox{\hyperlink{group__sequence_ga9df679623d89ecbd4bd1b5670ba3e24a}{to\_std}}()\ \{\ \textcolor{keywordflow}{return}\ vec;\ \}}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00492}\mbox{\hyperlink{group__sequence__inst_ga9df679623d89ecbd4bd1b5670ba3e24a}{00492}}\ \ \ \ \ \ \ \ \ std::vector<T>\ \mbox{\hyperlink{group__sequence__inst_ga9df679623d89ecbd4bd1b5670ba3e24a}{to\_std}}()\ \{\ \textcolor{keywordflow}{return}\ vec;\ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00493}00493\ \ \ \ \ \};}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00494}00494\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00495}00495\ \ \ \ \ \textcolor{comment}{//\ Generate\ sequence\ instance.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00496}\mbox{\hyperlink{group__sequence_ga0dc45ca71b1cc8087eac28188334dc91}{00496}}\ \ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}}\ \mbox{\hyperlink{group__sequence_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}()\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00496}\mbox{\hyperlink{group__sequence__gen_ga0dc45ca71b1cc8087eac28188334dc91}{00496}}\ \ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}}\ \mbox{\hyperlink{group__sequence__gen_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}()\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00497}00497\ \ \ \ \ \ \ \ \ std::vector<T>\ vec(size);}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00498}00498\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00499}00499\ \ \ \ \ \ \ \ \ std::vector<int>\ comp\_id(size,\ -\/1);\ \ \ \ \ \ \ \textcolor{comment}{//\ component\ id\ of\ each\ index.}}
@@ -562,18 +562,18 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00558}00558\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00559}00559\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00560}00560\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Loops\ through\ distinct\ constraints.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00561}00561\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ std::set<int>\ \&\mbox{\hyperlink{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}\ :\ distinct\_constraints)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00561}00561\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ std::set<int>\ \&\mbox{\hyperlink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}\ :\ distinct\_constraints)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00562}00562\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Checks\ if\ there\ are\ too\ many\ distinct\ values.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00563}00563\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}.size()\ >\ value\_r\ -\/\ value\_l\ +\ 1)}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00563}00563\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}.size()\ >\ value\_r\ -\/\ value\_l\ +\ 1)}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00564}00564\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_\_contradiction\_error(}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00565}00565\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}sequence"{}},\ \textcolor{stringliteral}{"{}tried\ to\ generate\ "{}}\ +}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00566}00566\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::to\_string(\mbox{\hyperlink{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}.size())\ +}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00566}00566\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::to\_string(\mbox{\hyperlink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}.size())\ +}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00567}00567\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ distinct\ values,\ but\ the\ maximum\ is\ "{}}\ +}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00568}00568\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::to\_string(value\_r\ -\/\ value\_l\ +\ 1));}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00569}00569\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00570}00570\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Checks\ if\ two\ values\ in\ same\ component\ are\ marked\ as\ different.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00571}00571\ \ \ \ \ \ \ \ \ \ \ \ \ std::set<int>\ comp\_ids;}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00572}00572\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ idx\ :\ \mbox{\hyperlink{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}})\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00572}00572\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ idx\ :\ \mbox{\hyperlink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}})\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00573}00573\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (comp\_ids.count(comp\_id[idx]))}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00574}00574\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_\_contradiction\_error(}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00575}00575\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}sequence"{}},}
@@ -584,7 +584,7 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00580}00580\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00581}00581\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Generates\ set\ of\ already\ defined\ values.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00582}00582\ \ \ \ \ \ \ \ \ \ \ \ \ std::set<T>\ defined\_values;}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00583}00583\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ idx\ :\ \mbox{\hyperlink{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}})}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00583}00583\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ idx\ :\ \mbox{\hyperlink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}})}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00584}00584\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (val\_range[idx].first\ ==\ val\_range[idx].second)}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00585}00585\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ defined\_values.insert(val\_range[idx].first);}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00586}00586\ }
@@ -598,7 +598,7 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00594}00594\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ lim\ =\ (value\_r\ -\/\ value\_l\ +\ 1)\ -\/\ \textcolor{keywordtype}{int}(defined\_values.size());}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00595}00595\ \ \ \ \ \ \ \ \ \ \ \ \ std::map<T,\ T>\ virtual\_sequence;}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00596}00596\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<T>\ initial\_gen;}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00597}00597\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}.size()\ -\/\ \textcolor{keywordtype}{int}(defined\_values.size());}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00597}00597\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}.size()\ -\/\ \textcolor{keywordtype}{int}(defined\_values.size());}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00598}00598\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ i++)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00599}00599\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ T\ j\ =\ \mbox{\hyperlink{group__general_gaa007cf5e254380332a3548711d5f9b16}{next<T>}}(i,\ lim\ -\/\ 1);}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00600}00600\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ T\ vj\ =\ virtual\_sequence.count(j)\ ?\ virtual\_sequence[j]\ :\ j;}
@@ -632,7 +632,7 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00628}00628\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00629}00629\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00630}00630\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ cur\ =\ 0;}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00631}00631\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ idx\ :\ \mbox{\hyperlink{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}})\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00631}00631\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ idx\ :\ \mbox{\hyperlink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}})\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00632}00632\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ T\ value;}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00633}00633\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (val\_range[idx].first\ ==\ val\_range[idx].second)}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00634}00634\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ value\ =\ val\_range[idx].first;\ \textcolor{comment}{//\ Value\ was\ already\ set.}}
@@ -659,15 +659,15 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00655}00655\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00656}00656\ \ \ \ \ \textcolor{comment}{//\ Calls\ the\ generator\ until\ predicate\ is\ true.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00657}00657\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ PRED>}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00658}\mbox{\hyperlink{group__sequence_gaf614e6563861fb01b5de5f22c4beab2e}{00658}}\ \ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}}\ \mbox{\hyperlink{group__sequence_gaf614e6563861fb01b5de5f22c4beab2e}{gen\_until}}(PRED\ predicate,\ \textcolor{keywordtype}{int}\ max\_tries,}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00658}\mbox{\hyperlink{group__sequence__gen_gaf614e6563861fb01b5de5f22c4beab2e}{00658}}\ \ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}}\ \mbox{\hyperlink{group__sequence__gen_gaf614e6563861fb01b5de5f22c4beab2e}{gen\_until}}(PRED\ predicate,\ \textcolor{keywordtype}{int}\ max\_tries,}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00659}00659\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ random\_default\ =\ \textcolor{keyword}{false})\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00660}00660\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ max\_tries;\ ++i)\ \{}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00661}00661\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}}\ inst\ =\ \mbox{\hyperlink{group__sequence_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}();}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00661}00661\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{instance}}\ inst\ =\ \mbox{\hyperlink{group__sequence__gen_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}();}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00662}00662\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (predicate(inst))}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00663}00663\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ inst;}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00664}00664\ \ \ \ \ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00665}00665\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (random\_default)}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00666}00666\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{group__sequence_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}();}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00666}00666\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{group__sequence__gen_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}();}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00667}00667\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00668}00668\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \_\_error(\textcolor{stringliteral}{"{}could\ not\ generate\ instance\ matching\ predicate"{}});}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00669}00669\ \ \ \ \ \}}
@@ -680,19 +680,19 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00676}00676\ \textcolor{keyword}{namespace\ }sequence\_op\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00677}00677\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00678}00678\ \textcolor{comment}{//\ Shuffles\ an\ sequence.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00679}\mbox{\hyperlink{group__sequence_ga6dbb723e2e97121cfaa7a2d2d6e63e68}{00679}}\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ INST>\ INST\ \mbox{\hyperlink{group__sequence_ga6dbb723e2e97121cfaa7a2d2d6e63e68}{shuffle}}(\textcolor{keyword}{const}\ INST\ \&inst)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00679}\mbox{\hyperlink{group__sequence__op_ga6dbb723e2e97121cfaa7a2d2d6e63e68}{00679}}\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ INST>\ INST\ \mbox{\hyperlink{group__sequence__op_ga6dbb723e2e97121cfaa7a2d2d6e63e68}{shuffle}}(\textcolor{keyword}{const}\ INST\ \&inst)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00680}00680\ \ \ \ \ INST\ new\_inst\ =\ inst;}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00681}00681\ \ \ \ \ \mbox{\hyperlink{group__general_ga5494e4e347f9d1dc5b88695e0777f65b}{tgen::shuffle}}(new\_inst.vec);}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00682}00682\ \ \ \ \ \textcolor{keywordflow}{return}\ new\_inst;}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00683}00683\ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00684}00684\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00685}00685\ \textcolor{comment}{//\ Choses\ any\ value\ in\ the\ sequence.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00686}\mbox{\hyperlink{group__sequence_ga2d3aae3685b2a2003d737cfa3221f367}{00686}}\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ INST>\ \textcolor{keyword}{typename}\ INST::value\_type\ \mbox{\hyperlink{group__sequence_ga2d3aae3685b2a2003d737cfa3221f367}{any}}(\textcolor{keyword}{const}\ INST\ \&inst)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00686}\mbox{\hyperlink{group__sequence__op_ga2d3aae3685b2a2003d737cfa3221f367}{00686}}\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ INST>\ \textcolor{keyword}{typename}\ INST::value\_type\ \mbox{\hyperlink{group__sequence__op_ga2d3aae3685b2a2003d737cfa3221f367}{any}}(\textcolor{keyword}{const}\ INST\ \&inst)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00687}00687\ \ \ \ \ \textcolor{keywordflow}{return}\ inst.vec[\mbox{\hyperlink{group__general_gaa007cf5e254380332a3548711d5f9b16}{next<int>}}(0,\ inst.vec.size()\ -\/\ 1)];}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00688}00688\ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00689}00689\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00690}00690\ \textcolor{comment}{//\ Chooses\ k\ values\ from\ the\ sequence,\ as\ in\ a\ subsequence\ of\ size\ k.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00691}\mbox{\hyperlink{group__sequence_gae983696fba517df4aa22a44ffaa88ba2}{00691}}\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ INST>\ INST\ \mbox{\hyperlink{group__sequence_gae983696fba517df4aa22a44ffaa88ba2}{choose}}(\textcolor{keywordtype}{int}\ k,\ \textcolor{keyword}{const}\ INST\ \&inst)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00691}\mbox{\hyperlink{group__sequence__op_gae983696fba517df4aa22a44ffaa88ba2}{00691}}\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ INST>\ INST\ \mbox{\hyperlink{group__sequence__op_gae983696fba517df4aa22a44ffaa88ba2}{choose}}(\textcolor{keywordtype}{int}\ k,\ \textcolor{keyword}{const}\ INST\ \&inst)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00692}00692\ \ \ \ \ \mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\_ensure}}(0\ <\ k\ and\ k\ <=\ inst.vec.size(),}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00693}00693\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}number\ of\ elements\ to\ choose\ must\ be\ valid"{}});}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00694}00694\ \ \ \ \ std::vector<typename\ INST::value\_type>\ new\_vec;}

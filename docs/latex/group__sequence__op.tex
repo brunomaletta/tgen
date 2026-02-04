@@ -1,0 +1,123 @@
+\doxysubsection{Sequence operations }
+\hypertarget{group__sequence__op}{}\label{group__sequence__op}\index{Sequence operations@{Sequence operations}}
+\doxysubsubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename INST$>$ }\\INST \mbox{\hyperlink{group__sequence__op_ga6dbb723e2e97121cfaa7a2d2d6e63e68}{tgen\+::sequence\+\_\+op\+::shuffle}} (const INST \&inst)
+\begin{DoxyCompactList}\small\item\em Shuffles a sequence instance. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename INST$>$ }\\INST\+::value\+\_\+type \mbox{\hyperlink{group__sequence__op_ga2d3aae3685b2a2003d737cfa3221f367}{tgen\+::sequence\+\_\+op\+::any}} (const INST \&inst)
+\begin{DoxyCompactList}\small\item\em Choses a random element from the sequence instance. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename INST$>$ }\\INST \mbox{\hyperlink{group__sequence__op_gae983696fba517df4aa22a44ffaa88ba2}{tgen\+::sequence\+\_\+op\+::choose}} (int k, const INST \&inst)
+\begin{DoxyCompactList}\small\item\em Chooses {\ttfamily k} values from the sequence instance, as in a subsequence of size {\ttfamily k}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsubsection{Detailed Description}
+
+
+\label{doc-func-members}
+\Hypertarget{group__sequence__op_doc-func-members}
+\doxysubsubsection{Function Documentation}
+\Hypertarget{group__sequence__op_ga2d3aae3685b2a2003d737cfa3221f367}\index{Sequence operations@{Sequence operations}!any@{any}}
+\index{any@{any}!Sequence operations@{Sequence operations}}
+\doxysubsubsubsection{\texorpdfstring{any()}{any()}}
+{\footnotesize\ttfamily \label{group__sequence__op_ga2d3aae3685b2a2003d737cfa3221f367} 
+template$<$typename INST$>$ \\
+INST\+::value\+\_\+type tgen\+::sequence\+\_\+op\+::any (\begin{DoxyParamCaption}\item[{const INST \&}]{inst}{}\end{DoxyParamCaption})}
+
+
+
+Choses a random element from the sequence instance. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & the original instance.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A uniformly random element from the instance.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+{\ttfamily INST} must be a {\ttfamily \doxylink{structtgen_1_1sequence_1_1instance}{tgen\+::sequence\+::instance}}.
+\end{DoxyNote}
+\hypertarget{group__sequence__op_autotoc_md37}{}\doxysubsubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence__op_autotoc_md37}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{comment}{//\ Prints\ a\ random\ element\ from\ v.}}
+\DoxyCodeLine{\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{tgen::sequence<int>::instance}}\ inst\ =\ \{3,\ 1,\ 2\};}
+\DoxyCodeLine{std::cout\ <<}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{group__sequence__op_ga2d3aae3685b2a2003d737cfa3221f367}{tgen::sequence\_op::any}}(inst)\ <<\ std::endl;}
+
+\end{DoxyCode}
+ 
+
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00686}{686}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+
+\Hypertarget{group__sequence__op_gae983696fba517df4aa22a44ffaa88ba2}\index{Sequence operations@{Sequence operations}!choose@{choose}}
+\index{choose@{choose}!Sequence operations@{Sequence operations}}
+\doxysubsubsubsection{\texorpdfstring{choose()}{choose()}}
+{\footnotesize\ttfamily \label{group__sequence__op_gae983696fba517df4aa22a44ffaa88ba2} 
+template$<$typename INST$>$ \\
+INST tgen\+::sequence\+\_\+op\+::choose (\begin{DoxyParamCaption}\item[{int}]{k}{, }\item[{const INST \&}]{inst}{}\end{DoxyParamCaption})}
+
+
+
+Chooses {\ttfamily k} values from the sequence instance, as in a subsequence of size {\ttfamily k}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em k} & The size of the subsequence. \\
+\hline
+{\em inst} & the original instance.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A uniformly random subsequence of length k.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+{\ttfamily INST} must be a {\ttfamily \doxylink{structtgen_1_1sequence_1_1instance}{tgen\+::sequence\+::instance}}.
+\end{DoxyNote}
+\hypertarget{group__sequence__op_autotoc_md38}{}\doxysubsubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence__op_autotoc_md38}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{comment}{//\ Prints\ a\ subsequenec\ of\ length\ 2\ from\ v.}}
+\DoxyCodeLine{\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{tgen::sequence<int>::instance}}\ inst\ =\ \{3,\ 1,\ 2\};}
+\DoxyCodeLine{std::cout\ <<}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{group__sequence__op_gae983696fba517df4aa22a44ffaa88ba2}{tgen::sequence\_op::choose}}(2,\ inst)\ <<\ std::endl;}
+
+\end{DoxyCode}
+ 
+
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00691}{691}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+
+\Hypertarget{group__sequence__op_ga6dbb723e2e97121cfaa7a2d2d6e63e68}\index{Sequence operations@{Sequence operations}!shuffle@{shuffle}}
+\index{shuffle@{shuffle}!Sequence operations@{Sequence operations}}
+\doxysubsubsubsection{\texorpdfstring{shuffle()}{shuffle()}}
+{\footnotesize\ttfamily \label{group__sequence__op_ga6dbb723e2e97121cfaa7a2d2d6e63e68} 
+template$<$typename INST$>$ \\
+INST tgen\+::sequence\+\_\+op\+::shuffle (\begin{DoxyParamCaption}\item[{const INST \&}]{inst}{}\end{DoxyParamCaption})}
+
+
+
+Shuffles a sequence instance. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & the original instance.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The shuffled instance.
+\end{DoxyReturn}
+{\ttfamily INST} must be a {\ttfamily \doxylink{structtgen_1_1sequence_1_1instance}{tgen\+::sequence\+::instance}}.\hypertarget{group__sequence__op_autotoc_md36}{}\doxysubsubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence__op_autotoc_md36}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{comment}{//\ Shuffles\ and\ prints\ an\ instance.}}
+\DoxyCodeLine{\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{tgen::sequence<int>::instance}}\ inst\ =\ \{3,\ 1,\ 2\};}
+\DoxyCodeLine{std::cout\ <<}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{group__sequence__op_ga6dbb723e2e97121cfaa7a2d2d6e63e68}{tgen::sequence\_op::shuffle}}(inst)\ <<\ std::endl;}
+
+\end{DoxyCode}
+ 
+
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00679}{679}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+

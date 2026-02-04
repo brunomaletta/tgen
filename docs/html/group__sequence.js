@@ -1,48 +1,6 @@
 var group__sequence =
 [
-    [ "tgen::sequence< T >", "structtgen_1_1sequence.html", [
-      [ "sequence", "group__sequence.html#ga4238ffc66ac290692a12eccf93ac689d", null ],
-      [ "sequence", "group__sequence.html#ga35c05c1453be02b90fe08a46dc8c9729", null ],
-      [ "sequence", "group__sequence.html#ga80f023fb5e7305d146e9c74f8a4c00bf", null ],
-      [ "sequence", "group__sequence.html#gafed6e97f0f5ea48c6965399aa041a7c0", null ],
-      [ "different", "group__sequence.html#gad430f6b0f40960ff302eabbcaaba7b68", null ],
-      [ "distinct", "group__sequence.html#ga09c96c92fc2f97328c75e6d260a6ee27", null ],
-      [ "distinct", "group__sequence.html#gaeb0baa4e6c780d8bc1d832514b6fcacd", null ],
-      [ "equal", "group__sequence.html#ga4beb1b5e29f21f329346d005fada1c9b", null ],
-      [ "equal_range", "group__sequence.html#gaa6ca6fc2e5c9edcf0d25165f9f25ad12", null ],
-      [ "gen", "group__sequence.html#ga0dc45ca71b1cc8087eac28188334dc91", null ],
-      [ "gen_until", "group__sequence.html#gaf614e6563861fb01b5de5f22c4beab2e", null ],
-      [ "set", "group__sequence.html#gaff196db1265936038bcb8761192f5a8c", null ]
-    ] ],
-    [ "tgen::sequence< T >::instance", "structtgen_1_1sequence_1_1instance.html", [
-      [ "instance", "group__sequence.html#ga9eb0d4dcf6732346c6ce1bff5c2c4590", null ],
-      [ "operator[]", "group__sequence.html#gab89252fa4a7905fdbf421bc64a76c623", null ],
-      [ "reverse", "group__sequence.html#ga2fef50f7e022b0432142fd19ef2f6bad", null ],
-      [ "size", "group__sequence.html#ga5e3b818698efb4b3adb616219aff2c3d", null ],
-      [ "sort", "group__sequence.html#gaabbbd20653bd6b4149aea1914267db56", null ],
-      [ "to_std", "group__sequence.html#ga9df679623d89ecbd4bd1b5670ba3e24a", null ],
-      [ "operator<<", "group__sequence.html#gac5aa4456b0e4503a152e2113a48d8465", null ]
-    ] ],
-    [ "tgen::sequence_op::any", "group__sequence.html#ga2d3aae3685b2a2003d737cfa3221f367", null ],
-    [ "tgen::sequence_op::choose", "group__sequence.html#gae983696fba517df4aa22a44ffaa88ba2", null ],
-    [ "tgen::sequence::different", "group__sequence.html#gad430f6b0f40960ff302eabbcaaba7b68", null ],
-    [ "tgen::sequence::distinct", "group__sequence.html#ga09c96c92fc2f97328c75e6d260a6ee27", null ],
-    [ "tgen::sequence::distinct", "group__sequence.html#gaeb0baa4e6c780d8bc1d832514b6fcacd", null ],
-    [ "tgen::sequence::equal", "group__sequence.html#ga4beb1b5e29f21f329346d005fada1c9b", null ],
-    [ "tgen::sequence::equal_range", "group__sequence.html#gaa6ca6fc2e5c9edcf0d25165f9f25ad12", null ],
-    [ "tgen::sequence::gen", "group__sequence.html#ga0dc45ca71b1cc8087eac28188334dc91", null ],
-    [ "tgen::sequence::gen_until", "group__sequence.html#gaf614e6563861fb01b5de5f22c4beab2e", null ],
-    [ "tgen::sequence::instance::instance", "group__sequence.html#ga9eb0d4dcf6732346c6ce1bff5c2c4590", null ],
-    [ "tgen::sequence::instance::operator[]", "group__sequence.html#gab89252fa4a7905fdbf421bc64a76c623", null ],
-    [ "tgen::sequence::instance::reverse", "group__sequence.html#ga2fef50f7e022b0432142fd19ef2f6bad", null ],
-    [ "tgen::sequence::sequence", "group__sequence.html#gafed6e97f0f5ea48c6965399aa041a7c0", null ],
-    [ "tgen::sequence::sequence", "group__sequence.html#ga35c05c1453be02b90fe08a46dc8c9729", null ],
-    [ "tgen::sequence::sequence", "group__sequence.html#ga80f023fb5e7305d146e9c74f8a4c00bf", null ],
-    [ "tgen::sequence::sequence", "group__sequence.html#ga4238ffc66ac290692a12eccf93ac689d", null ],
-    [ "tgen::sequence::set", "group__sequence.html#gaff196db1265936038bcb8761192f5a8c", null ],
-    [ "tgen::sequence_op::shuffle", "group__sequence.html#ga6dbb723e2e97121cfaa7a2d2d6e63e68", null ],
-    [ "tgen::sequence::instance::size", "group__sequence.html#ga5e3b818698efb4b3adb616219aff2c3d", null ],
-    [ "tgen::sequence::instance::sort", "group__sequence.html#gaabbbd20653bd6b4149aea1914267db56", null ],
-    [ "tgen::sequence::instance::to_std", "group__sequence.html#ga9df679623d89ecbd4bd1b5670ba3e24a", null ],
-    [ "tgen::sequence::instance::operator<<", "group__sequence.html#gac5aa4456b0e4503a152e2113a48d8465", null ]
+    [ "Sequence generators", "group__sequence__gen.html", "group__sequence__gen" ],
+    [ "Sequence instances", "group__sequence__inst.html", "group__sequence__inst" ],
+    [ "Sequence operations", "group__sequence__op.html", "group__sequence__op" ]
 ];

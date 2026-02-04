@@ -1,6 +1,6 @@
 /**
- * @defgroup sequence Sequence Operations
- * @brief Operations on sequences.
+ * @defgroup sequence Sequences
+ * @brief Generation of sequences.
  *
  * ### Examples
  *
@@ -13,7 +13,6 @@
  * std::cout <<
  *     tgen::sequence<int>(10, powers).gen().sort() << std::endl;
  * ```
- *
  */
 
 
@@ -21,7 +20,12 @@
 
 
 /**
+ * @defgroup sequence_gen Sequence generators
  * @ingroup sequence
+ */
+
+/**
+ * @ingroup sequence_gen
  * @brief Sequence generator.
  *
  * \see @ref sequence.
@@ -30,7 +34,7 @@ template <typename T> struct tgen::sequence;
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_gen
  * @brief Creates sequence generator define by size and range of values.
  *
  * @param size Size of the sequence.
@@ -51,7 +55,7 @@ template <typename T> struct tgen::sequence::sequence(int size, T value_l, T val
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_gen
  * @brief Creates sequence generator define by value set.
  *
  * @param size Size of the sequence.
@@ -70,7 +74,7 @@ template <typename T> struct tgen::sequence::sequence(int size, const std::set<T
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_gen
  * @brief Creates sequence generator define by value set.
  *
  * @param size Size of the sequence.
@@ -90,7 +94,7 @@ template <typename T> struct tgen::sequence::sequence(int size, const std::vecto
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_gen
  * @brief Creates sequence generator define by value set.
  *
  * @param size Size of the sequence.
@@ -110,7 +114,7 @@ template <typename T> struct tgen::sequence::sequence(int size, const std::initi
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_gen
  * @brief Restricts generator s.t. value at index `idx` is `value`.
  *
  * @param idx Index
@@ -129,7 +133,7 @@ tgen::sequence &tgen::sequence::set(int idx, T value);
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_gen
  * @brief Restricts generator s.t. value at index `idx_1` is the same as value at index `idx_2`.
  *
  * @param idx_1 First index.
@@ -146,7 +150,7 @@ tgen::sequence &tgen::sequence::equal(int idx_1, int idx_2);
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_gen
  * @brief Restricts generator s.t. all values at indices in `[left, right]` are the same.
  *
  * @param left Left endpoint of index range.
@@ -163,7 +167,7 @@ tgen::sequence &tgen::sequence::equal_range(int left, int right);
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_gen
  * @brief Restricts generator s.t. all values at indices in `indices` are distinct.
  *
  * @param indices Index set.
@@ -183,7 +187,7 @@ tgen::sequence &tgen::sequence::distinct(const std::set<int> &indices);
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_gen
  * @brief Restricts generator s.t. value at index `idx_1` is different from value at index `idx_2`.
  *
  * @param idx_1 First index.
@@ -200,7 +204,7 @@ tgen::sequence &tgen::sequence::different(int idx_1, int idx_2);
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_gen
  * @brief Restricts generator s.t. all values are distinct.
  *
  * @note If you add this restriction, you cannot add another `tgen::sequence::distinct` restriction!
@@ -216,7 +220,7 @@ tgen::sequence &tgen::sequence::distinct();
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_gen
  * @brief Generates a random instance from the set of valid sequences.
  *
  * @return A uniformly random instance from the set of valid sequences, given the added constraints.
@@ -235,7 +239,7 @@ tgen::sequence::instance tgen::sequence::gen();
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_gen
  * @brief Generates a random instance from the set of valid sequences until a condition is met.
  *
  * @param predicate Condition to be checked. Should be a function that takes in a
@@ -270,7 +274,12 @@ tgen::sequence::instance tgen::sequence::gen_until(PRED predicate, int max_tries
 
 
 /**
+ * @defgroup sequence_inst Sequence instances
  * @ingroup sequence
+ */
+
+/**
+ * @ingroup sequence_inst
  * @brief Sequence instance.
  *
  * \see @ref sequence.
@@ -279,7 +288,7 @@ template <typename T> struct tgen::sequence::instance;
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_inst
  * @brief Creates a sequence instance from a `std::vector`.
  *
  * @param vec Right The `std::vector` representing the instance.
@@ -301,7 +310,7 @@ template <typename T> struct tgen::sequence::instance::instance(const std::vecto
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_inst
  * @brief Returns the size of the sequence instance.
  *
  * @return The size (number of elements) of the sequence instance.
@@ -319,7 +328,7 @@ size_t tgen::sequence::instance::size();
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_inst
  * @brief Returns the value at some position of the instance.
  *
  * @param idx The index to be accessed.
@@ -338,7 +347,7 @@ T tgen::sequence::instance::operator[](int idx) const;
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_inst
  * @brief Sorts the instance in non-decreasing order.
  *
  * #### Examples
@@ -354,7 +363,7 @@ instance &tgen::sequence::instance::sort();
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_inst
  * @brief Reverses the instance.
  *
  * #### Examples
@@ -370,7 +379,7 @@ instance &tgen::sequence::instance::reverse();
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_inst
  * @brief Prints the instance to a `std::ostream`.
  *
  * The values are printed with one space as a separator,
@@ -388,7 +397,7 @@ friend std::ostream &tgen::sequence::instance::operator<<(std::ostream &out, con
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_inst
  * @brief Converts the instance to a `std::vector`.
  *
  * @return A `std::vector` representing the instance.
@@ -409,7 +418,12 @@ std::vector<T> tgen::sequence::instance::to_std();
 
 
 /**
+ * @defgroup sequence_op Sequence operations
  * @ingroup sequence
+ */
+
+/**
+ * @ingroup sequence_op
  * @brief Shuffles a sequence instance.
  *
  * @param inst the original instance.
@@ -431,7 +445,7 @@ INST tgen::sequence_op::shuffle(const INST &inst);
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_op
  * @brief Choses a random element from the sequence instance.
  *
  * @param inst the original instance.
@@ -453,7 +467,7 @@ typename INST::value_type tgen::sequence_op::any(const INST &inst);
 
 
 /**
- * @ingroup sequence
+ * @ingroup sequence_op
  * @brief Chooses `k` values from the sequence instance, as in a subsequence of size `k`.
  *
  * @param k The size of the subsequence.

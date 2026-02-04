@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['sequence_20operations_0',['Sequence Operations',['../group__sequence.html',1,'']]]
+  ['registering_20and_20opts_0',['Registering and Opts',['../group__opts.html',1,'']]]
 ];

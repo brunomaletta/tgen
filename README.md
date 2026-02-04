@@ -49,10 +49,10 @@ std::cout <<
 Combining everything into one line:
 
 ```cpp
-std::cout <<
-	tgen::sequence_op::any(
-		tgen::sequence<int>(10, 1, 100).equal(0, 1).gen().reverse()
-	) << std::endl;
+std::cout << tgen::sequence_op::any(
+	tgen::sequence<int>(10, 1, 100).equal_idx_pair(0, 1).gen()
+	.reverse()
+) << std::endl;
 ```
 
 ## Examples
