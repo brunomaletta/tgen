@@ -28,7 +28,7 @@
  * @ingroup sequence_gen
  * @brief Sequence generator.
  *
- * \see @ref sequence.
+ * \see @ref sequence_gen.
  */
 template <typename T> struct tgen::sequence;
 
@@ -282,7 +282,7 @@ tgen::sequence::instance tgen::sequence::gen_until(PRED predicate, int max_tries
  * @ingroup sequence_inst
  * @brief Sequence instance.
  *
- * \see @ref sequence.
+ * \see @ref sequence_inst.
  */
 template <typename T> struct tgen::sequence::instance;
 
