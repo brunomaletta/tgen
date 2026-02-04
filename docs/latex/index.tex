@@ -4,7 +4,7 @@
 \Hypertarget{index_md_README}%
 
 
-{\ttfamily tgen} is a {\ttfamily C++} library to help you generate random stuff, useful for testcase generation (such as \href{https://github.com/ifsmirnov/jngen}{\texttt{jngen}} or \href{https://github.com/MikeMirzayanov/testlib}{\texttt{testlib}}).
+{\ttfamily tgen} is a {\ttfamily C++} library to help you generate random stuff, useful for testcase generation (such as \href{https://github.com/ifsmirnov/jngen}{\texttt{jngen}} or \href{https://github.com/MikeMirzayanov/testlib}{\texttt{testlib}}). The code is in a single file \href{https://github.com/brunomaletta/tgen/blob/main/src/tgen.h}{\texttt{tgen.\+h}}, that should be added to your directory.
 
 The first thing is to \href{https://brunomaletta.github.io/tgen/group__opts.html}{\texttt{register the generator}}. That defines the seed for random generation and parses the opts.
 
@@ -41,7 +41,7 @@ The nice thing is that we can add restrictions (specific to each type) to the ge
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{tgen::sequence<int>::instance}}\ inst\ =\ seq\_gen.\mbox{\hyperlink{group__sequence_ga7b3d4a90dac3ffafa88c95177ada6725}{equal\_idx\_pair}}(\textcolor{comment}{/*idx\_1=*/}0,\ \textcolor{comment}{/*idx\_2=*/}1).\mbox{\hyperlink{group__sequence_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}();}
+\DoxyCodeLine{\mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{tgen::sequence<int>::instance}}\ inst\ =\ seq\_gen.\mbox{\hyperlink{group__sequence_ga4beb1b5e29f21f329346d005fada1c9b}{equal}}(\textcolor{comment}{/*idx\_1=*/}0,\ \textcolor{comment}{/*idx\_2=*/}1).\mbox{\hyperlink{group__sequence_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}();}
 
 \end{DoxyCode}
 
@@ -71,7 +71,7 @@ Combining everything into one line\+:
 \begin{DoxyCode}{0}
 \DoxyCodeLine{std::cout\ <<}
 \DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{group__sequence_ga2d3aae3685b2a2003d737cfa3221f367}{tgen::sequence\_op::any}}(}
-\DoxyCodeLine{\ \ \ \ \ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(10,\ 1,\ 100).equal\_idx\_pair(0,\ 1).gen().reverse()}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(10,\ 1,\ 100).equal(0,\ 1).gen().reverse()}
 \DoxyCodeLine{\ \ \ \ )\ <<\ std::endl;}
 
 \end{DoxyCode}
@@ -98,7 +98,7 @@ Calling this code with {\ttfamily ./a.out -\/n 100} will generate a random numbe
 
 \begin{DoxyCode}{0}
 \DoxyCodeLine{std::cout\ <<}
-\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(100,\ 1,\ 100).\mbox{\hyperlink{group__sequence_ga09c96c92fc2f97328c75e6d260a6ee27}{distinct}}().\mbox{\hyperlink{group__sequence_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}()\ <<\ std::endl;}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(100,\ 1,\ 100).\mbox{\hyperlink{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}().\mbox{\hyperlink{group__sequence_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}()\ <<\ std::endl;}
 
 \end{DoxyCode}
 

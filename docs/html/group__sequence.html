@@ -139,16 +139,16 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga80f023fb5e7305d146e9c74f8a4c00bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates sequence generator define by value set.  <br /></td></tr>
 <tr class="memitem:gafed6e97f0f5ea48c6965399aa041a7c0" id="r_gafed6e97f0f5ea48c6965399aa041a7c0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gafed6e97f0f5ea48c6965399aa041a7c0">tgen::sequence&lt; T &gt;::sequence</a> (int size, const std::initializer_list&lt; T &gt; &amp;values)</td></tr>
 <tr class="memdesc:gafed6e97f0f5ea48c6965399aa041a7c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates sequence generator define by value set.  <br /></td></tr>
-<tr class="memitem:ga7f53ab64d071882db37c9d1b6222242d" id="r_ga7f53ab64d071882db37c9d1b6222242d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga7f53ab64d071882db37c9d1b6222242d">tgen::sequence&lt; T &gt;::value_at_idx</a> (int idx, T value)</td></tr>
-<tr class="memdesc:ga7f53ab64d071882db37c9d1b6222242d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. value at index <span class="tt">idx</span> is <span class="tt">value</span>.  <br /></td></tr>
-<tr class="memitem:ga7b3d4a90dac3ffafa88c95177ada6725" id="r_ga7b3d4a90dac3ffafa88c95177ada6725"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga7b3d4a90dac3ffafa88c95177ada6725">tgen::sequence&lt; T &gt;::equal_idx_pair</a> (int idx_1, int idx_2)</td></tr>
-<tr class="memdesc:ga7b3d4a90dac3ffafa88c95177ada6725"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. value at index <span class="tt">idx_1</span> is the same as value at index <span class="tt">idx_2</span>.  <br /></td></tr>
+<tr class="memitem:gaff196db1265936038bcb8761192f5a8c" id="r_gaff196db1265936038bcb8761192f5a8c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaff196db1265936038bcb8761192f5a8c">tgen::sequence&lt; T &gt;::set</a> (int idx, T value)</td></tr>
+<tr class="memdesc:gaff196db1265936038bcb8761192f5a8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. value at index <span class="tt">idx</span> is <span class="tt">value</span>.  <br /></td></tr>
+<tr class="memitem:ga4beb1b5e29f21f329346d005fada1c9b" id="r_ga4beb1b5e29f21f329346d005fada1c9b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga4beb1b5e29f21f329346d005fada1c9b">tgen::sequence&lt; T &gt;::equal</a> (int idx_1, int idx_2)</td></tr>
+<tr class="memdesc:ga4beb1b5e29f21f329346d005fada1c9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. value at index <span class="tt">idx_1</span> is the same as value at index <span class="tt">idx_2</span>.  <br /></td></tr>
 <tr class="memitem:gaa6ca6fc2e5c9edcf0d25165f9f25ad12" id="r_gaa6ca6fc2e5c9edcf0d25165f9f25ad12"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaa6ca6fc2e5c9edcf0d25165f9f25ad12">tgen::sequence&lt; T &gt;::equal_range</a> (int left, int right)</td></tr>
 <tr class="memdesc:gaa6ca6fc2e5c9edcf0d25165f9f25ad12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. all values at indices in <span class="tt">[left, right]</span> are the same.  <br /></td></tr>
-<tr class="memitem:gabae7ff1854b99b1ef7c199b23a1faff6" id="r_gabae7ff1854b99b1ef7c199b23a1faff6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gabae7ff1854b99b1ef7c199b23a1faff6">tgen::sequence&lt; T &gt;::distinct_idx_set</a> (const std::set&lt; int &gt; &amp;indices)</td></tr>
-<tr class="memdesc:gabae7ff1854b99b1ef7c199b23a1faff6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. all values at indices in <span class="tt">indices</span> are distinct.  <br /></td></tr>
-<tr class="memitem:gab6c081429fb27abac0970aad8f2017a1" id="r_gab6c081429fb27abac0970aad8f2017a1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gab6c081429fb27abac0970aad8f2017a1">tgen::sequence&lt; T &gt;::different_idx_pair</a> (int idx_1, int idx_2)</td></tr>
-<tr class="memdesc:gab6c081429fb27abac0970aad8f2017a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. value at index <span class="tt">idx_1</span> is different from value at index <span class="tt">idx_2</span>.  <br /></td></tr>
+<tr class="memitem:gaeb0baa4e6c780d8bc1d832514b6fcacd" id="r_gaeb0baa4e6c780d8bc1d832514b6fcacd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaeb0baa4e6c780d8bc1d832514b6fcacd">tgen::sequence&lt; T &gt;::distinct</a> (const std::set&lt; int &gt; &amp;indices)</td></tr>
+<tr class="memdesc:gaeb0baa4e6c780d8bc1d832514b6fcacd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. all values at indices in <span class="tt">indices</span> are distinct.  <br /></td></tr>
+<tr class="memitem:gad430f6b0f40960ff302eabbcaaba7b68" id="r_gad430f6b0f40960ff302eabbcaaba7b68"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gad430f6b0f40960ff302eabbcaaba7b68">tgen::sequence&lt; T &gt;::different</a> (int idx_1, int idx_2)</td></tr>
+<tr class="memdesc:gad430f6b0f40960ff302eabbcaaba7b68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. value at index <span class="tt">idx_1</span> is different from value at index <span class="tt">idx_2</span>.  <br /></td></tr>
 <tr class="memitem:ga09c96c92fc2f97328c75e6d260a6ee27" id="r_ga09c96c92fc2f97328c75e6d260a6ee27"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga09c96c92fc2f97328c75e6d260a6ee27">tgen::sequence&lt; T &gt;::distinct</a> ()</td></tr>
 <tr class="memdesc:ga09c96c92fc2f97328c75e6d260a6ee27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. all values are distinct.  <br /></td></tr>
 <tr class="memitem:ga0dc45ca71b1cc8087eac28188334dc91" id="r_ga0dc45ca71b1cc8087eac28188334dc91"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga0dc45ca71b1cc8087eac28188334dc91">tgen::sequence&lt; T &gt;::gen</a> ()</td></tr>
@@ -189,14 +189,14 @@ Friends</h2></td></tr>
 Examples</h3>
 <div class="fragment"><div class="line"><span class="comment">// Generates 100 distinct integers.</span></div>
 <div class="line">std::cout &lt;&lt; </div>
-<div class="line">    <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(100, 1, 100).<a class="code hl_function" href="#ga09c96c92fc2f97328c75e6d260a6ee27">distinct</a>().<a class="code hl_function" href="#ga0dc45ca71b1cc8087eac28188334dc91">gen</a>() &lt;&lt; std::endl;</div>
+<div class="line">    <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(100, 1, 100).<a class="code hl_function" href="#gaeb0baa4e6c780d8bc1d832514b6fcacd">distinct</a>().<a class="code hl_function" href="#ga0dc45ca71b1cc8087eac28188334dc91">gen</a>() &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// Generates 10 sorted small powers of 2.</span></div>
 <div class="line">std::set&lt;int&gt; powers = {1, 2, 4, 8};</div>
 <div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, powers).<a class="code hl_function" href="#ga0dc45ca71b1cc8087eac28188334dc91">gen</a>().<a class="code hl_function" href="#gaabbbd20653bd6b4149aea1914267db56">sort</a>() &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__sequence_html_ga09c96c92fc2f97328c75e6d260a6ee27"><div class="ttname"><a href="#ga09c96c92fc2f97328c75e6d260a6ee27">tgen::sequence::distinct</a></div><div class="ttdeci">sequence &amp; distinct()</div><div class="ttdoc">Restricts generator s.t. all values are distinct.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00441">tgen.h:441</a></div></div>
-<div class="ttc" id="agroup__sequence_html_ga0dc45ca71b1cc8087eac28188334dc91"><div class="ttname"><a href="#ga0dc45ca71b1cc8087eac28188334dc91">tgen::sequence::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid sequences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00493">tgen.h:493</a></div></div>
-<div class="ttc" id="agroup__sequence_html_gaabbbd20653bd6b4149aea1914267db56"><div class="ttname"><a href="#gaabbbd20653bd6b4149aea1914267db56">tgen::sequence::instance::sort</a></div><div class="ttdeci">instance &amp; sort()</div><div class="ttdoc">Sorts the instance in non-decreasing order.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00466">tgen.h:466</a></div></div>
+<div class="ttc" id="agroup__sequence_html_ga0dc45ca71b1cc8087eac28188334dc91"><div class="ttname"><a href="#ga0dc45ca71b1cc8087eac28188334dc91">tgen::sequence::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid sequences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00496">tgen.h:496</a></div></div>
+<div class="ttc" id="agroup__sequence_html_gaabbbd20653bd6b4149aea1914267db56"><div class="ttname"><a href="#gaabbbd20653bd6b4149aea1914267db56">tgen::sequence::instance::sort</a></div><div class="ttdeci">instance &amp; sort()</div><div class="ttdoc">Sorts the instance in non-decreasing order.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00469">tgen.h:469</a></div></div>
+<div class="ttc" id="agroup__sequence_html_gaeb0baa4e6c780d8bc1d832514b6fcacd"><div class="ttname"><a href="#gaeb0baa4e6c780d8bc1d832514b6fcacd">tgen::sequence::distinct</a></div><div class="ttdeci">sequence &amp; distinct(const std::set&lt; int &gt; &amp;indices)</div><div class="ttdoc">Restricts generator s.t. all values at indices in indices are distinct.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00421">tgen.h:421</a></div></div>
 <div class="ttc" id="astructtgen_1_1sequence_html"><div class="ttname"><a href="structtgen_1_1sequence.html">tgen::sequence</a></div><div class="ttdoc">Sequence generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00338">tgen.h:338</a></div></div>
 </div><!-- fragment --> <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
 <a id="ga2d3aae3685b2a2003d737cfa3221f367" name="ga2d3aae3685b2a2003d737cfa3221f367"></a>
@@ -231,10 +231,10 @@ Examples</h4>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt;int&gt;::instance</a> inst = {3, 1, 2};</div>
 <div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_function" href="#ga2d3aae3685b2a2003d737cfa3221f367">tgen::sequence_op::any</a>(inst) &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__sequence_html_ga2d3aae3685b2a2003d737cfa3221f367"><div class="ttname"><a href="#ga2d3aae3685b2a2003d737cfa3221f367">tgen::sequence_op::any</a></div><div class="ttdeci">INST::value_type any(const INST &amp;inst)</div><div class="ttdoc">Choses a random element from the sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00683">tgen.h:683</a></div></div>
-<div class="ttc" id="astructtgen_1_1sequence_1_1instance_html"><div class="ttname"><a href="structtgen_1_1sequence_1_1instance.html">tgen::sequence::instance</a></div><div class="ttdoc">Sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00451">tgen.h:451</a></div></div>
+<div class="ttc" id="agroup__sequence_html_ga2d3aae3685b2a2003d737cfa3221f367"><div class="ttname"><a href="#ga2d3aae3685b2a2003d737cfa3221f367">tgen::sequence_op::any</a></div><div class="ttdeci">INST::value_type any(const INST &amp;inst)</div><div class="ttdoc">Choses a random element from the sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00686">tgen.h:686</a></div></div>
+<div class="ttc" id="astructtgen_1_1sequence_1_1instance_html"><div class="ttname"><a href="structtgen_1_1sequence_1_1instance.html">tgen::sequence::instance</a></div><div class="ttdoc">Sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00454">tgen.h:454</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00683">683</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00686">686</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -275,14 +275,14 @@ Examples</h4>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt;int&gt;::instance</a> inst = {3, 1, 2};</div>
 <div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_function" href="#gae983696fba517df4aa22a44ffaa88ba2">tgen::sequence_op::choose</a>(2, inst) &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__sequence_html_gae983696fba517df4aa22a44ffaa88ba2"><div class="ttname"><a href="#gae983696fba517df4aa22a44ffaa88ba2">tgen::sequence_op::choose</a></div><div class="ttdeci">INST choose(int k, const INST &amp;inst)</div><div class="ttdoc">Chooses k values from the sequence instance, as in a subsequence of size k.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00688">tgen.h:688</a></div></div>
+<div class="ttc" id="agroup__sequence_html_gae983696fba517df4aa22a44ffaa88ba2"><div class="ttname"><a href="#gae983696fba517df4aa22a44ffaa88ba2">tgen::sequence_op::choose</a></div><div class="ttdeci">INST choose(int k, const INST &amp;inst)</div><div class="ttdoc">Chooses k values from the sequence instance, as in a subsequence of size k.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00691">tgen.h:691</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00688">688</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00691">691</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
-<a id="gab6c081429fb27abac0970aad8f2017a1" name="gab6c081429fb27abac0970aad8f2017a1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gab6c081429fb27abac0970aad8f2017a1">&#9670;&#160;</a></span>different_idx_pair()</h2>
+<a id="gad430f6b0f40960ff302eabbcaaba7b68" name="gad430f6b0f40960ff302eabbcaaba7b68"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad430f6b0f40960ff302eabbcaaba7b68">&#9670;&#160;</a></span>different()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -293,7 +293,7 @@ template&lt;typename T&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a> &amp; <a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a>&lt; T &gt;::different_idx_pair </td>
+          <td class="memname"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a> &amp; <a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a>&lt; T &gt;::different </td>
           <td>(</td>
           <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>idx_1</em></span>, </td>
         </tr>
@@ -321,15 +321,15 @@ template&lt;typename T&gt; </div>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md25"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 with the first and last values different.</span></div>
-<div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#gab6c081429fb27abac0970aad8f2017a1">different_idx_pair</a>(0, 9);</div>
-<div class="ttc" id="agroup__sequence_html_gab6c081429fb27abac0970aad8f2017a1"><div class="ttname"><a href="#gab6c081429fb27abac0970aad8f2017a1">tgen::sequence::different_idx_pair</a></div><div class="ttdeci">sequence &amp; different_idx_pair(int idx_1, int idx_2)</div><div class="ttdoc">Restricts generator s.t. value at index idx_1 is different from value at index idx_2.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00434">tgen.h:434</a></div></div>
+<div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#gad430f6b0f40960ff302eabbcaaba7b68">different</a>(0, 9);</div>
+<div class="ttc" id="agroup__sequence_html_gad430f6b0f40960ff302eabbcaaba7b68"><div class="ttname"><a href="#gad430f6b0f40960ff302eabbcaaba7b68">tgen::sequence::different</a></div><div class="ttdeci">sequence &amp; different(int idx_1, int idx_2)</div><div class="ttdoc">Restricts generator s.t. value at index idx_1 is different from value at index idx_2.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00437">tgen.h:437</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00434">434</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00437">437</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
 <a id="ga09c96c92fc2f97328c75e6d260a6ee27" name="ga09c96c92fc2f97328c75e6d260a6ee27"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga09c96c92fc2f97328c75e6d260a6ee27">&#9670;&#160;</a></span>distinct()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ga09c96c92fc2f97328c75e6d260a6ee27">&#9670;&#160;</a></span>distinct() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -354,18 +354,18 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Restricts generator s.t. all values are distinct. </p>
-<dl class="section note"><dt>Note</dt><dd>If you add this restriction, you cannot add a <span class="tt"><a class="el" href="#gabae7ff1854b99b1ef7c199b23a1faff6" title="Restricts generator s.t. all values at indices in indices are distinct.">tgen::sequence::distinct_idx_set</a></span> restriction!</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>If you add this restriction, you cannot add another <span class="tt"><a class="el" href="#gaeb0baa4e6c780d8bc1d832514b6fcacd" title="Restricts generator s.t. all values at indices in indices are distinct.">tgen::sequence::distinct</a></span> restriction!</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md26"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 5 distinct ints from 1 to 5.</span></div>
-<div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(5, 1, 5).<a class="code hl_function" href="#ga09c96c92fc2f97328c75e6d260a6ee27">distinct</a>();</div>
+<div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(5, 1, 5).<a class="code hl_function" href="#gaeb0baa4e6c780d8bc1d832514b6fcacd">distinct</a>();</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00441">441</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00444">444</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
-<a id="gabae7ff1854b99b1ef7c199b23a1faff6" name="gabae7ff1854b99b1ef7c199b23a1faff6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gabae7ff1854b99b1ef7c199b23a1faff6">&#9670;&#160;</a></span>distinct_idx_set()</h2>
+<a id="gaeb0baa4e6c780d8bc1d832514b6fcacd" name="gaeb0baa4e6c780d8bc1d832514b6fcacd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaeb0baa4e6c780d8bc1d832514b6fcacd">&#9670;&#160;</a></span>distinct() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -376,7 +376,7 @@ template&lt;typename T&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a> &amp; <a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a>&lt; T &gt;::distinct_idx_set </td>
+          <td class="memname"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a> &amp; <a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a>&lt; T &gt;::distinct </td>
           <td>(</td>
           <td class="paramtype">const std::set&lt; int &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>indices</em></span></td><td>)</td>
           <td></td>
@@ -399,16 +399,17 @@ template&lt;typename T&gt; </div>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md24"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 with the first half distinct.</span></div>
-<div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#gabae7ff1854b99b1ef7c199b23a1faff6">distinct_idx_set</a>(std::set&lt;int&gt;({0, 1, 2, 3, 4}));</div>
-<div class="ttc" id="agroup__sequence_html_gabae7ff1854b99b1ef7c199b23a1faff6"><div class="ttname"><a href="#gabae7ff1854b99b1ef7c199b23a1faff6">tgen::sequence::distinct_idx_set</a></div><div class="ttdeci">sequence &amp; distinct_idx_set(const std::set&lt; int &gt; &amp;indices)</div><div class="ttdoc">Restricts generator s.t. all values at indices in indices are distinct.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00421">tgen.h:421</a></div></div>
+<div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#gaeb0baa4e6c780d8bc1d832514b6fcacd">distinct</a>(std::set&lt;int&gt;({0, 1, 2, 3, 4}));</div>
+<div class="line"><span class="comment">// You can also use std::initializer_list&lt;int&gt;.</span></div>
+<div class="line">seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#gaeb0baa4e6c780d8bc1d832514b6fcacd">distinct</a>({0, 1, 2, 3, 4});</div>
 </div><!-- fragment --><dl class="section note"><dt>Note</dt><dd>You cannot add two of these restrictions with intersecting indices! </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00421">421</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
-<a id="ga7b3d4a90dac3ffafa88c95177ada6725" name="ga7b3d4a90dac3ffafa88c95177ada6725"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga7b3d4a90dac3ffafa88c95177ada6725">&#9670;&#160;</a></span>equal_idx_pair()</h2>
+<a id="ga4beb1b5e29f21f329346d005fada1c9b" name="ga4beb1b5e29f21f329346d005fada1c9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4beb1b5e29f21f329346d005fada1c9b">&#9670;&#160;</a></span>equal()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -419,7 +420,7 @@ template&lt;typename T&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a> &amp; <a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a>&lt; T &gt;::equal_idx_pair </td>
+          <td class="memname"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a> &amp; <a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a>&lt; T &gt;::equal </td>
           <td>(</td>
           <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>idx_1</em></span>, </td>
         </tr>
@@ -447,8 +448,8 @@ template&lt;typename T&gt; </div>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md22"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 that start and end with the same value.</span></div>
-<div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#ga7b3d4a90dac3ffafa88c95177ada6725">equal_idx_pair</a>(0, 9);</div>
-<div class="ttc" id="agroup__sequence_html_ga7b3d4a90dac3ffafa88c95177ada6725"><div class="ttname"><a href="#ga7b3d4a90dac3ffafa88c95177ada6725">tgen::sequence::equal_idx_pair</a></div><div class="ttdeci">sequence &amp; equal_idx_pair(int idx_1, int idx_2)</div><div class="ttdoc">Restricts generator s.t. value at index idx_1 is the same as value at index idx_2.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00397">tgen.h:397</a></div></div>
+<div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#ga4beb1b5e29f21f329346d005fada1c9b">equal</a>(0, 9);</div>
+<div class="ttc" id="agroup__sequence_html_ga4beb1b5e29f21f329346d005fada1c9b"><div class="ttname"><a href="#ga4beb1b5e29f21f329346d005fada1c9b">tgen::sequence::equal</a></div><div class="ttdeci">sequence &amp; equal(int idx_1, int idx_2)</div><div class="ttdoc">Restricts generator s.t. value at index idx_1 is the same as value at index idx_2.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00397">tgen.h:397</a></div></div>
 </div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00397">397</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
@@ -540,7 +541,7 @@ Examples</h4>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00493">493</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00496">496</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -595,10 +596,10 @@ Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints a sequence of 10 distinct ints from 1 to 10 such that the first element is larger than the last.</span></div>
 <div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 10)</div>
-<div class="line">        .<a class="code hl_function" href="#ga09c96c92fc2f97328c75e6d260a6ee27">distinct</a>()</div>
+<div class="line">        .<a class="code hl_function" href="#gaeb0baa4e6c780d8bc1d832514b6fcacd">distinct</a>()</div>
 <div class="line">        .<a class="code hl_function" href="#gaf614e6563861fb01b5de5f22c4beab2e">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;seq) { <span class="keywordflow">return</span> seq[0] &lt; seq[9]; }, 100)</div>
 <div class="line">  &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__sequence_html_gaf614e6563861fb01b5de5f22c4beab2e"><div class="ttname"><a href="#gaf614e6563861fb01b5de5f22c4beab2e">tgen::sequence::gen_until</a></div><div class="ttdeci">instance gen_until(PRED predicate, int max_tries, bool random_default=false)</div><div class="ttdoc">Generates a random instance from the set of valid sequences until a condition is met.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00655">tgen.h:655</a></div></div>
+<div class="ttc" id="agroup__sequence_html_gaf614e6563861fb01b5de5f22c4beab2e"><div class="ttname"><a href="#gaf614e6563861fb01b5de5f22c4beab2e">tgen::sequence::gen_until</a></div><div class="ttdeci">instance gen_until(PRED predicate, int max_tries, bool random_default=false)</div><div class="ttdoc">Generates a random instance from the set of valid sequences until a condition is met.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00658">tgen.h:658</a></div></div>
 </div><!-- fragment --><dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
     <tr><td class="paramname">std::runtime_error</td><td>if no valid instance satisfying <span class="tt">predicate</span> is found after <span class="tt">max_tries</span> tries and <span class="tt">random_default</span> is set to <span class="tt">false</span>. </td></tr>
@@ -606,7 +607,7 @@ Examples</h4>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00655">655</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00658">658</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -644,15 +645,16 @@ template&lt;typename T&gt; </div>
 </dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md29"></a>
 Examples</h4>
-<div class="fragment"><div class="line"><span class="comment">// Creates and prints an instance from a std::vector</span></div>
+<div class="fragment"><div class="line"><span class="comment">// Creates and prints an instance from a std::vector.</span></div>
 <div class="line">std::vector&lt;int&gt; v = {1, 2, 3};</div>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt;int&gt;::instance</a> inst(v);</div>
 <div class="line">std::cout &lt;&lt; inst &lt;&lt; std::endl; <span class="comment">// Prints &quot;1 2 3&quot;.</span></div>
 <div class="line"> </div>
+<div class="line"><span class="comment">// Also works with conversions, and std::initializer_list&lt;T&gt;.</span></div>
 <div class="line">inst = {5, 4};</div>
 <div class="line">std::cout &lt;&lt; inst &lt;&lt; std::endl; <span class="comment">// Prints &quot;5 4&quot;.</span></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00455">455</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00458">458</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -691,11 +693,11 @@ template&lt;typename T&gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>The value at index <span class="tt">idx</span>.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md31"></a>
 Examples</h4>
-<div class="fragment"><div class="line"><span class="comment">// Creates and prints an instance from a std::vector</span></div>
+<div class="fragment"><div class="line"><span class="comment">// Prints a position of an instance.</span></div>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt;int&gt;::instance</a> inst = {1, 2, 3};</div>
 <div class="line">std::cout &lt;&lt; inst[1] &lt;&lt; std::endl; <span class="comment">// Prints &quot;2&quot;.</span></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00463">463</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00466">466</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -731,9 +733,9 @@ Examples</h4>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt;int&gt;::instance</a> inst = {3, 1, 2};</div>
 <div class="line">std::cout &lt;&lt;</div>
 <div class="line">    inst.<a class="code hl_function" href="#ga2fef50f7e022b0432142fd19ef2f6bad">reverse</a>() &lt;&lt; std::endl; <span class="comment">// Prints &quot;2 1 3&quot;.</span></div>
-<div class="ttc" id="agroup__sequence_html_ga2fef50f7e022b0432142fd19ef2f6bad"><div class="ttname"><a href="#ga2fef50f7e022b0432142fd19ef2f6bad">tgen::sequence::instance::reverse</a></div><div class="ttdeci">instance &amp; reverse()</div><div class="ttdoc">Reverses the instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00472">tgen.h:472</a></div></div>
+<div class="ttc" id="agroup__sequence_html_ga2fef50f7e022b0432142fd19ef2f6bad"><div class="ttname"><a href="#ga2fef50f7e022b0432142fd19ef2f6bad">tgen::sequence::instance::reverse</a></div><div class="ttdeci">instance &amp; reverse()</div><div class="ttdoc">Reverses the instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00475">tgen.h:475</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00472">472</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00475">475</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -931,6 +933,59 @@ Examples</h4>
 
 </div>
 </div>
+<a id="gaff196db1265936038bcb8761192f5a8c" name="gaff196db1265936038bcb8761192f5a8c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaff196db1265936038bcb8761192f5a8c">&#9670;&#160;</a></span>set()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a> &amp; <a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a>&lt; T &gt;::set </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>idx</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Restricts generator s.t. value at index <span class="tt">idx</span> is <span class="tt">value</span>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">idx</td><td>Index </td></tr>
+    <tr><td class="paramname">value</td><td>Value.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>if <span class="tt">value</span> is not in the value range/set.</td></tr>
+  </table>
+  </dd>
+</dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md21"></a>
+Examples</h4>
+<div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 that start with 1.</span></div>
+<div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#gaff196db1265936038bcb8761192f5a8c">set</a>(0, 1);</div>
+<div class="ttc" id="agroup__sequence_html_gaff196db1265936038bcb8761192f5a8c"><div class="ttname"><a href="#gaff196db1265936038bcb8761192f5a8c">tgen::sequence::set</a></div><div class="ttdeci">sequence &amp; set(int idx, T value)</div><div class="ttdoc">Restricts generator s.t. value at index idx is value.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00377">tgen.h:377</a></div></div>
+</div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00377">377</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+
+</div>
+</div>
 <a id="ga6dbb723e2e97121cfaa7a2d2d6e63e68" name="ga6dbb723e2e97121cfaa7a2d2d6e63e68"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga6dbb723e2e97121cfaa7a2d2d6e63e68">&#9670;&#160;</a></span>shuffle()</h2>
 
@@ -963,9 +1018,9 @@ Examples</h4>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt;int&gt;::instance</a> inst = {3, 1, 2};</div>
 <div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_function" href="#ga6dbb723e2e97121cfaa7a2d2d6e63e68">tgen::sequence_op::shuffle</a>(inst) &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__sequence_html_ga6dbb723e2e97121cfaa7a2d2d6e63e68"><div class="ttname"><a href="#ga6dbb723e2e97121cfaa7a2d2d6e63e68">tgen::sequence_op::shuffle</a></div><div class="ttdeci">INST shuffle(const INST &amp;inst)</div><div class="ttdoc">Shuffles a sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00676">tgen.h:676</a></div></div>
+<div class="ttc" id="agroup__sequence_html_ga6dbb723e2e97121cfaa7a2d2d6e63e68"><div class="ttname"><a href="#ga6dbb723e2e97121cfaa7a2d2d6e63e68">tgen::sequence_op::shuffle</a></div><div class="ttdeci">INST shuffle(const INST &amp;inst)</div><div class="ttdoc">Shuffles a sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00679">tgen.h:679</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00676">676</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00679">679</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -998,13 +1053,13 @@ template&lt;typename T&gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>The size (number of elements) of the sequence instance.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md30"></a>
 Examples</h4>
-<div class="fragment"><div class="line"><span class="comment">// Creates and prints an instance from a std::vector</span></div>
+<div class="fragment"><div class="line"><span class="comment">// Prints the size of an instance.</span></div>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt;int&gt;::instance</a> inst = {1, 2, 3};</div>
 <div class="line">std::cout &lt;&lt;</div>
 <div class="line">    inst.<a class="code hl_function" href="#ga5e3b818698efb4b3adb616219aff2c3d">size</a>() &lt;&lt; std::endl; <span class="comment">// Prints &quot;3&quot;.</span></div>
-<div class="ttc" id="agroup__sequence_html_ga5e3b818698efb4b3adb616219aff2c3d"><div class="ttname"><a href="#ga5e3b818698efb4b3adb616219aff2c3d">tgen::sequence::instance::size</a></div><div class="ttdeci">size_t size()</div><div class="ttdoc">Returns the size of the sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00460">tgen.h:460</a></div></div>
+<div class="ttc" id="agroup__sequence_html_ga5e3b818698efb4b3adb616219aff2c3d"><div class="ttname"><a href="#ga5e3b818698efb4b3adb616219aff2c3d">tgen::sequence::instance::size</a></div><div class="ttdeci">size_t size()</div><div class="ttdoc">Returns the size of the sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00463">tgen.h:463</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00460">460</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00463">463</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -1041,7 +1096,7 @@ Examples</h4>
 <div class="line">std::cout &lt;&lt;</div>
 <div class="line">    inst.<a class="code hl_function" href="#gaabbbd20653bd6b4149aea1914267db56">sort</a>() &lt;&lt; std::endl; <span class="comment">// Prints &quot;1 2 3&quot;.</span></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00466">466</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00469">469</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -1078,62 +1133,9 @@ Examples</h4>
 <div class="line">std::vector&lt;int&gt; v = {3, 1, 2};</div>
 <div class="line">v = <a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt;int&gt;::instance</a>(v).<a class="code hl_function" href="#ga2fef50f7e022b0432142fd19ef2f6bad">reverse</a>().<a class="code hl_function" href="#ga9df679623d89ecbd4bd1b5670ba3e24a">to_std</a>();</div>
 <div class="line"><span class="comment">// v = {2, 1, 3}.</span></div>
-<div class="ttc" id="agroup__sequence_html_ga9df679623d89ecbd4bd1b5670ba3e24a"><div class="ttname"><a href="#ga9df679623d89ecbd4bd1b5670ba3e24a">tgen::sequence::instance::to_std</a></div><div class="ttdeci">std::vector&lt; T &gt; to_std()</div><div class="ttdoc">Converts the instance to a std::vector.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00489">tgen.h:489</a></div></div>
+<div class="ttc" id="agroup__sequence_html_ga9df679623d89ecbd4bd1b5670ba3e24a"><div class="ttname"><a href="#ga9df679623d89ecbd4bd1b5670ba3e24a">tgen::sequence::instance::to_std</a></div><div class="ttdeci">std::vector&lt; T &gt; to_std()</div><div class="ttdoc">Converts the instance to a std::vector.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00492">tgen.h:492</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00489">489</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
-
-</div>
-</div>
-<a id="ga7f53ab64d071882db37c9d1b6222242d" name="ga7f53ab64d071882db37c9d1b6222242d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga7f53ab64d071882db37c9d1b6222242d">&#9670;&#160;</a></span>value_at_idx()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename T&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a> &amp; <a class="el" href="structtgen_1_1sequence.html">tgen::sequence</a>&lt; T &gt;::value_at_idx </td>
-          <td>(</td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>idx</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Restricts generator s.t. value at index <span class="tt">idx</span> is <span class="tt">value</span>. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">idx</td><td>Index </td></tr>
-    <tr><td class="paramname">value</td><td>Value.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="exception"><dt>Exceptions</dt><dd>
-  <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td>if <span class="tt">value</span> is not in the value range/set.</td></tr>
-  </table>
-  </dd>
-</dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md21"></a>
-Examples</h4>
-<div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 that start with 1.</span></div>
-<div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#ga7f53ab64d071882db37c9d1b6222242d">value_at_idx</a>(0, 1);</div>
-<div class="ttc" id="agroup__sequence_html_ga7f53ab64d071882db37c9d1b6222242d"><div class="ttname"><a href="#ga7f53ab64d071882db37c9d1b6222242d">tgen::sequence::value_at_idx</a></div><div class="ttdeci">sequence &amp; value_at_idx(int idx, T value)</div><div class="ttdoc">Restricts generator s.t. value at index idx is value.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00377">tgen.h:377</a></div></div>
-</div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00377">377</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00492">492</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -1175,7 +1177,7 @@ Examples</h4>
 <div class="line">std::cout &lt;&lt; </div>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt;int&gt;::instance</a>({3, 1, 2}) &lt;&lt; std::endl; <span class="comment">// Prints &quot;3 1 2&quot;.</span></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00478">478</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00481">481</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>

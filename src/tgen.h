@@ -374,7 +374,7 @@ template <typename T> struct sequence {
 		: sequence(size, std::set<T>(values.begin(), values.end())) {}
 
 	// Restricts sequences for sequence[idx] = value.
-	sequence &value_at_idx(int idx, T value) {
+	sequence &set(int idx, T value) {
 		tgen_ensure(0 <= idx and idx < size, "index must be valid");
 		if (values.size() == 0) {
 			auto &[left, right] = val_range[idx];
@@ -394,7 +394,7 @@ template <typename T> struct sequence {
 	}
 
 	// Restricts sequences for sequence[idx_1] = sequence[idx_2].
-	sequence &equal_idx_pair(int idx_1, int idx_2) {
+	sequence &equal(int idx_1, int idx_2) {
 		tgen_ensure(0 <= std::min(idx_1, idx_2) and
 						std::max(idx_1, idx_2) < size,
 					"indices must be valid");
@@ -411,14 +411,14 @@ template <typename T> struct sequence {
 		tgen_ensure(0 <= left and left <= right and right < size,
 					"range indices bust be valid");
 		for (int i = left; i < right; ++i)
-			equal_idx_pair(i, i + 1);
+			equal(i, i + 1);
 		return *this;
 	}
 
 	// Restricts sequences for sequence[S] to be distinct, for given subset S of
 	// indices.
 	// You can not add two of these restrictions with intersection.
-	sequence &distinct_idx_set(const std::set<int> &indices) {
+	sequence &distinct(const std::set<int> &indices) {
 		for (int idx : indices) {
 			if (idx_distinct_constraints.count(idx))
 				throw __error(
@@ -429,11 +429,14 @@ template <typename T> struct sequence {
 		distinct_constraints.push_back(indices);
 		return *this;
 	}
+	sequence &distinct(const std::initializer_list<int> &indices) {
+		return distinct(std::set<int>(indices.begin(), indices.end()));
+	}
 
 	// Restricts sequences for sequence[idx_1] != sequence[idx_2]
-	sequence &different_idx_pair(int idx_1, int idx_2) {
+	sequence &different(int idx_1, int idx_2) {
 		std::set<int> indices = {idx_1, idx_2};
-		distinct_idx_set(indices);
+		distinct(indices);
 		return *this;
 	}
 
@@ -442,7 +445,7 @@ template <typename T> struct sequence {
 		std::set<int> indices;
 		for (int i = 0; i < size; ++i)
 			indices.insert(i);
-		distinct_idx_set(indices);
+		distinct(indices);
 		return *this;
 	}
 

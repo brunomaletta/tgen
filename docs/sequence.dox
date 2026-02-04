@@ -122,10 +122,10 @@ template <typename T> struct tgen::sequence::sequence(int size, const std::initi
  *
  * ```cpp
  * // Sequences of 10 ints from 1 to 5 that start with 1.
- * auto seq_gen = tgen::sequence<int>(10, 1, 5).value_at_idx(0, 1);
+ * auto seq_gen = tgen::sequence<int>(10, 1, 5).set(0, 1);
  * ```
  */
-tgen::sequence &tgen::sequence::value_at_idx(int idx, T value);
+tgen::sequence &tgen::sequence::set(int idx, T value);
 
 
 /**
@@ -139,10 +139,10 @@ tgen::sequence &tgen::sequence::value_at_idx(int idx, T value);
  *
  * ```cpp
  * // Sequences of 10 ints from 1 to 5 that start and end with the same value.
- * auto seq_gen = tgen::sequence<int>(10, 1, 5).equal_idx_pair(0, 9);
+ * auto seq_gen = tgen::sequence<int>(10, 1, 5).equal(0, 9);
  * ```
  */
-tgen::sequence &tgen::sequence::equal_idx_pair(int idx_1, int idx_2);
+tgen::sequence &tgen::sequence::equal(int idx_1, int idx_2);
 
 
 /**
@@ -172,12 +172,14 @@ tgen::sequence &tgen::sequence::equal_range(int left, int right);
  *
  * ```cpp
  * // Sequences of 10 ints from 1 to 5 with the first half distinct.
- * auto seq_gen = tgen::sequence<int>(10, 1, 5).distinct_idx_set(std::set<int>({0, 1, 2, 3, 4}));
+ * auto seq_gen = tgen::sequence<int>(10, 1, 5).distinct(std::set<int>({0, 1, 2, 3, 4}));
+ * // You can also use std::initializer_list<int>.
+ * seq_gen = tgen::sequence<int>(10, 1, 5).distinct({0, 1, 2, 3, 4});
  * ```
  *
  * @note You cannot add two of these restrictions with intersecting indices!
  */
-tgen::sequence &tgen::sequence::distinct_idx_set(const std::set<int> &indices);
+tgen::sequence &tgen::sequence::distinct(const std::set<int> &indices);
 
 
 /**
@@ -191,17 +193,17 @@ tgen::sequence &tgen::sequence::distinct_idx_set(const std::set<int> &indices);
  *
  * ```cpp
  * // Sequences of 10 ints from 1 to 5 with the first and last values different.
- * auto seq_gen = tgen::sequence<int>(10, 1, 5).different_idx_pair(0, 9);
+ * auto seq_gen = tgen::sequence<int>(10, 1, 5).different(0, 9);
  * ```
  */
-tgen::sequence &tgen::sequence::different_idx_pair(int idx_1, int idx_2);
+tgen::sequence &tgen::sequence::different(int idx_1, int idx_2);
 
 
 /**
  * @ingroup sequence
  * @brief Restricts generator s.t. all values are distinct.
  *
- * @note If you add this restriction, you cannot add a `tgen::sequence::distinct_idx_set` restriction!
+ * @note If you add this restriction, you cannot add another `tgen::sequence::distinct` restriction!
  *
  * #### Examples
  *
@@ -285,11 +287,12 @@ template <typename T> struct tgen::sequence::instance;
  * #### Examples
  *
  * ```cpp
- * // Creates and prints an instance from a std::vector
+ * // Creates and prints an instance from a std::vector.
  * std::vector<int> v = {1, 2, 3};
  * tgen::sequence<int>::instance inst(v);
  * std::cout << inst << std::endl; // Prints "1 2 3".
  * 
+ * // Also works with conversions, and std::initializer_list<T>.
  * inst = {5, 4};
  * std::cout << inst << std::endl; // Prints "5 4".
  * ```
@@ -306,7 +309,7 @@ template <typename T> struct tgen::sequence::instance::instance(const std::vecto
  * #### Examples
  *
  * ```cpp
- * // Creates and prints an instance from a std::vector
+ * // Prints the size of an instance.
  * tgen::sequence<int>::instance inst = {1, 2, 3};
  * std::cout <<
  *     inst.size() << std::endl; // Prints "3".
@@ -326,7 +329,7 @@ size_t tgen::sequence::instance::size();
  * #### Examples
  *
  * ```cpp
- * // Creates and prints an instance from a std::vector
+ * // Prints a position of an instance.
  * tgen::sequence<int>::instance inst = {1, 2, 3};
  * std::cout << inst[1] << std::endl; // Prints "2".
  * ```

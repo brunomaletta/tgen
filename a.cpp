@@ -11,9 +11,9 @@ int main(int argc, char **argv) {
 	int n = tgen::opt<int>("n", 12);
 
 	auto seq_gen = tgen::sequence<int>(/*size=*/n, /*value_l=*/1, /*value_r=*/5)
-					   .distinct_idx_set(/*indices=*/{0, 1, 2})
-					   .value_at_idx(/*idx=*/1, /*value=*/2)
-					   .distinct_idx_set(/*indices=*/{11, 10, 9, 8, 7});
+					   .distinct(/*indices=*/{0, 1, 2})
+					   .set(/*idx=*/1, /*value=*/2)
+					   .distinct(/*indices=*/{11, 10, 9, 8, 7});
 
 	cout << endl;
 
@@ -38,9 +38,9 @@ int main(int argc, char **argv) {
 	cout << tgen::sequence<char>(/*size=*/10, /*values=*/chars).gen() << endl;
 
 	cout << tgen::sequence<int>(/*size=*/20, /*values=*/{1, 50, 100, 250, 1000})
-				.value_at_idx(0, 50)
-				.equal_idx_pair(0, 2)
-				.distinct_idx_set({19, 18, 17, 16, 15})
+				.set(0, 50)
+				.equal(0, 2)
+				.distinct({19, 18, 17, 16, 15})
 				.gen()
 		 << endl;
 
@@ -59,4 +59,11 @@ int main(int argc, char **argv) {
 
 	tgen::sequence<int>::instance inst = {1, 2, 3};
 	cout << tgen::sequence_op::any(inst) << endl;
+
+	cout << tgen::sequence<int>(4, 1, 5)
+				.equal(0, 1)
+				.equal(2, 3)
+				.different(1, 2)
+				.gen()
+		 << std::endl;
 }

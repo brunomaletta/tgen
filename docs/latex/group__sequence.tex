@@ -23,15 +23,15 @@ struct \mbox{\hyperlink{structtgen_1_1sequence_1_1instance}{tgen\+::sequence$<$ 
 \begin{DoxyCompactList}\small\item\em Creates sequence generator define by value set. \end{DoxyCompactList}\item 
 \mbox{\hyperlink{group__sequence_gafed6e97f0f5ea48c6965399aa041a7c0}{tgen\+::sequence$<$ T $>$\+::sequence}} (int size, const std\+::initializer\+\_\+list$<$ T $>$ \&values)
 \begin{DoxyCompactList}\small\item\em Creates sequence generator define by value set. \end{DoxyCompactList}\item 
-\mbox{\hyperlink{structtgen_1_1sequence}{sequence}} \& \mbox{\hyperlink{group__sequence_ga7f53ab64d071882db37c9d1b6222242d}{tgen\+::sequence$<$ T $>$\+::value\+\_\+at\+\_\+idx}} (int idx, T value)
+\mbox{\hyperlink{structtgen_1_1sequence}{sequence}} \& \mbox{\hyperlink{group__sequence_gaff196db1265936038bcb8761192f5a8c}{tgen\+::sequence$<$ T $>$\+::set}} (int idx, T value)
 \begin{DoxyCompactList}\small\item\em Restricts generator s.\+t. value at index {\ttfamily idx} is {\ttfamily value}. \end{DoxyCompactList}\item 
-\mbox{\hyperlink{structtgen_1_1sequence}{sequence}} \& \mbox{\hyperlink{group__sequence_ga7b3d4a90dac3ffafa88c95177ada6725}{tgen\+::sequence$<$ T $>$\+::equal\+\_\+idx\+\_\+pair}} (int idx\+\_\+1, int idx\+\_\+2)
+\mbox{\hyperlink{structtgen_1_1sequence}{sequence}} \& \mbox{\hyperlink{group__sequence_ga4beb1b5e29f21f329346d005fada1c9b}{tgen\+::sequence$<$ T $>$\+::equal}} (int idx\+\_\+1, int idx\+\_\+2)
 \begin{DoxyCompactList}\small\item\em Restricts generator s.\+t. value at index {\ttfamily idx\+\_\+1} is the same as value at index {\ttfamily idx\+\_\+2}. \end{DoxyCompactList}\item 
 \mbox{\hyperlink{structtgen_1_1sequence}{sequence}} \& \mbox{\hyperlink{group__sequence_gaa6ca6fc2e5c9edcf0d25165f9f25ad12}{tgen\+::sequence$<$ T $>$\+::equal\+\_\+range}} (int left, int right)
 \begin{DoxyCompactList}\small\item\em Restricts generator s.\+t. all values at indices in {\ttfamily \mbox{[}left, right\mbox{]}} are the same. \end{DoxyCompactList}\item 
-\mbox{\hyperlink{structtgen_1_1sequence}{sequence}} \& \mbox{\hyperlink{group__sequence_gabae7ff1854b99b1ef7c199b23a1faff6}{tgen\+::sequence$<$ T $>$\+::distinct\+\_\+idx\+\_\+set}} (const std\+::set$<$ int $>$ \&indices)
+\mbox{\hyperlink{structtgen_1_1sequence}{sequence}} \& \mbox{\hyperlink{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}{tgen\+::sequence$<$ T $>$\+::distinct}} (const std\+::set$<$ int $>$ \&indices)
 \begin{DoxyCompactList}\small\item\em Restricts generator s.\+t. all values at indices in {\ttfamily indices} are distinct. \end{DoxyCompactList}\item 
-\mbox{\hyperlink{structtgen_1_1sequence}{sequence}} \& \mbox{\hyperlink{group__sequence_gab6c081429fb27abac0970aad8f2017a1}{tgen\+::sequence$<$ T $>$\+::different\+\_\+idx\+\_\+pair}} (int idx\+\_\+1, int idx\+\_\+2)
+\mbox{\hyperlink{structtgen_1_1sequence}{sequence}} \& \mbox{\hyperlink{group__sequence_gad430f6b0f40960ff302eabbcaaba7b68}{tgen\+::sequence$<$ T $>$\+::different}} (int idx\+\_\+1, int idx\+\_\+2)
 \begin{DoxyCompactList}\small\item\em Restricts generator s.\+t. value at index {\ttfamily idx\+\_\+1} is different from value at index {\ttfamily idx\+\_\+2}. \end{DoxyCompactList}\item 
 \mbox{\hyperlink{structtgen_1_1sequence}{sequence}} \& \mbox{\hyperlink{group__sequence_ga09c96c92fc2f97328c75e6d260a6ee27}{tgen\+::sequence$<$ T $>$\+::distinct}} ()
 \begin{DoxyCompactList}\small\item\em Restricts generator s.\+t. all values are distinct. \end{DoxyCompactList}\item 
@@ -72,7 +72,7 @@ Operations on sequences.
 \begin{DoxyCode}{0}
 \DoxyCodeLine{\textcolor{comment}{//\ Generates\ 100\ distinct\ integers.}}
 \DoxyCodeLine{std::cout\ <<\ }
-\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(100,\ 1,\ 100).\mbox{\hyperlink{group__sequence_ga09c96c92fc2f97328c75e6d260a6ee27}{distinct}}().\mbox{\hyperlink{group__sequence_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}()\ <<\ std::endl;}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(100,\ 1,\ 100).\mbox{\hyperlink{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}().\mbox{\hyperlink{group__sequence_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}()\ <<\ std::endl;}
 \DoxyCodeLine{\textcolor{comment}{//\ Generates\ 10\ sorted\ small\ powers\ of\ 2.}}
 \DoxyCodeLine{std::set<int>\ powers\ =\ \{1,\ 2,\ 4,\ 8\};}
 \DoxyCodeLine{std::cout\ <<}
@@ -117,7 +117,7 @@ A uniformly random element from the instance.
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00683}{683}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00686}{686}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence_gae983696fba517df4aa22a44ffaa88ba2}\index{Sequence Operations@{Sequence Operations}!choose@{choose}}
 \index{choose@{choose}!Sequence Operations@{Sequence Operations}}
@@ -154,14 +154,14 @@ A uniformly random subsequence of length k.
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00688}{688}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00691}{691}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
-\Hypertarget{group__sequence_gab6c081429fb27abac0970aad8f2017a1}\index{Sequence Operations@{Sequence Operations}!different\_idx\_pair@{different\_idx\_pair}}
-\index{different\_idx\_pair@{different\_idx\_pair}!Sequence Operations@{Sequence Operations}}
-\doxysubsubsection{\texorpdfstring{different\_idx\_pair()}{different\_idx\_pair()}}
-{\footnotesize\ttfamily \label{group__sequence_gab6c081429fb27abac0970aad8f2017a1} 
+\Hypertarget{group__sequence_gad430f6b0f40960ff302eabbcaaba7b68}\index{Sequence Operations@{Sequence Operations}!different@{different}}
+\index{different@{different}!Sequence Operations@{Sequence Operations}}
+\doxysubsubsection{\texorpdfstring{different()}{different()}}
+{\footnotesize\ttfamily \label{group__sequence_gad430f6b0f40960ff302eabbcaaba7b68} 
 template$<$typename T$>$ \\
-\mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}} \& \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::different\+\_\+idx\+\_\+pair (\begin{DoxyParamCaption}\item[{int}]{idx\+\_\+1}{, }\item[{int}]{idx\+\_\+2}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+\mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}} \& \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::different (\begin{DoxyParamCaption}\item[{int}]{idx\+\_\+1}{, }\item[{int}]{idx\+\_\+2}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
 
 
@@ -178,16 +178,16 @@ Restricts generator s.\+t. value at index {\ttfamily idx\+\_\+1} is different fr
 
 \begin{DoxyCode}{0}
 \DoxyCodeLine{\textcolor{comment}{//\ Sequences\ of\ 10\ ints\ from\ 1\ to\ 5\ with\ the\ first\ and\ last\ values\ different.}}
-\DoxyCodeLine{\textcolor{keyword}{auto}\ seq\_gen\ =\ tgen::sequence<int>(10,\ 1,\ 5).different\_idx\_pair(0,\ 9);}
+\DoxyCodeLine{\textcolor{keyword}{auto}\ seq\_gen\ =\ tgen::sequence<int>(10,\ 1,\ 5).different(0,\ 9);}
 
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00434}{434}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00437}{437}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence_ga09c96c92fc2f97328c75e6d260a6ee27}\index{Sequence Operations@{Sequence Operations}!distinct@{distinct}}
 \index{distinct@{distinct}!Sequence Operations@{Sequence Operations}}
-\doxysubsubsection{\texorpdfstring{distinct()}{distinct()}}
+\doxysubsubsection{\texorpdfstring{distinct()}{distinct()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
 {\footnotesize\ttfamily \label{group__sequence_ga09c96c92fc2f97328c75e6d260a6ee27} 
 template$<$typename T$>$ \\
 \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}} \& \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::distinct (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
@@ -197,7 +197,7 @@ template$<$typename T$>$ \\
 Restricts generator s.\+t. all values are distinct. 
 
 \begin{DoxyNote}{Note}
-If you add this restriction, you cannot add a {\ttfamily \doxylink{group__sequence_gabae7ff1854b99b1ef7c199b23a1faff6}{tgen\+::sequence\+::distinct\+\_\+idx\+\_\+set}} restriction!
+If you add this restriction, you cannot add another {\ttfamily \doxylink{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}{tgen\+::sequence\+::distinct}} restriction!
 \end{DoxyNote}
 \hypertarget{group__sequence_autotoc_md26}{}\doxysubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence_autotoc_md26}
 
@@ -208,14 +208,14 @@ If you add this restriction, you cannot add a {\ttfamily \doxylink{group__sequen
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00441}{441}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00444}{444}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
-\Hypertarget{group__sequence_gabae7ff1854b99b1ef7c199b23a1faff6}\index{Sequence Operations@{Sequence Operations}!distinct\_idx\_set@{distinct\_idx\_set}}
-\index{distinct\_idx\_set@{distinct\_idx\_set}!Sequence Operations@{Sequence Operations}}
-\doxysubsubsection{\texorpdfstring{distinct\_idx\_set()}{distinct\_idx\_set()}}
-{\footnotesize\ttfamily \label{group__sequence_gabae7ff1854b99b1ef7c199b23a1faff6} 
+\Hypertarget{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd}\index{Sequence Operations@{Sequence Operations}!distinct@{distinct}}
+\index{distinct@{distinct}!Sequence Operations@{Sequence Operations}}
+\doxysubsubsection{\texorpdfstring{distinct()}{distinct()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \label{group__sequence_gaeb0baa4e6c780d8bc1d832514b6fcacd} 
 template$<$typename T$>$ \\
-\mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}} \& \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::distinct\+\_\+idx\+\_\+set (\begin{DoxyParamCaption}\item[{const std\+::set$<$ int $>$ \&}]{indices}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+\mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}} \& \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::distinct (\begin{DoxyParamCaption}\item[{const std\+::set$<$ int $>$ \&}]{indices}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
 
 
@@ -230,7 +230,9 @@ Restricts generator s.\+t. all values at indices in {\ttfamily indices} are dist
 
 \begin{DoxyCode}{0}
 \DoxyCodeLine{\textcolor{comment}{//\ Sequences\ of\ 10\ ints\ from\ 1\ to\ 5\ with\ the\ first\ half\ distinct.}}
-\DoxyCodeLine{\textcolor{keyword}{auto}\ seq\_gen\ =\ tgen::sequence<int>(10,\ 1,\ 5).distinct\_idx\_set(std::set<int>(\{0,\ 1,\ 2,\ 3,\ 4\}));}
+\DoxyCodeLine{\textcolor{keyword}{auto}\ seq\_gen\ =\ tgen::sequence<int>(10,\ 1,\ 5).distinct(std::set<int>(\{0,\ 1,\ 2,\ 3,\ 4\}));}
+\DoxyCodeLine{\textcolor{comment}{//\ You\ can\ also\ use\ std::initializer\_list<int>.}}
+\DoxyCodeLine{seq\_gen\ =\ tgen::sequence<int>(10,\ 1,\ 5).distinct(\{0,\ 1,\ 2,\ 3,\ 4\});}
 
 \end{DoxyCode}
 
@@ -242,12 +244,12 @@ You cannot add two of these restrictions with intersecting indices!
 
 Definition at line \mbox{\hyperlink{tgen_8h_source_l00421}{421}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
-\Hypertarget{group__sequence_ga7b3d4a90dac3ffafa88c95177ada6725}\index{Sequence Operations@{Sequence Operations}!equal\_idx\_pair@{equal\_idx\_pair}}
-\index{equal\_idx\_pair@{equal\_idx\_pair}!Sequence Operations@{Sequence Operations}}
-\doxysubsubsection{\texorpdfstring{equal\_idx\_pair()}{equal\_idx\_pair()}}
-{\footnotesize\ttfamily \label{group__sequence_ga7b3d4a90dac3ffafa88c95177ada6725} 
+\Hypertarget{group__sequence_ga4beb1b5e29f21f329346d005fada1c9b}\index{Sequence Operations@{Sequence Operations}!equal@{equal}}
+\index{equal@{equal}!Sequence Operations@{Sequence Operations}}
+\doxysubsubsection{\texorpdfstring{equal()}{equal()}}
+{\footnotesize\ttfamily \label{group__sequence_ga4beb1b5e29f21f329346d005fada1c9b} 
 template$<$typename T$>$ \\
-\mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}} \& \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::equal\+\_\+idx\+\_\+pair (\begin{DoxyParamCaption}\item[{int}]{idx\+\_\+1}{, }\item[{int}]{idx\+\_\+2}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+\mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}} \& \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::equal (\begin{DoxyParamCaption}\item[{int}]{idx\+\_\+1}{, }\item[{int}]{idx\+\_\+2}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
 
 
@@ -264,7 +266,7 @@ Restricts generator s.\+t. value at index {\ttfamily idx\+\_\+1} is the same as 
 
 \begin{DoxyCode}{0}
 \DoxyCodeLine{\textcolor{comment}{//\ Sequences\ of\ 10\ ints\ from\ 1\ to\ 5\ that\ start\ and\ end\ with\ the\ same\ value.}}
-\DoxyCodeLine{\textcolor{keyword}{auto}\ seq\_gen\ =\ tgen::sequence<int>(10,\ 1,\ 5).equal\_idx\_pair(0,\ 9);}
+\DoxyCodeLine{\textcolor{keyword}{auto}\ seq\_gen\ =\ tgen::sequence<int>(10,\ 1,\ 5).equal(0,\ 9);}
 
 \end{DoxyCode}
  
@@ -331,7 +333,7 @@ A uniformly random instance from the set of valid sequences, given the added con
 \end{DoxyExceptions}
 
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00493}{493}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00496}{496}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence_gaf614e6563861fb01b5de5f22c4beab2e}\index{Sequence Operations@{Sequence Operations}!gen\_until@{gen\_until}}
 \index{gen\_until@{gen\_until}!Sequence Operations@{Sequence Operations}}
@@ -377,7 +379,7 @@ An instance found by repeatedly choosing a uniformly random valid sequence and c
 \end{DoxyExceptions}
 
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00655}{655}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00658}{658}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence_ga9eb0d4dcf6732346c6ce1bff5c2c4590}\index{Sequence Operations@{Sequence Operations}!instance@{instance}}
 \index{instance@{instance}!Sequence Operations@{Sequence Operations}}
@@ -398,18 +400,19 @@ Creates a sequence instance from a {\ttfamily std\+::vector}.
 \hypertarget{group__sequence_autotoc_md29}{}\doxysubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence_autotoc_md29}
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{\textcolor{comment}{//\ Creates\ and\ prints\ an\ instance\ from\ a\ std::vector}}
+\DoxyCodeLine{\textcolor{comment}{//\ Creates\ and\ prints\ an\ instance\ from\ a\ std::vector.}}
 \DoxyCodeLine{std::vector<int>\ v\ =\ \{1,\ 2,\ 3\};}
 \DoxyCodeLine{tgen::sequence<int>::instance\ inst(v);}
 \DoxyCodeLine{std::cout\ <<\ inst\ <<\ std::endl;\ \textcolor{comment}{//\ Prints\ "{}1\ 2\ 3"{}.}}
 \DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{//\ Also\ works\ with\ conversions,\ and\ std::initializer\_list<T>.}}
 \DoxyCodeLine{inst\ =\ \{5,\ 4\};}
 \DoxyCodeLine{std::cout\ <<\ inst\ <<\ std::endl;\ \textcolor{comment}{//\ Prints\ "{}5\ 4"{}.}}
 
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00455}{455}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00458}{458}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence_gab89252fa4a7905fdbf421bc64a76c623}\index{Sequence Operations@{Sequence Operations}!operator\mbox{[}\mbox{]}@{operator[]}}
 \index{operator\mbox{[}\mbox{]}@{operator[]}!Sequence Operations@{Sequence Operations}}
@@ -433,14 +436,14 @@ The value at index {\ttfamily idx}.
 \hypertarget{group__sequence_autotoc_md31}{}\doxysubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence_autotoc_md31}
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{\textcolor{comment}{//\ Creates\ and\ prints\ an\ instance\ from\ a\ std::vector}}
+\DoxyCodeLine{\textcolor{comment}{//\ Prints\ a\ position\ of\ an\ instance.}}
 \DoxyCodeLine{tgen::sequence<int>::instance\ inst\ =\ \{1,\ 2,\ 3\};}
 \DoxyCodeLine{std::cout\ <<\ inst[1]\ <<\ std::endl;\ \textcolor{comment}{//\ Prints\ "{}2"{}.}}
 
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00463}{463}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00466}{466}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence_ga2fef50f7e022b0432142fd19ef2f6bad}\index{Sequence Operations@{Sequence Operations}!reverse@{reverse}}
 \index{reverse@{reverse}!Sequence Operations@{Sequence Operations}}
@@ -464,7 +467,7 @@ Reverses the instance.
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00472}{472}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00475}{475}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence_gafed6e97f0f5ea48c6965399aa041a7c0}\index{Sequence Operations@{Sequence Operations}!sequence@{sequence}}
 \index{sequence@{sequence}!Sequence Operations@{Sequence Operations}}
@@ -584,6 +587,40 @@ Defines a generator of sequences of length {\ttfamily size} with values in {\ttf
 
 Definition at line \mbox{\hyperlink{tgen_8h_source_l00353}{353}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
+\Hypertarget{group__sequence_gaff196db1265936038bcb8761192f5a8c}\index{Sequence Operations@{Sequence Operations}!set@{set}}
+\index{set@{set}!Sequence Operations@{Sequence Operations}}
+\doxysubsubsection{\texorpdfstring{set()}{set()}}
+{\footnotesize\ttfamily \label{group__sequence_gaff196db1265936038bcb8761192f5a8c} 
+template$<$typename T$>$ \\
+\mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}} \& \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::set (\begin{DoxyParamCaption}\item[{int}]{idx}{, }\item[{T}]{value}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Restricts generator s.\+t. value at index {\ttfamily idx} is {\ttfamily value}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em idx} & Index \\
+\hline
+{\em value} & Value.\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em std\+::runtime\+\_\+error} & if {\ttfamily value} is not in the value range/set.\\
+\hline
+\end{DoxyExceptions}
+\hypertarget{group__sequence_autotoc_md21}{}\doxysubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence_autotoc_md21}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{comment}{//\ Sequences\ of\ 10\ ints\ from\ 1\ to\ 5\ that\ start\ with\ 1.}}
+\DoxyCodeLine{\textcolor{keyword}{auto}\ seq\_gen\ =\ tgen::sequence<int>(10,\ 1,\ 5).set(0,\ 1);}
+
+\end{DoxyCode}
+ 
+
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00377}{377}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+
 \Hypertarget{group__sequence_ga6dbb723e2e97121cfaa7a2d2d6e63e68}\index{Sequence Operations@{Sequence Operations}!shuffle@{shuffle}}
 \index{shuffle@{shuffle}!Sequence Operations@{Sequence Operations}}
 \doxysubsubsection{\texorpdfstring{shuffle()}{shuffle()}}
@@ -614,7 +651,7 @@ The shuffled instance.
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00676}{676}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00679}{679}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence_ga5e3b818698efb4b3adb616219aff2c3d}\index{Sequence Operations@{Sequence Operations}!size@{size}}
 \index{size@{size}!Sequence Operations@{Sequence Operations}}
@@ -633,7 +670,7 @@ The size (number of elements) of the sequence instance.
 \hypertarget{group__sequence_autotoc_md30}{}\doxysubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence_autotoc_md30}
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{\textcolor{comment}{//\ Creates\ and\ prints\ an\ instance\ from\ a\ std::vector}}
+\DoxyCodeLine{\textcolor{comment}{//\ Prints\ the\ size\ of\ an\ instance.}}
 \DoxyCodeLine{tgen::sequence<int>::instance\ inst\ =\ \{1,\ 2,\ 3\};}
 \DoxyCodeLine{std::cout\ <<}
 \DoxyCodeLine{\ \ \ \ inst.\mbox{\hyperlink{group__sequence_ga5e3b818698efb4b3adb616219aff2c3d}{size}}()\ <<\ std::endl;\ \textcolor{comment}{//\ Prints\ "{}3"{}.}}
@@ -641,7 +678,7 @@ The size (number of elements) of the sequence instance.
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00460}{460}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00463}{463}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence_gaabbbd20653bd6b4149aea1914267db56}\index{Sequence Operations@{Sequence Operations}!sort@{sort}}
 \index{sort@{sort}!Sequence Operations@{Sequence Operations}}
@@ -665,7 +702,7 @@ Sorts the instance in non-\/decreasing order.
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00466}{466}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00469}{469}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence_ga9df679623d89ecbd4bd1b5670ba3e24a}\index{Sequence Operations@{Sequence Operations}!to\_std@{to\_std}}
 \index{to\_std@{to\_std}!Sequence Operations@{Sequence Operations}}
@@ -692,41 +729,7 @@ A {\ttfamily std\+::vector} representing the instance.
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00489}{489}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
-
-\Hypertarget{group__sequence_ga7f53ab64d071882db37c9d1b6222242d}\index{Sequence Operations@{Sequence Operations}!value\_at\_idx@{value\_at\_idx}}
-\index{value\_at\_idx@{value\_at\_idx}!Sequence Operations@{Sequence Operations}}
-\doxysubsubsection{\texorpdfstring{value\_at\_idx()}{value\_at\_idx()}}
-{\footnotesize\ttfamily \label{group__sequence_ga7f53ab64d071882db37c9d1b6222242d} 
-template$<$typename T$>$ \\
-\mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}} \& \mbox{\hyperlink{structtgen_1_1sequence}{tgen\+::sequence}}$<$ T $>$\+::value\+\_\+at\+\_\+idx (\begin{DoxyParamCaption}\item[{int}]{idx}{, }\item[{T}]{value}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
-
-
-
-Restricts generator s.\+t. value at index {\ttfamily idx} is {\ttfamily value}. 
-
-
-\begin{DoxyParams}{Parameters}
-{\em idx} & Index \\
-\hline
-{\em value} & Value.\\
-\hline
-\end{DoxyParams}
-
-\begin{DoxyExceptions}{Exceptions}
-{\em std\+::runtime\+\_\+error} & if {\ttfamily value} is not in the value range/set.\\
-\hline
-\end{DoxyExceptions}
-\hypertarget{group__sequence_autotoc_md21}{}\doxysubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence_autotoc_md21}
-
-\begin{DoxyCode}{0}
-\DoxyCodeLine{\textcolor{comment}{//\ Sequences\ of\ 10\ ints\ from\ 1\ to\ 5\ that\ start\ with\ 1.}}
-\DoxyCodeLine{\textcolor{keyword}{auto}\ seq\_gen\ =\ tgen::sequence<int>(10,\ 1,\ 5).value\_at\_idx(0,\ 1);}
-
-\end{DoxyCode}
- 
-
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00377}{377}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00492}{492}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 
 
@@ -754,5 +757,5 @@ The values are printed with one space as a separator, and with no end of line.\h
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00478}{478}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00481}{481}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 

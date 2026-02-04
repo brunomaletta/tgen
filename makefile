@@ -12,5 +12,8 @@ docs: doc
 opendoc:
 	open docs/html/index.html > /dev/null 2>&1 &
 
+lint:
+	bash lint.sh
+
 clean:
 	rm -rf a

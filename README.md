@@ -1,6 +1,6 @@
 # Overview
 
-`tgen` is a `C++` library to help you generate random stuff, useful for testcase generation (such as [jngen](https://github.com/ifsmirnov/jngen) or [testlib](https://github.com/MikeMirzayanov/testlib)).
+`tgen` is a `C++` library to help you generate random stuff, useful for testcase generation (such as [jngen](https://github.com/ifsmirnov/jngen) or [testlib](https://github.com/MikeMirzayanov/testlib)). The code is in a single file [tgen.h](https://github.com/brunomaletta/tgen/blob/main/src/tgen.h), that should be added to your directory.
 
 The first thing is to [register the generator](https://brunomaletta.github.io/tgen/group__opts.html). That defines the seed for random generation and parses the opts.
 
@@ -30,7 +30,7 @@ std::cout <<
 The nice thing is that we can add restrictions (specific to each type) to the generator, shrinking the set of valid arrays. For example, we can add the restriction that the first and second elements of the sequence have to be the same.
 
 ```cpp
-tgen::sequence<int>::instance inst = seq_gen.equal_idx_pair(/*idx_1=*/0, /*idx_2=*/1).gen();
+tgen::sequence<int>::instance inst = seq_gen.equal(/*idx_1=*/0, /*idx_2=*/1).gen();
 ```
 
 The returned instance can also be modified by some deterministic operations (specific to each type).
@@ -51,7 +51,7 @@ Combining everything into one line:
 ```cpp
 std::cout <<
 	tgen::sequence_op::any(
-		tgen::sequence<int>(10, 1, 100).equal_idx_pair(0, 1).gen().reverse()
+		tgen::sequence<int>(10, 1, 100).equal(0, 1).gen().reverse()
 	) << std::endl;
 ```
 
