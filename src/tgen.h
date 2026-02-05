@@ -7,7 +7,6 @@
 #include <queue>
 #include <random>
 #include <set>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -344,8 +343,6 @@ template <typename T> struct sequence {
 	std::map<T, int> value_idx_in_set; // Index of every value in the set above.
 	std::vector<std::pair<T, T>> val_range; // Range of values of each index.
 	std::vector<std::vector<int>> neigh;	// Adjacency list of equality.
-	std::set<int>
-		idx_distinct_constraints; // Indices in some distinction constraint.
 	std::vector<std::set<int>>
 		distinct_constraints; // All distinct constraints.
 
@@ -419,13 +416,6 @@ template <typename T> struct sequence {
 	// indices.
 	// You can not add two of these restrictions with intersection.
 	sequence &distinct(const std::set<int> &indices) {
-		for (int idx : indices) {
-			if (idx_distinct_constraints.count(idx))
-				throw __error(
-					"cannot add same index in two distinct constraints");
-			idx_distinct_constraints.insert(idx);
-		}
-
 		distinct_constraints.push_back(indices);
 		return *this;
 	}
@@ -495,151 +485,280 @@ template <typename T> struct sequence {
 	// Generate sequence instance.
 	instance gen() {
 		std::vector<T> vec(size);
+		std::vector<bool> defined_idx(
+			size, false); // For every index, if it has been set in `vec`.
 
-		std::vector<int> comp_id(size, -1);		  // component id of each index.
-		std::vector<std::vector<int>> comp(size); // component of each comp-id.
-		int comp_count = 0; // number of different components.
-		std::vector<bool> vis(size, false);
-		for (int i = 0; i < size; ++i)
-			if (!vis[i]) {
-				T new_value;
-				bool value_set = false;
+		std::vector<int> comp_id(size, -1);		  // Component id of each index.
+		std::vector<std::vector<int>> comp(size); // Component of each comp-id.
+		int comp_count = 0; // Number of different components.
 
-				// BFS to visit the connected component, grouping equal values.
-				std::queue<int> q;
-				q.push(i);
-				vis[i] = true;
-				std::vector<int> component;
-				while (q.size()) {
-					int j = q.front();
-					q.pop();
+		// Defines value of entire component.
+		auto define_comp = [&](int comp_id, T val) {
+			for (int idx : comp[comp_id]) {
+				tgen_ensure(!defined_idx[idx]);
+				vec[idx] = val;
+				defined_idx[idx] = true;
+			}
+		};
 
-					component.push_back(j);
+		// Groups components.
+		{
+			std::vector<bool> vis(size, false); // Visited for each index.
+			for (int idx = 0; idx < size; ++idx)
+				if (!vis[idx]) {
+					T new_value;
+					bool value_defined = false;
 
-					// Checks value.
-					auto [l, r] = val_range[j];
-					if (l == r) {
-						if (!value_set) {
-							// We found the value.
-							value_set = true;
-							new_value = l;
-						} else if (new_value != l) {
-							// We found a contradiction
-							std::stringstream ss;
-							ss << "tried to set value to `" << new_value
-							   << "`, but it was already set as `" << l << "`";
-							__contradiction_error("sequence", ss.str());
+					// BFS to visit the connected component, grouping equal
+					// values.
+					std::queue<int> q;
+					q.push(idx);
+					vis[idx] = true;
+					std::vector<int> component;
+					while (q.size()) {
+						int cur_idx = q.front();
+						q.pop();
+
+						component.push_back(cur_idx);
+
+						// Checks value.
+						auto [l, r] = val_range[cur_idx];
+						if (l == r) {
+							if (!value_defined) {
+								// We found the value.
+								value_defined = true;
+								new_value = l;
+							} else if (new_value != l) {
+								// We found a contradiction
+								__contradiction_error(
+									"sequence",
+									"tried to set value to `" +
+										std::to_string(new_value) +
+										"`, but it was already set as `" +
+										std::to_string(l) + "`");
+							}
+						}
+
+						for (int nxt_idx : neigh[cur_idx]) {
+							if (!vis[nxt_idx]) {
+								vis[nxt_idx] = true;
+								q.push(nxt_idx);
+							}
 						}
 					}
 
-					for (int k : neigh[j]) {
-						if (!vis[k]) {
-							vis[k] = true;
-							q.push(k);
-						}
+					// Group entire component, checking if value is defined.
+					for (int cur_idx : component) {
+						comp_id[cur_idx] = comp_count;
+						comp[comp_id[cur_idx]].push_back(cur_idx);
 					}
+
+					// Sets value if needed.
+					if (value_defined)
+						define_comp(comp_count, new_value);
+
+					++comp_count;
 				}
+		}
 
-				// Group entire component, checking if value is defined.
-				for (int j : component) {
-					if (value_set)
-						val_range[j].first = val_range[j].second = new_value;
-					comp_id[j] = comp_count;
-					comp[comp_id[j]].push_back(j);
-				}
-				++comp_count;
-			}
-
-		// Adds artificial distinct constraints.
-		for (int i = 0; i < size; ++i)
-			if (!idx_distinct_constraints.count(i)) {
-				std::set<int> cur = {i};
-				distinct_constraints.push_back(cur);
-			}
-
-		// Loops through distinct constraints.
-		for (const std::set<int> &distinct : distinct_constraints) {
-			// Checks if there are too many distinct values.
-			if (distinct.size() > value_r - value_l + 1)
-				__contradiction_error(
-					"sequence", "tried to generate " +
-									std::to_string(distinct.size()) +
-									" distinct values, but the maximum is " +
-									std::to_string(value_r - value_l + 1));
-
-			// Checks if two values in same component are marked as different.
-			std::set<int> comp_ids;
-			for (int idx : distinct) {
-				if (comp_ids.count(comp_id[idx]))
+		// Initial parsing of distinct constraints.
+		std::vector<std::set<int>> distinct_containing_comp_idx(comp_count);
+		{
+			int dist_id = 0;
+			for (const std::set<int> &distinct : distinct_constraints) {
+				// Checks if there are too many distinct values.
+				if (distinct.size() > value_r - value_l + 1)
 					__contradiction_error(
 						"sequence",
-						"tried to set indices two indices as equal and "
-						"different");
-				comp_ids.insert(comp_id[idx]);
+						"tried to generate " + std::to_string(distinct.size()) +
+							" distinct values, but the maximum is " +
+							std::to_string(value_r - value_l + 1));
+
+				// Checks if two values in same component are marked as
+				// different.
+				std::set<int> comp_ids;
+				for (int idx : distinct) {
+					if (comp_ids.count(comp_id[idx]))
+						__contradiction_error(
+							"sequence", "tried to set two indices as equal and "
+										"different");
+					comp_ids.insert(comp_id[idx]);
+
+					distinct_containing_comp_idx[comp_id[idx]].insert(dist_id);
+				}
+				++dist_id;
 			}
+		}
+
+		// If some value is in >= 3 sets, then there is a cycle.
+		for (auto &distinct_containing : distinct_containing_comp_idx)
+			if (distinct_containing.size() >= 3)
+				throw __error(
+					"failed to generate sequence: complex constraints");
+
+		// Generates a uniformly random list of k distinct values in [l, r],
+		// such that no value is in `forbidden_values`.
+		auto generate_distinct_values =
+			[&](int k, const std::set<T> forbidden_values) {
+				// We generate our numbers in the range [0, lim) with
+				// lim = (r-l+1)-(forbidden_values.size()), and then map them to
+				// the correct range.
+				// We will run (k-forbidden_values.size()) steps of
+				// Fisher–Yates, using a map to store a virtual sequence that
+				// starts with the a[i] = i.
+				int lim =
+					(value_r - value_l + 1) - int(forbidden_values.size());
+				std::map<T, T> virtual_sequence;
+				std::vector<T> list;
+				for (int i = 0; i < k; i++) {
+					T j = next<T>(i, lim - 1);
+					T vj = virtual_sequence.count(j) ? virtual_sequence[j] : j;
+					T vi =
+						virtual_sequence.count(i) ? virtual_sequence[i] : T(i);
+
+					virtual_sequence[j] = vi, virtual_sequence[i] = vj;
+
+					list.push_back(virtual_sequence[i]);
+				}
+
+				// Shifts back to correct range, but there might still be values
+				// that we can not use.
+				for (T &value : list)
+					value += value_l;
+
+				// Now for every generated value that is in forbidden_values, we
+				// map it to [l + lim, l + lim + forbidden_values.size()).
+				std::vector<std::pair<T, int>> values_to_map;
+				for (int i = 0; i < list.size(); ++i)
+					if (forbidden_values.count(list[i])) {
+						values_to_map.emplace_back(list[i], i);
+					}
+				// We iterate through them in increasing order.
+				std::sort(values_to_map.begin(), values_to_map.end());
+				auto cur_it = forbidden_values.begin();
+				int cur_defined_idx = 0;
+				for (auto [val, idx] : values_to_map) {
+					while (*cur_it != val)
+						++cur_it, ++cur_defined_idx;
+					list[idx] = value_l + lim + cur_defined_idx;
+				}
+
+				return list;
+			};
+
+		std::vector<bool> vis_distinct(distinct_constraints.size(), false);
+
+		// Fills the value in a tree defined by distinct constraints.
+		auto define_tree = [&](int distinct_id) {
+			// The set `distinct_constraints[distinct_id]` can have some values
+			// that are defined.
 
 			// Generates set of already defined values.
 			std::set<T> defined_values;
-			for (int idx : distinct)
-				if (val_range[idx].first == val_range[idx].second)
-					defined_values.insert(val_range[idx].first);
+			for (int idx : distinct_constraints[distinct_id])
+				if (defined_idx[idx]) {
+					// Checks if two values in `distinct_constraints[dist_id]`
+					// have been set to the same value
+					if (defined_values.count(vec[idx]))
+						__contradiction_error(
+							"sequence",
+							"tried to set two indices as equal and different");
 
-			// We have values in [l, r], but those in defined_values are
-			// taken. We generate our numbers in the range [0, lim) with
-			// lim = (r-l+1)-(defined_values.size()), and then map them to
-			// the correct range.
-			// We will run (distinct.size()-defined_values.size()) steps of
-			// Fisher–Yates, using a map to store a virtual sequence that starts
-			// with the a[i] = i.
-			int lim = (value_r - value_l + 1) - int(defined_values.size());
-			std::map<T, T> virtual_sequence;
-			std::vector<T> initial_gen;
-			for (int i = 0; i < distinct.size() - int(defined_values.size());
-				 i++) {
-				T j = next<T>(i, lim - 1);
-				T vj = virtual_sequence.count(j) ? virtual_sequence[j] : j;
-				T vi = virtual_sequence.count(i) ? virtual_sequence[i] : T(i);
-
-				virtual_sequence[j] = vi, virtual_sequence[i] = vj;
-
-				initial_gen.push_back(virtual_sequence[i]);
-			}
-
-			// Shifts back to correct range, but there might still be values
-			// that we can not use.
-			for (T &value : initial_gen)
-				value += value_l;
-
-			// Now for every generated value that is in defined_values, we map
-			// it to [l + lim, l + lim + defined_values.size()).
-			std::vector<std::pair<T, int>> values_to_map;
-			for (int i = 0; i < initial_gen.size(); ++i)
-				if (defined_values.count(initial_gen[i])) {
-					values_to_map.emplace_back(initial_gen[i], i);
+					defined_values.insert(vec[idx]);
 				}
-			// We iterate through them in increasing order.
-			std::sort(values_to_map.begin(), values_to_map.end());
-			auto cur_it = defined_values.begin();
-			int cur_defined_idx = 0;
-			for (auto [val, idx] : values_to_map) {
-				while (*cur_it != val)
-					++cur_it, ++cur_defined_idx;
-				initial_gen[idx] = value_l + lim + cur_defined_idx;
+
+			// Generates values in this root distinct constraint.
+			{
+				int new_value_count = distinct_constraints[distinct_id].size() -
+									  int(defined_values.size());
+				std::vector<T> generated_values =
+					generate_distinct_values(new_value_count, defined_values);
+				auto val_it = generated_values.begin();
+				for (int idx : distinct_constraints[distinct_id])
+					if (!defined_idx[idx]) {
+						define_comp(comp_id[idx], *val_it);
+						++val_it;
+					}
 			}
 
-			int cur = 0;
-			for (int idx : distinct) {
-				T value;
-				if (val_range[idx].first == val_range[idx].second)
-					value = val_range[idx].first; // Value was already set.
-				else
-					value = initial_gen[cur++]; // Use a generated random value.
+			// BFS.
+			std::queue<std::pair<int, int>> q; // {id, parent id}
+			q.emplace(distinct_id, -1);
+			vis_distinct[distinct_id] = true;
+			while (q.size()) {
+				auto [cur_distinct, parent] = q.front();
+				q.pop();
 
-				// For every index in this component, sets it.
-				for (int i : comp[comp_id[idx]])
-					vec[i] = value;
+				for (int idx : distinct_constraints[cur_distinct])
+					for (int nxt_distinct :
+						 distinct_containing_comp_idx[comp_id[idx]]) {
+						if (nxt_distinct == cur_distinct or
+							nxt_distinct == parent)
+							continue;
+
+						// Cycle.
+						if (vis_distinct[nxt_distinct])
+							throw __error("failed to generate sequence: "
+										  "complex constraints");
+
+						vis_distinct[nxt_distinct] = true;
+						q.emplace(nxt_distinct, cur_distinct);
+
+						// Generates this distinct constraint.
+						std::set<T> defined_values;
+						for (int idx2 : distinct_constraints[nxt_distinct])
+							if (defined_idx[idx2])
+								defined_values.insert(vec[idx2]);
+						int new_value_count =
+							distinct_constraints[nxt_distinct].size() -
+							int(defined_values.size());
+						std::vector<T> generated_values =
+							generate_distinct_values(new_value_count,
+													 defined_values);
+						auto val_it = generated_values.begin();
+						for (int idx2 : distinct_constraints[nxt_distinct])
+							if (!defined_idx[idx2]) {
+								define_comp(comp_id[idx2], *val_it);
+								++val_it;
+							}
+					}
+			}
+		};
+
+		// Loops through distinct constraints, starting `define_tree` for
+		// constraints that have some define value on it.
+		{
+			int dist_id = 0;
+			for (const std::set<int> &distinct : distinct_constraints) {
+				// If any value is set, start defining from this constraint.
+				for (int idx : distinct)
+					if (defined_idx[idx]) {
+						// Cannot generate if two values are set on different
+						// constraints in the same tree.
+						if (vis_distinct[dist_id])
+							throw __error("failed to generate sequence: "
+										  "complex constraints");
+						define_tree(dist_id);
+
+						// We break because it is fine if two are define in the
+						// same constraint.
+						break;
+					}
+				++dist_id;
 			}
 		}
+
+		// Loops through distinct constraints do define the rest.
+		for (int dist_id = 0; dist_id < distinct_constraints.size(); ++dist_id)
+			if (!vis_distinct[dist_id])
+				define_tree(dist_id);
+
+		// Define final values. These values all should be random in [l, r], and
+		// the distinct constraints have already been processed. However, there
+		// can be still equality constraints, so we set entire components.
+		for (int idx = 0; idx < size; ++idx)
+			if (!defined_idx[idx])
+				define_comp(comp_id[idx], next<T>(value_l, value_r));
 
 		if (values.size() > 0) {
 			// Needs to fetch the values from the value set.
