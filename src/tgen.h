@@ -460,8 +460,8 @@ template <typename T> struct sequence {
 		std::size_t size() const { return vec_.size(); }
 
 		// Fetches position idx.
-		T& operator[](int idx) { return vec_[idx]; }
-		const T& operator[](int idx) const { return vec_[idx]; }
+		T &operator[](int idx) { return vec_[idx]; }
+		const T &operator[](int idx) const { return vec_[idx]; }
 
 		// Sorts values in increasign order.
 		instance &sort() {
@@ -476,7 +476,7 @@ template <typename T> struct sequence {
 		}
 
 		// Concatenates two instances.
-		instance operator+(const instance& rhs) {
+		instance operator+(const instance &rhs) {
 			std::vector<T> new_vec = vec_;
 			for (int i = 0; i < rhs.size(); ++i)
 				new_vec.push_back(rhs[i]);
