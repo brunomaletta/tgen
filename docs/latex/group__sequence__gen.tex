@@ -120,7 +120,7 @@ Restricts generator s.\+t. all values at indices in {\ttfamily indices} are dist
 \hline
 \end{DoxyParams}
 \begin{DoxyNote}{Note}
-Generation might fail if restrictions are considered to be too complex! The restrictions are considered too complex if the following condition does not hold. Consider the graph defined with vertices as the {\ttfamily \doxylink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{tgen\+::sequence\+::distinct}} sets added, and there is an edge between two vertices if they share an index. Note that you need to consider indices (directed or indirectly) connected by equality constraints as being the same. This resulting graph must be a cycle. Moreover, for every tree in this graph, all of its indices with a {\ttfamily \doxylink{group__sequence__gen_gaff196db1265936038bcb8761192f5a8c}{tgen\+::sequence\+::set}} operation must be covered by a single distinct constraint set.
+Generation might fail if restrictions are considered to be too complex! The restrictions are considered too complex if the following condition does not hold. Consider the graph defined with vertices as the {\ttfamily \doxylink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{tgen\+::sequence\+::distinct}} sets added, and there is an edge between two vertices if they share an index. Note that you need to consider indices (directed or indirectly) connected by equality constraints as being the same. This resulting graph must be a acyclic. Moreover, for every tree in this graph, all of its indices with a {\ttfamily \doxylink{group__sequence__gen_gaff196db1265936038bcb8761192f5a8c}{tgen\+::sequence\+::set}} operation must be covered by a single distinct constraint set.
 \end{DoxyNote}
 \hypertarget{group__sequence__gen_autotoc_md24}{}\doxysubsubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence__gen_autotoc_md24}
 
@@ -237,6 +237,8 @@ template$<$typename PRED$>$ \\
 
 
 Generates a random instance from the set of valid sequences until a condition is met. 
+
+If {\ttfamily predicate} has probabiliyy {\ttfamily p} of returning {\ttfamily true}, then the {\ttfamily \doxylink{structtgen_1_1sequence_1_1instance}{tgen\+::sequence\+::instance}} will be found with probability {\ttfamily 1 -\/ (1-\/p)\texorpdfstring{$^\wedge$}{\string^}max\+\_\+tries}.
 
 
 \begin{DoxyParams}{Parameters}

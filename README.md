@@ -54,7 +54,7 @@ Combining everything into one line:
 
 ```cpp
 std::cout << tgen::sequence_op::any(
-	tgen::sequence<int>(10, 1, 100).equal_idx_pair(0, 1).gen()
+	tgen::sequence<int>(10, 1, 100).equal(0, 1).gen()
 	.reverse()
 ) << std::endl;
 ```
@@ -81,9 +81,38 @@ Calling this code with `./a.out -n 100` will generate a random number from 1 to 
 
 ### Generation
 
-```cpp
-std::cout <<
-	tgen::sequence<int>(100, 1, 100).distinct().gen() << std::endl;
-```
+ ```cpp
+ // Random 20 distinct values from 1 to 100.
+ std::cout <<
+     tgen::sequence<int>(20, 1, 100).distinct().gen() << std::endl;
+ // "67 96 80 11 46 52 42 2 93 1 28 3 48 82 90 99 53 98 94 88"
 
-This code generates a random sequence of 100 distinct numbers.
+ // Random Palindrome of length 7.
+ auto s1 = tgen::sequence<int>(7, 0, 9);
+ for (int i = 0; i <= 2; ++i) s1.equal(i, 6-i);
+ cout << s1.gen() << endl;
+ // "3 1 9 6 9 1 3"
+
+ // Random 3 runs of 4 equal numbers. Values between runs are distinct.
+ std::cout <<
+     tgen::sequence<int>(12, 1, 10)
+     .equal_range(0, 3).equal_range(4, 7).equal_range(8, 11)
+     .distinct({0, 4, 8}).gen() << endl;
+ // "3 3 3 3 2 2 2 2 9 9 9 9"
+
+ // Random DNA sequence of length 8 with no equal adjacent values.
+ auto s2 = tgen::sequence(8, {'A','C','G','T'});
+ for (int i = 1; i < 8; i++) s2.different(i-1, i);
+ cout << s2.gen() << endl;
+ // "T C T G T G A C"
+
+ // Random binary sequence of length 10 with 5 1's that start with 1.
+ std::cout <<
+     tgen::sequence<int>(10, 0, 1)
+     .gen_until([](auto inst) {
+         auto vec = inst.to_std();
+         return accumulate(vec.begin(), vec.end(), 0) == 5;
+      }, 100) << endl;
+ // "1 0 1 0 0 1 1 0 1 0"
+ ```
+
