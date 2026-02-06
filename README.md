@@ -1,5 +1,5 @@
-![Doxygen](https://img.shields.io/badge/doxygen-2C4AA8?style=for-the-badge&logo=doxygen&logoColor=white)
-![gtest](https://img.shields.io/github/actions/workflow/status/USERNAME/REPO/static.yml?label=gtest)
+![gtest](https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest)
+<img src="https://img.shields.io/badge/doxygen-2C4AA8?style=for-the-badge&logo=doxygen&logoColor=white" height="20">
 
 # Overview
 
