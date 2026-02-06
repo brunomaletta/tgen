@@ -490,7 +490,7 @@ friend std::ostream &tgen::sequence::instance::operator<<(std::ostream &out, con
  * // v = {2, 1, 3}.
  * ```
  */
-std::vector<T> tgen::sequence::instance::to_std();
+std::vector<T> tgen::sequence::instance::to_std() const;
 
 
 
