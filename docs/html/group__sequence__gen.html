@@ -412,7 +412,7 @@ Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Generates and prints a random sequence of 5 ints from 1 to 5.</span></div>
 <div class="line"><span class="keyword">auto</span> inst = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(5, 1, 5).<a class="code hl_function" href="#ga0dc45ca71b1cc8087eac28188334dc91">gen</a>();</div>
 <div class="line">std::cout &lt;&lt; inst &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__sequence__gen_html_ga0dc45ca71b1cc8087eac28188334dc91"><div class="ttname"><a href="#ga0dc45ca71b1cc8087eac28188334dc91">tgen::sequence::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid sequences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00493">tgen.h:493</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_ga0dc45ca71b1cc8087eac28188334dc91"><div class="ttname"><a href="#ga0dc45ca71b1cc8087eac28188334dc91">tgen::sequence::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid sequences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00502">tgen.h:502</a></div></div>
 </div><!-- fragment --><dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
     <tr><td class="paramname">std::runtime_error</td><td>if there is no valid sequence satisfying all added constraints, or if the added constraints are considered to be too complex (see <span class="tt"><a class="el" href="#gaeb0baa4e6c780d8bc1d832514b6fcacd" title="Restricts generator s.t. all values at indices in indices are distinct.">tgen::sequence::distinct</a></span>). </td></tr>
@@ -420,7 +420,7 @@ Examples</h4>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00493">493</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00502">502</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -479,7 +479,7 @@ Examples</h4>
 <div class="line">        .<a class="code hl_function" href="#gaeb0baa4e6c780d8bc1d832514b6fcacd">distinct</a>()</div>
 <div class="line">        .<a class="code hl_function" href="#gaf614e6563861fb01b5de5f22c4beab2e">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;seq) { <span class="keywordflow">return</span> seq[0] &lt; seq[9]; }, 100)</div>
 <div class="line">  &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__sequence__gen_html_gaf614e6563861fb01b5de5f22c4beab2e"><div class="ttname"><a href="#gaf614e6563861fb01b5de5f22c4beab2e">tgen::sequence::gen_until</a></div><div class="ttdeci">instance gen_until(PRED predicate, int max_tries, bool random_default=false)</div><div class="ttdoc">Generates a random instance from the set of valid sequences until a condition is met.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00804">tgen.h:804</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_gaf614e6563861fb01b5de5f22c4beab2e"><div class="ttname"><a href="#gaf614e6563861fb01b5de5f22c4beab2e">tgen::sequence::gen_until</a></div><div class="ttdeci">instance gen_until(PRED predicate, int max_tries, bool random_default=false)</div><div class="ttdoc">Generates a random instance from the set of valid sequences until a condition is met.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00813">tgen.h:813</a></div></div>
 </div><!-- fragment --><dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
     <tr><td class="paramname">std::runtime_error</td><td>if no valid instance satisfying <span class="tt">predicate</span> is found after <span class="tt">max_tries</span> tries and <span class="tt">random_default</span> is set to <span class="tt">false</span>. </td></tr>
@@ -487,7 +487,7 @@ Examples</h4>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00804">804</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00813">813</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>

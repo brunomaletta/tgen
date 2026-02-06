@@ -288,7 +288,7 @@ void parse_opts_internal(int argc, char **argv) {
 		// then it is a <key, value> pair.
 		// 1 or 2 chars '-' have already been poped.
 
-		size_t eq = key.find('=');
+		std::size_t eq = key.find('=');
 		if (eq != std::string::npos) {
 			// This is the '--key=value' case.
 			std::string value = key.substr(eq + 1);
@@ -457,10 +457,11 @@ template <typename T> struct sequence {
 			: vec_(list.begin(), list.end()) {}
 
 		// Fetches size.
-		size_t size() { return vec_.size(); }
+		std::size_t size() const { return vec_.size(); }
 
 		// Fetches position idx.
-		T operator[](int idx) const { return vec_[idx]; }
+		T& operator[](int idx) { return vec_[idx]; }
+		const T& operator[](int idx) const { return vec_[idx]; }
 
 		// Sorts values in increasign order.
 		instance &sort() {
@@ -472,6 +473,14 @@ template <typename T> struct sequence {
 		instance &reverse() {
 			std::reverse(vec_.begin(), vec_.end());
 			return *this;
+		}
+
+		// Concatenates two instances.
+		instance operator+(const instance& rhs) {
+			std::vector<T> new_vec = vec_;
+			for (int i = 0; i < rhs.size(); ++i)
+				new_vec.push_back(rhs[i]);
+			return instance(new_vec);
 		}
 
 		// Prints in stdout, separated by spaces.

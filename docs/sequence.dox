@@ -403,10 +403,11 @@ size_t tgen::sequence::instance::size();
  * ```cpp
  * // Prints a position of an instance.
  * tgen::sequence<int>::instance inst = {1, 2, 3};
- * std::cout << inst[1] << std::endl; // Prints "2".
+ * ++inst[1];
+ * std::cout << inst[1] << std::endl; // Prints "3".
  * ```
  */
-T tgen::sequence::instance::operator[](int idx) const;
+T& tgen::sequence::instance::operator[](int idx) const;
 
 
 /**
@@ -439,6 +440,21 @@ instance &tgen::sequence::instance::sort();
  * ```
  */
 instance &tgen::sequence::instance::reverse();
+
+
+/**
+ * @ingroup sequence_inst
+ * @brief Concatenates two instances.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Concatenates and prints two instances.
+ * tgen::sequence<int> s = tgen::sequence<int>(5, 1, 5).distinct();
+ * std::cout << s.gen() + s.gen() << std::endl;
+ * ```
+ */
+instance tgen::sequence::instance::operator+(const instance& rhs);
 
 
 /**

@@ -36,4 +36,7 @@ int main(int argc, char **argv) {
 			auto vec = inst.to_std();
 			return accumulate(vec.begin(), vec.end(), 0) == 5;
 		 }, 100) << endl;
+
+	tgen::sequence<int> s = tgen::sequence<int>(5, 1, 5).distinct();
+	std::cout << s.gen() + s.gen() << std::endl;
 }
