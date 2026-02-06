@@ -65,7 +65,7 @@ Restricts generator s.\+t. value at index {\ttfamily idx\+\_\+1} is different fr
 {\em idx\+\_\+2} & Second index.\\
 \hline
 \end{DoxyParams}
-\hypertarget{group__sequence__gen_autotoc_md25}{}\doxysubsubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence__gen_autotoc_md25}
+Equivalent to {\ttfamily \doxylink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{tgen\+::sequence\+::distinct}(\{idx\+\_\+1, idx\+\_\+2\})}.\hypertarget{group__sequence__gen_autotoc_md25}{}\doxysubsubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence__gen_autotoc_md25}
 
 \begin{DoxyCode}{0}
 \DoxyCodeLine{\textcolor{comment}{//\ Sequences\ of\ 10\ ints\ from\ 1\ to\ 5\ with\ the\ first\ and\ last\ values\ different.}}
@@ -74,7 +74,7 @@ Restricts generator s.\+t. value at index {\ttfamily idx\+\_\+1} is different fr
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00437}{437}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00434}{434}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence__gen_ga09c96c92fc2f97328c75e6d260a6ee27}\index{Sequence generators@{Sequence generators}!distinct@{distinct}}
 \index{distinct@{distinct}!Sequence generators@{Sequence generators}}
@@ -87,8 +87,10 @@ template$<$typename T$>$ \\
 
 Restricts generator s.\+t. all values are distinct. 
 
+Equivalent to {\ttfamily \doxylink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{tgen\+::sequence\+::distinct}(\{0, 1, ... size-\/1\})}.
+
 \begin{DoxyNote}{Note}
-If you add this restriction, you cannot add another {\ttfamily \doxylink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{tgen\+::sequence\+::distinct}} restriction!
+If you add this restriction, do not add another {\ttfamily \doxylink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{tgen\+::sequence\+::distinct}} restriction! Generation might fail otherwise.
 \end{DoxyNote}
 \hypertarget{group__sequence__gen_autotoc_md26}{}\doxysubsubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence__gen_autotoc_md26}
 
@@ -99,7 +101,7 @@ If you add this restriction, you cannot add another {\ttfamily \doxylink{group__
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00444}{444}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00441}{441}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}\index{Sequence generators@{Sequence generators}!distinct@{distinct}}
 \index{distinct@{distinct}!Sequence generators@{Sequence generators}}
@@ -117,6 +119,9 @@ Restricts generator s.\+t. all values at indices in {\ttfamily indices} are dist
 {\em indices} & Index set.\\
 \hline
 \end{DoxyParams}
+\begin{DoxyNote}{Note}
+Generation might fail if restrictions are considered to be too complex! The restrictions are considered too complex if the following condition does not hold. Consider the graph defined with vertices as the {\ttfamily \doxylink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{tgen\+::sequence\+::distinct}} sets added, and there is an edge between two vertices if they share an index. Note that you need to consider indices (directed or indirectly) connected by equality constraints as being the same. This resulting graph must be a cycle. Moreover, for every tree in this graph, all of its indices with a {\ttfamily \doxylink{group__sequence__gen_gaff196db1265936038bcb8761192f5a8c}{tgen\+::sequence\+::set}} operation must be covered by a single distinct constraint set.
+\end{DoxyNote}
 \hypertarget{group__sequence__gen_autotoc_md24}{}\doxysubsubsubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence__gen_autotoc_md24}
 
 \begin{DoxyCode}{0}
@@ -126,14 +131,9 @@ Restricts generator s.\+t. all values at indices in {\ttfamily indices} are dist
 \DoxyCodeLine{seq\_gen\ =\ tgen::sequence<int>(10,\ 1,\ 5).distinct(\{0,\ 1,\ 2,\ 3,\ 4\});}
 
 \end{DoxyCode}
+ 
 
-
-\begin{DoxyNote}{Note}
-You cannot add two of these restrictions with intersecting indices! 
-\end{DoxyNote}
-
-
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00421}{421}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00425}{425}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence__gen_ga4beb1b5e29f21f329346d005fada1c9b}\index{Sequence generators@{Sequence generators}!equal@{equal}}
 \index{equal@{equal}!Sequence generators@{Sequence generators}}
@@ -162,7 +162,7 @@ Restricts generator s.\+t. value at index {\ttfamily idx\+\_\+1} is the same as 
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00397}{397}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00401}{401}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence__gen_gaa6ca6fc2e5c9edcf0d25165f9f25ad12}\index{Sequence generators@{Sequence generators}!equal\_range@{equal\_range}}
 \index{equal\_range@{equal\_range}!Sequence generators@{Sequence generators}}
@@ -191,7 +191,7 @@ Restricts generator s.\+t. all values at indices in {\ttfamily \mbox{[}left, rig
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00410}{410}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00414}{414}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence__gen_ga0dc45ca71b1cc8087eac28188334dc91}\index{Sequence generators@{Sequence generators}!gen@{gen}}
 \index{gen@{gen}!Sequence generators@{Sequence generators}}
@@ -224,7 +224,7 @@ A uniformly random instance from the set of valid sequences, given the added con
 \end{DoxyExceptions}
 
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00496}{496}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00493}{493}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence__gen_gaf614e6563861fb01b5de5f22c4beab2e}\index{Sequence generators@{Sequence generators}!gen\_until@{gen\_until}}
 \index{gen\_until@{gen\_until}!Sequence generators@{Sequence generators}}
@@ -270,7 +270,7 @@ An instance found by repeatedly choosing a uniformly random valid sequence and c
 \end{DoxyExceptions}
 
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00658}{658}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00804}{804}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence__gen_gafed6e97f0f5ea48c6965399aa041a7c0}\index{Sequence generators@{Sequence generators}!sequence@{sequence}}
 \index{sequence@{sequence}!Sequence generators@{Sequence generators}}
@@ -299,7 +299,7 @@ Defines a generator of sequences of length {\ttfamily size} with values in {\ttf
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00373}{373}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00377}{377}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence__gen_ga35c05c1453be02b90fe08a46dc8c9729}\index{Sequence generators@{Sequence generators}!sequence@{sequence}}
 \index{sequence@{sequence}!Sequence generators@{Sequence generators}}
@@ -328,7 +328,7 @@ Defines a generator of sequences of length {\ttfamily size} with values in {\ttf
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00361}{361}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00365}{365}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence__gen_ga80f023fb5e7305d146e9c74f8a4c00bf}\index{Sequence generators@{Sequence generators}!sequence@{sequence}}
 \index{sequence@{sequence}!Sequence generators@{Sequence generators}}
@@ -357,7 +357,7 @@ Defines a generator of sequences of length {\ttfamily size} with values in {\ttf
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00371}{371}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00375}{375}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence__gen_ga4238ffc66ac290692a12eccf93ac689d}\index{Sequence generators@{Sequence generators}!sequence@{sequence}}
 \index{sequence@{sequence}!Sequence generators@{Sequence generators}}
@@ -388,7 +388,7 @@ Defines a generator of sequences of length {\ttfamily size} with values in {\ttf
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00353}{353}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00357}{357}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 
 \Hypertarget{group__sequence__gen_gaff196db1265936038bcb8761192f5a8c}\index{Sequence generators@{Sequence generators}!set@{set}}
 \index{set@{set}!Sequence generators@{Sequence generators}}
@@ -422,5 +422,5 @@ Restricts generator s.\+t. value at index {\ttfamily idx} is {\ttfamily value}.
 \end{DoxyCode}
  
 
-Definition at line \mbox{\hyperlink{tgen_8h_source_l00377}{377}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
+Definition at line \mbox{\hyperlink{tgen_8h_source_l00381}{381}} of file \mbox{\hyperlink{tgen_8h_source}{tgen.\+h}}.
 

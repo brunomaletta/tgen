@@ -177,6 +177,15 @@ tgen::sequence &tgen::sequence::equal_range(int left, int right);
  *
  * @param indices Index set.
  *
+ * @note Generation might fail if restrictions are considered to be too complex!
+ *       The restrictions are considered too complex if the following condition does not hold.
+ *       Consider the graph defined with vertices as the `tgen::sequence::distinct` sets added,
+ *       and there is an edge between two vertices if they share an index. Note that you need
+ *       to consider indices (directed or indirectly) connected by equality constraints as
+ *       being the same. This resulting graph must be a acyclic. Moreover, for every tree in this
+ *       graph, all of its indices with a `tgen::sequence::set` operation must be covered by a single
+ *       distinct constraint set.
+ *
  * #### Examples
  *
  * ```cpp
@@ -185,8 +194,6 @@ tgen::sequence &tgen::sequence::equal_range(int left, int right);
  * // You can also use std::initializer_list<int>.
  * seq_gen = tgen::sequence<int>(10, 1, 5).distinct({0, 1, 2, 3, 4});
  * ```
- *
- * @note You cannot add two of these restrictions with intersecting indices!
  */
 tgen::sequence &tgen::sequence::distinct(const std::set<int> &indices);
 
@@ -197,6 +204,8 @@ tgen::sequence &tgen::sequence::distinct(const std::set<int> &indices);
  *
  * @param idx_1 First index.
  * @param idx_2 Second index.
+ *
+ * Equivalent to `tgen::sequence::distinct({idx_1, idx_2})`.
  *
  * #### Examples
  *
@@ -212,7 +221,9 @@ tgen::sequence &tgen::sequence::different(int idx_1, int idx_2);
  * @ingroup sequence_gen
  * @brief Restricts generator s.t. all values are distinct.
  *
- * @note If you add this restriction, you cannot add another `tgen::sequence::distinct` restriction!
+ * Equivalent to `tgen::sequence::distinct({0, 1, ... size-1})`.
+ *
+ * @note If you add this restriction, do not add another `tgen::sequence::distinct` restriction! Generation might fail otherwise.
  *
  * #### Examples
  *
