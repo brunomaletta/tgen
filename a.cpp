@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
 
 	// Random binary sequence of length 10 with 5 1's that start with 1.
 	std::cout << tgen::sequence<int>(10, 0, 1).set(0, 1).gen_until(
-					 [](auto inst) {
+					 [](const auto &inst) {
 						 auto vec = inst.to_std();
 						 return accumulate(vec.begin(), vec.end(), 0) == 5;
 					 },

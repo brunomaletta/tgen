@@ -1,3 +1,5 @@
+![Doxygen](https://img.shields.io/badge/doxygen-2C4AA8?style=for-the-badge&logo=doxygen&logoColor=white)
+
 # Overview
 
 `tgen` is a `C++` library to help you generate random stuff, useful for testcase generation (such as [jngen](https://github.com/ifsmirnov/jngen) or [testlib](https://github.com/MikeMirzayanov/testlib)). The code is in a single file [tgen.h](https://github.com/brunomaletta/tgen/blob/main/src/tgen.h), that should be added to your directory.

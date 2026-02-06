@@ -1,9 +1,8 @@
-\chapter{Overview }
-\hypertarget{index}{}\label{index}\index{Overview@{Overview}}
+\chapter{tgen }
+\hypertarget{index}{}\label{index}\index{tgen@{tgen}}
 \label{index_md_README}%
 \Hypertarget{index_md_README}%
-
-
+ \hypertarget{index_autotoc_md0}{}\doxysection{\texorpdfstring{Overview}{Overview}}\label{index_autotoc_md0}
 {\ttfamily tgen} is a {\ttfamily C++} library to help you generate random stuff, useful for testcase generation (such as \href{https://github.com/ifsmirnov/jngen}{\texttt{jngen}} or \href{https://github.com/MikeMirzayanov/testlib}{\texttt{testlib}}). The code is in a single file \href{https://github.com/brunomaletta/tgen/blob/main/src/tgen.h}{\texttt{tgen.\+h}}, that should be added to your directory.
 
 
@@ -20,7 +19,7 @@ There are \href{https://brunomaletta.github.io/tgen/group__general.html}{\texttt
 
 \begin{DoxyItemize}
 \item \href{https://brunomaletta.github.io/tgen/group__sequence.html}{\texttt{Sequences}}
-\end{DoxyItemize}\hypertarget{index_autotoc_md1}{}\doxysubsection{\texorpdfstring{Type generators and instances}{Type generators and instances}}\label{index_autotoc_md1}
+\end{DoxyItemize}\hypertarget{index_autotoc_md1}{}\doxysubsubsection{\texorpdfstring{Type generators and instances}{Type generators and instances}}\label{index_autotoc_md1}
 All types specified above define a {\bfseries{generator}}, that when called upon will generate a uniformly random {\bfseries{instance}} with the given constraints. Let\textquotesingle{}s see an example with {\ttfamily \doxylink{structtgen_1_1sequence}{tgen\+::sequence}}\+:
 
 
@@ -82,8 +81,8 @@ Combining everything into one line\+:
 \DoxyCodeLine{)\ <<\ std::endl;}
 
 \end{DoxyCode}
-\hypertarget{index_autotoc_md2}{}\doxysection{\texorpdfstring{Examples}{Examples}}\label{index_autotoc_md2}
-\hypertarget{index_autotoc_md3}{}\doxysubsection{\texorpdfstring{Opts configuration}{Opts configuration}}\label{index_autotoc_md3}
+\hypertarget{index_autotoc_md2}{}\doxysubsection{\texorpdfstring{Examples}{Examples}}\label{index_autotoc_md2}
+\hypertarget{index_autotoc_md3}{}\doxysubsubsection{\texorpdfstring{Opts configuration}{Opts configuration}}\label{index_autotoc_md3}
 
 \begin{DoxyCode}{0}
 \DoxyCodeLine{\textcolor{preprocessor}{\#include\ "{}tgen.h"{}}}
@@ -101,7 +100,7 @@ Combining everything into one line\+:
 \end{DoxyCode}
 
 
-Calling this code with {\ttfamily ./a.out -\/n 100} will generate a random number from 1 to 100.\hypertarget{index_autotoc_md4}{}\doxysubsection{\texorpdfstring{Generation}{Generation}}\label{index_autotoc_md4}
+Calling this code with {\ttfamily ./a.out -\/n 100} will generate a random number from 1 to 100.\hypertarget{index_autotoc_md4}{}\doxysubsubsection{\texorpdfstring{Generation}{Generation}}\label{index_autotoc_md4}
 Random 20 distinct values from 1 to 100.
 
 
@@ -158,7 +157,7 @@ Random binary sequence of length 10 with 5 1\textquotesingle{}s that start with 
 \DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(10,\ 0,\ 1)}
 \DoxyCodeLine{\ \ \ \ .\mbox{\hyperlink{group__sequence__gen_gaff196db1265936038bcb8761192f5a8c}{set}}(0,\ 1)}
 \DoxyCodeLine{\ \ \ \ .\mbox{\hyperlink{group__sequence__gen_gaf614e6563861fb01b5de5f22c4beab2e}{gen\_until}}([](\textcolor{keyword}{auto}\ inst)\ \{}
-\DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ vec\ =\ inst.\mbox{\hyperlink{group__sequence__inst_ga9df679623d89ecbd4bd1b5670ba3e24a}{to\_std}}();}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ vec\ =\ inst.\mbox{\hyperlink{group__sequence__inst_gaad19beb57245e1e5ec4cc4ac5bd9030e}{to\_std}}();}
 \DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ accumulate(vec.begin(),\ vec.end(),\ 0)\ ==\ 5;}
 \DoxyCodeLine{\ \ \ \ \},\ 100)\ <<\ endl;}
 \DoxyCodeLine{\textcolor{comment}{//\ "{}1\ 0\ 0\ 1\ 0\ 1\ 1\ 0\ 1\ 0"{}}}

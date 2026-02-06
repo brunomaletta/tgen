@@ -9,5 +9,5 @@ var searchData=
   ['opts_6',['Opts',['../group__opts.html#autotoc_md14',1,'Opts'],['../group__opts.html',1,'Registering and Opts']]],
   ['opts_7',['Consuming opts',['../group__opts.html#autotoc_md15',1,'']]],
   ['opts_20configuration_8',['Opts configuration',['../index.html#autotoc_md3',1,'']]],
-  ['overview_9',['Overview',['../index.html',1,'']]]
+  ['overview_9',['Overview',['../index.html#autotoc_md0',1,'']]]
 ];

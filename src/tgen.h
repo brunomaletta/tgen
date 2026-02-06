@@ -495,7 +495,7 @@ template <typename T> struct sequence {
 		}
 
 		// Gets a std::vector representing the instance.
-		std::vector<T> to_std() { return vec_; }
+		std::vector<T> to_std() const { return vec_; }
 	};
 
 	// Generate sequence instance.
