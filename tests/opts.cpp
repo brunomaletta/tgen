@@ -20,8 +20,7 @@ TEST(opts_test, invalid_opts_empty_name_1) {
 		tgen::register_gen(4, argv);
 		FAIL() << "Expected std::runtime_error, but no error ocurred";
 	} catch (const std::runtime_error &e) {
-		std::string msg = e.what();
-		EXPECT_TRUE(msg.rfind("tgen: invalid opt", 0) == 0);
+		EXPECT_STARTS_WITH(e.what(), "tgen: invalid opt");
 	} catch (...) {
 		FAIL() << "Expected std::runtime_error, but caught a different type";
 	}
