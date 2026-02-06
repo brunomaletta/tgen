@@ -27,10 +27,10 @@ namespace tgen {
 inline void throw_assertion_error_internal(const std::string &condition,
 										   const std::string &msg) {
 	throw std::runtime_error("tgen: " + msg + " (assertion `" + condition +
-							 "` failed).");
+							 "` failed)");
 }
 inline void throw_assertion_error_internal(const std::string &condition) {
-	throw std::runtime_error("tgen: assertion `" + condition + "` failed.");
+	throw std::runtime_error("tgen: assertion `" + condition + "` failed");
 }
 inline std::runtime_error error_internal(const std::string &msg) {
 	return std::runtime_error("tgen: " + msg);
@@ -208,7 +208,8 @@ template <typename T> T get_opt_internal(const std::string &value) {
 
 // Returns the parsed opt by a given index.
 template <typename T> T opt(int index) {
-	tgen_ensure(has_opt(index), "cannot find key with index " + index);
+	tgen_ensure(has_opt(index),
+				"cannot find key with index " + std::to_string(index));
 	return get_opt_internal<T>(pos_opts_internal[index]);
 }
 
@@ -293,9 +294,9 @@ inline void parse_opts_internal(int argc, char **argv) {
 			// This is the '--key=value' case.
 			std::string value = key.substr(eq + 1);
 			key = key.substr(0, eq);
-			tgen_ensure(
-				key.size() > 0 and value.size() > 0, "expected non-empty\
-						key/value in opt (" + std::string(argv[1]));
+			tgen_ensure(key.size() > 0 and value.size() > 0,
+						"expected non-empty key/value in opt (" +
+							std::string(argv[1]));
 			tgen_ensure(named_opts_internal.count(key) == 0,
 						"cannot have repeated keys");
 			named_opts_internal[key] = value;
@@ -309,9 +310,7 @@ inline void parse_opts_internal(int argc, char **argv) {
 		}
 	}
 }
-
-// Registers generator by initializing rnd and parsing opts.
-inline void register_gen(int argc, char **argv) {
+inline void set_seed_internal(int argc, char **argv) {
 	std::vector<uint32_t> seed;
 
 	// Starting from 1 to ignore the name of the executable.
@@ -326,7 +325,14 @@ inline void register_gen(int argc, char **argv) {
 	}
 	std::seed_seq seq(seed.begin(), seed.end());
 	rng_internal.seed(seq);
+}
 
+// Registers generator by initializing rnd and parsing opts.
+inline void register_gen(int argc, char **argv) {
+	set_seed_internal(argc, argv);
+
+	pos_opts_internal.clear();
+	named_opts_internal.clear();
 	parse_opts_internal(argc, argv);
 }
 
@@ -509,8 +515,8 @@ template <typename T> struct sequence {
 		int comp_count = 0; // Number of different components.
 
 		// Defines value of entire component.
-		auto define_comp = [&](int comp_id, T val) {
-			for (int idx : comp[comp_id]) {
+		auto define_comp = [&](int cur_comp, T val) {
+			for (int idx : comp[cur_comp]) {
 				tgen_ensure(!defined_idx[idx]);
 				vec[idx] = val;
 				defined_idx[idx] = true;
@@ -730,7 +736,7 @@ template <typename T> struct sequence {
 					q.emplace(nxt_distinct, cur_distinct);
 
 					// Generates this distinct constraint.
-					std::set<T> defined_values;
+					std::set<T> nxt_defined_values;
 					for (int idx2 : distinct_constraints_[nxt_distinct])
 						if (defined_idx[idx2]) {
 							// There can not be any more defined. This case is
@@ -741,13 +747,13 @@ template <typename T> struct sequence {
 									"failed to generate sequence: "
 									"complex constraints");
 
-							defined_values.insert(vec[idx2]);
+							nxt_defined_values.insert(vec[idx2]);
 						}
 					int new_value_count =
 						distinct_constraints_[nxt_distinct].size() -
-						int(defined_values.size());
+						int(nxt_defined_values.size());
 					std::vector<T> generated_values = generate_distinct_values(
-						new_value_count, defined_values);
+						new_value_count, nxt_defined_values);
 					auto val_it = generated_values.begin();
 					for (int idx2 : distinct_constraints_[nxt_distinct])
 						if (!defined_idx[idx2]) {
