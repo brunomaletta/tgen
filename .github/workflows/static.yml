@@ -1,4 +1,4 @@
-name: gtest
+name: tgen
 
 on:
   push:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
 
-  test:
+  gtest:
     runs-on: ubuntu-latest
 
     steps:
@@ -44,7 +44,7 @@ jobs:
           ./tests_runner
 
   deploy:
-    needs: test   # <-- IMPORTANT: only deploy if tests pass
+    needs: gtest   # <-- IMPORTANT: only deploy if tests pass
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
