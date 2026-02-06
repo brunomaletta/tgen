@@ -37,7 +37,7 @@ jobs:
 
       - name: Compile tests
         run: |
-          g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -o tests_runner
+          g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I src -o tests_runner
 
       - name: Run tests
         run: |

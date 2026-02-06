@@ -24,19 +24,19 @@ namespace tgen {
  * Error handling.
  */
 
-void throw_assertion_error_internal(const std::string &condition,
-									const std::string &msg) {
+inline void throw_assertion_error_internal(const std::string &condition,
+										   const std::string &msg) {
 	throw std::runtime_error("tgen: " + msg + " (assertion `" + condition +
 							 "` failed).");
 }
-void throw_assertion_error_internal(const std::string &condition) {
+inline void throw_assertion_error_internal(const std::string &condition) {
 	throw std::runtime_error("tgen: assertion `" + condition + "` failed.");
 }
-std::runtime_error error_internal(const std::string &msg) {
+inline std::runtime_error error_internal(const std::string &msg) {
 	return std::runtime_error("tgen: " + msg);
 }
-void contradiction_error_internal(const std::string &type,
-								  const std::string &msg = "") {
+inline void contradiction_error_internal(const std::string &type,
+										 const std::string &msg = "") {
 	// Tried to generate a contradicting sequence.
 	std::string error_msg = "invalid " + type + " (contradicting constraints)";
 	if (msg.size() > 0)
@@ -53,14 +53,14 @@ void contradiction_error_internal(const std::string &type,
  * Global random operations.
  */
 
-std::mt19937 rng_internal;
+inline std::mt19937 rng_internal;
 
 template <typename T> T next_integral_internal(T l, T r) {
 	tgen_ensure(l <= r, "range for `next` bust be valid");
 	std::uniform_int_distribution<T> dist(l, r);
 	return dist(rng_internal);
 }
-double next_double_internal(double l, double r) {
+inline double next_double_internal(double l, double r) {
 	tgen_ensure(l <= r, "range for `next` bust be valid");
 	std::uniform_real_distribution<double> dist(l, r);
 	return dist(rng_internal);
@@ -149,18 +149,18 @@ std::vector<T> choose(int k, const std::initializer_list<T> &list) {
  * For example, for "10 -n=20 str" positional option 1 is the string "str".
  */
 
-std::vector<std::string>
+inline std::vector<std::string>
 	pos_opts_internal; // Dictionary containing the positional parsed opts.
-std::map<std::string, std::string>
+inline std::map<std::string, std::string>
 	named_opts_internal; // Global dictionary the named parsed opts.
 
 // Returns true if there is an opt at a given index.
-bool has_opt(int index) {
+inline bool has_opt(int index) {
 	return 0 <= index and index < pos_opts_internal.size();
 }
 
 // Returns true if there is an opt with a given key.
-bool has_opt(const std::string &key) {
+inline bool has_opt(const std::string &key) {
 	return named_opts_internal.count(key) != 0;
 }
 
@@ -234,11 +234,11 @@ template <typename T> T opt(const std::string &key, const T &default_value) {
 	return get_opt_internal<T>(named_opts_internal[key]);
 }
 
-char fetch_char_internal(char *s, int idx) {
+inline char fetch_char_internal(char *s, int idx) {
 	tgen_ensure(s[idx] != '\n', "tried to fetch end of string");
 	return s[idx];
 }
-std::string read_until_internal(char *s) {
+inline std::string read_until_internal(char *s) {
 	// Reads non-empty string until it hits a ' ' or the string ends.
 	std::string read_str;
 	int idx = 0;
@@ -252,7 +252,7 @@ std::string read_until_internal(char *s) {
 	tgen_ensure(read_str.size() > 0, "read string cannot be empty");
 	return read_str;
 }
-void parse_opts_internal(int argc, char **argv) {
+inline void parse_opts_internal(int argc, char **argv) {
 	// Parses the opts into `pos_opts_internal` vector and `named_opts_internal`
 	// map. Starting from 1 to ignore the name of the executable.
 	for (int i = 1; i < argc; i++) {
@@ -311,7 +311,7 @@ void parse_opts_internal(int argc, char **argv) {
 }
 
 // Registers generator by initializing rnd and parsing opts.
-void register_gen(int argc, char **argv) {
+inline void register_gen(int argc, char **argv) {
 	std::vector<uint32_t> seed;
 
 	// Starting from 1 to ignore the name of the executable.

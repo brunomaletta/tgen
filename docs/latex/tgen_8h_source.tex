@@ -28,19 +28,19 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00024}00024\ \textcolor{comment}{\ *\ Error\ handling.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00025}00025\ \textcolor{comment}{\ */}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00026}00026\ }
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00027}00027\ \textcolor{keywordtype}{void}\ throw\_assertion\_error\_internal(\textcolor{keyword}{const}\ std::string\ \&condition,}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00028}00028\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&msg)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00027}00027\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ throw\_assertion\_error\_internal(\textcolor{keyword}{const}\ std::string\ \&condition,}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00028}00028\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&msg)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00029}00029\ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}tgen:\ "{}}\ +\ msg\ +\ \textcolor{stringliteral}{"{}\ (assertion\ \`{}"{}}\ +\ condition\ +}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00030}00030\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\`{}\ failed)."{}});}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00031}00031\ \}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00032}00032\ \textcolor{keywordtype}{void}\ throw\_assertion\_error\_internal(\textcolor{keyword}{const}\ std::string\ \&condition)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00032}00032\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ throw\_assertion\_error\_internal(\textcolor{keyword}{const}\ std::string\ \&condition)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00033}00033\ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}tgen:\ assertion\ \`{}"{}}\ +\ condition\ +\ \textcolor{stringliteral}{"{}\`{}\ failed."{}});}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00034}00034\ \}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00035}00035\ std::runtime\_error\ error\_internal(\textcolor{keyword}{const}\ std::string\ \&msg)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00035}00035\ \textcolor{keyword}{inline}\ std::runtime\_error\ error\_internal(\textcolor{keyword}{const}\ std::string\ \&msg)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00036}00036\ \ \ \ \ \textcolor{keywordflow}{return}\ std::runtime\_error(\textcolor{stringliteral}{"{}tgen:\ "{}}\ +\ msg);}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00037}00037\ \}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00038}00038\ \textcolor{keywordtype}{void}\ contradiction\_error\_internal(\textcolor{keyword}{const}\ std::string\ \&type,}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00039}00039\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&msg\ =\ \textcolor{stringliteral}{"{}"{}})\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00038}00038\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ contradiction\_error\_internal(\textcolor{keyword}{const}\ std::string\ \&type,}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00039}00039\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&msg\ =\ \textcolor{stringliteral}{"{}"{}})\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00040}00040\ \ \ \ \ \textcolor{comment}{//\ Tried\ to\ generate\ a\ contradicting\ sequence.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00041}00041\ \ \ \ \ std::string\ error\_msg\ =\ \textcolor{stringliteral}{"{}invalid\ "{}}\ +\ type\ +\ \textcolor{stringliteral}{"{}\ (contradicting\ constraints)"{}};}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00042}00042\ \ \ \ \ \textcolor{keywordflow}{if}\ (msg.size()\ >\ 0)}
@@ -57,14 +57,14 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00053}00053\ \textcolor{comment}{\ *\ Global\ random\ operations.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00054}00054\ \textcolor{comment}{\ */}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00055}00055\ }
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00056}00056\ std::mt19937\ rng\_internal;}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00056}00056\ \textcolor{keyword}{inline}\ std::mt19937\ rng\_internal;}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00057}00057\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00058}00058\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>\ T\ next\_integral\_internal(T\ l,\ T\ r)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00059}00059\ \ \ \ \ \mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\_ensure}}(l\ <=\ r,\ \textcolor{stringliteral}{"{}range\ for\ \`{}next`\ bust\ be\ valid"{}});}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00060}00060\ \ \ \ \ std::uniform\_int\_distribution<T>\ dist(l,\ r);}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00061}00061\ \ \ \ \ \textcolor{keywordflow}{return}\ dist(rng\_internal);}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00062}00062\ \}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00063}00063\ \textcolor{keywordtype}{double}\ next\_double\_internal(\textcolor{keywordtype}{double}\ l,\ \textcolor{keywordtype}{double}\ r)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00063}00063\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ next\_double\_internal(\textcolor{keywordtype}{double}\ l,\ \textcolor{keywordtype}{double}\ r)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00064}00064\ \ \ \ \ \mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\_ensure}}(l\ <=\ r,\ \textcolor{stringliteral}{"{}range\ for\ \`{}next`\ bust\ be\ valid"{}});}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00065}00065\ \ \ \ \ std::uniform\_real\_distribution<double>\ dist(l,\ r);}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00066}00066\ \ \ \ \ \textcolor{keywordflow}{return}\ dist(rng\_internal);}
@@ -153,18 +153,18 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00149}00149\ \textcolor{comment}{\ *\ For\ example,\ for\ "{}10\ -\/n=20\ str"{}\ positional\ option\ 1\ is\ the\ string\ "{}str"{}.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00150}00150\ \textcolor{comment}{\ */}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00151}00151\ }
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00152}00152\ std::vector<std::string>}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00152}00152\ \textcolor{keyword}{inline}\ std::vector<std::string>}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00153}00153\ \ \ \ \ pos\_opts\_internal;\ \textcolor{comment}{//\ Dictionary\ containing\ the\ positional\ parsed\ opts.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00154}00154\ std::map<std::string,\ std::string>}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00154}00154\ \textcolor{keyword}{inline}\ std::map<std::string,\ std::string>}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00155}00155\ \ \ \ \ named\_opts\_internal;\ \textcolor{comment}{//\ Global\ dictionary\ the\ named\ parsed\ opts.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00156}00156\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00157}00157\ \textcolor{comment}{//\ Returns\ true\ if\ there\ is\ an\ opt\ at\ a\ given\ index.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00158}\mbox{\hyperlink{group__opts_ga1f65eceb6a4e6e2299c66797131f0c5f}{00158}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{group__opts_ga1f65eceb6a4e6e2299c66797131f0c5f}{has\_opt}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00158}\mbox{\hyperlink{group__opts_ga1f65eceb6a4e6e2299c66797131f0c5f}{00158}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{group__opts_ga1f65eceb6a4e6e2299c66797131f0c5f}{has\_opt}}(\textcolor{keywordtype}{int}\ index)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00159}00159\ \ \ \ \ \textcolor{keywordflow}{return}\ 0\ <=\ index\ and\ index\ <\ pos\_opts\_internal.size();}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00160}00160\ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00161}00161\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00162}00162\ \textcolor{comment}{//\ Returns\ true\ if\ there\ is\ an\ opt\ with\ a\ given\ key.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00163}\mbox{\hyperlink{group__opts_ga87fb2f31789744477371960792b7540f}{00163}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{group__opts_ga1f65eceb6a4e6e2299c66797131f0c5f}{has\_opt}}(\textcolor{keyword}{const}\ std::string\ \&key)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00163}\mbox{\hyperlink{group__opts_ga87fb2f31789744477371960792b7540f}{00163}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{group__opts_ga1f65eceb6a4e6e2299c66797131f0c5f}{has\_opt}}(\textcolor{keyword}{const}\ std::string\ \&key)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00164}00164\ \ \ \ \ \textcolor{keywordflow}{return}\ named\_opts\_internal.count(key)\ !=\ 0;}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00165}00165\ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00166}00166\ }
@@ -238,11 +238,11 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00234}00234\ \ \ \ \ \textcolor{keywordflow}{return}\ get\_opt\_internal<T>(named\_opts\_internal[key]);}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00235}00235\ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00236}00236\ }
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00237}00237\ \textcolor{keywordtype}{char}\ fetch\_char\_internal(\textcolor{keywordtype}{char}\ *s,\ \textcolor{keywordtype}{int}\ idx)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00237}00237\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{char}\ fetch\_char\_internal(\textcolor{keywordtype}{char}\ *s,\ \textcolor{keywordtype}{int}\ idx)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00238}00238\ \ \ \ \ \mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\_ensure}}(s[idx]\ !=\ \textcolor{charliteral}{'\(\backslash\)n'},\ \textcolor{stringliteral}{"{}tried\ to\ fetch\ end\ of\ string"{}});}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00239}00239\ \ \ \ \ \textcolor{keywordflow}{return}\ s[idx];}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00240}00240\ \}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00241}00241\ std::string\ read\_until\_internal(\textcolor{keywordtype}{char}\ *s)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00241}00241\ \textcolor{keyword}{inline}\ std::string\ read\_until\_internal(\textcolor{keywordtype}{char}\ *s)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00242}00242\ \ \ \ \ \textcolor{comment}{//\ Reads\ non-\/empty\ string\ until\ it\ hits\ a\ '\ '\ or\ the\ string\ ends.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00243}00243\ \ \ \ \ std::string\ read\_str;}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00244}00244\ \ \ \ \ \textcolor{keywordtype}{int}\ idx\ =\ 0;}
@@ -256,7 +256,7 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00252}00252\ \ \ \ \ \mbox{\hyperlink{group__general_gabc423cf4476d436001120351be24e896}{tgen\_ensure}}(read\_str.size()\ >\ 0,\ \textcolor{stringliteral}{"{}read\ string\ cannot\ be\ empty"{}});}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00253}00253\ \ \ \ \ \textcolor{keywordflow}{return}\ read\_str;}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00254}00254\ \}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00255}00255\ \textcolor{keywordtype}{void}\ parse\_opts\_internal(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00255}00255\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ parse\_opts\_internal(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00256}00256\ \ \ \ \ \textcolor{comment}{//\ Parses\ the\ opts\ into\ \`{}pos\_opts\_internal`\ vector\ and\ \`{}named\_opts\_internal`}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00257}00257\ \ \ \ \ \textcolor{comment}{//\ map.\ Starting\ from\ 1\ to\ ignore\ the\ name\ of\ the\ executable.}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00258}00258\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <\ argc;\ i++)\ \{}
@@ -315,7 +315,7 @@
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00311}00311\ \}}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00312}00312\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00313}00313\ \textcolor{comment}{//\ Registers\ generator\ by\ initializing\ rnd\ and\ parsing\ opts.}}
-\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00314}\mbox{\hyperlink{group__opts_gae8eca919976894c15b44713f00f33bd8}{00314}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{group__opts_gae8eca919976894c15b44713f00f33bd8}{register\_gen}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv)\ \{}
+\DoxyCodeLine{\Hypertarget{tgen_8h_source_l00314}\mbox{\hyperlink{group__opts_gae8eca919976894c15b44713f00f33bd8}{00314}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{group__opts_gae8eca919976894c15b44713f00f33bd8}{register\_gen}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv)\ \{}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00315}00315\ \ \ \ \ std::vector<uint32\_t>\ seed;}
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00316}00316\ }
 \DoxyCodeLine{\Hypertarget{tgen_8h_source_l00317}00317\ \ \ \ \ \textcolor{comment}{//\ Starting\ from\ 1\ to\ ignore\ the\ name\ of\ the\ executable.}}

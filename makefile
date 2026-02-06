@@ -15,10 +15,10 @@ opendoc:
 	open docs/html/index.html > /dev/null 2>&1 &
 
 lint:
-	find a.cpp src/* -iname '*.h' -o -iname '*.cpp' | xargs clang-format -i
+	find a.cpp src/* tests/*.cpp -iname '*.h' -o -iname '*.cpp' | xargs clang-format -i
 
 test:
-	g++ -std=c++17 tests/test.cpp -lgtest -lgtest_main -o test
+	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I src -o test
 	-./test
 	rm -r test
 
