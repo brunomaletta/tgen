@@ -20,40 +20,66 @@ Generation of sequences.
 Generation of sequences. 
 
 \hypertarget{group__sequence_autotoc_md16}{}\doxysubsubsubsection{\texorpdfstring{Examples}{Examples}}\label{group__sequence_autotoc_md16}
+Random 20 distinct values from 1 to 100.
+
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{\textcolor{comment}{//\ Random\ 20\ distinct\ values\ from\ 1\ to\ 100.}}
-\DoxyCodeLine{std::cout\ <<\ }
+\DoxyCodeLine{std::cout\ <<}
 \DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(20,\ 1,\ 100).\mbox{\hyperlink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}().\mbox{\hyperlink{group__sequence__gen_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}()\ <<\ std::endl;}
 \DoxyCodeLine{\textcolor{comment}{//\ "{}67\ 96\ 80\ 11\ 46\ 52\ 42\ 2\ 93\ 1\ 28\ 3\ 48\ 82\ 90\ 99\ 53\ 98\ 94\ 88"{}}}
-\DoxyCodeLine{}
-\DoxyCodeLine{\textcolor{comment}{//\ Random\ Palindrome\ of\ length\ 7.}}
-\DoxyCodeLine{\textcolor{keyword}{auto}\ s1\ =\ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(7,\ 0,\ 9);}
-\DoxyCodeLine{\textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <=\ 2;\ ++i)\ s1.equal(i,\ 6-\/i);}
-\DoxyCodeLine{cout\ <<\ s1.gen()\ <<\ endl;}
+
+\end{DoxyCode}
+
+
+Random Palindrome of length 7.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{auto}\ s\ =\ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(7,\ 0,\ 9);}
+\DoxyCodeLine{\textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <=\ 2;\ ++i)\ s.equal(i,\ 6-\/i);}
+\DoxyCodeLine{cout\ <<\ s.gen()\ <<\ endl;}
 \DoxyCodeLine{\textcolor{comment}{//\ "{}3\ 1\ 9\ 6\ 9\ 1\ 3"{}}}
-\DoxyCodeLine{}
-\DoxyCodeLine{\textcolor{comment}{//\ Random\ 3\ runs\ of\ 4\ equal\ numbers.\ Values\ between\ runs\ are\ distinct.}}
+
+\end{DoxyCode}
+
+
+Random 3 runs of 4 equal numbers. Values between runs are distinct.
+
+
+\begin{DoxyCode}{0}
 \DoxyCodeLine{std::cout\ <<}
 \DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(12,\ 1,\ 10)}
 \DoxyCodeLine{\ \ \ \ .\mbox{\hyperlink{group__sequence__gen_gaa6ca6fc2e5c9edcf0d25165f9f25ad12}{equal\_range}}(0,\ 3).\mbox{\hyperlink{group__sequence__gen_gaa6ca6fc2e5c9edcf0d25165f9f25ad12}{equal\_range}}(4,\ 7).\mbox{\hyperlink{group__sequence__gen_gaa6ca6fc2e5c9edcf0d25165f9f25ad12}{equal\_range}}(8,\ 11)}
 \DoxyCodeLine{\ \ \ \ .\mbox{\hyperlink{group__sequence__gen_gaeb0baa4e6c780d8bc1d832514b6fcacd}{distinct}}(\{0,\ 4,\ 8\}).gen()\ <<\ endl;}
 \DoxyCodeLine{\textcolor{comment}{//\ "{}3\ 3\ 3\ 3\ 2\ 2\ 2\ 2\ 9\ 9\ 9\ 9"{}}}
-\DoxyCodeLine{}
-\DoxyCodeLine{\textcolor{comment}{//\ Random\ DNA\ sequence\ of\ length\ 8\ with\ no\ equal\ adjacent\ values.}}
+
+\end{DoxyCode}
+
+
+Random DNA sequence of length 8 with no equal adjacent values.
+
+
+\begin{DoxyCode}{0}
 \DoxyCodeLine{\textcolor{keyword}{auto}\ s2\ =\ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence}}(8,\ \{\textcolor{charliteral}{'A'},\textcolor{charliteral}{'C'},\textcolor{charliteral}{'G'},\textcolor{charliteral}{'T'}\});}
 \DoxyCodeLine{\textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <\ 8;\ i++)\ s2.\mbox{\hyperlink{group__sequence__gen_gad430f6b0f40960ff302eabbcaaba7b68}{different}}(i-\/1,\ i);}
 \DoxyCodeLine{cout\ <<\ s2.\mbox{\hyperlink{group__sequence__gen_ga0dc45ca71b1cc8087eac28188334dc91}{gen}}()\ <<\ endl;}
 \DoxyCodeLine{\textcolor{comment}{//\ "{}T\ C\ T\ G\ T\ G\ A\ C"{}}}
-\DoxyCodeLine{}
-\DoxyCodeLine{\textcolor{comment}{//\ Random\ binary\ sequence\ of\ length\ 10\ with\ 5\ 1's\ that\ start\ with\ 1.}}
+
+\end{DoxyCode}
+
+
+Random binary sequence of length 10 with 5 1\textquotesingle{}s that start with 1.
+
+
+\begin{DoxyCode}{0}
 \DoxyCodeLine{std::cout\ <<}
 \DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(10,\ 0,\ 1)}
+\DoxyCodeLine{\ \ \ \ .\mbox{\hyperlink{group__sequence__gen_gaff196db1265936038bcb8761192f5a8c}{set}}(0,\ 1)}
 \DoxyCodeLine{\ \ \ \ .\mbox{\hyperlink{group__sequence__gen_gaf614e6563861fb01b5de5f22c4beab2e}{gen\_until}}([](\textcolor{keyword}{auto}\ inst)\ \{}
 \DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ vec\ =\ inst.to\_std();}
 \DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ accumulate(vec.begin(),\ vec.end(),\ 0)\ ==\ 5;}
-\DoxyCodeLine{\ \ \ \ \ \},\ 100)\ <<\ endl;}
-\DoxyCodeLine{\textcolor{comment}{//\ "{}1\ 0\ 1\ 0\ 0\ 1\ 1\ 0\ 1\ 0"{}}}
+\DoxyCodeLine{\ \ \ \ \},\ 100)\ <<\ endl;}
+\DoxyCodeLine{\textcolor{comment}{//\ "{}1\ 0\ 0\ 1\ 0\ 1\ 1\ 0\ 1\ 0"{}}}
 
 \end{DoxyCode}
  \input{group__sequence__gen}

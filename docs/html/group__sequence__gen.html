@@ -415,7 +415,7 @@ Examples</h4>
 <div class="ttc" id="agroup__sequence__gen_html_ga0dc45ca71b1cc8087eac28188334dc91"><div class="ttname"><a href="#ga0dc45ca71b1cc8087eac28188334dc91">tgen::sequence::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid sequences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00493">tgen.h:493</a></div></div>
 </div><!-- fragment --><dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td>if there is no valid sequence satisfying all added constraints. </td></tr>
+    <tr><td class="paramname">std::runtime_error</td><td>if there is no valid sequence satisfying all added constraints, or if the added constraints are considered to be too complex (see <span class="tt"><a class="el" href="#gaeb0baa4e6c780d8bc1d832514b6fcacd" title="Restricts generator s.t. all values at indices in indices are distinct.">tgen::sequence::distinct</a></span>). </td></tr>
   </table>
   </dd>
 </dl>
