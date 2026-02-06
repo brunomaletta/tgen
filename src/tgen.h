@@ -362,6 +362,7 @@ template <typename T> struct sequence {
 	// Creates generator for sequences of size 'size', with random T in [l, r]
 	sequence(int size, T value_l, T value_r)
 		: size_(size), value_l_(value_l), value_r_(value_r), neigh_(size) {
+		tgen_ensure(size_ > 0, "size must be positive");
 		tgen_ensure(value_l_ <= value_r_, "value range must be valid");
 		for (int i = 0; i < size_; ++i)
 			val_range_.emplace_back(value_l_, value_r_);
@@ -370,7 +371,8 @@ template <typename T> struct sequence {
 	// Creates sequence with value set.
 	sequence(int size, const std::set<T> &values)
 		: size_(size), values_(values), neigh_(size) {
-		tgen_ensure(values.size() > 0, "must have at least one value");
+		tgen_ensure(size_ > 0, "size must be positive");
+		tgen_ensure(values.size() > 0, "value set must be non-empty");
 		value_l_ = 0, value_r_ = values.size() - 1;
 		for (int i = 0; i < size_; ++i)
 			val_range_.emplace_back(value_l_, value_r_);

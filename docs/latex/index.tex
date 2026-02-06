@@ -61,7 +61,7 @@ The returned instance can also be modified by some deterministic operations (spe
 \end{DoxyCode}
 
 
-Finally, there can be random operations defined for the type.
+Finally, there can be random operations defined for the type instance.
 
 
 \begin{DoxyCode}{0}
@@ -156,7 +156,7 @@ Random binary sequence of length 10 with 5 1\textquotesingle{}s that start with 
 \DoxyCodeLine{std::cout\ <<}
 \DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{structtgen_1_1sequence}{tgen::sequence<int>}}(10,\ 0,\ 1)}
 \DoxyCodeLine{\ \ \ \ .\mbox{\hyperlink{group__sequence__gen_gaff196db1265936038bcb8761192f5a8c}{set}}(0,\ 1)}
-\DoxyCodeLine{\ \ \ \ .\mbox{\hyperlink{group__sequence__gen_gaf614e6563861fb01b5de5f22c4beab2e}{gen\_until}}([](\textcolor{keyword}{auto}\ inst)\ \{}
+\DoxyCodeLine{\ \ \ \ .\mbox{\hyperlink{group__sequence__gen_gaf614e6563861fb01b5de5f22c4beab2e}{gen\_until}}([](\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ inst)\ \{}
 \DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ vec\ =\ inst.\mbox{\hyperlink{group__sequence__inst_gaad19beb57245e1e5ec4cc4ac5bd9030e}{to\_std}}();}
 \DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ accumulate(vec.begin(),\ vec.end(),\ 0)\ ==\ 5;}
 \DoxyCodeLine{\ \ \ \ \},\ 100)\ <<\ endl;}

@@ -20,7 +20,7 @@ TEST(general_test, next_invalid_range) {
 	} catch (const std::runtime_error &e) {
 		EXPECT_STARTS_WITH(e.what(), "tgen: range for `next` bust be valid");
 	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different type";
+		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
 }
 
@@ -73,7 +73,7 @@ TEST(general_test, choose_invalid_ammount) {
 		EXPECT_STARTS_WITH(e.what(),
 						   "tgen: number of elements to choose must be valid");
 	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different type";
+		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
 }
 

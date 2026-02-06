@@ -22,7 +22,7 @@ TEST(opts_test, invalid_opts_empty_name_1) {
 	} catch (const std::runtime_error &e) {
 		EXPECT_STARTS_WITH(e.what(), "tgen: invalid opt");
 	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different type";
+		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
 }
 
@@ -39,7 +39,7 @@ TEST(opts_test, invalid_opts_empty_name_2) {
 	} catch (const std::runtime_error &e) {
 		EXPECT_STARTS_WITH(e.what(), "tgen: invalid opt");
 	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different type";
+		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
 }
 
@@ -55,7 +55,7 @@ TEST(opts_test, invalid_opts_empty_key_before_eq) {
 		EXPECT_STARTS_WITH(e.what(),
 						   "tgen: expected non-empty key/value in opt");
 	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different type";
+		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
 }
 
@@ -71,7 +71,7 @@ TEST(opts_test, invalid_opts_empty_value_after_eq) {
 		EXPECT_STARTS_WITH(e.what(),
 						   "tgen: expected non-empty key/value in opt");
 	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different type";
+		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
 }
 
@@ -86,7 +86,7 @@ TEST(opts_test, invalid_opts_empty_value_after_space) {
 	} catch (const std::runtime_error &e) {
 		EXPECT_STARTS_WITH(e.what(), "tgen: value cannot be empty");
 	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different type";
+		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
 }
 
@@ -103,7 +103,7 @@ TEST(opts_test, invalid_opts_repeated_key_equal) {
 	} catch (const std::runtime_error &e) {
 		EXPECT_STARTS_WITH(e.what(), "tgen: cannot have repeated keys");
 	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different type";
+		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
 }
 
@@ -121,7 +121,7 @@ TEST(opts_test, invalid_opts_repeated_key_space) {
 	} catch (const std::runtime_error &e) {
 		EXPECT_STARTS_WITH(e.what(), "tgen: cannot have repeated keys");
 	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different type";
+		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
 }
 
@@ -136,7 +136,7 @@ TEST(opts_test, invalid_opts_empty_value) {
 	} catch (const std::runtime_error &e) {
 		EXPECT_STARTS_WITH(e.what(), "tgen: value cannot be empty");
 	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different type";
+		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
 }
 
@@ -176,7 +176,7 @@ TEST(opts_test, opt_named_not_found) {
 	} catch (const std::runtime_error &e) {
 		EXPECT_STARTS_WITH(e.what(), "tgen: cannot find key with key m");
 	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different type";
+		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
 }
 
@@ -195,7 +195,7 @@ TEST(opts_test, opt_named_invalid_conversion) {
 	} catch (const std::runtime_error &e) {
 		EXPECT_STARTS_WITH(e.what(), "tgen: invalid value value for type i");
 	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different type";
+		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
 }
 
@@ -235,7 +235,7 @@ TEST(opts_test, opt_positional_not_found) {
 	} catch (const std::runtime_error &e) {
 		EXPECT_STARTS_WITH(e.what(), "tgen: cannot find key with index 1");
 	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different type";
+		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
 }
 

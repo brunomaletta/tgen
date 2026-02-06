@@ -46,7 +46,7 @@
  * std::cout <<
  *     tgen::sequence<int>(10, 0, 1)
  *     .set(0, 1)
- *     .gen_until([](auto inst) {
+ *     .gen_until([](const auto& inst) {
  *         auto vec = inst.to_std();
  *         return accumulate(vec.begin(), vec.end(), 0) == 5;
  *     }, 100) << endl;
