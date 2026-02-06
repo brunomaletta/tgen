@@ -1,4 +1,5 @@
 ![gtest](https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest)
+<img src="https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white" height="20">
 <img src="https://img.shields.io/badge/doxygen-2C4AA8?style=for-the-badge&logo=doxygen&logoColor=white" height="20">
 
 # Overview
