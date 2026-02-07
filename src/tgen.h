@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <cctype>
 #include <iostream>
 #include <map>
 #include <optional>
@@ -39,7 +38,7 @@ inline void contradiction_error_internal(const std::string &type,
 										 const std::string &msg = "") {
 	// Tried to generate a contradicting sequence.
 	std::string error_msg = "invalid " + type + " (contradicting constraints)";
-	if (msg.size() > 0)
+	if (!msg.empty())
 		error_msg += ": " + msg;
 	throw error_internal(error_msg);
 }
@@ -58,16 +57,13 @@ inline std::mt19937 rng_internal;
 // Returns a random number in [l, r].
 template <typename T> T next(T l, T r) {
 	tgen_ensure(l <= r, "range for `next` bust be valid");
-	if constexpr (std::is_integral<T>()) {
-		std::uniform_int_distribution<T> dist(l, r);
-		return dist(rng_internal);
-	} else if constexpr (std::is_floating_point<T>()) {
-		std::uniform_real_distribution<double> dist(l, r);
-		return dist(rng_internal);
-	} else {
+	if constexpr (std::is_integral_v<T>)
+		return std::uniform_int_distribution<T>(l, r)(rng_internal);
+	else if constexpr (std::is_floating_point_v<T>)
+		return std::uniform_real_distribution<T>(l, r)(rng_internal);
+	else
 		throw error_internal("invalid type for next (" +
 							 std::string(typeid(T).name()) + ")");
-	}
 }
 
 // Shuffles [first, last) inplace uniformly.
@@ -161,25 +157,24 @@ inline bool has_opt(const std::string &key) {
 template <typename T> T get_opt_internal(const std::string &value) {
 	try {
 		if constexpr (std::is_same_v<T, bool>) {
-			if (value == "true" || value == "1")
+			if (value == "true" or value == "1")
 				return true;
-			if (value == "false" || value == "0")
+			if (value == "false" or value == "0")
 				return false;
-			throw std::runtime_error("");
 		} else if constexpr (std::is_integral_v<T>) {
 			if constexpr (std::is_unsigned_v<T>)
 				return static_cast<T>(std::stoull(value));
 			else
 				return static_cast<T>(std::stoll(value));
-		} else if constexpr (std::is_floating_point_v<T>) {
+		} else if constexpr (std::is_floating_point_v<T>)
 			return static_cast<T>(std::stold(value));
-		} else { // default: std::string
-			return value;
-		}
+		else
+			return value; // default: std::string
 	} catch (...) {
-		throw error_internal("invalid value " + value + " for type " +
-							 typeid(T).name());
 	}
+
+	throw error_internal("invalid value " + value + " for type " +
+						 typeid(T).name());
 }
 
 // Returns the parsed opt by a given key. If no opts with the given key are
@@ -214,7 +209,7 @@ inline void parse_opts_internal(int argc, char **argv) {
 		if (key[0] == '-') {
 			tgen_ensure(key.size() > 1,
 						"invalid opt (" + std::string(argv[i]) + ")");
-			if (isdigit(key[1])) {
+			if ('0' <= key[1] and key[1] <= '9') {
 				// This case is a positional negative number argument
 				pos_opts_internal.push_back(key);
 				continue;
@@ -246,7 +241,7 @@ inline void parse_opts_internal(int argc, char **argv) {
 			// This is the '--key=value' case.
 			std::string value = key.substr(eq + 1);
 			key = key.substr(0, eq);
-			tgen_ensure(key.size() > 0 and value.size() > 0,
+			tgen_ensure(!key.empty() and !value.empty(),
 						"expected non-empty key/value in opt (" +
 							std::string(argv[1]));
 			tgen_ensure(named_opts_internal.count(key) == 0,
@@ -324,7 +319,7 @@ template <typename T> struct sequence {
 	sequence(int size, const std::set<T> &values)
 		: size_(size), values_(values), neigh_(size) {
 		tgen_ensure(size_ > 0, "size must be positive");
-		tgen_ensure(values.size() > 0, "value set must be non-empty");
+		tgen_ensure(!values.empty(), "value set must be non-empty");
 		value_l_ = 0, value_r_ = values.size() - 1;
 		for (int i = 0; i < size_; ++i)
 			val_range_.emplace_back(value_l_, value_r_);
@@ -393,8 +388,7 @@ template <typename T> struct sequence {
 	// Restricts sequences for sequence[idx_1] != sequence[idx_2]
 	sequence &different(int idx_1, int idx_2) {
 		std::set<int> indices = {idx_1, idx_2};
-		distinct(indices);
-		return *this;
+		return distinct(indices);
 	}
 
 	// Restricts sequences with distinct elements.
@@ -402,8 +396,7 @@ template <typename T> struct sequence {
 		std::set<int> indices;
 		for (int i = 0; i < size_; ++i)
 			indices.insert(i);
-		distinct(indices);
-		return *this;
+		return distinct(indices);
 	}
 
 	// Sequence instance.
@@ -458,6 +451,53 @@ template <typename T> struct sequence {
 		std::vector<T> to_std() const { return vec_; }
 	};
 
+	// Generates a uniformly random list of k distinct values in `[value_l,
+	// value_r]`, such that no value is in `forbidden_values`.
+	std::vector<T>
+	generate_distinct_values(int k, const std::set<T> forbidden_values) {
+		// We generate our numbers in the range [0, lim) with
+		// lim = (r-l+1)-(forbidden_values.size()), and then map them to
+		// the correct range.
+		// We will run k steps of Fisher–Yates, using a map to store a
+		// virtual sequence that starts with a[i] = i.
+		int lim = (value_r_ - value_l_ + 1) - int(forbidden_values.size());
+		std::map<T, T> virtual_list;
+		std::vector<T> list;
+		for (int i = 0; i < k; i++) {
+			T j = next<T>(i, lim - 1);
+			T vj = virtual_list.count(j) ? virtual_list[j] : j;
+			T vi = virtual_list.count(i) ? virtual_list[i] : T(i);
+
+			virtual_list[j] = vi, virtual_list[i] = vj;
+
+			list.push_back(virtual_list[i]);
+		}
+
+		// Shifts back to correct range, but there might still be values
+		// that we can not use.
+		for (T &value : list)
+			value += value_l_;
+
+		// Now for every generated value that is in forbidden_values, we
+		// map it to [l + lim, l + lim + forbidden_values.size()).
+		std::vector<std::pair<T, int>> values_to_map;
+		for (int i = 0; i < list.size(); ++i)
+			if (forbidden_values.count(list[i])) {
+				values_to_map.emplace_back(list[i], i);
+			}
+		// We iterate through them in increasing order.
+		std::sort(values_to_map.begin(), values_to_map.end());
+		auto cur_it = forbidden_values.begin();
+		int cur_defined_idx = 0;
+		for (auto [val, idx] : values_to_map) {
+			while (*cur_it != val)
+				++cur_it, ++cur_defined_idx;
+			list[idx] = value_l_ + lim + cur_defined_idx;
+		}
+
+		return list;
+	}
+
 	// Generate sequence instance.
 	instance gen() {
 		std::vector<T> vec(size_);
@@ -487,8 +527,7 @@ template <typename T> struct sequence {
 
 					// BFS to visit the connected component, grouping equal
 					// values.
-					std::queue<int> q;
-					q.push(idx);
+					std::queue<int> q({idx});
 					vis[idx] = true;
 					std::vector<int> component;
 					while (q.size()) {
@@ -571,54 +610,6 @@ template <typename T> struct sequence {
 			if (distinct_containing.size() >= 3)
 				throw error_internal(
 					"failed to generate sequence: complex constraints");
-
-		// Generates a uniformly random list of k distinct values in [l, r],
-		// such that no value is in `forbidden_values`.
-		auto generate_distinct_values =
-			[&](int k, const std::set<T> forbidden_values) {
-				// We generate our numbers in the range [0, lim) with
-				// lim = (r-l+1)-(forbidden_values.size()), and then map them to
-				// the correct range.
-				// We will run k steps of Fisher–Yates, using a map to store a
-				// virtual sequence that starts with a[i] = i.
-				int lim =
-					(value_r_ - value_l_ + 1) - int(forbidden_values.size());
-				std::map<T, T> virtual_list;
-				std::vector<T> list;
-				for (int i = 0; i < k; i++) {
-					T j = next<T>(i, lim - 1);
-					T vj = virtual_list.count(j) ? virtual_list[j] : j;
-					T vi = virtual_list.count(i) ? virtual_list[i] : T(i);
-
-					virtual_list[j] = vi, virtual_list[i] = vj;
-
-					list.push_back(virtual_list[i]);
-				}
-
-				// Shifts back to correct range, but there might still be values
-				// that we can not use.
-				for (T &value : list)
-					value += value_l_;
-
-				// Now for every generated value that is in forbidden_values, we
-				// map it to [l + lim, l + lim + forbidden_values.size()).
-				std::vector<std::pair<T, int>> values_to_map;
-				for (int i = 0; i < list.size(); ++i)
-					if (forbidden_values.count(list[i])) {
-						values_to_map.emplace_back(list[i], i);
-					}
-				// We iterate through them in increasing order.
-				std::sort(values_to_map.begin(), values_to_map.end());
-				auto cur_it = forbidden_values.begin();
-				int cur_defined_idx = 0;
-				for (auto [val, idx] : values_to_map) {
-					while (*cur_it != val)
-						++cur_it, ++cur_defined_idx;
-					list[idx] = value_l_ + lim + cur_defined_idx;
-				}
-
-				return list;
-			};
 
 		std::vector<bool> vis_distinct(distinct_constraints_.size(), false);
 		std::vector<bool> initially_defined_comp_idx(comp_count, false);
@@ -756,13 +747,11 @@ template <typename T> struct sequence {
 			if (!defined_idx[idx])
 				define_comp(comp_id[idx], next<T>(value_l_, value_r_));
 
-		if (values_.size() > 0) {
+		if (!values_.empty()) {
 			// Needs to fetch the values from the value set.
 			std::vector<T> value_vec(values_.begin(), values_.end());
-			std::vector<T> final_vec;
-			for (int i = 0; i < size_; ++i)
-				final_vec.push_back(value_vec[vec[i]]);
-			swap(vec, final_vec);
+			for (T &val : vec)
+				val = value_vec[val];
 		}
 
 		return instance(vec);
@@ -805,7 +794,7 @@ template <typename INST> typename INST::value_type any(const INST &inst) {
 
 // Chooses k values from the sequence, as in a subsequence of size k.
 template <typename INST> INST choose(int k, const INST &inst) {
-	tgen_ensure(0 < k and k <= inst.vec.size(),
+	tgen_ensure(0 < k and k <= inst.vec_.size(),
 				"number of elements to choose must be valid");
 	std::vector<typename INST::value_type> new_vec;
 	int need = k;
