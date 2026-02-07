@@ -190,10 +190,27 @@ TEST(opts_test, opt_named_invalid_conversion) {
 
 	try {
 		int n = tgen::opt<int>("n");
-		std::cout << "value of n: " << n << std::endl;
 		FAIL() << "Expected std::runtime_error, but no error ocurred";
 	} catch (const std::runtime_error &e) {
 		EXPECT_STARTS_WITH(e.what(), "tgen: invalid value value for type i");
+	} catch (...) {
+		FAIL() << "Expected std::runtime_error, but caught a different error";
+	}
+}
+
+TEST(opts_test, opt_named_invalid_conversion_bool) {
+	char arg0[] = "./executable";
+	char arg1[] = "-b";
+	char arg2[] = "value";
+	char arg3[] = "tru";
+	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
+	tgen::register_gen(4, argv);
+
+	try {
+		bool b = tgen::opt<bool>("b");
+		FAIL() << "Expected std::runtime_error, but no error ocurred";
+	} catch (const std::runtime_error &e) {
+		EXPECT_STARTS_WITH(e.what(), "tgen: invalid value value for type b");
 	} catch (...) {
 		FAIL() << "Expected std::runtime_error, but caught a different error";
 	}
@@ -204,10 +221,13 @@ TEST(opts_test, opt_named) {
 	char arg1[] = "-n";
 	char arg2[] = "10";
 	char arg3[] = "-10";
-	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
-	tgen::register_gen(4, argv);
+	char arg4[] = "-m";
+	char arg5[] = "true";
+	char *argv[] = {arg0, arg1, arg2, arg3, arg4, arg5, nullptr};
+	tgen::register_gen(6, argv);
 
 	EXPECT_EQ(tgen::opt<int>("n"), 10);
+	EXPECT_EQ(tgen::opt<bool>("m"), true);
 }
 
 TEST(opts_test, opt_named_default) {

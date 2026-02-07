@@ -101,13 +101,15 @@ TEST(general_test, gen_with_set) {
 		tgen::shuffle(set_idx);
 
 		auto s = tgen::sequence<int>(10, 1, 10);
-		for (int j = 0; j < num_op; ++j) if (set_idx[j]) {
-			vals[j] = tgen::next(1, 10);
-			s.set(j, vals[j]);
-		}
+		for (int j = 0; j < num_op; ++j)
+			if (set_idx[j]) {
+				vals[j] = tgen::next(1, 10);
+				s.set(j, vals[j]);
+			}
 
 		auto v = s.gen();
-		for (int j = 0; j < num_op; ++j) if (set_idx[j])
-			EXPECT_EQ(v[j], vals[j]);
+		for (int j = 0; j < num_op; ++j)
+			if (set_idx[j])
+				EXPECT_EQ(v[j], vals[j]);
 	}
 }

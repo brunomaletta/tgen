@@ -4,12 +4,12 @@
 #include <cctype>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <queue>
 #include <random>
 #include <set>
 #include <stdexcept>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace tgen {
@@ -55,25 +55,19 @@ inline void contradiction_error_internal(const std::string &type,
 
 inline std::mt19937 rng_internal;
 
-template <typename T> T next_integral_internal(T l, T r) {
-	tgen_ensure(l <= r, "range for `next` bust be valid");
-	std::uniform_int_distribution<T> dist(l, r);
-	return dist(rng_internal);
-}
-inline double next_double_internal(double l, double r) {
-	tgen_ensure(l <= r, "range for `next` bust be valid");
-	std::uniform_real_distribution<double> dist(l, r);
-	return dist(rng_internal);
-}
-
 // Returns a random number in [l, r].
 template <typename T> T next(T l, T r) {
-	if (std::is_integral<T>())
-		return next_integral_internal<T>(l, r);
-	if (std::is_floating_point<T>())
-		return next_double_internal(l, r);
-	throw error_internal("invalid type for next (" +
-						 std::string(typeid(T).name()) + ")");
+	tgen_ensure(l <= r, "range for `next` bust be valid");
+	if constexpr (std::is_integral<T>()) {
+		std::uniform_int_distribution<T> dist(l, r);
+		return dist(rng_internal);
+	} else if constexpr (std::is_floating_point<T>()) {
+		std::uniform_real_distribution<double> dist(l, r);
+		return dist(rng_internal);
+	} else {
+		throw error_internal("invalid type for next (" +
+							 std::string(typeid(T).name()) + ")");
+	}
 }
 
 // Shuffles [first, last) inplace uniformly.
@@ -164,100 +158,58 @@ inline bool has_opt(const std::string &key) {
 	return named_opts_internal.count(key) != 0;
 }
 
-template <typename T>
-T get_opt_internal(const std::string &value, std::true_type, std::false_type,
-				   std::false_type) {
-	// Parses 'value' into bool.
-	if (value == "true" or value == "1")
-		return true;
-	if (value == "false" or value == "0")
-		return false;
-	throw error_internal("invalid value " + value + " for type bool");
-}
-template <typename T>
-T get_opt_internal(const std::string &value, std::false_type, std::true_type,
-				   std::false_type) {
-	// Parses 'value' into integral type T.
-	if (std::is_unsigned<T>())
-		return static_cast<T>(std::stoull(value));
-	return static_cast<T>(std::stoll(value));
-}
-template <typename T>
-T get_opt_internal(const std::string &value, std::false_type, std::false_type,
-				   std::true_type) {
-	// Parses 'value' into floating type T.
-	return static_cast<T>(std::stold(value));
-}
-template <typename T>
-T get_opt_internal(const std::string &value, std::false_type, std::false_type,
-				   std::false_type) {
-	// Parses 'value' into std::string.
-	return value;
-}
 template <typename T> T get_opt_internal(const std::string &value) {
-	// Parses 'value' into type T.
 	try {
-		return get_opt_internal<T>(value, std::is_same<T, bool>(),
-								   std::is_integral<T>(),
-								   std::is_floating_point<T>());
-	} catch (const std::invalid_argument &er) {
+		if constexpr (std::is_same_v<T, bool>) {
+			if (value == "true" || value == "1")
+				return true;
+			if (value == "false" || value == "0")
+				return false;
+			throw std::runtime_error("");
+		} else if constexpr (std::is_integral_v<T>) {
+			if constexpr (std::is_unsigned_v<T>)
+				return static_cast<T>(std::stoull(value));
+			else
+				return static_cast<T>(std::stoll(value));
+		} else if constexpr (std::is_floating_point_v<T>) {
+			return static_cast<T>(std::stold(value));
+		} else { // default: std::string
+			return value;
+		}
+	} catch (...) {
+		throw error_internal("invalid value " + value + " for type " +
+							 typeid(T).name());
 	}
-	throw error_internal("invalid value " + value + " for type " +
-						 typeid(T).name());
-}
-
-// Returns the parsed opt by a given index.
-template <typename T> T opt(int index) {
-	tgen_ensure(has_opt(index),
-				"cannot find key with index " + std::to_string(index));
-	return get_opt_internal<T>(pos_opts_internal[index]);
-}
-
-// Returns the parsed opt by a given index. If no opts with the index are
-// found, returns the given default_value.
-template <typename T> T opt(int index, const T &default_value) {
-	if (!has_opt(index))
-		return default_value;
-	return get_opt_internal<T>(pos_opts_internal[index]);
-}
-
-// Returns the parsed opt by a given key.
-template <typename T> T opt(const std::string &key) {
-	tgen_ensure(has_opt(key), "cannot find key with key " + key);
-	return get_opt_internal<T>(named_opts_internal[key]);
 }
 
 // Returns the parsed opt by a given key. If no opts with the given key are
 // found, returns the given default_value.
-template <typename T> T opt(const std::string &key, const T &default_value) {
-	if (!has_opt(key))
-		return default_value;
-	return get_opt_internal<T>(named_opts_internal[key]);
-}
-
-inline char fetch_char_internal(char *s, int idx) {
-	tgen_ensure(s[idx] != '\n', "tried to fetch end of string");
-	return s[idx];
-}
-inline std::string read_until_internal(char *s) {
-	// Reads non-empty string until it hits a ' ' or the string ends.
-	std::string read_str;
-	int idx = 0;
-	while (s[idx] != '\0') {
-		char nxt_char = fetch_char_internal(s, idx++);
-		if (nxt_char == ' ')
-			break;
-		read_str += nxt_char;
+template <typename T, typename KEY>
+T opt(const KEY &key, std::optional<T> default_value = std::nullopt) {
+	if constexpr (std::is_same_v<KEY, int>) {
+		if (!has_opt(key)) {
+			if (default_value)
+				return *default_value;
+			throw error_internal("cannot find key with index " +
+								 std::to_string(key));
+		}
+		return get_opt_internal<T>(pos_opts_internal[key]);
+	} else { // std::string
+		if (!has_opt(key)) {
+			if (default_value)
+				return *default_value;
+			throw error_internal("cannot find key with key " +
+								 std::string(key));
+		}
+		return get_opt_internal<T>(named_opts_internal[key]);
 	}
-
-	tgen_ensure(read_str.size() > 0, "read string cannot be empty");
-	return read_str;
 }
+
 inline void parse_opts_internal(int argc, char **argv) {
 	// Parses the opts into `pos_opts_internal` vector and `named_opts_internal`
 	// map. Starting from 1 to ignore the name of the executable.
 	for (int i = 1; i < argc; i++) {
-		std::string key = read_until_internal(argv[i]);
+		std::string key(argv[i]);
 
 		if (key[0] == '-') {
 			tgen_ensure(key.size() > 1,
@@ -305,7 +257,7 @@ inline void parse_opts_internal(int argc, char **argv) {
 			tgen_ensure(named_opts_internal.count(key) == 0,
 						"cannot have repeated keys");
 			tgen_ensure(argv[i + 1], "value cannot be empty");
-			named_opts_internal[key] = read_until_internal(argv[i + 1]);
+			named_opts_internal[key] = std::string(argv[i + 1]);
 			i++;
 		}
 	}

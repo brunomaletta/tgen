@@ -77,52 +77,18 @@ bool tgen::has_opt(const std::string &key);
 
 /**
  * @ingroup opts
- * @brief Gets opt at `index`.
+ * @brief Gets opt by key.
  *
- * @param index Index of positional opt.
+ * @param key Key to fetch. If it is of type `int`, considered to be an index.
+ * Otherwise, considered to be a `std::string` named opt key.
+ * @param default_value Default value to be returned, if `key` is not found.
  *
- * @return The value of opt at `index`.
+ * @return The value of opt at `key` (index or name). If not found, returns `default_value`.
  *
- * @throws std::runtime_error if opt is not found.
+ * @throws std::runtime_error if opt is not found and `default_value` is not given.
  */
-template <typename T> T tgen::opt(int index);
-
-
-/**
- * @ingroup opts
- * @brief Gets opt at `index`. If not found, returns `default_value`.
- *
- * @param index Index of positional opt.
- * @param default_value Default value, if opt is not found.
- *
- * @return The value of opt at `index`, or `default_value` if not found.
- */
-template <typename T> T tgen::opt(int index, const T &default_value);
-
-
-/**
- * @ingroup opts
- * @brief Gets opt of `key`.
- *
- * @param key Key of named opt.
- *
- * @return The value of opt of `key`.
- *
- * @throws std::runtime_error if opt is not found.
- */
-template <typename T> T tgen::opt(const std::string &key);
-
-
-/**
- * @ingroup opts
- * @brief Gets opt of `key`. If not found, returns `default_value`.
- *
- * @param key Key of named opt.
- * @param default_value Default value, if opt is not found.
- *
- * @return The value of opt of `key`, or `default_value` if not found.
- */
-template <typename T> T tgen::opt(const std::string &key, const T &default_value);
+template <typename T, typename KEY>
+T tgen::opt(const KEY &key, std::optional<T> default_value = std::nullopt);
 
 
 /**
