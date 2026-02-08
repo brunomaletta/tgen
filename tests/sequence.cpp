@@ -6,26 +6,31 @@
 #include <utility>
 #include <vector>
 
-inline void EXPECT_STARTS_WITH(const std::string &msg,
-							   const std::string &prefix) {
-	EXPECT_TRUE(msg.rfind(prefix, 0) == 0)
-		<< "Expected prefix: \"" << prefix << "\"\n"
-		<< "Actual message: \"" << msg << "\"";
-}
+#define EXPECT_THROW_TGEN_PREFIX(stmt, prefix)                                 \
+	EXPECT_THROW(                                                              \
+		{                                                                      \
+			try {                                                              \
+				stmt;                                                          \
+				FAIL() << "Expected std::runtime_error, but no error ocurred"; \
+			} catch (const std::runtime_error &e) {                            \
+				std::string msg = e.what();                                    \
+				std::string tgen_pref = std::string("tgen: ") + prefix;        \
+				EXPECT_TRUE(msg.rfind(tgen_pref, 0) == 0)                      \
+					<< "Expected message to start with: \"" << tgen_pref       \
+					<< "\"\n"                                                  \
+					<< "Actual message: \"" << msg << "\"";                    \
+				throw e;                                                       \
+			}                                                                  \
+		},                                                                     \
+		std::runtime_error)
 
 TEST(general_test, sequence_constructor_size_zero) {
 	char arg0[] = "./executable";
 	char *argv[] = {arg0, nullptr};
 	tgen::register_gen(1, argv);
 
-	try {
-		auto s = tgen::sequence<int>(0, 1, 10);
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: size must be positive");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(0, 1, 10),
+							 "size must be positive");
 }
 
 TEST(general_test, sequence_constructor_invalid_range) {
@@ -33,14 +38,8 @@ TEST(general_test, sequence_constructor_invalid_range) {
 	char *argv[] = {arg0, nullptr};
 	tgen::register_gen(1, argv);
 
-	try {
-		auto s = tgen::sequence<int>(10, 2, 1);
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: value range must be valid");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 2, 1),
+							 "value range must be valid");
 }
 
 TEST(general_test, sequence_constructor_empty_set) {
@@ -48,14 +47,8 @@ TEST(general_test, sequence_constructor_empty_set) {
 	char *argv[] = {arg0, nullptr};
 	tgen::register_gen(1, argv);
 
-	try {
-		auto s = tgen::sequence<int>(10, {});
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: value set must be non-empty");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, {}),
+							 "value set must be non-empty");
 }
 
 TEST(general_test, gen_no_restrictions) {
@@ -92,6 +85,61 @@ TEST(general_test, gen_no_restrictions_corners) {
 	}
 }
 
+TEST(general_test, set_invalid_idx) {
+	char arg0[] = "./executable";
+	char *argv[] = {arg0, nullptr};
+	tgen::register_gen(1, argv);
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(-1, 5),
+							 "index must be valid");
+}
+
+TEST(general_test, set_range_invalid_value) {
+	char arg0[] = "./executable";
+	char *argv[] = {arg0, nullptr};
+	tgen::register_gen(1, argv);
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(3, 20),
+							 "value must be in the defined range");
+}
+
+TEST(general_test, set_range_twice) {
+	char arg0[] = "./executable";
+	char *argv[] = {arg0, nullptr};
+	tgen::register_gen(1, argv);
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(3, 5).set(3, 6),
+							 "value must be in the defined range");
+}
+
+TEST(general_test, set_value_set_invalid) {
+	char arg0[] = "./executable";
+	char *argv[] = {arg0, nullptr};
+	tgen::register_gen(1, argv);
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, {5, 10, 15}).set(3, 3),
+							 "value must be in the set of values");
+}
+
+TEST(general_test, set_value_set_twice) {
+	char arg0[] = "./executable";
+	char *argv[] = {arg0, nullptr};
+	tgen::register_gen(1, argv);
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::sequence<int>(10, {5, 10, 15}).set(3, 5).set(3, 10),
+		"must not set to two different values");
+}
+
+TEST(general_test, set_twice_valid) {
+	char arg0[] = "./executable";
+	char *argv[] = {arg0, nullptr};
+	tgen::register_gen(1, argv);
+
+	tgen::sequence<int>(10, 1, 10).set(3, 5).set(3, 5);
+	tgen::sequence<int>(10, {5, 10, 15}).set(3, 5).set(3, 5);
+}
+
 TEST(general_test, gen_with_set) {
 	char arg0[] = "./executable";
 	char *argv[] = {arg0, nullptr};
@@ -116,6 +164,15 @@ TEST(general_test, gen_with_set) {
 			if (set_idx[j])
 				EXPECT_EQ(v[j], vals[j]);
 	}
+}
+
+TEST(general_test, equal_invalid) {
+	char arg0[] = "./executable";
+	char *argv[] = {arg0, nullptr};
+	tgen::register_gen(1, argv);
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(-1, 5),
+							 "index must be valid");
 }
 
 TEST(general_test, gen_with_equal) {
@@ -169,7 +226,7 @@ TEST(general_test, gen_with_equal_range) {
 	}
 }
 
-TEST(general_test, gen_with_equal_distinct) {
+TEST(general_test, gen_with_distinct) {
 	char arg0[] = "./executable";
 	char *argv[] = {arg0, nullptr};
 	tgen::register_gen(1, argv);
@@ -200,4 +257,40 @@ TEST(general_test, gen_with_equal_distinct) {
 			}
 		}
 	}
+}
+
+TEST(general_test, gen_with_all_invalid) {
+	char arg0[] = "./executable";
+	char *argv[] = {arg0, nullptr};
+	tgen::register_gen(1, argv);
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::sequence<int>(10, 1, 10).set(0, 5).equal(0, 1).set(1, 6).gen(),
+		"invalid sequence (contradicting constraints)");
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10)
+								 .set(0, 5)
+								 .set(1, 5)
+								 .different(0, 1)
+								 .gen(),
+							 "invalid sequence (contradicting constraints)");
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 9).distinct().gen(),
+							 "invalid sequence (contradicting constraints)");
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10)
+								 .set(0, 1)
+								 .set(2, 1)
+								 .distinct({0, 1, 2})
+								 .gen(),
+							 "invalid sequence (contradicting constraints)");
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 0, 2)
+								 .equal(0, 1)
+								 .equal(2, 3)
+								 .set(0, 0)
+								 .set(2, 1)
+								 .distinct({0, 2, 3})
+								 .gen(),
+							 "invalid sequence (contradicting constraints)");
 }

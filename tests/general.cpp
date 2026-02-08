@@ -2,26 +2,34 @@
 
 #include "tgen.h"
 
-inline void EXPECT_STARTS_WITH(const std::string &msg,
-							   const std::string &prefix) {
-	EXPECT_TRUE(msg.rfind(prefix, 0) == 0)
-		<< "Expected prefix: \"" << prefix << "\"\n"
-		<< "Actual message: \"" << msg << "\"";
-}
+#include <algorithm>
+#include <vector>
+
+#define EXPECT_THROW_TGEN_PREFIX(stmt, prefix)                                 \
+	EXPECT_THROW(                                                              \
+		{                                                                      \
+			try {                                                              \
+				stmt;                                                          \
+				FAIL() << "Expected std::runtime_error, but no error ocurred"; \
+			} catch (const std::runtime_error &e) {                            \
+				std::string msg = e.what();                                    \
+				std::string tgen_pref = std::string("tgen: ") + prefix;        \
+				EXPECT_TRUE(msg.rfind(tgen_pref, 0) == 0)                      \
+					<< "Expected message to start with: \"" << tgen_pref       \
+					<< "\"\n"                                                  \
+					<< "Actual message: \"" << msg << "\"";                    \
+				throw e;                                                       \
+			}                                                                  \
+		},                                                                     \
+		std::runtime_error)
 
 TEST(general_test, next_invalid_range) {
 	char arg0[] = "./executable";
 	char *argv[] = {arg0, nullptr};
 	tgen::register_gen(1, argv);
 
-	try {
-		int nxt = tgen::next<int>(2, 1);
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: range for `next` bust be valid");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::next<int>(2, 1),
+							 "range for `next` bust be valid");
 }
 
 TEST(general_test, shuffle_check_values) {
@@ -66,15 +74,8 @@ TEST(general_test, choose_invalid_ammount) {
 	for (int &i : v)
 		i = tgen::next(1, 100);
 
-	try {
-		v = tgen::choose(v.size() + 1, v);
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(),
-						   "tgen: number of elements to choose must be valid");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::choose(v.size() + 1, v),
+							 "number of elements to choose must be valid");
 }
 
 TEST(general_test, choose_check_subsequence) {

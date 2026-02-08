@@ -2,12 +2,23 @@
 
 #include "tgen.h"
 
-inline void EXPECT_STARTS_WITH(const std::string &msg,
-							   const std::string &prefix) {
-	EXPECT_TRUE(msg.rfind(prefix, 0) == 0)
-		<< "Expected prefix: \"" << prefix << "\"\n"
-		<< "Actual message: \"" << msg << "\"";
-}
+#define EXPECT_THROW_TGEN_PREFIX(stmt, prefix)                                 \
+	EXPECT_THROW(                                                              \
+		{                                                                      \
+			try {                                                              \
+				stmt;                                                          \
+				FAIL() << "Expected std::runtime_error, but no error ocurred"; \
+			} catch (const std::runtime_error &e) {                            \
+				std::string msg = e.what();                                    \
+				std::string tgen_pref = std::string("tgen: ") + prefix;        \
+				EXPECT_TRUE(msg.rfind(tgen_pref, 0) == 0)                      \
+					<< "Expected message to start with: \"" << tgen_pref       \
+					<< "\"\n"                                                  \
+					<< "Actual message: \"" << msg << "\"";                    \
+				throw e;                                                       \
+			}                                                                  \
+		},                                                                     \
+		std::runtime_error)
 
 TEST(opts_test, invalid_opts_empty_name_1) {
 	char arg0[] = "./executable";
@@ -16,14 +27,7 @@ TEST(opts_test, invalid_opts_empty_name_1) {
 	char arg3[] = "10";
 	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
 
-	try {
-		tgen::register_gen(4, argv);
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: invalid opt");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(4, argv), "invalid opt");
 }
 
 TEST(opts_test, invalid_opts_empty_name_2) {
@@ -33,14 +37,7 @@ TEST(opts_test, invalid_opts_empty_name_2) {
 	char arg3[] = "10";
 	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
 
-	try {
-		tgen::register_gen(4, argv);
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: invalid opt");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(4, argv), "invalid opt");
 }
 
 TEST(opts_test, invalid_opts_empty_key_before_eq) {
@@ -48,15 +45,8 @@ TEST(opts_test, invalid_opts_empty_key_before_eq) {
 	char arg1[] = "-=10";
 	char *argv[] = {arg0, arg1, nullptr};
 
-	try {
-		tgen::register_gen(2, argv);
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(),
-						   "tgen: expected non-empty key/value in opt");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(2, argv),
+							 "expected non-empty key/value in opt");
 }
 
 TEST(opts_test, invalid_opts_empty_value_after_eq) {
@@ -64,15 +54,8 @@ TEST(opts_test, invalid_opts_empty_value_after_eq) {
 	char arg1[] = "-n=";
 	char *argv[] = {arg0, arg1, nullptr};
 
-	try {
-		tgen::register_gen(2, argv);
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(),
-						   "tgen: expected non-empty key/value in opt");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(2, argv),
+							 "expected non-empty key/value in opt");
 }
 
 TEST(opts_test, invalid_opts_empty_value_after_space) {
@@ -80,14 +63,8 @@ TEST(opts_test, invalid_opts_empty_value_after_space) {
 	char arg1[] = "-n";
 	char *argv[] = {arg0, arg1, nullptr};
 
-	try {
-		tgen::register_gen(2, argv);
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: value cannot be empty");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(2, argv),
+							 "value cannot be empty");
 }
 
 TEST(opts_test, invalid_opts_repeated_key_equal) {
@@ -97,14 +74,8 @@ TEST(opts_test, invalid_opts_repeated_key_equal) {
 	char arg3[] = "-n=20";
 	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
 
-	try {
-		tgen::register_gen(4, argv);
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: cannot have repeated keys");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(4, argv),
+							 "cannot have repeated keys");
 }
 
 TEST(opts_test, invalid_opts_repeated_key_space) {
@@ -115,14 +86,8 @@ TEST(opts_test, invalid_opts_repeated_key_space) {
 	char arg4[] = "20";
 	char *argv[] = {arg0, arg1, arg2, arg3, arg4, nullptr};
 
-	try {
-		tgen::register_gen(5, argv);
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: cannot have repeated keys");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(5, argv),
+							 "cannot have repeated keys");
 }
 
 TEST(opts_test, invalid_opts_empty_value) {
@@ -130,14 +95,8 @@ TEST(opts_test, invalid_opts_empty_value) {
 	char arg1[] = "-n";
 	char *argv[] = {arg0, arg1, nullptr};
 
-	try {
-		tgen::register_gen(2, argv);
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: value cannot be empty");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(2, argv),
+							 "value cannot be empty");
 }
 
 TEST(opts_test, has_opt_named) {
@@ -170,14 +129,7 @@ TEST(opts_test, opt_named_not_found) {
 	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
 	tgen::register_gen(4, argv);
 
-	try {
-		int m = tgen::opt<int>("m");
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: cannot find key with key m");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<int>("m"), "cannot find key with key m");
 }
 
 TEST(opts_test, opt_named_invalid_conversion) {
@@ -188,14 +140,8 @@ TEST(opts_test, opt_named_invalid_conversion) {
 	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
 	tgen::register_gen(4, argv);
 
-	try {
-		int n = tgen::opt<int>("n");
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: invalid value value for type i");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<int>("n"),
+							 "invalid value `value` for type i");
 }
 
 TEST(opts_test, opt_named_invalid_conversion_bool) {
@@ -206,14 +152,8 @@ TEST(opts_test, opt_named_invalid_conversion_bool) {
 	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
 	tgen::register_gen(4, argv);
 
-	try {
-		bool b = tgen::opt<bool>("b");
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: invalid value value for type b");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<bool>("b"),
+							 "invalid value `value` for type b");
 }
 
 TEST(opts_test, opt_named) {
@@ -249,14 +189,7 @@ TEST(opts_test, opt_positional_not_found) {
 	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
 	tgen::register_gen(4, argv);
 
-	try {
-		int m = tgen::opt<int>(1);
-		FAIL() << "Expected std::runtime_error, but no error ocurred";
-	} catch (const std::runtime_error &e) {
-		EXPECT_STARTS_WITH(e.what(), "tgen: cannot find key with index 1");
-	} catch (...) {
-		FAIL() << "Expected std::runtime_error, but caught a different error";
-	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<int>(1), "cannot find key with index 1");
 }
 
 TEST(opts_test, opt_positional) {

@@ -1,4 +1,6 @@
-all:
+all: lint doc test
+
+a:
 	g++ -std=c++17 a.cpp -I src -o a -O2
 	-./a
 	rm -r a
@@ -9,10 +11,11 @@ debug:
 doc:
 	doxygen docs/Doxyfile
 
-docs: doc
-
 opendoc:
 	open docs/html/index.html > /dev/null 2>&1 &
+
+dropdoc:
+	git checkout -- docs
 
 lint:
 	find a.cpp src/* tests/*.cpp -iname '*.h' -o -iname '*.cpp' | xargs clang-format -i

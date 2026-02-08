@@ -173,7 +173,7 @@ template <typename T> T get_opt_internal(const std::string &value) {
 	} catch (...) {
 	}
 
-	throw error_internal("invalid value " + value + " for type " +
+	throw error_internal("invalid value `" + value + "` for type " +
 						 typeid(T).name());
 }
 
@@ -484,15 +484,14 @@ template <typename T> struct sequence {
 
 		// Now for every generated value, we shift it by how many forbidden
 		// values are <= to it.
-		// Values in increasing order.
-		std::vector<std::pair<T, int>> values_to_map;
+		std::vector<std::pair<T, int>> values_sorted;
 		for (int i = 0; i < list.size(); ++i)
-			values_to_map.emplace_back(list[i], i);
+			values_sorted.emplace_back(list[i], i);
 		// We iterate through them in increasing order.
-		std::sort(values_to_map.begin(), values_to_map.end());
+		std::sort(values_sorted.begin(), values_sorted.end());
 		auto cur_it = forbidden_values.begin();
 		int smaller_forbidden_count = 0;
-		for (auto [val, idx] : values_to_map) {
+		for (auto [val, idx] : values_sorted) {
 			while (cur_it != forbidden_values.end() and
 				   *cur_it <= val + smaller_forbidden_count)
 				++cur_it, ++smaller_forbidden_count;
