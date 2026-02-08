@@ -2,6 +2,10 @@
 
 #include "tgen.h"
 
+#include <set>
+#include <utility>
+#include <vector>
+
 inline void EXPECT_STARTS_WITH(const std::string &msg,
 							   const std::string &prefix) {
 	EXPECT_TRUE(msg.rfind(prefix, 0) == 0)
@@ -94,16 +98,16 @@ TEST(general_test, gen_with_set) {
 	tgen::register_gen(1, argv);
 
 	for (int i = 0; i < 100; ++i) {
-		int num_op = tgen::next(1, 5);
-		std::vector<int> set_idx(10, 0), vals(10);
+		int n = 10, num_op = tgen::next(1, 5);
+		std::vector<int> set_idx(n, 0), vals(n);
 		for (int j = 0; j < num_op; ++j)
 			set_idx[j] = 1;
 		tgen::shuffle(set_idx);
 
-		auto s = tgen::sequence<int>(10, 1, 10);
+		auto s = tgen::sequence<int>(n, 1, n);
 		for (int j = 0; j < num_op; ++j)
 			if (set_idx[j]) {
-				vals[j] = tgen::next(1, 10);
+				vals[j] = tgen::next(1, n);
 				s.set(j, vals[j]);
 			}
 
@@ -111,5 +115,89 @@ TEST(general_test, gen_with_set) {
 		for (int j = 0; j < num_op; ++j)
 			if (set_idx[j])
 				EXPECT_EQ(v[j], vals[j]);
+	}
+}
+
+TEST(general_test, gen_with_equal) {
+	char arg0[] = "./executable";
+	char *argv[] = {arg0, nullptr};
+	tgen::register_gen(1, argv);
+
+	for (int i = 0; i < 100; ++i) {
+		std::vector<std::pair<int, int>> equals;
+		int n = 10;
+		int q = tgen::next(1, 2 * n);
+		for (int i = 0; i < q; ++i)
+			equals.emplace_back(tgen::next(0, n - 1), tgen::next(0, n - 1));
+		tgen::shuffle(equals);
+
+		auto s = tgen::sequence<int>(n, 1, n);
+		for (auto [i, j] : equals)
+			s.equal(i, j);
+
+		auto v = s.gen();
+		for (auto [i, j] : equals)
+			EXPECT_EQ(v[i], v[j]);
+	}
+}
+
+TEST(general_test, gen_with_equal_range) {
+	char arg0[] = "./executable";
+	char *argv[] = {arg0, nullptr};
+	tgen::register_gen(1, argv);
+
+	for (int i = 0; i < 100; ++i) {
+		std::vector<std::pair<int, int>> equals;
+		int n = 10;
+		int q = tgen::next(1, 2 * n);
+		for (int i = 0; i < q; ++i)
+			equals.emplace_back(tgen::next(0, n - 1), tgen::next(0, n - 1));
+		tgen::shuffle(equals);
+
+		auto s = tgen::sequence<int>(n, 1, n);
+		for (auto &[i, j] : equals) {
+			if (j < i)
+				std::swap(i, j);
+			s.equal_range(i, j);
+		}
+
+		auto v = s.gen();
+		for (auto [i, j] : equals) {
+			for (int k = i + 1; k < j; ++k)
+				EXPECT_EQ(v[k - 1], v[k]);
+		}
+	}
+}
+
+TEST(general_test, gen_with_equal_distinct) {
+	char arg0[] = "./executable";
+	char *argv[] = {arg0, nullptr};
+	tgen::register_gen(1, argv);
+
+	for (int i = 0; i < 100; ++i) {
+		std::vector<std::set<int>> distinct;
+		int n = 5;
+		int q = 2;
+		for (int i = 0; i < q; ++i) {
+			int sz = tgen::next(1, n);
+			std::set<int> idx;
+			for (int j = 0; j < n; ++j)
+				idx.insert(j);
+			idx = tgen::choose(sz, idx);
+			distinct.push_back(idx);
+		}
+
+		auto s = tgen::sequence<int>(n, 1, n);
+		for (auto &idx : distinct)
+			s.distinct(idx);
+
+		auto v = s.gen();
+		for (auto &idx : distinct) {
+			std::set<int> vals;
+			for (int i : idx) {
+				EXPECT_TRUE(vals.find(v[i]) == vals.end());
+				vals.insert(v[i]);
+			}
+		}
 	}
 }

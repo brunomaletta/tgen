@@ -385,7 +385,7 @@ template <typename T> struct sequence {
 		return distinct(std::set<int>(indices.begin(), indices.end()));
 	}
 
-	// Restricts sequences for sequence[idx_1] != sequence[idx_2]
+	// Restricts sequences for sequence[idx_1] != sequence[idx_2].
 	sequence &different(int idx_1, int idx_2) {
 		std::set<int> indices = {idx_1, idx_2};
 		return distinct(indices);
@@ -454,19 +454,23 @@ template <typename T> struct sequence {
 	// Generates a uniformly random list of k distinct values in `[value_l,
 	// value_r]`, such that no value is in `forbidden_values`.
 	std::vector<T>
-	generate_distinct_values(int k, const std::set<T> forbidden_values) {
-		// We generate our numbers in the range [0, lim) with
-		// lim = (r-l+1)-(forbidden_values.size()), and then map them to
-		// the correct range.
-		// We will run k steps of Fisher–Yates, using a map to store a
-		// virtual sequence that starts with a[i] = i.
-		int lim = (value_r_ - value_l_ + 1) - int(forbidden_values.size());
+	generate_distinct_values(int k, const std::set<T> &forbidden_values) {
+		for (auto forbidden : forbidden_values)
+			tgen_ensure(value_l_ <= forbidden and forbidden <= value_r_);
+		// We generate our numbers in the range [0, num_available) with
+		// num_available = (r-l+1)-(forbidden_values.size()), and then map them
+		// to the correct range. We will run k steps of Fisher–Yates, using a
+		// map to store a virtual sequence that starts with a[i] = i.
+		T num_available = (value_r_ - value_l_ + 1) - forbidden_values.size();
+		if (num_available < k)
+			throw error_internal(
+				"failed to generate sequence: complex constraints");
 		std::map<T, T> virtual_list;
 		std::vector<T> list;
 		for (int i = 0; i < k; i++) {
-			T j = next<T>(i, lim - 1);
+			T j = next<T>(i, num_available - 1);
 			T vj = virtual_list.count(j) ? virtual_list[j] : j;
-			T vi = virtual_list.count(i) ? virtual_list[i] : T(i);
+			T vi = virtual_list.count(i) ? virtual_list[i] : i;
 
 			virtual_list[j] = vi, virtual_list[i] = vj;
 
@@ -478,21 +482,21 @@ template <typename T> struct sequence {
 		for (T &value : list)
 			value += value_l_;
 
-		// Now for every generated value that is in forbidden_values, we
-		// map it to [l + lim, l + lim + forbidden_values.size()).
+		// Now for every generated value, we shift it by how many forbidden
+		// values are <= to it.
+		// Values in increasing order.
 		std::vector<std::pair<T, int>> values_to_map;
 		for (int i = 0; i < list.size(); ++i)
-			if (forbidden_values.count(list[i])) {
-				values_to_map.emplace_back(list[i], i);
-			}
+			values_to_map.emplace_back(list[i], i);
 		// We iterate through them in increasing order.
 		std::sort(values_to_map.begin(), values_to_map.end());
 		auto cur_it = forbidden_values.begin();
-		int cur_defined_idx = 0;
+		int smaller_forbidden_count = 0;
 		for (auto [val, idx] : values_to_map) {
-			while (*cur_it != val)
-				++cur_it, ++cur_defined_idx;
-			list[idx] = value_l_ + lim + cur_defined_idx;
+			while (cur_it != forbidden_values.end() and
+				   *cur_it <= val + smaller_forbidden_count)
+				++cur_it, ++smaller_forbidden_count;
+			list[idx] += smaller_forbidden_count;
 		}
 
 		return list;
@@ -668,7 +672,7 @@ template <typename T> struct sequence {
 							nxt_distinct == parent)
 							continue;
 
-						// Cycle.
+						// Cycle found.
 						if (vis_distinct[nxt_distinct])
 							throw error_internal("failed to generate sequence: "
 												 "complex constraints");
