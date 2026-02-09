@@ -32,6 +32,46 @@ inline std::vector<char *> get_argv(std::initializer_list<const char *> list) {
 	return v;
 }
 
+struct sequence_test {
+	int l, r;
+	tgen::sequence<int> s;
+	std::vector<std::pair<int, int>> sets;
+	std::vector<std::pair<int, int>> equals;
+	std::vector<std::set<int>> distincts;
+
+	sequence_test(int n, int l_, int r_) : l(l_), r(r_), s(n, l, r) {}
+
+	void set(int idx, int val) {
+		s.set(idx, val);
+		sets.emplace_back(idx, val);
+	}
+	void equal(int idx_1, int idx_2) {
+		s.equal(idx_1, idx_2);
+		equals.emplace_back(idx_1, idx_2);
+	}
+	void distinct(std::set<int> distinct) {
+		s.distinct(distinct);
+		distincts.push_back(distinct);
+	}
+
+	void check() {
+		auto v = s.gen();
+		for (int i = 0; i < v.size(); ++i)
+			EXPECT_TRUE(l <= v[i] and v[i] <= r);
+		for (auto [idx, val] : sets)
+			EXPECT_TRUE(v[idx] == val);
+		for (auto [idx_1, idx_2] : equals)
+			EXPECT_TRUE(v[idx_1] == v[idx_2]);
+		for (auto distinct : distincts) {
+			std::set<int> vals;
+			for (int i : distinct) {
+				EXPECT_TRUE(vals.find(v[i]) == vals.end());
+				vals.insert(v[i]);
+			}
+		}
+	}
+};
+
 /*
  * Tests.
  */
@@ -147,22 +187,18 @@ TEST(general_test, gen_with_set) {
 
 	for (int i = 0; i < 100; ++i) {
 		int n = 10, num_op = tgen::next(1, 5);
-		std::vector<int> set_idx(n, 0), vals(n);
+		std::vector<int> set_idx(n, 0);
 		for (int j = 0; j < num_op; ++j)
 			set_idx[j] = 1;
 		tgen::shuffle(set_idx);
 
-		auto s = tgen::sequence<int>(n, 1, n);
-		for (int j = 0; j < num_op; ++j)
-			if (set_idx[j]) {
-				vals[j] = tgen::next(1, n);
-				s.set(j, vals[j]);
-			}
+		sequence_test test(n, 1, n);
 
-		auto v = s.gen();
 		for (int j = 0; j < num_op; ++j)
 			if (set_idx[j])
-				EXPECT_EQ(v[j], vals[j]);
+				test.set(j, tgen::next(1, n));
+
+		test.check();
 	}
 }
 
@@ -179,20 +215,14 @@ TEST(general_test, gen_with_equal) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	for (int i = 0; i < 100; ++i) {
-		std::vector<std::pair<int, int>> equals;
 		int n = 10;
+		sequence_test test(n, 1, n);
+
 		int q = tgen::next(1, 2 * n);
 		for (int i = 0; i < q; ++i)
-			equals.emplace_back(tgen::next(0, n - 1), tgen::next(0, n - 1));
-		tgen::shuffle(equals);
+			test.equal(tgen::next(0, n - 1), tgen::next(0, n - 1));
 
-		auto s = tgen::sequence<int>(n, 1, n);
-		for (auto [i, j] : equals)
-			s.equal(i, j);
-
-		auto v = s.gen();
-		for (auto [i, j] : equals)
-			EXPECT_EQ(v[i], v[j]);
+		test.check();
 	}
 }
 
@@ -228,8 +258,9 @@ TEST(general_test, gen_with_distinct) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	for (int i = 0; i < 100; ++i) {
-		std::vector<std::set<int>> distinct;
 		int n = 5;
+		sequence_test test(n, 1, n);
+
 		int q = 2;
 		for (int i = 0; i < q; ++i) {
 			int sz = tgen::next(1, n);
@@ -237,21 +268,10 @@ TEST(general_test, gen_with_distinct) {
 			for (int j = 0; j < n; ++j)
 				idx.insert(j);
 			idx = tgen::choose(sz, idx);
-			distinct.push_back(idx);
+			test.distinct(idx);
 		}
 
-		auto s = tgen::sequence<int>(n, 1, n);
-		for (auto &idx : distinct)
-			s.distinct(idx);
-
-		auto v = s.gen();
-		for (auto &idx : distinct) {
-			std::set<int> vals;
-			for (int i : idx) {
-				EXPECT_TRUE(vals.find(v[i]) == vals.end());
-				vals.insert(v[i]);
-			}
-		}
+		test.check();
 	}
 }
 
@@ -288,4 +308,102 @@ TEST(general_test, gen_with_all_invalid) {
 								 .distinct({0, 2, 3})
 								 .gen(),
 							 "invalid sequence (contradicting constraints)");
+}
+
+TEST(general_test, gen_with_all_complex) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::sequence<int>(10, 1, 10)
+			.distinct({0, 1, 2})
+			.distinct({2, 3, 4})
+			.distinct({4, 5, 0})
+			.gen(),
+		"failed to generate sequence: complex constraints");
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::sequence<int>(10, 1, 10)
+			.distinct({0, 1})
+			.distinct({1, 2})
+			.set(0, 5)
+			.set(2, 6)
+			.gen(),
+		"failed to generate sequence: complex constraints");
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::sequence<int>(10, 1, 10)
+			.distinct({0, 1})
+			.distinct({0, 1})
+			.distinct({0, 1})
+			.gen(),
+		"failed to generate sequence: complex constraints");
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::sequence<int>(10, 1, 10)
+			.distinct({0, 1})
+			.distinct({1, 2, 3})
+			.distinct({3, 4})
+			.equal(0, 4)
+			.gen(),
+		"failed to generate sequence: complex constraints");
+}
+
+TEST(general_test, gen_two_distincts_one_set) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	for (int i = 0; i < 100; ++i) {
+		int n = 5;
+		sequence_test test(n, 1, n);
+
+		int q = 2;
+		for (int i = 0; i < q; ++i) {
+			int sz = tgen::next(1, n);
+			std::set<int> idx;
+			for (int j = 0; j < n; ++j)
+				idx.insert(j);
+			idx = tgen::choose(sz, idx);
+			test.distinct(idx);
+		}
+
+		test.set(tgen::next(0, n - 1), tgen::next(1, n));
+
+		test.check();
+	}
+}
+
+TEST(general_test, gen_with_all) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	{
+		sequence_test test(10, 1, 10);
+		test.distinct({0, 1});
+		test.distinct({1, 2, 3});
+		test.distinct({3, 4});
+		test.set(1, 1);
+		test.set(3, 2);
+
+		test.check();
+	}
+	{
+		sequence_test test(10, 1, 10);
+		test.equal(0, 1);
+		test.equal(1, 2);
+		test.distinct({0, 5, 6});
+		test.set(6, 10);
+
+		test.check();
+	}
+	{
+		sequence_test test(10, 1, 10);
+		test.equal(0, 1);
+		test.equal(1, 2);
+		test.distinct({0, 5, 6});
+		test.set(5, 10);
+		test.set(6, 9);
+
+		test.check();
+	}
 }
