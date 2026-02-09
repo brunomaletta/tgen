@@ -23,19 +23,29 @@
 		},                                                                     \
 		std::runtime_error)
 
+inline std::vector<char *> get_argv(std::initializer_list<const char *> list) {
+	std::vector<char *> v;
+	for (auto s : list)
+		v.push_back(const_cast<char *>(s));
+	v.push_back(nullptr);
+	return v;
+}
+
+/*
+ * Tests.
+ */
+
 TEST(general_test, next_invalid_range) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::next<int>(2, 1),
 							 "range for `next` bust be valid");
 }
 
 TEST(general_test, shuffle_check_values) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	std::vector<int> v(10);
 	for (int &i : v)
@@ -51,9 +61,8 @@ TEST(general_test, shuffle_check_values) {
 }
 
 TEST(general_test, any_check_value) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	std::vector<int> v(10);
 	for (int &i : v)
@@ -66,9 +75,8 @@ TEST(general_test, any_check_value) {
 }
 
 TEST(general_test, choose_invalid_ammount) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	std::vector<int> v(10);
 	for (int &i : v)
@@ -79,9 +87,8 @@ TEST(general_test, choose_invalid_ammount) {
 }
 
 TEST(general_test, choose_check_subsequence) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	std::vector<int> v(10);
 	for (int &i : v)

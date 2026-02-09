@@ -24,37 +24,45 @@
 		},                                                                     \
 		std::runtime_error)
 
+inline std::vector<char *> get_argv(std::initializer_list<const char *> list) {
+	std::vector<char *> v;
+	for (auto s : list)
+		v.push_back(const_cast<char *>(s));
+	v.push_back(nullptr);
+	return v;
+}
+
+/*
+ * Tests.
+ */
+
 TEST(general_test, sequence_constructor_size_zero) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(0, 1, 10),
 							 "size must be positive");
 }
 
 TEST(general_test, sequence_constructor_invalid_range) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 2, 1),
 							 "value range must be valid");
 }
 
 TEST(general_test, sequence_constructor_empty_set) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, {}),
 							 "value set must be non-empty");
 }
 
 TEST(general_test, gen_no_restrictions) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	auto s = tgen::sequence<int>(10, 1, 10);
 
@@ -66,9 +74,8 @@ TEST(general_test, gen_no_restrictions) {
 }
 
 TEST(general_test, gen_no_restrictions_corners) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	{
 		auto v = tgen::sequence<int>(1, 1, 10).gen();
@@ -86,45 +93,40 @@ TEST(general_test, gen_no_restrictions_corners) {
 }
 
 TEST(general_test, set_invalid_idx) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(-1, 5),
 							 "index must be valid");
 }
 
 TEST(general_test, set_range_invalid_value) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(3, 20),
 							 "value must be in the defined range");
 }
 
 TEST(general_test, set_range_twice) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(3, 5).set(3, 6),
 							 "value must be in the defined range");
 }
 
 TEST(general_test, set_value_set_invalid) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, {5, 10, 15}).set(3, 3),
 							 "value must be in the set of values");
 }
 
 TEST(general_test, set_value_set_twice) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, {5, 10, 15}).set(3, 5).set(3, 10),
@@ -132,18 +134,16 @@ TEST(general_test, set_value_set_twice) {
 }
 
 TEST(general_test, set_twice_valid) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	tgen::sequence<int>(10, 1, 10).set(3, 5).set(3, 5);
 	tgen::sequence<int>(10, {5, 10, 15}).set(3, 5).set(3, 5);
 }
 
 TEST(general_test, gen_with_set) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	for (int i = 0; i < 100; ++i) {
 		int n = 10, num_op = tgen::next(1, 5);
@@ -167,18 +167,16 @@ TEST(general_test, gen_with_set) {
 }
 
 TEST(general_test, equal_invalid) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(-1, 5),
 							 "index must be valid");
 }
 
 TEST(general_test, gen_with_equal) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	for (int i = 0; i < 100; ++i) {
 		std::vector<std::pair<int, int>> equals;
@@ -199,9 +197,8 @@ TEST(general_test, gen_with_equal) {
 }
 
 TEST(general_test, gen_with_equal_range) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	for (int i = 0; i < 100; ++i) {
 		std::vector<std::pair<int, int>> equals;
@@ -227,9 +224,8 @@ TEST(general_test, gen_with_equal_range) {
 }
 
 TEST(general_test, gen_with_distinct) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	for (int i = 0; i < 100; ++i) {
 		std::vector<std::set<int>> distinct;
@@ -260,9 +256,8 @@ TEST(general_test, gen_with_distinct) {
 }
 
 TEST(general_test, gen_with_all_invalid) {
-	char arg0[] = "./executable";
-	char *argv[] = {arg0, nullptr};
-	tgen::register_gen(1, argv);
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 1, 10).set(0, 5).equal(0, 1).set(1, 6).gen(),

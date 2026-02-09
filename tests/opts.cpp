@@ -20,185 +20,137 @@
 		},                                                                     \
 		std::runtime_error)
 
-TEST(opts_test, invalid_opts_empty_name_1) {
-	char arg0[] = "./executable";
-	char arg1[] = "-";
-	char arg2[] = "n";
-	char arg3[] = "10";
-	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
+inline std::vector<char *> get_argv(std::initializer_list<const char *> list) {
+	std::vector<char *> v;
+	for (auto s : list)
+		v.push_back(const_cast<char *>(s));
+	v.push_back(nullptr);
+	return v;
+}
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(4, argv), "invalid opt");
+/*
+ * Tests.
+ */
+
+TEST(opts_test, invalid_opts_empty_name_1) {
+	auto argv = get_argv({"./executable", "-", "n", "10"});
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(argv.size() - 1, argv.data()),
+							 "invalid opt");
 }
 
 TEST(opts_test, invalid_opts_empty_name_2) {
-	char arg0[] = "./executable";
-	char arg1[] = "--";
-	char arg2[] = "n";
-	char arg3[] = "10";
-	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
+	auto argv = get_argv({"./executable", "--", "n", "10"});
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(4, argv), "invalid opt");
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(argv.size() - 1, argv.data()),
+							 "invalid opt");
 }
 
 TEST(opts_test, invalid_opts_empty_key_before_eq) {
-	char arg0[] = "./executable";
-	char arg1[] = "-=10";
-	char *argv[] = {arg0, arg1, nullptr};
+	auto argv = get_argv({"./executable", "-=10"});
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(2, argv),
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(argv.size() - 1, argv.data()),
 							 "expected non-empty key/value in opt");
 }
 
 TEST(opts_test, invalid_opts_empty_value_after_eq) {
-	char arg0[] = "./executable";
-	char arg1[] = "-n=";
-	char *argv[] = {arg0, arg1, nullptr};
+	auto argv = get_argv({"./executable", "-n="});
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(2, argv),
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(argv.size() - 1, argv.data()),
 							 "expected non-empty key/value in opt");
 }
 
 TEST(opts_test, invalid_opts_empty_value_after_space) {
-	char arg0[] = "./executable";
-	char arg1[] = "-n";
-	char *argv[] = {arg0, arg1, nullptr};
+	auto argv = get_argv({"./executable", "-n"});
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(2, argv),
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(argv.size() - 1, argv.data()),
 							 "value cannot be empty");
 }
 
 TEST(opts_test, invalid_opts_repeated_key_equal) {
-	char arg0[] = "./executable";
-	char arg1[] = "-n";
-	char arg2[] = "10";
-	char arg3[] = "-n=20";
-	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
+	auto argv = get_argv({"./executable", "-n", "10", "-n=20"});
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(4, argv),
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(argv.size() - 1, argv.data()),
 							 "cannot have repeated keys");
 }
 
 TEST(opts_test, invalid_opts_repeated_key_space) {
-	char arg0[] = "./executable";
-	char arg1[] = "-n";
-	char arg2[] = "10";
-	char arg3[] = "-n";
-	char arg4[] = "20";
-	char *argv[] = {arg0, arg1, arg2, arg3, arg4, nullptr};
+	auto argv = get_argv({"./executable", "-n", "10", "-n", "20"});
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(5, argv),
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(argv.size() - 1, argv.data()),
 							 "cannot have repeated keys");
 }
 
 TEST(opts_test, invalid_opts_empty_value) {
-	char arg0[] = "./executable";
-	char arg1[] = "-n";
-	char *argv[] = {arg0, arg1, nullptr};
+	auto argv = get_argv({"./executable", "-n"});
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(2, argv),
+	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(argv.size() - 1, argv.data()),
 							 "value cannot be empty");
 }
 
 TEST(opts_test, has_opt_named) {
-	char arg0[] = "./executable";
-	char arg1[] = "-n";
-	char arg2[] = "10";
-	char *argv[] = {arg0, arg1, arg2, nullptr};
-	tgen::register_gen(3, argv);
+	auto argv = get_argv({"./executable", "-n", "10"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_EQ(tgen::has_opt("n"), true);
 }
 
 TEST(opts_test, has_opt_positional) {
-	char arg0[] = "./executable";
-	char arg1[] = "-n";
-	char arg2[] = "10";
-	char arg3[] = "-10";
-	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
-	tgen::register_gen(4, argv);
+	auto argv = get_argv({"./executable", "-n", "10", "-10"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_EQ(tgen::has_opt(0), true);
 	EXPECT_EQ(tgen::has_opt(1), false);
 }
 
 TEST(opts_test, opt_named_not_found) {
-	char arg0[] = "./executable";
-	char arg1[] = "-n";
-	char arg2[] = "10";
-	char arg3[] = "-10";
-	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
-	tgen::register_gen(4, argv);
+	auto argv = get_argv({"./executable", "-n", "10", "-10"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::opt<int>("m"), "cannot find key with key m");
 }
 
 TEST(opts_test, opt_named_invalid_conversion) {
-	char arg0[] = "./executable";
-	char arg1[] = "-n";
-	char arg2[] = "value";
-	char arg3[] = "-10";
-	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
-	tgen::register_gen(4, argv);
+	auto argv = get_argv({"./executable", "-n", "value", "-10"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::opt<int>("n"),
 							 "invalid value `value` for type i");
 }
 
 TEST(opts_test, opt_named_invalid_conversion_bool) {
-	char arg0[] = "./executable";
-	char arg1[] = "-b";
-	char arg2[] = "value";
-	char arg3[] = "tru";
-	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
-	tgen::register_gen(4, argv);
+	auto argv = get_argv({"./executable", "-b", "tru"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::opt<bool>("b"),
-							 "invalid value `value` for type b");
+							 "invalid value `tru` for type b");
 }
 
 TEST(opts_test, opt_named) {
-	char arg0[] = "./executable";
-	char arg1[] = "-n";
-	char arg2[] = "10";
-	char arg3[] = "-10";
-	char arg4[] = "-m";
-	char arg5[] = "true";
-	char *argv[] = {arg0, arg1, arg2, arg3, arg4, arg5, nullptr};
-	tgen::register_gen(6, argv);
+	auto argv = get_argv({"./executable", "-n", "10", "-10", "-m", "true"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_EQ(tgen::opt<int>("n"), 10);
 	EXPECT_EQ(tgen::opt<bool>("m"), true);
 }
 
 TEST(opts_test, opt_named_default) {
-	char arg0[] = "./executable";
-	char arg1[] = "-n";
-	char arg2[] = "10";
-	char arg3[] = "-10";
-	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
-	tgen::register_gen(4, argv);
+	auto argv = get_argv({"./executable", "-n", "10", "-10"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_EQ(tgen::opt<int>("m", 20), 20);
 }
 
 TEST(opts_test, opt_positional_not_found) {
-	char arg0[] = "./executable";
-	char arg1[] = "-n";
-	char arg2[] = "10";
-	char arg3[] = "-10";
-	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
-	tgen::register_gen(4, argv);
+	auto argv = get_argv({"./executable", "-n", "10", "-10"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::opt<int>(1), "cannot find key with index 1");
 }
 
 TEST(opts_test, opt_positional) {
-	char arg0[] = "./executable";
-	char arg1[] = "-n";
-	char arg2[] = "10";
-	char arg3[] = "-10";
-	char *argv[] = {arg0, arg1, arg2, arg3, nullptr};
-	tgen::register_gen(4, argv);
+	auto argv = get_argv({"./executable", "-n", "10", "-10"});
+	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_EQ(tgen::opt<int>(0), -10);
 }
