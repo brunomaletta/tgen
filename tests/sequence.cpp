@@ -407,3 +407,46 @@ TEST(general_test, gen_with_all) {
 		test.check();
 	}
 }
+
+TEST(general_test, gen_until) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	for (int i = 0; i < 100; ++i) {
+		auto inst = tgen::sequence<int>(10, 0, 1).set(0, 1).gen_until(
+			[](const auto &inst) {
+				auto vec = inst.to_std();
+				return accumulate(vec.begin(), vec.end(), 0) == 5;
+			},
+			100);
+
+		EXPECT_TRUE(inst[0] == 1);
+		auto vec = inst.to_std();
+		EXPECT_TRUE(accumulate(vec.begin(), vec.end(), 0) == 5);
+	}
+}
+
+/*
+ * sequence_op.
+ */
+
+TEST(general_test, sequence_op_choose) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	std::vector<int> v(10);
+	for (int &i : v)
+		i = tgen::next(1, 10);
+	tgen::sequence<int>::instance inst(v);
+
+	for (int i = 0; i < 100; ++i) {
+		int k = tgen::next<int>(1, v.size());
+		auto subseq = tgen::sequence_op::choose(k, inst);
+		int idx = 0;
+		// Tests if subseq is a subsequence of inst.
+		for (int j = 0; j < inst.size(); ++j)
+			if (idx < subseq.size() and subseq[idx] == inst[j])
+				++idx;
+		EXPECT_TRUE(idx == subseq.size());
+	}
+}
