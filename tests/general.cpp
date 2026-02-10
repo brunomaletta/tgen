@@ -54,7 +54,7 @@ TEST(general_test, shuffle_check_values) {
 	sort(v_sorted.begin(), v_sorted.end());
 
 	for (int i = 0; i < 100; ++i) {
-		tgen::shuffle(v);
+		tgen::shuffle(v.begin(), v.end());
 		std::sort(v.begin(), v.end());
 		EXPECT_TRUE(v == v_sorted);
 	}

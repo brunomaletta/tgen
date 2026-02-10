@@ -94,8 +94,8 @@ template <typename It> typename It::value_type any(It first, It last) {
 template <typename C> typename C::value_type any(const C &container) {
 	return any(container.begin(), container.end());
 }
-template <typename T> T any(const std::initializer_list<T> &list) {
-	return any(std::vector<T>(list.begin(), list.end()));
+template <typename T> T any(const std::initializer_list<T> &il) {
+	return any(std::vector<T>(il.begin(), il.end()));
 }
 
 // Chooses k values from the container, as in a subsequence of size k. Returns a
@@ -115,16 +115,14 @@ template <typename C> C choose(int k, const C &container) {
 	return new_container;
 }
 template <typename T>
-std::vector<T> choose(int k, const std::initializer_list<T> &list) {
-	return choose(k, std::vector<T>(list.begin(), list.end()));
+std::vector<T> choose(int k, const std::initializer_list<T> &il) {
+	return choose(k, std::vector<T>(il.begin(), il.end()));
 }
 
 // Base struct for generators.
 template <typename GEN> struct gen_base {
-	// Calls the generator until predicate is true.
 	template <typename PRED, typename... Args>
 	auto gen_until(PRED predicate, int max_tries, Args &&...args) {
-
 		for (int i = 0; i < max_tries; ++i) {
 			auto inst =
 				static_cast<GEN *>(this)->gen(std::forward<Args>(args)...);
@@ -134,6 +132,12 @@ template <typename GEN> struct gen_base {
 		}
 
 		throw error_internal("could not generate instance matching predicate");
+	}
+	template <typename PRED, typename T, typename... Args>
+	auto gen_until(PRED predicate, int max_tries, std::initializer_list<T> il,
+				   Args &&...args) {
+		return gen_until(predicate, max_tries, std::vector<T>(il),
+						 std::forward<Args>(args)...);
 	}
 };
 
@@ -425,8 +429,8 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		std::vector<T> vec_;  // Sequence.
 
 		instance(const std::vector<T> &vec) : vec_(vec) {}
-		instance(const std::initializer_list<T> &list)
-			: vec_(list.begin(), list.end()) {}
+		instance(const std::initializer_list<T> &il)
+			: vec_(il.begin(), il.end()) {}
 
 		// Fetches size.
 		std::size_t size() const { return vec_.size(); }
@@ -485,7 +489,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 			throw error_internal(
 				"failed to generate sequence: complex constraints");
 		std::map<T, T> virtual_list;
-		std::vector<T> list;
+		std::vector<T> gen_list;
 		for (int i = 0; i < k; i++) {
 			T j = next<T>(i, num_available - 1);
 			T vj = virtual_list.count(j) ? virtual_list[j] : j;
@@ -493,19 +497,19 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 
 			virtual_list[j] = vi, virtual_list[i] = vj;
 
-			list.push_back(virtual_list[i]);
+			gen_list.push_back(virtual_list[i]);
 		}
 
 		// Shifts back to correct range, but there might still be values
 		// that we can not use.
-		for (T &value : list)
+		for (T &value : gen_list)
 			value += value_l_;
 
 		// Now for every generated value, we shift it by how many forbidden
 		// values are <= to it.
 		std::vector<std::pair<T, int>> values_sorted;
-		for (int i = 0; i < list.size(); ++i)
-			values_sorted.emplace_back(list[i], i);
+		for (int i = 0; i < gen_list.size(); ++i)
+			values_sorted.emplace_back(gen_list[i], i);
 		// We iterate through them in increasing order.
 		std::sort(values_sorted.begin(), values_sorted.end());
 		auto cur_it = forbidden_values.begin();
@@ -514,10 +518,10 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 			while (cur_it != forbidden_values.end() and
 				   *cur_it <= val + smaller_forbidden_count)
 				++cur_it, ++smaller_forbidden_count;
-			list[idx] += smaller_forbidden_count;
+			gen_list[idx] += smaller_forbidden_count;
 		}
 
-		return list;
+		return gen_list;
 	}
 
 	// Generates sequence instance.
@@ -861,8 +865,8 @@ struct permutation : gen_base<permutation> {
 				vis[vec_[i]] = true;
 			}
 		}
-		instance(const std::initializer_list<int> &list)
-			: instance(std::vector<int>(list.begin(), list.end())) {}
+		instance(const std::initializer_list<int> &il)
+			: instance(std::vector<int>(il.begin(), il.end())) {}
 
 		// Fetches size.
 		std::size_t size() const { return vec_.size(); }
@@ -870,6 +874,20 @@ struct permutation : gen_base<permutation> {
 		// Fetches position idx.
 		int &operator[](int idx) { return vec_[idx]; }
 		const int &operator[](int idx) const { return vec_[idx]; }
+
+		// Returns parity of the permutation (+1 if even, -1 if odd).
+		int parity() {
+			std::vector<bool> vis(size(), false);
+			int cycles = 0;
+
+			for (int i = 0; i < size(); ++i) if (!vis[i]) {
+				cycles++;
+				for (int j = i; !vis[j]; j = vec_[j])
+					vis[j] = true;
+			}
+			// Even iff (n - cycles) is even.
+			return ((size() - cycles) % 2 == 0) ? +1 : -1;
+		}
 
 		// Sorts values in increasign order.
 		instance &sort() {
@@ -885,8 +903,8 @@ struct permutation : gen_base<permutation> {
 
 		// Inverse of the permutation.
 		instance &inverse() {
-			std::vector<int> inv(vec_.size());
-			for (int i = 0; i < vec_.size(); ++i)
+			std::vector<int> inv(size());
+			for (int i = 0; i < size(); ++i)
 				inv[vec_[i]] = i;
 			swap(vec_, inv);
 			return *this;
@@ -955,6 +973,11 @@ struct permutation : gen_base<permutation> {
 	}
 	instance gen(const std::initializer_list<int> &cycle_sizes) {
 		return gen(std::vector<int>(cycle_sizes.begin(), cycle_sizes.end()));
+	}
+
+	instance gen(const std::initializer_list<int> &a,
+				 const std::initializer_list<int> b) {
+		return gen(a);
 	}
 };
 

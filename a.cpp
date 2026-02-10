@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 
 	std::cout << tgen::permutation(11)
 					 .gen_until([](const auto &inst) { return inst[0] == 5; },
-								100, std::vector<int>({3, 3, 5}))
+								100, {3, 3, 5})
 					 .add_1()
 			  << std::endl;
 }

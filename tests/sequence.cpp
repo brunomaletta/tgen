@@ -190,7 +190,7 @@ TEST(sequence_test, gen_with_set) {
 		std::vector<int> set_idx(n, 0);
 		for (int j = 0; j < num_op; ++j)
 			set_idx[j] = 1;
-		tgen::shuffle(set_idx);
+		tgen::shuffle(set_idx.begin(), set_idx.end());
 
 		sequence_test test(n, 1, n);
 
@@ -236,7 +236,7 @@ TEST(sequence_test, gen_with_equal_range) {
 		int q = tgen::next(1, 2 * n);
 		for (int i = 0; i < q; ++i)
 			equals.emplace_back(tgen::next(0, n - 1), tgen::next(0, n - 1));
-		tgen::shuffle(equals);
+		tgen::shuffle(equals.begin(), equals.end());
 
 		auto s = tgen::sequence<int>(n, 1, n);
 		for (auto &[i, j] : equals) {
