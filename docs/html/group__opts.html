@@ -140,7 +140,7 @@ Registering</h3>
 <div class="line">    </div>
 <div class="line">    <span class="comment">// Rest of the generator.</span></div>
 <div class="line">}</div>
-<div class="ttc" id="agroup__opts_html_gae8eca919976894c15b44713f00f33bd8"><div class="ttname"><a href="#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a></div><div class="ttdeci">void register_gen(int argc, char **argv)</div><div class="ttdoc">Sets up the generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00293">tgen.h:293</a></div></div>
+<div class="ttc" id="agroup__opts_html_gae8eca919976894c15b44713f00f33bd8"><div class="ttname"><a href="#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a></div><div class="ttdeci">void register_gen(int argc, char **argv)</div><div class="ttdoc">Sets up the generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00297">tgen.h:297</a></div></div>
 </div><!-- fragment --><p>This does two things:</p><ol type="1">
 <li>Sets up the seed for random generator based on the arguments (excluding the executable name). That is, <span class="tt">./a.out -n 10</span> and <span class="tt">./b.out -n 10</span> will use the same seed.</li>
 <li>Parses the opts (given in the arguments).</li>
@@ -170,7 +170,7 @@ Consuming opts</h4>
 <p>You can consume the opts by using <span class="tt">opt&lt;&gt;</span>:</p>
 <div class="fragment"><div class="line"><span class="keywordtype">int</span> n = <a class="code hl_function" href="#ga9f0e855b0b1931d436369a57e8d52730">tgen::opt&lt;int&gt;</a>(<span class="stringliteral">&quot;n&quot;</span>);</div>
 <div class="line">std::string s = <a class="code hl_function" href="#ga9f0e855b0b1931d436369a57e8d52730">tgen::opt&lt;std::string&gt;</a>(0, <span class="stringliteral">&quot;&quot;</span>); <span class="comment">// Default value, if opt is not found.</span></div>
-<div class="ttc" id="agroup__opts_html_ga9f0e855b0b1931d436369a57e8d52730"><div class="ttname"><a href="#ga9f0e855b0b1931d436369a57e8d52730">tgen::opt</a></div><div class="ttdeci">T opt(const KEY &amp;key, std::optional&lt; T &gt; default_value=std::nullopt)</div><div class="ttdoc">Gets opt by key.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00198">tgen.h:198</a></div></div>
+<div class="ttc" id="agroup__opts_html_ga9f0e855b0b1931d436369a57e8d52730"><div class="ttname"><a href="#ga9f0e855b0b1931d436369a57e8d52730">tgen::opt</a></div><div class="ttdeci">T opt(const KEY &amp;key, std::optional&lt; T &gt; default_value=std::nullopt)</div><div class="ttdoc">Gets opt by key.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00202">tgen.h:202</a></div></div>
 </div><!-- fragment --> <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
 <a id="ga87fb2f31789744477371960792b7540f" name="ga87fb2f31789744477371960792b7540f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga87fb2f31789744477371960792b7540f">&#9670;&#160;</a></span>has_opt() <span class="overload">[1/2]</span></h2>
@@ -204,7 +204,7 @@ Consuming opts</h4>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>If there is named opt with <span class="tt">key</span>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00168">168</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00172">172</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -240,7 +240,7 @@ Consuming opts</h4>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>If there is positional opt at <span class="tt">index</span>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00163">163</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00167">167</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -281,7 +281,7 @@ template&lt;typename T, typename KEY&gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00198">198</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00202">202</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -322,7 +322,7 @@ template&lt;typename T, typename KEY&gt; </div>
 </dl>
 <p>Sets up the opts, and the seed of the random number generator. The seed is dependent on the arguments (excluding the executable name). </p>
 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00293">293</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00297">297</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>

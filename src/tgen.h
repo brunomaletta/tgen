@@ -75,10 +75,11 @@ template <typename It> void shuffle(It first, It last) {
 		std::iter_swap(i, first + next(0, int(i - first)));
 }
 
-// Shuffles container uniformly. Returns a copy.
-template <typename C> C shuffle(C container) {
-	shuffle(container.begin(), container.end());
-	return container;
+// Shuffles container uniformly.
+template <typename C> [[nodiscard]] C shuffle(const C &container) {
+	auto new_container = container;
+	shuffle(new_container.begin(), new_container.end());
+	return new_container;
 }
 
 // Returns a random element from [first, last).
@@ -118,17 +119,20 @@ std::vector<T> choose(int k, const std::initializer_list<T> &list) {
 	return choose(k, std::vector<T>(list.begin(), list.end()));
 }
 
-// Calls the generator until predicate is true.
+// Base struct for generators.
 template <typename GEN> struct gen_base {
-	template <typename PRED>
-	auto gen_until(PRED predicate, int max_tries, bool random_default = false) {
+	// Calls the generator until predicate is true.
+	template <typename PRED, typename... Args>
+	auto gen_until(PRED predicate, int max_tries, Args &&...args) {
+
 		for (int i = 0; i < max_tries; ++i) {
-			auto inst = static_cast<GEN *>(this)->gen();
+			auto inst =
+				static_cast<GEN *>(this)->gen(std::forward<Args>(args)...);
+
 			if (predicate(inst))
 				return inst;
 		}
-		if (random_default)
-			return static_cast<GEN *>(this)->gen();
+
 		throw error_internal("could not generate instance matching predicate");
 	}
 };
@@ -431,7 +435,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		T &operator[](int idx) { return vec_[idx]; }
 		const T &operator[](int idx) const { return vec_[idx]; }
 
-		// Sorts values in increasign order.
+		// Sorts values in non-decreasing order.
 		instance &sort() {
 			std::sort(vec_.begin(), vec_.end());
 			return *this;
@@ -454,10 +458,10 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		// Prints in stdout, separated by spaces.
 		friend std::ostream &operator<<(std::ostream &out,
 										const instance &inst) {
-			for (int i = 0; i < inst.vec_.size(); ++i) {
+			for (int i = 0; i < inst.size(); ++i) {
 				if (i > 0)
 					out << ' ';
-				out << inst.vec_[i];
+				out << inst[i];
 			}
 			return out;
 		}
@@ -516,7 +520,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		return list;
 	}
 
-	// Generate sequence instance.
+	// Generates sequence instance.
 	instance gen() {
 		std::vector<T> vec(size_);
 		std::vector<bool> defined_idx(
@@ -548,7 +552,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 					std::queue<int> q({idx});
 					vis[idx] = true;
 					std::vector<int> component;
-					while (q.size()) {
+					while (!q.empty()) {
 						int cur_idx = q.front();
 						q.pop();
 
@@ -674,7 +678,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 			std::queue<std::pair<int, int>> q; // {id, parent id}
 			q.emplace(distinct_id, -1);
 			vis_distinct[distinct_id] = true;
-			while (q.size()) {
+			while (!q.empty()) {
 				auto [cur_distinct, parent] = q.front();
 				q.pop();
 
@@ -782,7 +786,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 
 namespace sequence_op {
 
-// Shuffles an sequence.
+// Shuffles a sequence.
 template <typename INST> INST shuffle(const INST &inst) {
 	INST new_inst = inst;
 	tgen::shuffle(new_inst.vec_);
@@ -820,11 +824,12 @@ template <typename INST> INST choose(int k, const INST &inst) {
 
 /*
  * Permutation generation.
+ *
+ * Permutation are defined always as numbers in [0, n), that is, 0-based.
  */
 
 struct permutation : gen_base<permutation> {
 	int size_;							   // Size of permutation.
-	std::vector<int> cycle_sizes_;		   // Size of cycles of permutation.
 	std::vector<std::pair<int, int>> sets; // {idx, value}.
 
 	// Creates generator for permutation of size 'size'.
@@ -832,15 +837,9 @@ struct permutation : gen_base<permutation> {
 		tgen_ensure(size_ > 0, "size must be positive");
 	}
 
-	// Creates generator for permutation given cycle sizes.
-	permutation(std::vector<int> cycle_sizes) : cycle_sizes_(cycle_sizes) {
-		tgen_ensure(cycle_sizes_.size() > 0,
-					"must have at least one cycle size");
-		size_ = std::accumulate(cycle_sizes_.begin(), cycle_sizes_.end(), 0);
-	}
-
 	// Restricts sequences for permutation[idx] = value.
 	permutation &set(int idx, int value) {
+		tgen_ensure(0 <= idx and idx < size_, "index must be valid");
 		sets.emplace_back(idx, value);
 		return *this;
 	}
@@ -852,6 +851,7 @@ struct permutation : gen_base<permutation> {
 		bool add_1_;		   // If should add 1, for printing.
 
 		instance(const std::vector<int> &vec) : vec_(vec), add_1_(false) {
+			tgen_ensure(!vec_.empty(), "permutation cannot be empty");
 			std::vector<bool> vis(vec_.size(), false);
 			for (int i = 0; i < vec_.size(); i++) {
 				tgen_ensure(0 <= vec_[i] and vec_[i] < vec_.size(),
@@ -901,10 +901,10 @@ struct permutation : gen_base<permutation> {
 		// Prints in stdout, separated by spaces.
 		friend std::ostream &operator<<(std::ostream &out,
 										const instance &inst) {
-			for (int i = 0; i < inst.vec_.size(); ++i) {
+			for (int i = 0; i < inst.size(); ++i) {
 				if (i > 0)
 					out << ' ';
-				out << inst.vec_[i] + inst.add_1_;
+				out << inst[i] + inst.add_1_;
 			}
 			return out;
 		}
@@ -913,17 +913,48 @@ struct permutation : gen_base<permutation> {
 		std::vector<int> to_std() const { return vec_; }
 	};
 
-	// Generate permutation instance.
+	// Generates permutation instance.
 	instance gen() {
-		// Cycle sizes are not set.
-		if (!cycle_sizes_.size()) {
-			sequence<int> seq(size_, 0, size_ - 1);
-			seq.distinct();
-			for (auto [idx, val] : sets)
-				seq.set(idx, val);
-			return instance(seq.gen().to_std());
+		sequence<int> seq(size_, 0, size_ - 1);
+		seq.distinct();
+		for (auto [idx, val] : sets)
+			seq.set(idx, val);
+		return instance(seq.gen().to_std());
+	}
+
+	// Generates permutation instance, given cycle sizes.
+	instance gen(const std::vector<int> &cycle_sizes) {
+		tgen_ensure(
+			size_ == std::accumulate(cycle_sizes.begin(), cycle_sizes.end(), 0),
+			"cycle sizes must add up to size of permutation");
+		tgen_ensure(
+			sets.empty(),
+			"cannot generate permutation with set values and cycle sizes");
+
+		// Creates cycles.
+		std::vector<int> order(size_);
+		std::iota(order.begin(), order.end(), 0);
+		shuffle(order.begin(), order.end());
+		int idx = 0;
+		std::vector<std::vector<int>> cycles;
+		for (int cycle_size : cycle_sizes) {
+			cycles.emplace_back();
+			for (int i = 0; i < cycle_size; ++i)
+				cycles.back().push_back(order[idx++]);
 		}
-		return {};
+
+		// Retrieves permutation from cycles.
+		std::vector<int> perm(size_, -1);
+		for (const std::vector<int> &cycle : cycles) {
+			int cur_size = cycle.size();
+			for (int i = 0; i < cur_size; ++i)
+				perm[cycle[i]] = cycle[(i + 1) % cur_size];
+		}
+
+		return instance(perm);
+	}
+	instance gen(const std::initializer_list<int> &cycle_sizes) {
+		return gen(std::vector<int>(cycle_sizes.begin(), cycle_sizes.end()));
 	}
 };
 

@@ -305,12 +305,9 @@ tgen::sequence::instance tgen::sequence::gen();
  *        `tgen::sequence::instance`, and returns a `bool`.
  * @param max_tries The maximum number of times the function will try to generate a valid instance
  *        satisfying `predicate`.
- * @param random_default If a random valid instance is to be returned if no valid instance
- *        satisfying `predicate` is found after `max_tries` tries.
  *
  * @return An instance found by repeatedly choosing a uniformly random valid sequence and checking
- * if it satisfies `predicate`. If no such instance is found after `max_tries` tries and
- * `random_default` is set to `true`, returns a uniformly random valid sequence.
+ * if it satisfies `predicate`.
  *
  * #### Examples
  *
@@ -324,10 +321,10 @@ tgen::sequence::instance tgen::sequence::gen();
  * ```
  *
  * @throws std::runtime_error if no valid instance satisfying `predicate` is found after `max_tries`
- *         tries and `random_default` is set to `false`.
+ *         tries.
  * @memberof tgen::sequence
  */
-tgen::sequence::instance tgen::sequence::gen_until(PRED predicate, int max_tries, bool random_default = false);
+tgen::sequence::instance tgen::sequence::gen_until(PRED predicate, int max_tries);
 
 
 

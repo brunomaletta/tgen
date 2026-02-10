@@ -85,7 +85,7 @@ template <typename It> void tgen::shuffle(It first, It last);
 
 /**
  * @ingroup general
- * @brief Shuffles `container` inplace. Returns a copy.
+ * @brief Shuffles `container`.
  *
  * @param container Container to be shuffled.
  *
@@ -98,7 +98,7 @@ template <typename It> void tgen::shuffle(It first, It last);
  * tgen::shuffle(st);
  * ```
  */
-template <typename C> C tgen::shuffle(C container);
+template <typename C> C tgen::shuffle(const C &container);
 
 
 /**

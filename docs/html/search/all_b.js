@@ -6,7 +6,7 @@ var searchData=
   ['sequence_20operations_3',['Sequence operations',['../group__sequence__op.html',1,'']]],
   ['sequences_4',['Sequences',['../group__sequence.html',1,'']]],
   ['set_5',['set',['../group__sequence__gen.html#gaff196db1265936038bcb8761192f5a8c',1,'tgen::sequence']]],
-  ['shuffle_6',['shuffle',['../group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b',1,'tgen::shuffle(It first, It last)'],['../group__general.html#ga0b5cc288fd3b6e0572b929effb47e930',1,'tgen::shuffle(C container)'],['../group__sequence__op.html#ga6dbb723e2e97121cfaa7a2d2d6e63e68',1,'tgen::sequence_op::shuffle()']]],
+  ['shuffle_6',['shuffle',['../group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b',1,'tgen::shuffle(It first, It last)'],['../group__general.html#ga22a2572db6a8ffdaac66d1d596bda40a',1,'tgen::shuffle(const C &amp;container)'],['../group__sequence__op.html#ga6dbb723e2e97121cfaa7a2d2d6e63e68',1,'tgen::sequence_op::shuffle()']]],
   ['size_7',['size',['../group__sequence__inst.html#ga9b7d3f185bcf60aea75a5cb02755fa87',1,'tgen::sequence::instance']]],
   ['sort_8',['sort',['../group__sequence__inst.html#gaabbbd20653bd6b4149aea1914267db56',1,'tgen::sequence::instance']]]
 ];

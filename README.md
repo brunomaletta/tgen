@@ -129,7 +129,7 @@ std::cout <<
     .set(0, 1)
     .gen_until([](const auto& inst) {
         auto vec = inst.to_std();
-        return accumulate(vec.begin(), vec.end(), 0) == 5;
+        return std::accumulate(vec.begin(), vec.end(), 0) == 5;
     }, 100) << std::endl;
 // "1 0 0 1 0 1 1 0 1 0"
 ```
