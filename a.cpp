@@ -43,4 +43,6 @@ int main(int argc, char **argv) {
 
 	tgen::sequence<int> s = tgen::sequence<int>(5, 1, 5).distinct();
 	std::cout << s.gen() + s.gen() << std::endl;
+
+	std::cout << tgen::permutation(10).set(0, 4).gen().add_1() << std::endl;
 }

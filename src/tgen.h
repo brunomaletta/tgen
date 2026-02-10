@@ -118,6 +118,21 @@ std::vector<T> choose(int k, const std::initializer_list<T> &list) {
 	return choose(k, std::vector<T>(list.begin(), list.end()));
 }
 
+// Calls the generator until predicate is true.
+template <typename GEN> struct gen_base {
+	template <typename PRED>
+	auto gen_until(PRED predicate, int max_tries, bool random_default = false) {
+		for (int i = 0; i < max_tries; ++i) {
+			auto inst = static_cast<GEN *>(this)->gen();
+			if (predicate(inst))
+				return inst;
+		}
+		if (random_default)
+			return static_cast<GEN *>(this)->gen();
+		throw error_internal("could not generate instance matching predicate");
+	}
+};
+
 /************
  *          *
  *   OPTS   *
@@ -293,7 +308,7 @@ inline void register_gen(int argc, char **argv) {
  * Sequence generator.
  */
 
-template <typename T> struct sequence {
+template <typename T> struct sequence : gen_base<sequence<T>> {
 	int size_;			  // Size of sequence.
 	T value_l_, value_r_; // Range of defined values.
 	std::set<T> values_;  // Set of values. If empty, use range. if not,
@@ -306,7 +321,7 @@ template <typename T> struct sequence {
 	std::vector<std::set<int>>
 		distinct_constraints_; // All distinct constraints.
 
-	// Creates generator for sequences of size 'size', with random T in [l, r]
+	// Creates generator for sequences of size 'size', with random T in [l, r].
 	sequence(int size, T value_l, T value_r)
 		: size_(size), value_l_(value_l), value_r_(value_r), neigh_(size) {
 		tgen_ensure(size_ > 0, "size must be positive");
@@ -759,22 +774,6 @@ template <typename T> struct sequence {
 
 		return instance(vec);
 	}
-
-	// Calls the generator until predicate is true.
-	template <typename PRED>
-	instance gen_until(PRED predicate, int max_tries,
-					   bool random_default = false) {
-		for (int i = 0; i < max_tries; ++i) {
-			instance inst = gen();
-			if (predicate(inst))
-				return inst;
-		}
-		if (random_default)
-			return gen();
-		else
-			throw error_internal(
-				"could not generate instance matching predicate");
-	}
 };
 
 /*
@@ -812,5 +811,136 @@ template <typename INST> INST choose(int k, const INST &inst) {
 }
 
 }; // namespace sequence_op
+
+/*******************
+ *                 *
+ *   PERMUTATION   *
+ *                 *
+ *******************/
+
+/*
+ * Permutation generation.
+ */
+
+struct permutation : gen_base<permutation> {
+	int size_;							   // Size of permutation.
+	std::vector<int> cycle_sizes_;		   // Size of cycles of permutation.
+	std::vector<std::pair<int, int>> sets; // {idx, value}.
+
+	// Creates generator for permutation of size 'size'.
+	permutation(int size) : size_(size) {
+		tgen_ensure(size_ > 0, "size must be positive");
+	}
+
+	// Creates generator for permutation given cycle sizes.
+	permutation(std::vector<int> cycle_sizes) : cycle_sizes_(cycle_sizes) {
+		tgen_ensure(cycle_sizes_.size() > 0,
+					"must have at least one cycle size");
+		size_ = std::accumulate(cycle_sizes_.begin(), cycle_sizes_.end(), 0);
+	}
+
+	// Restricts sequences for permutation[idx] = value.
+	permutation &set(int idx, int value) {
+		sets.emplace_back(idx, value);
+		return *this;
+	}
+
+	// Permutation instance.
+	// Operations on an instance are not random.
+	struct instance {
+		std::vector<int> vec_; // Permutation.
+		bool add_1_;		   // If should add 1, for printing.
+
+		instance(const std::vector<int> &vec) : vec_(vec), add_1_(false) {
+			std::vector<bool> vis(vec_.size(), false);
+			for (int i = 0; i < vec_.size(); i++) {
+				tgen_ensure(0 <= vec_[i] and vec_[i] < vec_.size(),
+							"permutation values must be from `0` to `size-1`");
+				tgen_ensure(!vis[vec_[i]],
+							"cannot have repeated values in permutation");
+				vis[vec_[i]] = true;
+			}
+		}
+		instance(const std::initializer_list<int> &list)
+			: instance(std::vector<int>(list.begin(), list.end())) {}
+
+		// Fetches size.
+		std::size_t size() const { return vec_.size(); }
+
+		// Fetches position idx.
+		int &operator[](int idx) { return vec_[idx]; }
+		const int &operator[](int idx) const { return vec_[idx]; }
+
+		// Sorts values in increasign order.
+		instance &sort() {
+			std::sort(vec_.begin(), vec_.end());
+			return *this;
+		}
+
+		// Reverses permutation.
+		instance &reverse() {
+			std::reverse(vec_.begin(), vec_.end());
+			return *this;
+		}
+
+		// Inverse of the permutation.
+		instance &inverse() {
+			std::vector<int> inv(vec_.size());
+			for (int i = 0; i < vec_.size(); ++i)
+				inv[vec_[i]] = i;
+			swap(vec_, inv);
+			return *this;
+		}
+
+		// Sets that should print values 1-based.
+		instance &add_1() {
+			add_1_ = true;
+			return *this;
+		}
+
+		// Prints in stdout, separated by spaces.
+		friend std::ostream &operator<<(std::ostream &out,
+										const instance &inst) {
+			for (int i = 0; i < inst.vec_.size(); ++i) {
+				if (i > 0)
+					out << ' ';
+				out << inst.vec_[i] + inst.add_1_;
+			}
+			return out;
+		}
+
+		// Gets a std::vector representing the instance.
+		std::vector<int> to_std() const { return vec_; }
+	};
+
+	// Generate permutation instance.
+	instance gen() {
+		// Cycle sizes are not set.
+		if (!cycle_sizes_.size()) {
+			sequence<int> seq(size_, 0, size_ - 1);
+			seq.distinct();
+			for (auto [idx, val] : sets)
+				seq.set(idx, val);
+			return instance(seq.gen().to_std());
+		}
+		return {};
+	}
+
+	// Calls the generator until predicate is true.
+	template <typename PRED>
+	instance gen_until(PRED predicate, int max_tries,
+					   bool random_default = false) {
+		for (int i = 0; i < max_tries; ++i) {
+			instance inst = gen();
+			if (predicate(inst))
+				return inst;
+		}
+		if (random_default)
+			return gen();
+		else
+			throw error_internal(
+				"could not generate instance matching predicate");
+	}
+};
 
 }; // namespace tgen

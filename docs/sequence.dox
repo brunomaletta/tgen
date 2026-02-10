@@ -302,7 +302,7 @@ tgen::sequence::instance tgen::sequence::gen();
  * will be found with probability `1 - (1-p)^max_tries`.
  *
  * @param predicate Condition to be checked. Should be a function that takes in a
- *        `tgen::sequence::instance`, and returns a `bool`.
+ *        `tgen::sequence::instance`, and return a `bool`.
  * @param max_tries The maximum number of times the function will try to generate a valid instance
  *        satisfying `predicate`.
  * @param random_default If a random valid instance is to be returned if no valid instance
@@ -325,6 +325,7 @@ tgen::sequence::instance tgen::sequence::gen();
  *
  * @throws std::runtime_error if no valid instance satisfying `predicate` is found after `max_tries`
  *         tries and `random_default` is set to `false`.
+ * @memberof tgen::sequence
  */
 tgen::sequence::instance tgen::sequence::gen_until(PRED predicate, int max_tries, bool random_default = false);
 
