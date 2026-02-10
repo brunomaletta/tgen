@@ -452,7 +452,7 @@ template&lt;typename T&gt; </div>
 <p>If <span class="tt">predicate</span> has probabiliyy <span class="tt">p</span> of returning <span class="tt">true</span>, then the <span class="tt"><a class="el" href="structtgen_1_1sequence_1_1instance.html" title="Sequence instance.">tgen::sequence::instance</a></span> will be found with probability <span class="tt">1 - (1-p)^max_tries</span>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">predicate</td><td>Condition to be checked. Should be a function that takes in a <span class="tt"><a class="el" href="structtgen_1_1sequence_1_1instance.html" title="Sequence instance.">tgen::sequence::instance</a></span>, and return a <span class="tt">bool</span>. </td></tr>
+    <tr><td class="paramname">predicate</td><td>Condition to be checked. Should be a function that takes in a <span class="tt"><a class="el" href="structtgen_1_1sequence_1_1instance.html" title="Sequence instance.">tgen::sequence::instance</a></span>, and returns a <span class="tt">bool</span>. </td></tr>
     <tr><td class="paramname">max_tries</td><td>The maximum number of times the function will try to generate a valid instance satisfying <span class="tt">predicate</span>. </td></tr>
     <tr><td class="paramname">random_default</td><td>If a random valid instance is to be returned if no valid instance satisfying <span class="tt">predicate</span> is found after <span class="tt">max_tries</span> tries.</td></tr>
   </table>

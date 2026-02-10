@@ -925,22 +925,6 @@ struct permutation : gen_base<permutation> {
 		}
 		return {};
 	}
-
-	// Calls the generator until predicate is true.
-	template <typename PRED>
-	instance gen_until(PRED predicate, int max_tries,
-					   bool random_default = false) {
-		for (int i = 0; i < max_tries; ++i) {
-			instance inst = gen();
-			if (predicate(inst))
-				return inst;
-		}
-		if (random_default)
-			return gen();
-		else
-			throw error_internal(
-				"could not generate instance matching predicate");
-	}
 };
 
 }; // namespace tgen

@@ -1104,26 +1104,10 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00925" name="l00925"></a><span class="lineno">  925</span>        }</div>
 <div class="line"><a id="l00926" name="l00926"></a><span class="lineno">  926</span>        <span class="keywordflow">return</span> {};</div>
 <div class="line"><a id="l00927" name="l00927"></a><span class="lineno">  927</span>    }</div>
-<div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span> </div>
-<div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span>    <span class="comment">// Calls the generator until predicate is true.</span></div>
-<div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PRED&gt;</div>
-<div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span>    <a class="code hl_struct" href="structtgen_1_1permutation_1_1instance.html">instance</a> gen_until(PRED predicate, <span class="keywordtype">int</span> max_tries,</div>
-<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span>                       <span class="keywordtype">bool</span> random_default = <span class="keyword">false</span>) {</div>
-<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; max_tries; ++i) {</div>
-<div class="line"><a id="l00934" name="l00934"></a><span class="lineno">  934</span>            <a class="code hl_struct" href="structtgen_1_1permutation_1_1instance.html">instance</a> inst = gen();</div>
-<div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span>            <span class="keywordflow">if</span> (predicate(inst))</div>
-<div class="line"><a id="l00936" name="l00936"></a><span class="lineno">  936</span>                <span class="keywordflow">return</span> inst;</div>
-<div class="line"><a id="l00937" name="l00937"></a><span class="lineno">  937</span>        }</div>
-<div class="line"><a id="l00938" name="l00938"></a><span class="lineno">  938</span>        <span class="keywordflow">if</span> (random_default)</div>
-<div class="line"><a id="l00939" name="l00939"></a><span class="lineno">  939</span>            <span class="keywordflow">return</span> gen();</div>
-<div class="line"><a id="l00940" name="l00940"></a><span class="lineno">  940</span>        <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00941" name="l00941"></a><span class="lineno">  941</span>            <span class="keywordflow">throw</span> error_internal(</div>
-<div class="line"><a id="l00942" name="l00942"></a><span class="lineno">  942</span>                <span class="stringliteral">&quot;could not generate instance matching predicate&quot;</span>);</div>
-<div class="line"><a id="l00943" name="l00943"></a><span class="lineno">  943</span>    }</div>
-<div class="line"><a id="l00944" name="l00944"></a><span class="lineno">  944</span>};</div>
+<div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span>};</div>
 </div>
-<div class="line"><a id="l00945" name="l00945"></a><span class="lineno">  945</span> </div>
-<div class="line"><a id="l00946" name="l00946"></a><span class="lineno">  946</span>}; <span class="comment">// namespace tgen</span></div>
+<div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span> </div>
+<div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span>}; <span class="comment">// namespace tgen</span></div>
 <div class="ttc" id="agroup__general_html_ga5494e4e347f9d1dc5b88695e0777f65b"><div class="ttname"><a href="group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a></div><div class="ttdeci">void shuffle(It first, It last)</div><div class="ttdoc">Shuffles [first, last) inplace.</div><div class="ttdef"><b>Definition</b> <a href="#l00070">tgen.h:70</a></div></div>
 <div class="ttc" id="agroup__general_html_ga5deceed8488585530188dbd266739771"><div class="ttname"><a href="group__general.html#ga5deceed8488585530188dbd266739771">tgen::choose</a></div><div class="ttdeci">C choose(int k, const C &amp;container)</div><div class="ttdoc">Chooses k values from the container, as in a subsequence of size k.</div><div class="ttdef"><b>Definition</b> <a href="#l00102">tgen.h:102</a></div></div>
 <div class="ttc" id="agroup__general_html_ga9c1c0431948210b949f5d1500e7235ec"><div class="ttname"><a href="group__general.html#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a></div><div class="ttdeci">It::value_type any(It first, It last)</div><div class="ttdoc">Choses a random element from [first, last).</div><div class="ttdef"><b>Definition</b> <a href="#l00085">tgen.h:85</a></div></div>

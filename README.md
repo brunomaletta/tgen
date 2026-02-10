@@ -98,7 +98,7 @@ Random Palindrome of length 7.
 ```cpp
 auto s = tgen::sequence<int>(7, 0, 9);
 for (int i = 0; i <= 2; ++i) s.equal(i, 6-i);
-cout << s.gen() << endl;
+std::cout << s.gen() << std::endl;
 // "3 1 9 6 9 1 3"
 ```
 
@@ -108,7 +108,7 @@ Random 3 runs of 4 equal numbers. Values between runs are distinct.
 std::cout <<
     tgen::sequence<int>(12, 1, 10)
     .equal_range(0, 3).equal_range(4, 7).equal_range(8, 11)
-    .distinct({0, 4, 8}).gen() << endl;
+    .distinct({0, 4, 8}).gen() << std::endl;
 // "3 3 3 3 2 2 2 2 9 9 9 9"
 ```
 
@@ -117,7 +117,7 @@ Random DNA sequence of length 8 with no equal adjacent values.
 ```cpp
 auto s2 = tgen::sequence(8, {'A','C','G','T'});
 for (int i = 1; i < 8; i++) s2.different(i-1, i);
-cout << s2.gen() << endl;
+std::cout << s2.gen() << std::endl;
 // "T C T G T G A C"
 ```
 
@@ -130,7 +130,7 @@ std::cout <<
     .gen_until([](const auto& inst) {
         auto vec = inst.to_std();
         return accumulate(vec.begin(), vec.end(), 0) == 5;
-    }, 100) << endl;
+    }, 100) << std::endl;
 // "1 0 0 1 0 1 1 0 1 0"
 ```
 
