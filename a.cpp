@@ -52,4 +52,8 @@ int main(int argc, char **argv) {
 								100, {3, 3, 5})
 					 .add_1()
 			  << std::endl;
+
+	std::cout << tgen::permutation(3).gen_until(
+					 [](const auto &inst) { return inst.parity() == 1; }, 100)
+			  << std::endl;
 }

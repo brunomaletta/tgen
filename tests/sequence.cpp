@@ -2,6 +2,7 @@
 
 #include "tgen.h"
 
+#include <iostream>
 #include <set>
 #include <utility>
 #include <vector>
@@ -76,7 +77,7 @@ struct sequence_test {
  * Tests.
  */
 
-TEST(sequence_test, sequence_constructor_size_zero) {
+TEST(sequence_test, constructor_size_zero) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -84,7 +85,7 @@ TEST(sequence_test, sequence_constructor_size_zero) {
 							 "size must be positive");
 }
 
-TEST(sequence_test, sequence_constructor_invalid_range) {
+TEST(sequence_test, constructor_invalid_range) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -92,7 +93,7 @@ TEST(sequence_test, sequence_constructor_invalid_range) {
 							 "value range must be valid");
 }
 
-TEST(sequence_test, sequence_constructor_empty_set) {
+TEST(sequence_test, constructor_empty_set) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -138,6 +139,8 @@ TEST(sequence_test, set_invalid_idx) {
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(-1, 5),
 							 "index must be valid");
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(10, 5),
+							 "index must be valid");
 }
 
 TEST(sequence_test, set_range_invalid_value) {
@@ -181,6 +184,39 @@ TEST(sequence_test, set_twice_valid) {
 	tgen::sequence<int>(10, {5, 10, 15}).set(3, 5).set(3, 5);
 }
 
+TEST(sequence_test, equal_invalid) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(-1, 5),
+							 "index must be valid");
+}
+
+TEST(sequence_test, instance_ops) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	tgen::sequence<int>::instance inst = {4, 1, 3, 2};
+
+	EXPECT_EQ(inst.size(), 4);
+	EXPECT_EQ(inst[2], 3);
+
+	tgen::sequence<int>::instance extra = {5, 6};
+	inst = inst + extra;
+	EXPECT_EQ(inst.to_std(), std::vector<int>({4, 1, 3, 2, 5, 6}));
+
+	inst.reverse();
+	EXPECT_EQ(inst.to_std(), std::vector<int>({6, 5, 2, 3, 1, 4}));
+
+	inst.sort();
+	EXPECT_EQ(inst.to_std(), std::vector<int>({1, 2, 3, 4, 5, 6}));
+
+	testing::internal::CaptureStdout();
+	std::cout << inst;
+	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+			  std::string("1 2 3 4 5 6"));
+}
+
 TEST(sequence_test, gen_with_set) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
@@ -200,14 +236,6 @@ TEST(sequence_test, gen_with_set) {
 
 		test.check();
 	}
-}
-
-TEST(sequence_test, equal_invalid) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
-
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(-1, 5),
-							 "index must be valid");
 }
 
 TEST(sequence_test, gen_with_equal) {

@@ -876,15 +876,16 @@ struct permutation : gen_base<permutation> {
 		const int &operator[](int idx) const { return vec_[idx]; }
 
 		// Returns parity of the permutation (+1 if even, -1 if odd).
-		int parity() {
+		int parity() const {
 			std::vector<bool> vis(size(), false);
 			int cycles = 0;
 
-			for (int i = 0; i < size(); ++i) if (!vis[i]) {
-				cycles++;
-				for (int j = i; !vis[j]; j = vec_[j])
-					vis[j] = true;
-			}
+			for (int i = 0; i < size(); ++i)
+				if (!vis[i]) {
+					cycles++;
+					for (int j = i; !vis[j]; j = vec_[j])
+						vis[j] = true;
+				}
 			// Even iff (n - cycles) is even.
 			return ((size() - cycles) % 2 == 0) ? +1 : -1;
 		}
@@ -973,11 +974,6 @@ struct permutation : gen_base<permutation> {
 	}
 	instance gen(const std::initializer_list<int> &cycle_sizes) {
 		return gen(std::vector<int>(cycle_sizes.begin(), cycle_sizes.end()));
-	}
-
-	instance gen(const std::initializer_list<int> &a,
-				 const std::initializer_list<int> b) {
-		return gen(a);
 	}
 };
 
