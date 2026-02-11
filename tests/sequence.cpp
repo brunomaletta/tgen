@@ -156,7 +156,7 @@ TEST(sequence_test, set_range_twice) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(3, 5).set(3, 6),
-							 "value must be in the defined range");
+							 "must not set to two different values");
 }
 
 TEST(sequence_test, set_value_set_invalid) {

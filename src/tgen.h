@@ -121,6 +121,7 @@ std::vector<T> choose(int k, const std::initializer_list<T> &il) {
 
 // Base struct for generators.
 template <typename GEN> struct gen_base {
+	// Calls the generator until predicate is true.
 	template <typename PRED, typename... Args>
 	auto gen_until(PRED predicate, int max_tries, Args &&...args) {
 		for (int i = 0; i < max_tries; ++i) {
@@ -138,6 +139,14 @@ template <typename GEN> struct gen_base {
 				   Args &&...args) {
 		return gen_until(predicate, max_tries, std::vector<T>(il),
 						 std::forward<Args>(args)...);
+	}
+
+	// Nice error for `std::cout << generator`.
+	friend std::ostream &operator<<(std::ostream &out, const gen_base &) {
+		static_assert(
+			false,
+			"you cannot print a generator. Maybe you forgot to call `gen()`?");
+		return out;
 	}
 };
 
@@ -360,8 +369,13 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		tgen_ensure(0 <= idx and idx < size_, "index must be valid");
 		if (values_.size() == 0) {
 			auto &[left, right] = val_range_[idx];
-			tgen_ensure(left <= value and value <= right,
-						"value must be in the defined range");
+			if (left == right) {
+				tgen_ensure(left == value,
+							"must not set to two different values");
+			} else {
+				tgen_ensure(left <= value and value <= right,
+							"value must be in the defined range");
+			}
 			left = right = value;
 		} else {
 			tgen_ensure(values_.count(value),
@@ -946,9 +960,6 @@ struct permutation : gen_base<permutation> {
 		tgen_ensure(
 			size_ == std::accumulate(cycle_sizes.begin(), cycle_sizes.end(), 0),
 			"cycle sizes must add up to size of permutation");
-		tgen_ensure(
-			sets.empty(),
-			"cannot generate permutation with set values and cycle sizes");
 
 		// Creates cycles.
 		std::vector<int> order(size_);

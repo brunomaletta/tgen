@@ -118,6 +118,14 @@ TEST(permutation_test, gen) {
 	}
 }
 
+TEST(permutation_test, gen_cycles_invalid) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).gen({4}),
+							 "cycle sizes must add up to size of permutation");
+}
+
 TEST(permutation_test, gen_cycles) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
