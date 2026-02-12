@@ -72,7 +72,7 @@ template <typename It> void shuffle(It first, It last) {
 		return;
 
 	for (It i = first + 1; i != last; ++i)
-		std::iter_swap(i, first + next(0, int(i - first)));
+		std::iter_swap(i, first + next(0, static_cast<int>(i - first)));
 }
 
 // Shuffles container uniformly.
@@ -177,7 +177,7 @@ inline std::map<std::string, std::string>
 	named_opts_internal; // Global dictionary the named parsed opts.
 
 // Returns true if there is an opt at a given index.
-inline bool has_opt(int index) {
+inline bool has_opt(std::size_t index) {
 	return 0 <= index and index < pos_opts_internal.size();
 }
 
@@ -348,7 +348,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 	}
 
 	// Creates sequence with value set.
-	sequence(int size, const std::set<T> &values)
+	sequence(int size, std::set<T> values)
 		: size_(size), values_(values), neigh_(size) {
 		tgen_ensure(size_ > 0, "size must be positive");
 		tgen_ensure(!values.empty(), "value set must be non-empty");
@@ -359,17 +359,13 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		for (T value : values_)
 			value_idx_in_set_[value] = idx++;
 	}
-	sequence(int size, const std::vector<T> &values)
-		: sequence(size, std::set<T>(values.begin(), values.end())) {}
-	sequence(int size, const std::initializer_list<T> &values)
-		: sequence(size, std::set<T>(values.begin(), values.end())) {}
 
 	// Restricts sequences for sequence[idx] = value.
 	sequence &set(int idx, T value) {
 		tgen_ensure(0 <= idx and idx < size_, "index must be valid");
 		if (values_.size() == 0) {
 			auto &[left, right] = val_range_[idx];
-			if (left == right) {
+			if (left == right and value_l_ != value_r_) {
 				tgen_ensure(left == value,
 							"must not set to two different values");
 			} else {
@@ -414,12 +410,10 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 	// Restricts sequences for sequence[S] to be distinct, for given subset S of
 	// indices.
 	// You can not add two of these restrictions with intersection.
-	sequence &distinct(const std::set<int> &indices) {
-		distinct_constraints_.push_back(indices);
+	sequence &distinct(std::set<int> indices) {
+		if (!indices.empty())
+			distinct_constraints_.push_back(indices);
 		return *this;
-	}
-	sequence &distinct(const std::initializer_list<int> &indices) {
-		return distinct(std::set<int>(indices.begin(), indices.end()));
 	}
 
 	// Restricts sequences for sequence[idx_1] != sequence[idx_2].
@@ -468,7 +462,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		// Concatenates two instances.
 		instance operator+(const instance &rhs) {
 			std::vector<T> new_vec = vec_;
-			for (int i = 0; i < rhs.size(); ++i)
+			for (std::size_t i = 0; i < rhs.size(); ++i)
 				new_vec.push_back(rhs[i]);
 			return instance(new_vec);
 		}
@@ -476,7 +470,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		// Prints in stdout, separated by spaces.
 		friend std::ostream &operator<<(std::ostream &out,
 										const instance &inst) {
-			for (int i = 0; i < inst.size(); ++i) {
+			for (std::size_t i = 0; i < inst.size(); ++i) {
 				if (i > 0)
 					out << ' ';
 				out << inst[i];
@@ -522,7 +516,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		// Now for every generated value, we shift it by how many forbidden
 		// values are <= to it.
 		std::vector<std::pair<T, int>> values_sorted;
-		for (int i = 0; i < gen_list.size(); ++i)
+		for (std::size_t i = 0; i < gen_list.size(); ++i)
 			values_sorted.emplace_back(gen_list[i], i);
 		// We iterate through them in increasing order.
 		std::sort(values_sorted.begin(), values_sorted.end());
@@ -622,7 +616,9 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 			int dist_id = 0;
 			for (const std::set<int> &distinct : distinct_constraints_) {
 				// Checks if there are too many distinct values.
-				if (distinct.size() > value_r_ - value_l_ + 1)
+				if (static_cast<unsigned long long>(distinct.size() - 1) +
+						static_cast<unsigned long long>(value_l_) >
+					static_cast<unsigned long long>(value_r_))
 					contradiction_error_internal(
 						"sequence",
 						"tried to generate " + std::to_string(distinct.size()) +
@@ -677,7 +673,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 			{
 				int new_value_count =
 					distinct_constraints_[distinct_id].size() -
-					int(defined_values.size());
+					static_cast<int>(defined_values.size());
 				std::vector<T> generated_values =
 					generate_distinct_values(new_value_count, defined_values);
 				auto val_it = generated_values.begin();
@@ -736,7 +732,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 						}
 					int new_value_count =
 						distinct_constraints_[nxt_distinct].size() -
-						int(nxt_defined_values.size());
+						static_cast<int>(nxt_defined_values.size());
 					std::vector<T> generated_values = generate_distinct_values(
 						new_value_count, nxt_defined_values);
 					auto val_it = generated_values.begin();
@@ -776,7 +772,8 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		}
 
 		// Loops through distinct constraints do define the rest.
-		for (int dist_id = 0; dist_id < distinct_constraints_.size(); ++dist_id)
+		for (std::size_t dist_id = 0; dist_id < distinct_constraints_.size();
+			 ++dist_id)
 			if (!vis_distinct[dist_id])
 				define_tree(dist_id);
 
@@ -871,8 +868,9 @@ struct permutation : gen_base<permutation> {
 		instance(const std::vector<int> &vec) : vec_(vec), add_1_(false) {
 			tgen_ensure(!vec_.empty(), "permutation cannot be empty");
 			std::vector<bool> vis(vec_.size(), false);
-			for (int i = 0; i < vec_.size(); i++) {
-				tgen_ensure(0 <= vec_[i] and vec_[i] < vec_.size(),
+			for (std::size_t i = 0; i < vec_.size(); i++) {
+				tgen_ensure(0 <= vec_[i] and
+								vec_[i] < static_cast<int>(vec_.size()),
 							"permutation values must be from `0` to `size-1`");
 				tgen_ensure(!vis[vec_[i]],
 							"cannot have repeated values in permutation");
@@ -894,7 +892,7 @@ struct permutation : gen_base<permutation> {
 			std::vector<bool> vis(size(), false);
 			int cycles = 0;
 
-			for (int i = 0; i < size(); ++i)
+			for (std::size_t i = 0; i < size(); ++i)
 				if (!vis[i]) {
 					cycles++;
 					for (int j = i; !vis[j]; j = vec_[j])
@@ -919,7 +917,7 @@ struct permutation : gen_base<permutation> {
 		// Inverse of the permutation.
 		instance &inverse() {
 			std::vector<int> inv(size());
-			for (int i = 0; i < size(); ++i)
+			for (std::size_t i = 0; i < size(); ++i)
 				inv[vec_[i]] = i;
 			swap(vec_, inv);
 			return *this;
@@ -934,7 +932,7 @@ struct permutation : gen_base<permutation> {
 		// Prints in stdout, separated by spaces.
 		friend std::ostream &operator<<(std::ostream &out,
 										const instance &inst) {
-			for (int i = 0; i < inst.size(); ++i) {
+			for (std::size_t i = 0; i < inst.size(); ++i) {
 				if (i > 0)
 					out << ' ';
 				out << inst[i] + inst.add_1_;
@@ -956,7 +954,7 @@ struct permutation : gen_base<permutation> {
 	}
 
 	// Generates permutation instance, given cycle sizes.
-	instance gen(const std::vector<int> &cycle_sizes) {
+	instance gen(std::vector<int> cycle_sizes) {
 		tgen_ensure(
 			size_ == std::accumulate(cycle_sizes.begin(), cycle_sizes.end(), 0),
 			"cycle sizes must add up to size of permutation");
@@ -982,9 +980,6 @@ struct permutation : gen_base<permutation> {
 		}
 
 		return instance(perm);
-	}
-	instance gen(const std::initializer_list<int> &cycle_sizes) {
-		return gen(std::vector<int>(cycle_sizes.begin(), cycle_sizes.end()));
 	}
 };
 

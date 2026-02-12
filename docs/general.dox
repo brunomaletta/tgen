@@ -14,7 +14,7 @@
  * for (int& i : v) i = tgen::any({5, 10, 15, 20});
  *
  * // Shuffles the numbers.
- * tgen::shuffle(v);
+ * tgen::shuffle(v.begin(), v.end());
  *
  * // Choses a subsequence of length 5.
  * v = tgen::choose(5, v);
@@ -89,13 +89,13 @@ template <typename It> void tgen::shuffle(It first, It last);
  *
  * @param container Container to be shuffled.
  *
- * @return A copy of the shuffled container.
+ * @return The shuffled container.
  *
  * #### Examples
  *
  * ```cpp
  * std::set<int> st = {1, 2, 3, 4, 5};
- * tgen::shuffle(st);
+ * st = tgen::shuffle(st);
  * ```
  */
 template <typename C> C tgen::shuffle(const C &container);

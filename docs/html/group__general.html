@@ -156,7 +156,7 @@ Examples</h3>
 <div class="line"><span class="keywordflow">for</span> (<span class="keywordtype">int</span>&amp; i : v) i = <a class="code hl_function" href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a>({5, 10, 15, 20});</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Shuffles the numbers.</span></div>
-<div class="line"><a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(v);</div>
+<div class="line"><a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(v.begin(), v.end());</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Choses a subsequence of length 5.</span></div>
 <div class="line">v = <a class="code hl_function" href="#ga5deceed8488585530188dbd266739771">tgen::choose</a>(5, v);</div>
@@ -395,11 +395,11 @@ template&lt;typename C&gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A copy of the shuffled container.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The shuffled container.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md9"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::set&lt;int&gt; st = {1, 2, 3, 4, 5};</div>
-<div class="line"><a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(st);</div>
+<div class="line">st = <a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(st);</div>
 </div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00079">79</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 

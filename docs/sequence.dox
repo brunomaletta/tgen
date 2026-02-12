@@ -68,6 +68,7 @@
  * generated with `tgen::sequence::gen`.
  */
 
+
 /**
  * @ingroup sequence_gen
  * @brief Sequence generator.
@@ -95,7 +96,7 @@ template <typename T> struct tgen::sequence;
  * auto seq_gen = tgen::sequence<int>(10, 1, 100);
  * ```
  */
-template <typename T> struct tgen::sequence::sequence(int size, T value_l, T value_r);
+struct tgen::sequence::sequence(int size, T value_l, T value_r);
 
 
 /**
@@ -114,54 +115,14 @@ template <typename T> struct tgen::sequence::sequence(int size, T value_l, T val
  * auto seq_gen = tgen::sequence<int>(10, std::set<int>({3, 6, 9}));
  * ```
  */
-template <typename T> struct tgen::sequence::sequence(int size, const std::set<T> &values);
-
-
-/**
- * @ingroup sequence_gen
- * @brief Creates sequence generator define by value set.
- *
- * @param size Size of the sequence.
- * @param values Value set.
- *
- * Defines a generator of sequences of length `size` with values in `values`.
- * Disconsiders duplicates in `values`.
- *
- * #### Examples
- *
- * ```cpp
- * // Sequences of 10 ints that are either 3, 6, or 9.
- * auto seq_gen = tgen::sequence<int>(10, std::vector<int>({6, 3, 9, 3}));
- * ```
- */
-template <typename T> struct tgen::sequence::sequence(int size, const std::vector<T> &values);
-
-
-/**
- * @ingroup sequence_gen
- * @brief Creates sequence generator define by value set.
- *
- * @param size Size of the sequence.
- * @param values Value set.
- *
- * Defines a generator of sequences of length `size` with values in `values`.
- * Disconsiders duplicates in `values`.
- *
- * #### Examples
- *
- * ```cpp
- * // Sequences of 10 ints that are either 3, 6, or 9.
- * auto seq_gen = tgen::sequence<int>(10, {6, 3, 9, 3});
- * ```
- */
-template <typename T> struct tgen::sequence::sequence(int size, const std::initializer_list<T> &values);
+struct tgen::sequence::sequence(int size, std::set<T> values);
 
 
 /**
  * @ingroup sequence_gen
  * @brief Restricts generator s.t. value at index `idx` is `value`.
  *
- * @param idx Index
+ * @param idx Index.
  * @param value Value.
  *
  * @throws std::runtime_error if `value` is not in the value range/set.
@@ -229,12 +190,10 @@ tgen::sequence &tgen::sequence::equal_range(int left, int right);
  *
  * ```cpp
  * // Sequences of 10 ints from 1 to 5 with the first half distinct.
- * auto seq_gen = tgen::sequence<int>(10, 1, 5).distinct(std::set<int>({0, 1, 2, 3, 4}));
- * // You can also use std::initializer_list<int>.
- * seq_gen = tgen::sequence<int>(10, 1, 5).distinct({0, 1, 2, 3, 4});
+ * auto seq_gen = tgen::sequence<int>(10, 1, 5).distinct({0, 1, 2, 3, 4});
  * ```
  */
-tgen::sequence &tgen::sequence::distinct(const std::set<int> &indices);
+tgen::sequence &tgen::sequence::distinct(std::set<int> indices);
 
 
 /**
@@ -324,6 +283,7 @@ tgen::sequence::instance tgen::sequence::gen();
  *         tries.
  * @memberof tgen::sequence
  */
+template <typename PRED, typename T>
 tgen::sequence::instance tgen::sequence::gen_until(PRED predicate, int max_tries);
 
 
@@ -352,7 +312,7 @@ template <typename T> struct tgen::sequence::instance;
  * @ingroup sequence_inst
  * @brief Creates a sequence instance from a `std::vector`.
  *
- * @param vec Right The `std::vector` representing the instance.
+ * @param vec The `std::vector` representing the instance.
  *
  * #### Examples
  *
@@ -367,7 +327,7 @@ template <typename T> struct tgen::sequence::instance;
  * std::cout << inst << std::endl; // Prints "5 4".
  * ```
  */
-template <typename T> struct tgen::sequence::instance::instance(const std::vector<T>& vec);
+struct tgen::sequence::instance::instance(const std::vector<T>& vec);
 
 
 /**

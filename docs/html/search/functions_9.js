@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['register_5fgen_0',['register_gen',['../group__opts.html#gae8eca919976894c15b44713f00f33bd8',1,'tgen']]],
-  ['reverse_1',['reverse',['../group__sequence__inst.html#ga2fef50f7e022b0432142fd19ef2f6bad',1,'tgen::sequence::instance']]]
+  ['parity_0',['parity',['../group__permutation__inst.html#gafcc9d919a2a9fa56ef25fa596a119deb',1,'tgen::permutation::instance']]],
+  ['permutation_1',['permutation',['../group__permutation__gen.html#gae82b7c5e3108917d7acdf20f42d0b772',1,'tgen::permutation']]]
 ];

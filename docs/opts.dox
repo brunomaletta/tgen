@@ -61,7 +61,7 @@
  *
  * @return If there is positional opt at `index`.
  */
-bool tgen::has_opt(int index);
+bool tgen::has_opt(std::size_t index);
 
 
 /**

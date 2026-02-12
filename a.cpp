@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
 			  << std::endl;
 
 	// Random DNA sequence of length 8 with no equal adjacent values.
-	auto s2 = tgen::sequence(8, {'A', 'C', 'G', 'T'});
+	auto s2 = tgen::sequence<char>(8, {'A', 'C', 'G', 'T'});
 	for (int i = 1; i < 8; i++)
 		s2.different(i - 1, i);
 	std::cout << s2.gen() << std::endl;
@@ -38,22 +38,17 @@ int main(int argc, char **argv) {
 					 100)
 			  << std::endl;
 
-	tgen::sequence<int> s = tgen::sequence<int>(5, 1, 5).distinct();
-	std::cout << s.gen() + s.gen() << std::endl;
+	// Prints a random 1-based permutation of size 10 that start with 2.
+	std::cout << tgen::permutation(10).set(0, 1).gen().add_1() << std::endl;
 
-	auto perm = tgen::permutation(10).set(0, 4).gen().add_1();
-	std::cout << perm << std::endl;
-	std::cout << perm.inverse() << std::endl;
+	// Random permutation of size 5 with only one cycle.
+	std::cout << tgen::permutation(5).gen({5}) << std::endl;
 
-	std::cout << tgen::permutation(11).gen({3, 3, 5}).add_1() << std::endl;
-
-	std::cout << tgen::permutation(11)
-					 .gen_until([](const auto &inst) { return inst[0] == 5; },
-								100, {3, 3, 5})
-					 .add_1()
-			  << std::endl;
-
-	std::cout << tgen::permutation(3).gen_until(
-					 [](const auto &inst) { return inst.parity() == 1; }, 100)
+	// Inverse of a random odd permutation of size 5.
+	std::cout << tgen::permutation(5)
+					 .gen_until(
+						 [](const auto &perm) { return perm.parity() == -1; },
+						 100)
+					 .inverse()
 			  << std::endl;
 }

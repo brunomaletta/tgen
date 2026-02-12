@@ -109,10 +109,14 @@ $(function(){initNavTree('structtgen_1_1permutation.html','','structtgen_1_1perm
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="structtgen_1_1permutation-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">tgen::permutation Struct Reference</div></div>
+  <div class="headertitle"><div class="title">tgen::permutation Struct Reference<div class="ingroups"><a class="el" href="group__permutation.html">Permutations</a> &raquo; <a class="el" href="group__permutation__gen.html">Permutation generators</a></div></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Permutation generator.  
+ <a href="#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for tgen::permutation:</div>
 <div class="dyncontent">
@@ -126,12 +130,30 @@ Inheritance diagram for tgen::permutation:</div>
 <tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:instance" id="r_instance"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Permutation instance.  <a href="structtgen_1_1permutation_1_1instance.html#details">More...</a><br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:gae82b7c5e3108917d7acdf20f42d0b772" id="r_gae82b7c5e3108917d7acdf20f42d0b772"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__gen.html#gae82b7c5e3108917d7acdf20f42d0b772">permutation</a> (int size)</td></tr>
+<tr class="memdesc:gae82b7c5e3108917d7acdf20f42d0b772"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates permutation generator defined by size.  <br /></td></tr>
+<tr class="memitem:ga58d4602c9f9fada547c3f261f520e654" id="r_ga58d4602c9f9fada547c3f261f520e654"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation.html">permutation</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__gen.html#ga58d4602c9f9fada547c3f261f520e654">set</a> (int idx, int value)</td></tr>
+<tr class="memdesc:ga58d4602c9f9fada547c3f261f520e654"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. value at index <span class="tt">idx</span> is <span class="tt">value</span>.  <br /></td></tr>
+<tr class="memitem:ga3dde693756e718dea410448ae21d5d43" id="r_ga3dde693756e718dea410448ae21d5d43"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__gen.html#ga3dde693756e718dea410448ae21d5d43">gen</a> ()</td></tr>
+<tr class="memdesc:ga3dde693756e718dea410448ae21d5d43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid permutations.  <br /></td></tr>
+<tr class="memitem:gaa316f4bd58e0583e38711aedf4c348d0" id="r_gaa316f4bd58e0583e38711aedf4c348d0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__gen.html#gaa316f4bd58e0583e38711aedf4c348d0">gen</a> (std::vector&lt; int &gt; cycle_sizes)</td></tr>
+<tr class="memdesc:gaa316f4bd58e0583e38711aedf4c348d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid permutations, given a list of cycle sizes.  <br /></td></tr>
+<tr class="memitem:ga10b2233af3c58bc540b2bcfec51665f3" id="r_ga10b2233af3c58bc540b2bcfec51665f3"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
+<tr class="memitem:ga10b2233af3c58bc540b2bcfec51665f3 template"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation_1_1instance.html">tgen::permutation::instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__gen.html#ga10b2233af3c58bc540b2bcfec51665f3">gen_until</a> (PRED predicate, int max_tries, Args &amp;&amp;...args)</td></tr>
+<tr class="memdesc:ga10b2233af3c58bc540b2bcfec51665f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid permutations until a condition is met.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00831">831</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
-</div><hr/>The documentation for this struct was generated from the following file:<ul>
+<div class="textblock"><p>Permutation generator. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__permutation__gen.html">Permutation generators</a>. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00846">846</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+</div><hr/>The documentation for this struct was generated from the following files:<ul>
 <li>src/<a class="el" href="tgen_8h_source.html">tgen.h</a></li>
+<li>docs/<b>permutation.dox</b></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

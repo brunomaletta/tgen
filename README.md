@@ -15,6 +15,7 @@ The first thing is to [register the generator](https://brunomaletta.github.io/tg
 There are [general operations](https://brunomaletta.github.io/tgen/group__general.html) and operations for specific data types:
 
 - [Sequences](https://brunomaletta.github.io/tgen/group__sequence.html)
+- [Permutations](https://brunomaletta.github.io/tgen/group__permutation.html)
 
 ### Type generators and instances
 
@@ -132,5 +133,24 @@ std::cout <<
         return std::accumulate(vec.begin(), vec.end(), 0) == 5;
     }, 100) << std::endl;
 // "1 0 0 1 0 1 1 0 1 0"
+```
+
+Random 1-based permutation of size 5 with only one cycle.
+
+```cpp
+std::cout <<
+    tgen::permutation(5).gen({5}).add_1() << std::endl;
+// "2 5 4 1 3"
+```
+
+Inverse of a random odd permutation of size 5.
+
+```cpp
+std::cout <<
+    tgen::permutation(5)
+        .gen_until([](const auto &perm) { return perm.parity() == -1; }, 100)
+    .inverse()
+  << std::endl;
+// "4 2 3 1 0"
 ```
 

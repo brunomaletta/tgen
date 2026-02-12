@@ -92,6 +92,14 @@ TEST(permutation_test, instance_ops) {
 	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2 3"));
 }
 
+TEST(permutation_test, gen_invalid) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).set(0, 0).set(1, 0).gen(),
+							 "invalid sequence (contradicting constraints)");
+}
+
 TEST(permutation_test, gen) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());

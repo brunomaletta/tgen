@@ -1,0 +1,365 @@
+/**
+ * @defgroup permutation Permutations
+ * @brief Generation of permutations.
+ *
+ * ### Examples
+ *
+ * ```cpp
+ * // Prints a random 1-based permutation of size 10 that start with 2.
+ * std::cout <<
+ *     tgen::permutation(10).set(0, 1).gen().add_1() << std::endl;
+ * // "2 7 10 4 3 9 1 5 8 6"
+ * 
+ * // Prints a random permutation of size 5 with only one cycle.
+ * std::cout <<
+ *     tgen::permutation(5).gen({5}) << std::endl;
+ * // "1 4 3 0 2"
+ * 
+ * // Prints the inverse of a random odd permutation of size 5.
+ * std::cout <<
+ *     tgen::permutation(5)
+ *         .gen_until([](const auto &perm) { return perm.parity() == -1; }, 100)
+ *     .inverse()
+ *   << std::endl;
+ * // "4 2 3 1 0"
+ * ```
+ */
+
+
+
+
+
+/**
+ * @defgroup permutation_gen Permutation generators
+ * @ingroup permutation
+ * @brief Defines a set of permutations, subject to restrictions.
+ *
+ * A uniformly random `tgen::permutation::instance`
+ * (see @ref permutation_inst) from this set of permutations (that satisfies the restrictions) can be
+ * generated with `tgen::permutation::gen`.
+ */
+
+
+/**
+ * @ingroup permutation_gen
+ * @brief Permutation generator.
+ *
+ * \see @ref permutation_gen.
+ */
+template <> struct tgen::permutation;
+
+
+/**
+ * @ingroup permutation_gen
+ * @brief Creates permutation generator defined by size.
+ *
+ * @param size Size of the permutation.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Permutations of size 10.
+ * auto perm_gen = tgen::permutation(10);
+ * ```
+ */
+struct tgen::permutation::permutation(int size);
+
+
+/**
+ * @ingroup permutation_gen
+ * @brief Restricts generator s.t. value at index `idx` is `value`.
+ *
+ * @param idx Index.
+ * @param value Value.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Permutations of size 10 that start with 1.
+ * auto perm_gen = tgen::permutation(10).set(0, 1);
+ * ```
+ */
+tgen::permutation &tgen::permutation::set(int idx, int value);
+
+
+/**
+ * @ingroup permutation_gen
+ * @brief Generates a random instance from the set of valid permutations.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Generates and prints a random permutation of size 5.
+ * auto inst = tgen::permutation(5).gen();
+ * std::cout << inst << std::endl;
+ * ```
+ *
+ * @throws std::runtime_error if there is no valid permutation satisfying all added constraints.
+ */
+tgen::permutation::instance tgen::permutation::gen();
+
+
+/**
+ * @ingroup permutation_gen
+ * @brief Generates a random instance from the set of valid permutations, given a list
+ *        of cycle sizes.
+ *
+ * @param cycle_sizes Sizes of cycles.
+ *
+ * The sizes of cycles of the generated permuttion will be `cycle_sizes`. The permutation is generated
+ * uniformly at random among all permutations with these cycle sizes.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Generates and prints a random permutation of size 5 with only one cycle.
+ * auto inst = tgen::permutation(5).gen({5});
+ * std::cout << inst << std::endl;
+ * ```
+ *
+ * @throws std::runtime_error if there is no valid permutation satisfying all added constraints.
+ */
+tgen::permutation::instance tgen::permutation::gen(std::vector<int> cycle_sizes);
+
+
+/**
+ * @ingroup permutation_gen
+ * @brief Generates a random instance from the set of valid permutations until a condition is met.
+ *
+ * Calls `tgen::permutation::gen(args...)` until `predicate` is true, at most `max_tries` times.
+ * If `predicate` has probabiliyy `p` of returning `true`, then the `::tgen::sequence::instance`
+ * will be found with probability `1 - (1-p)^max_tries`.
+ *
+ * @param predicate Condition to be checked. Should be a function that takes in a
+ *        `tgen::sequence::instance`, and returns a `bool`.
+ * @param max_tries The maximum number of times the function will try to generate a valid instance
+ *        satisfying `predicate`.
+ * @param args Arguments for the the function `tgen::permutation::gen`.
+ *
+ * @return An instance found by repeatedly choosing a uniformly random valid permutation and checking
+ * if it satisfies `predicate`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints a random odd permutation of size 5.
+ * std::cout <<
+ *     tgen::permutation(5)
+ *         .gen_until([](const auto &perm) { return perm.parity() == -1; }, 100)
+ * 	 << std::endl;
+ * 
+ * // Prints a random odd permutation of size 5 with one cycle.
+ * std::cout <<
+ *     tgen::permutation(5)
+ *         .gen_until([](const auto &perm) { return perm.parity() == -1; }, 100, {5})
+ * 	 << std::endl;
+ * ```
+ *
+ * @throws std::runtime_error if no valid instance satisfying `predicate` is found after `max_tries`
+ *         tries.
+ * @memberof tgen::permutation
+ */
+template <typename... Args>
+tgen::permutation::instance tgen::permutation::gen_until(PRED predicate, int max_tries, Args &&...args);
+
+
+
+
+
+/**
+ * @defgroup permutation_inst Permutation instances
+ * @ingroup permutation
+ * @brief Instance of a permutation.
+ *
+ * It can be deterministically operated upon and printed through `std::cout`.
+ */
+
+/**
+ * @ingroup permutation_inst
+ * @brief Permutation instance.
+ *
+ * \see @ref permutation_inst.
+ */
+template <> struct tgen::permutation::instance;
+
+
+/**
+ * @ingroup permutation_inst
+ * @brief Creates a permutation instance from a `std::vector`.
+ *
+ * @param vec The `std::vector` representing the instance.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Creates and prints an instance from a std::vector.
+ * std::vector<int> v = {0, 1, 2};
+ * tgen::permutation::instance inst(v);
+ * std::cout << inst << std::endl; // Prints "0 1 2".
+ *
+ * // Also works with conversions, and std::initializer_list<T>.
+ * inst = {1, 0};
+ * std::cout << inst.add_1() << std::endl; // Prints "2 1".
+ * ```
+ */
+struct tgen::permutation::instance::instance(const std::vector<int> &vec);
+
+
+/**
+ * @ingroup permutation_inst
+ * @brief Returns the size of the permutation instance.
+ *
+ * @return The size (number of elements) of the permutation instance.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints the size of an instance.
+ * tgen::permutation::instance inst = {0, 1, 2};
+ * std::cout <<
+ *     inst.size() << std::endl; // Prints "3".
+ * ```
+ */
+size_t tgen::permutation::instance::size();
+
+
+/**
+ * @ingroup permutation_inst
+ * @brief Returns the value at some position of the instance.
+ *
+ * @param idx The index to be accessed.
+ *
+ * @return The value at index `idx`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints a position of an instance.
+ * tgen::permutation::instance inst = {2, 0, 1};
+ * ++inst[1];
+ * std::cout << inst[1] << std::endl; // Prints "0".
+ * ```
+ */
+T& tgen::permutation::instance::operator[](int idx) const;
+
+
+/**
+ * @ingroup permutation_inst
+ * @brief Parity of the permutation.
+ *
+ * @return `+1` if the permutation is even, or `-1` if the permutation is odd.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints parity of permutation.
+ * tgen::permutation::instance inst = {2, 0, 1};
+ * std::cout <<
+ *     inst.parity() << std::endl; // Prints "1".
+ * ```
+ */
+int tgen::permutation::instance::parity();
+
+
+/**
+ * @ingroup permutation_inst
+ * @brief Sorts the instance in non-decreasing order.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sorts and prints an instance.
+ * tgen::permutation::instance inst = {2, 0, 1};
+ * std::cout <<
+ *     inst.sort() << std::endl; // Prints "0 1 2".
+ * ```
+ */
+instance &tgen::permutation::instance::sort();
+
+
+/**
+ * @ingroup permutation_inst
+ * @brief Reverses the instance.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Reverses and prints an instance.
+ * tgen::permutation::instance inst = {2, 0, 1};
+ * std::cout <<
+ *     inst.reverse() << std::endl; // Prints "1 0 2".
+ * ```
+ */
+instance &tgen::permutation::instance::reverse();
+
+
+/**
+ * @ingroup permutation_inst
+ * @brief Inverse of the permutation.
+ *
+ * The inverse of the permutation `p` is another `pi` such that `pi[p[i]] = p[pi[i]] = i`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints inverse of permutation.
+ * tgen::permutation::instance inst = {2, 0, 1};
+ * std::cout <<
+ *     inst.inverse() << std::endl; // Prints "1 2 0".
+ * ```
+ */
+instance &tgen::permutation::instance::inverse();
+
+
+/**
+ * @ingroup permutation_inst
+ * @brief Adds 1 for printing.
+ *
+ * This makes it so, when given to `std::cout`, the permutation will be printed as 1-based.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints a 1-based permutation.
+ * tgen::permutation::instance inst = {2, 0, 1};
+ * std::cout <<
+ *     inst.add_1() << std::endl; // Prints "3 1 2".
+ * ```
+ */
+instance &tgen::permutation::instance::add_1();
+
+
+/**
+ * @ingroup permutation_inst
+ * @brief Prints the instance to a `std::ostream`.
+ *
+ * The values are printed with one space as a separator,
+ * and with no end of line.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints an instance.
+ * std::cout <<
+ *     tgen::permutation::instance({2, 0, 1}) << std::endl; // Prints "2 0 1".
+ * ```
+ */
+friend std::ostream &tgen::permutation::instance::operator<<(std::ostream &out, const instance &inst);
+
+
+/**
+ * @ingroup permutation_inst
+ * @brief Converts the instance to a `std::vector`.
+ *
+ * @return A `std::vector` representing the instance.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Convoluted way to reverse a permutation.
+ * std::vector<int> v = {2, 0, 1};
+ * v = tgen::permutation::instance(v).reverse().to_std();
+ * // v = {2, 1, 3}.
+ * ```
+ */
+std::vector<T> tgen::permutation::instance::to_std() const;
