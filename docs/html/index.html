@@ -112,6 +112,9 @@ $(function(){initNavTree('index.html','',''); });
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a> <img src="https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest" alt="gtest" class="inline"/> <img src="https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&amp;logo=c%2B%2B&amp;logoColor=white" alt="" height="20" style="pointer-events: none;" class="inline"/> <img src="https://img.shields.io/badge/doxygen-2C4AA8?style=for-the-badge&amp;logo=doxygen&amp;logoColor=white" alt="" height="20" class="inline"/></p>
 <h1 class="doxsection"><a class="anchor" id="autotoc_md0"></a>
+Documentation</h1>
+<p><a href="https://brunomaletta.github.io/tgen/index.html"><img src="https://img.shields.io/badge/📚%20Documentation-Read%20here-informational?style=for-the-badge" alt="" class="inline"/> </a> </p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
 Overview</h1>
 <p><span class="tt">tgen</span> is a <span class="tt">C++</span> library to help you generate random stuff, useful for testcase generation (such as <a href="https://github.com/ifsmirnov/jngen">jngen</a> or <a href="https://github.com/MikeMirzayanov/testlib">testlib</a>). The code is in a single file <a href="https://github.com/brunomaletta/tgen/blob/main/src/tgen.h">tgen.h</a>, that should be added to your directory.</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;tgen.h&quot;</span></div>
@@ -121,7 +124,7 @@ Overview</h1>
 <li><a href="https://brunomaletta.github.io/tgen/group__sequence.html">Sequences</a></li>
 <li><a href="https://brunomaletta.github.io/tgen/group__permutation.html">Permutations</a></li>
 </ul>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md2"></a>
 Type generators and instances</h3>
 <p>All types specified above define a <b>generator</b>, that when called upon will generate a uniformly random <b>instance</b> with the given constraints. Let's see an example with <span class="tt">tgen::sequence</span>:</p>
 <div class="fragment"><div class="line"><a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(<span class="comment">/*size=*/</span>10, <span class="comment">/*value_l=*/</span>1, <span class="comment">/*value_r=*/</span>100);</div>
@@ -148,9 +151,9 @@ Type generators and instances</h3>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 100).equal(0, 1).gen()</div>
 <div class="line">    .reverse()</div>
 <div class="line">) &lt;&lt; std::endl;</div>
-</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md2"></a>
+</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md3"></a>
 Examples</h2>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md3"></a>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md4"></a>
 Opts configuration</h3>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;tgen.h&quot;</span></div>
 <div class="line"> </div>
@@ -167,7 +170,7 @@ Opts configuration</h3>
 <div class="ttc" id="agroup__opts_html_ga9f0e855b0b1931d436369a57e8d52730"><div class="ttname"><a href="group__opts.html#ga9f0e855b0b1931d436369a57e8d52730">tgen::opt</a></div><div class="ttdeci">T opt(const KEY &amp;key, std::optional&lt; T &gt; default_value=std::nullopt)</div><div class="ttdoc">Gets opt by key.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00215">tgen.h:215</a></div></div>
 <div class="ttc" id="agroup__opts_html_gae8eca919976894c15b44713f00f33bd8"><div class="ttname"><a href="group__opts.html#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a></div><div class="ttdeci">void register_gen(int argc, char **argv)</div><div class="ttdoc">Sets up the generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00310">tgen.h:310</a></div></div>
 </div><!-- fragment --><p>Calling this code with <span class="tt">./a.out -n 100</span> will generate a random number from 1 to 100.</p>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md4"></a>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md5"></a>
 Generation</h3>
 <p>Random 20 distinct values from 1 to 100.</p>
 <div class="fragment"><div class="line">std::cout &lt;&lt;</div>

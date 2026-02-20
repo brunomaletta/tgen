@@ -1,7 +1,4 @@
 var searchData=
 [
-  ['opts_0',['Opts',['../group__opts.html#autotoc_md14',1,'']]],
-  ['opts_1',['Consuming opts',['../group__opts.html#autotoc_md15',1,'']]],
-  ['opts_20configuration_2',['Opts configuration',['../index.html#autotoc_md3',1,'']]],
-  ['overview_3',['Overview',['../index.html#autotoc_md0',1,'']]]
+  ['instances_0',['Type generators and instances',['../index.html#autotoc_md2',1,'']]]
 ];

@@ -178,7 +178,7 @@ Friends</h2></td></tr>
 
 <p>Adds 1 for printing. </p>
 <p>This makes it so, when given to <span class="tt">std::cout</span>, the permutation will be printed as 1-based.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md29"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md30"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints a 1-based permutation.</span></div>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1permutation_1_1instance.html">tgen::permutation::instance</a> inst = {2, 0, 1};</div>
@@ -221,7 +221,7 @@ Examples</h4>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md22"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md23"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Creates and prints an instance from a std::vector.</span></div>
 <div class="line">std::vector&lt;int&gt; v = {0, 1, 2};</div>
@@ -261,7 +261,7 @@ Examples</h4>
 
 <p>Inverse of the permutation. </p>
 <p>The inverse of the permutation <span class="tt">p</span> is another <span class="tt">pi</span> such that <span class="tt">pi[p[i]] = p[pi[i]] = i</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md28"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md29"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints inverse of permutation.</span></div>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1permutation_1_1instance.html">tgen::permutation::instance</a> inst = {2, 0, 1};</div>
@@ -304,7 +304,7 @@ Examples</h4>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The value at index <span class="tt">idx</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md24"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md25"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints a position of an instance.</span></div>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1permutation_1_1instance.html">tgen::permutation::instance</a> inst = {2, 0, 1};</div>
@@ -340,7 +340,7 @@ Examples</h4>
 
 <p>Parity of the permutation. </p>
 <dl class="section return"><dt>Returns</dt><dd><span class="tt">+1</span> if the permutation is even, or <span class="tt">-1</span> if the permutation is odd.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md25"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md26"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints parity of permutation.</span></div>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1permutation_1_1instance.html">tgen::permutation::instance</a> inst = {2, 0, 1};</div>
@@ -376,7 +376,7 @@ Examples</h4>
 </div><div class="memdoc">
 
 <p>Reverses the instance. </p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md27"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md28"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Reverses and prints an instance.</span></div>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1permutation_1_1instance.html">tgen::permutation::instance</a> inst = {2, 0, 1};</div>
@@ -413,7 +413,7 @@ Examples</h4>
 
 <p>Returns the size of the permutation instance. </p>
 <dl class="section return"><dt>Returns</dt><dd>The size (number of elements) of the permutation instance.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md23"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md24"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints the size of an instance.</span></div>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1permutation_1_1instance.html">tgen::permutation::instance</a> inst = {0, 1, 2};</div>
@@ -449,7 +449,7 @@ Examples</h4>
 </div><div class="memdoc">
 
 <p>Sorts the instance in non-decreasing order. </p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md26"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md27"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sorts and prints an instance.</span></div>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1permutation_1_1instance.html">tgen::permutation::instance</a> inst = {2, 0, 1};</div>
@@ -486,7 +486,7 @@ Examples</h4>
 
 <p>Converts the instance to a <span class="tt">std::vector</span>. </p>
 <dl class="section return"><dt>Returns</dt><dd>A <span class="tt">std::vector</span> representing the instance.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md31"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md32"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Convoluted way to reverse a permutation.</span></div>
 <div class="line">std::vector&lt;int&gt; v = {2, 0, 1};</div>
@@ -528,7 +528,7 @@ Examples</h4>
 
 <p>Prints the instance to a <span class="tt">std::ostream</span>. </p>
 <p>The values are printed with one space as a separator, and with no end of line.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md30"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md31"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints an instance.</span></div>
 <div class="line">std::cout &lt;&lt;</div>
