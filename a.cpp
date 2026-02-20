@@ -51,4 +51,15 @@ int main(int argc, char **argv) {
 						 100)
 					 .inverse()
 			  << std::endl;
+
+	// Random swap permutation of size 20.
+	std::cout << tgen::permutation(20)
+					 .gen(tgen::sequence<int>(19, 1, 2)
+							  .set(0, 1)
+							  .equal_range(0, 17)
+							  .set(18, 2)
+							  .gen()
+							  .to_std())
+					 .add_1()
+			  << std::endl;
 }
