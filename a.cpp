@@ -62,4 +62,18 @@ int main(int argc, char **argv) {
 							  .to_std())
 					 .add_1()
 			  << std::endl;
+
+	std::cout << tgen::math::gen_prime(1, 1e18) << std::endl;
+
+	std::cout << tgen::math::prev_prime(std::numeric_limits<uint64_t>::max())
+			  << std::endl;
+
+	auto [l, r] =
+		tgen::math::prime_gap_upto(std::numeric_limits<uint64_t>::max());
+	std::cout << l << " " << r << " " << r - l << std::endl;
+
+	std::cout << tgen::math::gen_even(1, 10) << std::endl;
+
+	std::cout << tgen::sequence<int>::instance(tgen::math::gen_partition(10))
+			  << std::endl;
 }

@@ -34,13 +34,26 @@ inline void throw_assertion_error_internal(const std::string &condition) {
 inline std::runtime_error error_internal(const std::string &msg) {
 	return std::runtime_error("tgen: " + msg);
 }
-inline void contradiction_error_internal(const std::string &type,
-										 const std::string &msg = "") {
+inline std::runtime_error
+contradiction_error_internal(const std::string &type,
+							 const std::string &msg = "") {
 	// Tried to generate a contradicting sequence.
 	std::string error_msg = "invalid " + type + " (contradicting constraints)";
 	if (!msg.empty())
 		error_msg += ": " + msg;
-	throw error_internal(error_msg);
+	return error_internal(error_msg);
+}
+template <typename T>
+std::runtime_error there_is_no_in_range_error_internal(const std::string &type,
+													   T l, T r) {
+	return error_internal("there is no " + type + " in range [" +
+						  std::to_string(l) + ", " + std::to_string(r) + "]");
+}
+template <typename T>
+std::runtime_error there_is_no_upto_error_internal(const std::string &type,
+												   T r) {
+	return error_internal("there is no " + type + " up to " +
+						  std::to_string(r));
 }
 
 // Ensures condition is true, with nice debug.
@@ -579,7 +592,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 								new_value = l;
 							} else if (new_value != l) {
 								// We found a contradiction
-								contradiction_error_internal(
+								throw contradiction_error_internal(
 									"sequence",
 									"tried to set value to `" +
 										std::to_string(new_value) +
@@ -616,10 +629,10 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 			int dist_id = 0;
 			for (const std::set<int> &distinct : distinct_constraints_) {
 				// Checks if there are too many distinct values.
-				if (static_cast<unsigned long long>(distinct.size() - 1) +
-						static_cast<unsigned long long>(value_l_) >
-					static_cast<unsigned long long>(value_r_))
-					contradiction_error_internal(
+				if (static_cast<uint64_t>(distinct.size() - 1) +
+						static_cast<uint64_t>(value_l_) >
+					static_cast<uint64_t>(value_r_))
+					throw contradiction_error_internal(
 						"sequence",
 						"tried to generate " + std::to_string(distinct.size()) +
 							" distinct values, but the maximum is " +
@@ -630,7 +643,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 				std::set<int> comp_ids;
 				for (int idx : distinct) {
 					if (comp_ids.count(comp_id[idx]))
-						contradiction_error_internal(
+						throw contradiction_error_internal(
 							"sequence", "tried to set two indices as equal and "
 										"different");
 					comp_ids.insert(comp_id[idx]);
@@ -662,7 +675,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 					// Checks if two values in `distinct_constraints_[dist_id]`
 					// have been set to the same value
 					if (defined_values.count(vec[idx]))
-						contradiction_error_internal(
+						throw contradiction_error_internal(
 							"sequence",
 							"tried to set two indices as equal and different");
 
@@ -982,5 +995,537 @@ struct permutation : gen_base<permutation> {
 		return instance(perm);
 	}
 };
+
+/************
+ *          *
+ *   MATH   *
+ *          *
+ ************/
+
+namespace math {
+
+// O(1).
+// 0 < x.
+inline int ctzll(uint64_t x) {
+	tgen_ensure(x > 0, "ctz is undefined for 0");
+
+	// Mistery code found on the internet.
+	static const unsigned char index64[64] = {
+		0,	1,	2,	53, 3,	7,	54, 27, 4,	38, 41, 8,	34, 55, 48, 28,
+		62, 5,	39, 46, 44, 42, 22, 9,	24, 35, 59, 56, 49, 18, 29, 11,
+		63, 52, 6,	26, 37, 40, 33, 47, 61, 45, 43, 21, 23, 58, 17, 10,
+		51, 25, 36, 32, 60, 20, 57, 16, 50, 31, 19, 15, 30, 14, 13, 12};
+	return index64[((x & -x) * 0x022FDD63CC95386D) >> 58];
+}
+
+// O(1).
+inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t m) {
+	return static_cast<unsigned __int128>(a) * b % m;
+}
+
+// O(log n).
+// 0 <= x < m.
+inline uint64_t expo_mod(uint64_t x, uint64_t y, uint64_t m) {
+	if (!y)
+		return 1;
+	uint64_t ans = expo_mod(mul_mod(x, x, m), y / 2, m);
+	return y % 2 ? mul_mod(x, ans, m) : ans;
+}
+
+// O(log^2 n).
+inline bool is_prime(uint64_t n) {
+	if (n < 2)
+		return false;
+	if (n == 2 or n == 3)
+		return true;
+	if (n % 2 == 0)
+		return false;
+
+	uint64_t r = ctzll(n - 1), d = n >> r;
+	// These bases are guaranteed to work for n <= 2^64.
+	for (int a : {2, 325, 9375, 28178, 450775, 9780504, 1795265022}) {
+		uint64_t x = expo_mod(a, d, n);
+		if (x == 1 or x == n - 1 or a % n == 0)
+			continue;
+
+		for (uint64_t j = 0; j < r - 1; ++j) {
+			x = mul_mod(x, x, n);
+			if (x == n - 1)
+				break;
+		}
+		if (x != n - 1)
+			return false;
+	}
+	return true;
+}
+
+inline uint64_t pollard_rho_internal(uint64_t n) {
+	if (n == 1 or is_prime(n))
+		return n;
+	auto f = [n](uint64_t x) { return mul_mod(x, x, n) + 1; };
+
+	uint64_t x = 0, y = 0, t = 30, prd = 2, x0 = 1, q;
+	while (t % 40 != 0 or std::gcd(prd, n) == 1) {
+		if (x == y)
+			x = ++x0, y = f(x);
+		q = mul_mod(prd, x > y ? x - y : y - x, n);
+		if (q != 0)
+			prd = q;
+		x = f(x), y = f(f(y)), t++;
+	}
+	return std::gcd(prd, n);
+}
+
+inline std::vector<uint64_t> factor_internal(uint64_t n) {
+	if (n == 1)
+		return {};
+	if (is_prime(n))
+		return {n};
+	uint64_t d = pollard_rho_internal(n);
+	std::vector<uint64_t> l = factor_internal(d), r = factor_internal(n / d);
+	l.insert(l.end(), r.begin(), r.end());
+	return l;
+}
+
+// Sorted.
+// O(n^(1/4) log n) expected.
+// 0 < n.
+inline std::vector<uint64_t> factor(uint64_t n) {
+	auto factors = factor_internal(n);
+	std::sort(factors.begin(), factors.end());
+	return factors;
+}
+
+// Sorted.
+// O(n^(1/4) log n) expected.
+// 0 < n.
+inline std::vector<std::pair<uint64_t, int>> factor_by_prime(uint64_t n) {
+	std::vector<std::pair<uint64_t, int>> primes;
+	for (uint64_t p : factor(n)) {
+		if (!primes.empty() and primes.back().first == p)
+			++primes.back().second;
+		else
+			primes.emplace_back(p, 1);
+	}
+	return primes;
+}
+
+inline std::tuple<__int128, __int128, __int128> ext_gcd_internal(__int128 a,
+																 __int128 b) {
+	if (!a)
+		return {b, 0, 1};
+	auto [g, x, y] = ext_gcd_internal(b % a, a);
+	return {g, y - b / a * x, x};
+}
+
+// O(log m).
+// 0 <= a < m.
+// gcd(a,m) = 1.
+inline uint64_t modular_inverse(uint64_t a, uint64_t m) {
+	tgen_ensure(0 <= a and a < m, "remainder must be valid");
+	auto [x, y, g] = ext_gcd_internal(a, m);
+	tgen_ensure(g == 1, "gcd(a, m) must be 1");
+
+	return x;
+}
+
+// O(n^(1/4) log n) expected.
+// 0 < n.
+inline uint64_t totient(uint64_t n) {
+	uint64_t phi = n;
+
+	for (auto [p, e] : factor_by_prime(n))
+		phi -= phi / p;
+
+	return phi;
+}
+
+// O(ln r) expected..
+// If adjust_distribution = true, then generates uniformly over value ranges.
+// Otherwise, uniform over primes, so smaller primes are generated more often.
+inline uint64_t gen_prime(uint64_t l, uint64_t r,
+						  bool adjust_distribution = true) {
+	if (r < l or r < 2)
+		throw there_is_no_in_range_error_internal("prime", l, r);
+	l = std::max<uint64_t>(l, 2);
+	// There might be no primes in the range.
+	if (r - l <= 1520) {
+		std::vector<uint64_t> vals(r - l + 1);
+		iota(vals.begin(), vals.end(), l);
+		shuffle(vals.begin(), vals.end());
+		for (uint64_t i : vals)
+			if (is_prime(i))
+				return i;
+		throw there_is_no_in_range_error_internal("prime", l, r);
+	}
+
+	// Sample with accepting probability proportional to prime density.
+	while (true) {
+		uint64_t n = next(l, r);
+		if (!is_prime(n))
+			continue;
+
+		if (!adjust_distribution or next<double>(0, 1) < log(n) / log(r))
+			return n;
+	}
+}
+
+// O(ln r) expected.
+// l < 2^64 - 59.
+inline uint64_t next_prime(uint64_t l) {
+	tgen_ensure(l < std::numeric_limits<uint64_t>::max() - 58, "invalid bound");
+	for (uint64_t i = std::max<uint64_t>(2, l + 1);; ++i)
+		if (is_prime(i))
+			return i;
+}
+
+// O(ln r) expected.
+inline uint64_t prev_prime(uint64_t r) {
+	if (r >= 3)
+		for (uint64_t i = r - 1; i >= 2; --i)
+			if (is_prime(i))
+				return i;
+	throw there_is_no_upto_error_internal("prime", r);
+}
+
+// checks if a * b <= limit, for positive numbers.
+inline bool mul_leq_internal(uint64_t a, uint64_t b, uint64_t limit) {
+	if (a == 0)
+		return true;
+	return a <= limit / b;
+}
+
+// base^exp, or null if base^exp > limit.
+inline std::optional<uint64_t> expo_internal(uint64_t base, uint64_t exp,
+											 uint64_t limit) {
+	uint64_t result = 1;
+
+	while (exp) {
+		if (exp & 1) {
+			if (!mul_leq_internal(result, base, limit))
+				return std::nullopt;
+			result *= base;
+		}
+
+		exp >>= 1;
+		// Necesary for correctness.
+		if (!exp)
+			break;
+
+		if (!mul_leq_internal(base, base, limit))
+			return std::nullopt;
+		base *= base;
+	}
+	return result;
+}
+
+// O(log n log k).
+// 0 <= n.
+// 0 < k.
+inline uint64_t kth_root_floor(uint64_t n, uint64_t k) {
+	tgen_ensure(k > 0 and n > 0, "values must be valid");
+	if (k == 1 or n <= 1)
+		return n;
+
+	uint64_t lo = 1, hi = 1ULL << ((64 + k - 1) / k);
+
+	while (lo < hi) {
+		uint64_t mid = lo + (hi - lo + 1) / 2;
+
+		if (expo_internal(mid, k, n)) {
+			lo = mid;
+		} else {
+			hi = mid - 1;
+		}
+	}
+	return lo;
+}
+
+// O(log(r) log(divisor_count)).
+// divisor_count is prime.
+inline uint64_t gen_divisor_count(uint64_t l, uint64_t r, int divisor_count) {
+	tgen_ensure(is_prime(divisor_count), "divisor count must be prime");
+	int root = divisor_count - 1;
+	uint64_t p = gen_prime(kth_root_floor(l, root), kth_root_floor(r, root));
+	return *expo_internal(p, root, r);
+}
+
+// From https://en.wikipedia.org/wiki/Prime_gap.
+/* clang-format off */ inline std::vector<uint64_t> prime_gap_p_internal = {
+	2, 3, 7, 23, 89, 113, 523, 887, 1129, 1327, 9551, 15683, 19609, 31397,
+	155921, 360653, 370261, 492113, 1349533, 1357201, 2010733, 4652353,
+	17051707, 20831323, 47326693, 122164747, 189695659, 191912783, 387096133,
+	436273009, 1294268491, 1453168141, 2300942549, 3842610773, 4302407359,
+	10726904659, 20678048297, 22367084959, 25056082087, 42652618343,
+	127976334671, 182226896239, 241160624143, 297501075799, 303371455241,
+	304599508537, 416608695821, 461690510011, 614487453523, 738832927927,
+	1346294310749, 1408695493609, 1968188556461, 2614941710599, 7177162611713,
+	13829048559701, 19581334192423, 42842283925351, 90874329411493,
+	171231342420521, 218209405436543, 1189459969825483, 1686994940955803,
+	1693182318746371, 43841547845541059, 55350776431903243, 80873624627234849,
+	203986478517455989, 218034721194214273, 305405826521087869,
+	352521223451364323, 401429925999153707, 418032645936712127,
+	804212830686677669, 1425172824437699411, 5733241593241196731,
+	6787988999657777797}; /* clang-format on */
+inline std::vector<uint64_t> prime_gap_g_internal = {
+	1,	  2,	4,	  6,	8,	  14,	18,	  20,	22,	  34,	36,
+	44,	  52,	72,	  86,	96,	  112,	114,  118,	132,  148,	154,
+	180,  210,	220,  222,	234,  248,	250,  282,	288,  292,	320,
+	336,  354,	382,  384,	394,  456,	464,  468,	474,  486,	490,
+	500,  514,	516,  532,	534,  540,	582,  588,	602,  652,	674,
+	716,  766,	778,  804,	806,  906,	916,  924,	1132, 1184, 1198,
+	1220, 1224, 1248, 1272, 1328, 1356, 1370, 1442, 1476, 1488, 1510};
+
+// Returns `(p_i, g_i)`: `p_i` is the prime, `g_i` is the gap.
+inline std::pair<std::vector<uint64_t>, std::vector<uint64_t>> prime_gaps() {
+	return {prime_gap_p_internal, prime_gap_g_internal};
+}
+
+// Returns pair (first_composite_in_gap, last_composite_in_gap).
+// O(1);
+inline std::pair<uint64_t, uint64_t> prime_gap_upto(uint64_t r) {
+	if (r < 4)
+		throw there_is_no_upto_error_internal("prime gap", r);
+
+	const auto &[P, G] = std::pair(prime_gap_p_internal, prime_gap_g_internal);
+	for (int i = P.size() - 1;; --i) {
+		if (P[i] >= r)
+			continue;
+
+		uint64_t right = std::min(r, P[i] + G[i] - 1);
+		uint64_t prev = i > 0 ? G[i - 1] : 0;
+		uint64_t curr = right - P[i];
+
+		if (curr >= prev)
+			return {P[i] + 1, right};
+	}
+}
+
+// O(n^(1/4) log n) expected.
+// 0 < n.
+inline int num_divisors(uint64_t n) {
+	int divisors = 1;
+	for (auto [p, e] : factor_by_prime(n))
+		divisors *= (e + 1);
+	return divisors;
+}
+
+// From https://oeis.org/A002182/b002182.txt.
+/* clang-format off */ inline std::vector<uint64_t> highly_composites_internal = {
+1, 2, 4, 6, 12, 24, 36, 48, 60, 120, 180, 240, 360, 720, 840, 1260, 1680, 2520,
+5040, 7560, 10080, 15120, 20160, 25200, 27720, 45360, 50400, 55440, 83160,
+110880, 166320, 221760, 277200, 332640, 498960, 554400, 665280, 720720,
+1081080, 1441440, 2162160, 2882880, 3603600, 4324320, 6486480, 7207200,
+8648640, 10810800, 14414400, 17297280, 21621600, 32432400, 36756720, 43243200,
+61261200, 73513440, 110270160, 122522400, 147026880, 183783600, 245044800,
+294053760, 367567200, 551350800, 698377680, 735134400, 1102701600, 1396755360,
+2095133040, 2205403200, 2327925600, 2793510720, 3491888400, 4655851200,
+5587021440, 6983776800, 10475665200, 13967553600, 20951330400, 27935107200,
+41902660800, 48886437600, 64250746560, 73329656400, 80313433200, 97772875200,
+128501493120, 146659312800, 160626866400, 240940299600, 293318625600,
+321253732800, 481880599200, 642507465600, 963761198400, 1124388064800,
+1606268664000, 1686582097200, 1927522396800, 2248776129600, 3212537328000,
+3373164194400, 4497552259200, 6746328388800, 8995104518400, 9316358251200,
+13492656777600, 18632716502400, 26985313555200, 27949074753600, 32607253879200,
+46581791256000, 48910880818800, 55898149507200, 65214507758400, 93163582512000,
+97821761637600, 130429015516800, 195643523275200, 260858031033600,
+288807105787200, 391287046550400, 577614211574400, 782574093100800,
+866421317361600, 1010824870255200, 1444035528936000, 1516237305382800,
+1732842634723200, 2021649740510400, 2888071057872000, 3032474610765600,
+4043299481020800, 6064949221531200, 8086598962041600, 10108248702552000,
+12129898443062400, 18194847664593600, 20216497405104000, 24259796886124800,
+30324746107656000, 36389695329187200, 48519593772249600, 60649492215312000,
+72779390658374400, 74801040398884800, 106858629141264000, 112201560598327200,
+149602080797769600, 224403121196654400, 299204161595539200, 374005201994424000,
+448806242393308800, 673209363589963200, 748010403988848000, 897612484786617600,
+1122015605983272000, 1346418727179926400, 1795224969573235200,
+2244031211966544000, 2692837454359852800, 3066842656354276800,
+4381203794791824000, 4488062423933088000, 6133685312708553600,
+8976124847866176000, 9200527969062830400, 12267370625417107200ULL,
+15334213281771384000ULL, 18401055938125660800ULL}; /* clang-format on */
+
+inline std::vector<uint64_t> highly_composites() {
+	return highly_composites_internal;
+}
+
+// O(1).
+inline uint64_t highly_composite_upto(uint64_t r) {
+	for (int i = highly_composites_internal.size(); i >= 0; --i)
+		if (highly_composites_internal[i] <= r)
+			return highly_composites_internal[i];
+
+	throw there_is_no_upto_error_internal("highly composite number", r);
+}
+
+struct crt_internal {
+	__int128 a, m;
+
+	crt_internal() : a(0), m(1) {}
+	crt_internal(__int128 a_, __int128 m_) : a(a_), m(m_) {}
+	crt_internal operator*(crt_internal C) {
+		auto [g, x, y] = ext_gcd_internal(m, C.m);
+		if ((a - C.a) % g)
+			a = -1;
+		if (a == -1 or C.a == -1)
+			return crt_internal(-1, 0);
+		__int128 lcm = m / g * C.m;
+		__int128 ans = a + (x * (C.a - a) / g % (C.m / g)) * m;
+		return crt_internal((ans % lcm + lcm) % lcm, lcm);
+	}
+};
+
+// O(|mods| + log r).
+inline uint64_t gen_congruent(uint64_t l, uint64_t r,
+							  std::vector<uint64_t> rems,
+							  std::vector<uint64_t> mods) {
+	if (l > r)
+		throw there_is_no_in_range_error_internal("congruent number", l, r);
+	tgen_ensure(rems.size() == mods.size(),
+				"number of remainders and mods must be the same");
+
+	crt_internal crt;
+	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
+		tgen_ensure(rems[i] < mods[i],
+					"remainder must be smaller than the mod");
+		crt = crt * crt_internal(rems[i], mods[i]);
+
+		if (crt.m > r) {
+			if (crt.a > r)
+				throw there_is_no_in_range_error_internal("congruent number", l,
+														  r);
+
+			bool valid_candidate = true;
+			for (int j = 0; j < static_cast<int>(rems.size()); ++j)
+				if (crt.a % mods[j] != rems[j])
+					valid_candidate = false;
+			if (valid_candidate)
+				return crt.a;
+			throw there_is_no_in_range_error_internal("congruent number", l, r);
+		}
+	}
+
+	if (crt.a > r)
+		throw there_is_no_in_range_error_internal("congruent number", l, r);
+
+	uint64_t k_min = crt.a >= l ? 0 : ((l - crt.a) + crt.m - 1) / crt.m;
+	uint64_t k_max = (r - crt.a) / crt.m;
+
+	if (k_min > k_max)
+		throw there_is_no_in_range_error_internal("congruent number", l, r);
+
+	return crt.a + next(k_min, k_max) * crt.m;
+}
+
+// O(log r).
+inline uint64_t gen_congruent(uint64_t l, uint64_t r, uint64_t rem,
+							  uint64_t mod) {
+	return gen_congruent(l, r, std::vector<uint64_t>({rem}),
+						 std::vector<uint64_t>({mod}));
+}
+
+// O(log r).
+inline uint64_t gen_even(uint64_t l, uint64_t r) {
+	return gen_congruent(l, r, 0, 2);
+}
+
+// O(log r).
+inline uint64_t gen_odd(uint64_t l, uint64_t r) {
+	return gen_congruent(l, r, 1, 2);
+}
+
+const inline int FFT_MOD = 998244353;
+
+inline std::vector<uint64_t> fibonacci() {
+	std::vector<uint64_t> fib = {0, 1};
+	while (fib.back() <=
+		   std::numeric_limits<uint64_t>::max() - fib[fib.size() - 2])
+		fib.push_back(fib.back() + fib[fib.size() - 2]);
+	return fib;
+}
+
+// Math hack to add two values in log space.
+static double add_log_space(double a, double b) {
+	if (a < b)
+		std::swap(a, b);
+	if (b == -INFINITY)
+		return a;
+	return a + log1p(exp(b - a));
+}
+
+// Math hack to subtract two values in log space.
+// a > b.
+inline double sub_log_space(double a, double b) {
+	return a + log1p(-exp(b - a));
+}
+
+// Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
+// O(n).
+// 0 <= n.
+// 0 < part_l <= part_r.
+inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
+	if (part_r == -1)
+		part_r = n;
+	tgen_ensure(n >= 0 and 0 < part_l and part_l <= part_r,
+				"invalid parameters to gen_partition");
+
+	// dp[i] = log(numbers of ways to add to i).
+	std::vector<double> dp(n + 1, -INFINITY);
+	dp[0] = 0;
+	double window = -INFINITY;
+	for (int i = 1; i <= n; ++i) {
+		if (i >= part_l)
+			window = add_log_space(window, dp[i - part_l]);
+		if (i >= part_r + 1)
+			window = sub_log_space(window, dp[i - part_r - 1]);
+		dp[i] = window;
+	}
+	tgen_ensure(dp[n] != -INFINITY, "no such partition");
+
+	// Crazy math tricks ahead.
+	auto dp_pref = dp;
+	for (int i = 1; i <= n; i++)
+		dp_pref[i] = add_log_space(dp_pref[i - 1], dp[i]);
+
+	std::vector<int> part;
+	int sum = n;
+	while (sum > 0) {
+		// Will generate a number such that what remains is in [l, r].
+		// We should choose x \in [l, r] with prob. proportional to dp[x].
+		int l = std::max(0, sum - part_r), r = sum - part_l;
+		int nxt_sum = std::min(sum, r);
+
+		double random = next<double>(0, 1);
+
+		double val_l = l ? dp_pref[l - 1] : -INFINITY, val_r = dp_pref[r];
+		while (nxt_sum > l and
+			   dp_pref[nxt_sum - 1] >=
+				   val_r + log(random + (1 - random) * exp(val_l - val_r)))
+			--nxt_sum;
+
+		part.push_back(sum - nxt_sum);
+		sum = nxt_sum;
+	}
+
+	return part;
+}
+
+// Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
+// O(n).
+// 0 <= n, k.
+// 0 <= part_l <= part_r.
+inline std::vector<int> gen_fixed_size_partition(int n, int k, int part_l = 0,
+												 int part_r = -1) {
+	if (part_r == -1)
+		part_r = n;
+	tgen_ensure(n >= 0 and k >= 0 and 0 < part_l and part_l <= part_r,
+				"invalid parameters to gen_partition");
+	if (n == 0 and k == 0)
+		return {};
+
+	// TODO
+	return {};
+}
+
+}; // namespace math
 
 }; // namespace tgen
