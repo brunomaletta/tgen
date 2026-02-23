@@ -480,7 +480,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 			return instance(new_vec);
 		}
 
-		// Prints in stdout, separated by spaces.
+		// Prints to std::ostream, separated by spaces.
 		friend std::ostream &operator<<(std::ostream &out,
 										const instance &inst) {
 			for (std::size_t i = 0; i < inst.size(); ++i) {
@@ -489,6 +489,12 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 				out << inst[i];
 			}
 			return out;
+		}
+
+		// Prints std::vector.
+		friend std::ostream &operator<<(std::ostream &out,
+										const std::vector<T> &vec) {
+			return out << instance(vec);
 		}
 
 		// Gets a std::vector representing the instance.
@@ -942,7 +948,7 @@ struct permutation : gen_base<permutation> {
 			return *this;
 		}
 
-		// Prints in stdout, separated by spaces.
+		// Prints to std::ostream, separated by spaces.
 		friend std::ostream &operator<<(std::ostream &out,
 										const instance &inst) {
 			for (std::size_t i = 0; i < inst.size(); ++i) {
@@ -1443,63 +1449,88 @@ inline std::vector<uint64_t> fibonacci() {
 	return fib;
 }
 
+static constexpr long double LOG_ZERO_INTERNAL = -INFINITY;
+static constexpr long double LOG_ONE_INTERNAL = 0.0;
+
+static long double log_space_internal(long double x) {
+	return x == 0.0 ? LOG_ZERO_INTERNAL : std::log(x);
+}
+
 // Math hack to add two values in log space.
-static double add_log_space(double a, double b) {
+static long double add_log_space_internal(long double a, long double b) {
+	if (a == LOG_ZERO_INTERNAL)
+		return b;
+	if (b == LOG_ZERO_INTERNAL)
+		return a;
 	if (a < b)
 		std::swap(a, b);
-	if (b == -INFINITY)
+	if (b == LOG_ZERO_INTERNAL)
 		return a;
 	return a + log1p(exp(b - a));
 }
 
 // Math hack to subtract two values in log space.
-// a > b.
-inline double sub_log_space(double a, double b) {
+// a >= b.
+inline long double sub_log_space_internal(long double a, long double b) {
+	if (b >= a)
+		return LOG_ZERO_INTERNAL;
+	if (b == LOG_ZERO_INTERNAL)
+		return a;
 	return a + log1p(-exp(b - a));
 }
 
 // Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
 // O(n).
-// 0 <= n.
-// 0 < part_l <= part_r.
+// 0 < n.
+// 0 < part_l.
 inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 	if (part_r == -1)
 		part_r = n;
-	tgen_ensure(n >= 0 and 0 < part_l and part_l <= part_r,
+	tgen_ensure(n > 0 and 0 < part_l and part_l,
 				"invalid parameters to gen_partition");
+	tgen_ensure(part_l <= n, "no such partition");
 
 	// dp[i] = log(numbers of ways to add to i).
-	std::vector<double> dp(n + 1, -INFINITY);
-	dp[0] = 0;
-	double window = -INFINITY;
+	std::vector<long double> dp(n + 1, LOG_ZERO_INTERNAL);
+	dp[0] = LOG_ONE_INTERNAL;
+	long double window = LOG_ZERO_INTERNAL;
 	for (int i = 1; i <= n; ++i) {
 		if (i >= part_l)
-			window = add_log_space(window, dp[i - part_l]);
+			window = add_log_space_internal(window, dp[i - part_l]);
 		if (i >= part_r + 1)
-			window = sub_log_space(window, dp[i - part_r - 1]);
+			window = sub_log_space_internal(window, dp[i - part_r - 1]);
 		dp[i] = window;
 	}
-	tgen_ensure(dp[n] != -INFINITY, "no such partition");
+	tgen_ensure(dp[n] != LOG_ZERO_INTERNAL, "partition not found");
 
 	// Crazy math tricks ahead.
 	auto dp_pref = dp;
 	for (int i = 1; i <= n; i++)
-		dp_pref[i] = add_log_space(dp_pref[i - 1], dp[i]);
+		dp_pref[i] = add_log_space_internal(dp_pref[i - 1], dp[i]);
 
 	std::vector<int> part;
 	int sum = n;
 	while (sum > 0) {
 		// Will generate a number such that what remains is in [l, r].
-		// We should choose x \in [l, r] with prob. proportional to dp[x].
 		int l = std::max(0, sum - part_r), r = sum - part_l;
 		int nxt_sum = std::min(sum, r);
+		long double random = next<long double>(0, 1);
 
-		double random = next<double>(0, 1);
+		// We generate a value X (log space), and then choose nxt_sum such that
+		// dp_pref[nxt_sum-1] < X <= dp_pref[nxt_sum].
 
-		double val_l = l ? dp_pref[l - 1] : -INFINITY, val_r = dp_pref[r];
+		// Math hack:
+		// Let A = pref[l-1], B = pref[r], U = rand().
+		// X = log[exp(A) + U * (exp(B) - exp(A))]
+		//   = log{exp(B) * [exp(A) / exp(B) + U * (1 - exp(A) / exp(B))]}
+		//   = B + log[exp(A - B) + U - U * exp(A - B))]
+		//   = B + log[U + (1 - U) * exp(A - B)].
+		long double val_l = l ? dp_pref[l - 1] : LOG_ZERO_INTERNAL,
+			   val_r = dp_pref[r];
 		while (nxt_sum > l and
 			   dp_pref[nxt_sum - 1] >=
-				   val_r + log(random + (1 - random) * exp(val_l - val_r)))
+				   val_r + log_space_internal(random + (1 - random) *
+														   exp(val_l - val_r)))
 			--nxt_sum;
 
 		part.push_back(sum - nxt_sum);
@@ -1510,20 +1541,94 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 }
 
 // Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
-// O(n).
-// 0 <= n, k.
-// 0 <= part_l <= part_r.
-inline std::vector<int> gen_fixed_size_partition(int n, int k, int part_l = 0,
+// O(n) time/memory if part_r = -1, O(n * k) time/memory otherwise.
+// 0 < k <= n.
+// 0 <= part_l.
+inline std::vector<int> gen_partition_fixed_size(int n, int k, int part_l = 0,
 												 int part_r = -1) {
 	if (part_r == -1)
 		part_r = n;
-	tgen_ensure(n >= 0 and k >= 0 and 0 < part_l and part_l <= part_r,
-				"invalid parameters to gen_partition");
-	if (n == 0 and k == 0)
-		return {};
+	tgen_ensure(0 < k and k <= n and 0 <= part_l,
+				"invalid parameters to gen_partition_fixed_size");
+	tgen_ensure(static_cast<long long>(k) * part_l <= n and
+					n <= static_cast<long long>(k) * part_r,
+				"no such partition");
 
-	// TODO
-	return {};
+	// What we need to distribute to the parts.
+	int s = n - k * part_l;
+
+	std::vector<int> part(k);
+	if (part_r == n) {
+		// Stars and bars - O(k).
+		std::vector<int> cuts = {-1};
+
+		int total = s + k - 1, bars = k - 1;
+		for (int i = 0; i < total and bars > 0; ++i)
+			if (next<long double>(0, 1) < static_cast<long double>(bars) / (total - i)) {
+				cuts.push_back(i);
+				--bars;
+			}
+		cuts.push_back(total);
+
+		// Recovers parts.
+		for (int i = 0; i < k; ++i)
+			part[i] = cuts[i + 1] - cuts[i] - 1;
+	} else {
+		// DP with log trick - O(nk).
+		int u = part_r - part_l;
+
+		// dp[i][j] = log(#ways to fill i parts with sum j)
+		std::vector<std::vector<long double>> dp(
+			k + 1, std::vector<long double>(s + 1, LOG_ZERO_INTERNAL));
+		dp[0][0] = LOG_ONE_INTERNAL;
+
+		for (int i = 1; i <= k; ++i) {
+			std::vector<long double> pref = dp[i - 1];
+			for (int j = 1; j <= s; ++j)
+				pref[j] = add_log_space_internal(pref[j - 1], dp[i - 1][j]);
+
+			for (int j = 0; j <= s; ++j) {
+				dp[i][j] = pref[j];
+				if (j >= u + 1)
+					dp[i][j] =
+						sub_log_space_internal(dp[i][j], pref[j - u - 1]);
+			}
+		}
+
+		// Recovers parts backwards.
+		int left_to_distribute = s;
+		for (int i = k; i >= 1; --i) {
+			long double log_total = LOG_ZERO_INTERNAL;
+			for (int j = 0; j <= u and j <= left_to_distribute; ++j)
+				log_total = add_log_space_internal(
+					log_total, dp[i - 1][left_to_distribute - j]);
+			tgen_ensure(log_total != LOG_ZERO_INTERNAL, "partition not found");
+
+			// Now we choose a number with probability proportional to
+			// dp[i-1][.].
+
+			// log(rand() * total) = log(rand()) + log(total).
+			long double random = log_space_internal(next<long double>(0, 1)) + log_total;
+
+			long double cur_prob = LOG_ZERO_INTERNAL;
+			int chosen = 0;
+			for (int j = 0; j <= u and j <= left_to_distribute; ++j) {
+				cur_prob = add_log_space_internal(
+					cur_prob, dp[i - 1][left_to_distribute - j]);
+				if (random < cur_prob) {
+					chosen = j;
+					break;
+				}
+			}
+
+			part[k - i] = chosen;
+			left_to_distribute -= chosen;
+		}
+	}
+
+	for (int &i : part)
+		i += part_l;
+	return part;
 }
 
 }; // namespace math

@@ -76,4 +76,8 @@ int main(int argc, char **argv) {
 
 	std::cout << tgen::sequence<int>::instance(tgen::math::gen_partition(10))
 			  << std::endl;
+
+	std::cout << tgen::sequence<int>::instance(
+					 tgen::math::gen_partition_fixed_size(10, 2, 3, 7))
+			  << std::endl;
 }
