@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.14.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tgen: Permutations</title>
+<title>tgen: tgen::print Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -81,7 +81,7 @@ $(function() {
   </div>
 </div>
 <script type="text/javascript">
-$(function(){initNavTree('group__permutation.html','',''); });
+$(function(){initNavTree('structtgen_1_1print.html','','structtgen_1_1print-members'); });
 </script>
 <div id="container">
 <div id="doc-content">
@@ -108,53 +108,37 @@ $(function(){initNavTree('group__permutation.html','',''); });
 
 <div class="header">
   <div class="summary">
-<a href="#groups">Topics</a>  </div>
-  <div class="headertitle"><div class="title">Permutations </div></div>
+<a href="structtgen_1_1print-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">tgen::print Struct Reference<div class="ingroups"><a class="el" href="group__general.html">General Operations</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Generation of permutations.  
-<a href="#details">More...</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-groups" class="groupheader"><a id="groups" name="groups"></a>
-Topics</h2></td></tr>
-<tr class="memitem:permutation_5Fgen" id="r_permutation_5Fgen"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__gen.html">Permutation generators</a></td></tr>
-<tr class="memdesc:group__permutation__gen"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines a set of permutations, subject to restrictions. <br /></td></tr>
-<tr class="memitem:permutation_5Finst" id="r_permutation_5Finst"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__inst.html">Permutation instances</a></td></tr>
-<tr class="memdesc:group__permutation__inst"><td class="mdescLeft">&#160;</td><td class="mdescRight">Instance of a permutation. <br /></td></tr>
-</table>
+<p>Printer helper for standard types.  
+ <a href="#details">More...</a></p>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<p>Generation of permutations. </p>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md18"></a>
-Examples</h3>
-<div class="fragment"><div class="line"><span class="comment">// Prints a random 1-based permutation of size 10 that start with 2.</span></div>
-<div class="line">std::cout &lt;&lt;</div>
-<div class="line">    <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(10).<a class="code hl_function" href="group__permutation__gen.html#ga58d4602c9f9fada547c3f261f520e654">set</a>(0, 1).<a class="code hl_function" href="group__permutation__gen.html#ga3dde693756e718dea410448ae21d5d43">gen</a>().<a class="code hl_function" href="group__permutation__inst.html#ga6d233f8f6071775beef07568a533ddd0">add_1</a>() &lt;&lt; std::endl;</div>
-<div class="line"><span class="comment">// &quot;2 7 10 4 3 9 1 5 8 6&quot;</span></div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// Prints a random permutation of size 5 with only one cycle.</span></div>
-<div class="line">std::cout &lt;&lt;</div>
-<div class="line">    <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(5).<a class="code hl_function" href="group__permutation__gen.html#ga3dde693756e718dea410448ae21d5d43">gen</a>({5}) &lt;&lt; std::endl;</div>
-<div class="line"><span class="comment">// &quot;1 4 3 0 2&quot;</span></div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// Prints the inverse of a random odd permutation of size 5.</span></div>
-<div class="line">std::cout &lt;&lt;</div>
-<div class="line">    <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(5)</div>
-<div class="line">        .<a class="code hl_function" href="group__permutation__gen.html#ga10b2233af3c58bc540b2bcfec51665f3">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;perm) { <span class="keywordflow">return</span> perm.parity() == -1; }, 100)</div>
-<div class="line">    .inverse()</div>
-<div class="line">  &lt;&lt; std::endl;</div>
-<div class="line"><span class="comment">// &quot;4 2 3 1 0&quot;</span></div>
-<div class="ttc" id="agroup__permutation__gen_html_ga10b2233af3c58bc540b2bcfec51665f3"><div class="ttname"><a href="group__permutation__gen.html#ga10b2233af3c58bc540b2bcfec51665f3">tgen::permutation::gen_until</a></div><div class="ttdeci">tgen::permutation::instance gen_until(PRED predicate, int max_tries, Args &amp;&amp;...args)</div><div class="ttdoc">Generates a random instance from the set of valid permutations until a condition is met.</div></div>
-<div class="ttc" id="agroup__permutation__gen_html_ga3dde693756e718dea410448ae21d5d43"><div class="ttname"><a href="group__permutation__gen.html#ga3dde693756e718dea410448ae21d5d43">tgen::permutation::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid permutations.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01102">tgen.h:1102</a></div></div>
-<div class="ttc" id="agroup__permutation__gen_html_ga58d4602c9f9fada547c3f261f520e654"><div class="ttname"><a href="group__permutation__gen.html#ga58d4602c9f9fada547c3f261f520e654">tgen::permutation::set</a></div><div class="ttdeci">permutation &amp; set(int idx, int value)</div><div class="ttdoc">Restricts generator s.t. value at index idx is value.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01010">tgen.h:1010</a></div></div>
-<div class="ttc" id="agroup__permutation__inst_html_ga6d233f8f6071775beef07568a533ddd0"><div class="ttname"><a href="group__permutation__inst.html#ga6d233f8f6071775beef07568a533ddd0">tgen::permutation::instance::add_1</a></div><div class="ttdeci">instance &amp; add_1()</div><div class="ttdoc">Adds 1 for printing.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01081">tgen.h:1081</a></div></div>
-<div class="ttc" id="astructtgen_1_1permutation_html"><div class="ttname"><a href="structtgen_1_1permutation.html">tgen::permutation</a></div><div class="ttdoc">Permutation generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01000">tgen.h:1000</a></div></div>
-</div><!-- fragment --> </div><!-- contents -->
+<div class="textblock"><p>Printer helper for standard types. </p>
+<p>Just call <span class="tt">std::cout &lt;&lt; print(x)</span> to print <span class="tt">x</span>, or <span class="tt">std::cout &lt;&lt; println(x)</span> to print <span class="tt">x</span> and <span class="tt">\n</span>. Works with <span class="tt">std::initializer_list</span>.</p>
+<p>Prints <span class="tt">std::pair</span>, <span class="tt">std::tuple</span> and containers nicely (separade by a space). Matrices (<span class="tt">container&lt;container&lt;T&gt;&gt;</span>) are also handleled nicely, printing one row per line.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md8"></a>
+Examples</h4>
+<div class="fragment"><div class="line">std::tuple&lt;int, double, std::string&gt; tu = {5, 0.1, <span class="stringliteral">&quot;str&quot;</span>};</div>
+<div class="line">std::cout &lt;&lt; println(tu);</div>
+<div class="line"><span class="comment">// &quot;5 0.1 str\n&quot;</span></div>
+<div class="line">std::cout &lt;&lt; <a class="code hl_struct" href="structtgen_1_1print.html">print</a>({{1, 2}, {3, 4}});</div>
+<div class="line"><span class="comment">// &quot;1 2\n3 4&quot;</span></div>
+<div class="ttc" id="astructtgen_1_1print_html"><div class="ttname"><a href="structtgen_1_1print.html">tgen::print</a></div><div class="ttdoc">Printer helper for standard types.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00084">tgen.h:84</a></div></div>
+</div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00084">84</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+</div><hr/>The documentation for this struct was generated from the following file:<ul>
+<li>src/<a class="el" href="tgen_8h_source.html">tgen.h</a></li>
+</ul>
+</div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
+    <li class="navelem"><b>tgen</b></li><li class="navelem"><a href="structtgen_1_1print.html">print</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.14.0 </li>
   </ul>
 </div>

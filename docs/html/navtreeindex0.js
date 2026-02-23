@@ -1,13 +1,13 @@
 var NAVTREEINDEX0 =
 {
 "group__general.html":[2,0],
-"group__general.html#ga22a2572db6a8ffdaac66d1d596bda40a":[2,0,5],
-"group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b":[2,0,6],
-"group__general.html#ga5deceed8488585530188dbd266739771":[2,0,3],
-"group__general.html#ga9c1c0431948210b949f5d1500e7235ec":[2,0,2],
-"group__general.html#gaa007cf5e254380332a3548711d5f9b16":[2,0,4],
-"group__general.html#gabc423cf4476d436001120351be24e896":[2,0,0],
-"group__general.html#gac3b0462e9690fa58b370b24e687d6be0":[2,0,1],
+"group__general.html#ga440766a0d1b82b481e532cc2a8dbc717":[2,0,6],
+"group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b":[2,0,7],
+"group__general.html#ga5deceed8488585530188dbd266739771":[2,0,4],
+"group__general.html#ga9c1c0431948210b949f5d1500e7235ec":[2,0,3],
+"group__general.html#gaa007cf5e254380332a3548711d5f9b16":[2,0,5],
+"group__general.html#gabc423cf4476d436001120351be24e896":[2,0,1],
+"group__general.html#gac3b0462e9690fa58b370b24e687d6be0":[2,0,2],
 "group__opts.html":[2,1],
 "group__opts.html#ga7ffeca211fbda39e0fcdfad2383c43ba":[2,1,1],
 "group__opts.html#ga87fb2f31789744477371960792b7540f":[2,1,0],
@@ -66,6 +66,7 @@ var NAVTREEINDEX0 =
 "pages.html":[],
 "structtgen_1_1permutation.html":[2,2,0,0],
 "structtgen_1_1permutation_1_1instance.html":[2,2,1,0],
+"structtgen_1_1print.html":[2,0,0],
 "structtgen_1_1sequence.html":[2,3,0,0],
 "structtgen_1_1sequence_1_1instance.html":[2,3,1,0],
 "topics.html":[2]

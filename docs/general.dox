@@ -47,6 +47,30 @@
 
 /**
  * @ingroup general
+ * @brief Printer helper for standard types.
+ *
+ * Just call `std::cout << print(x)` to print `x`, or `std::cout << println(x)` to
+ * print `x` and `\n`. Works with `std::initializer_list`.
+ *
+ * Prints `std::pair`, `std::tuple` and containers nicely (separade by a space).
+ * Matrices (`container<container<T>>`) are also handleled nicely, printing one
+ * row per line.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * std::tuple<int, double, std::string> tu = {5, 0.1, "str"};
+ * std::cout << println(tu);
+ * // "5 0.1 str\n"
+ * std::cout << print({{1, 2}, {3, 4}});
+ * // "1 2\n3 4"
+ * ```
+ */
+template <> struct tgen::print;
+
+
+/**
+ * @ingroup general
  * @brief Returns a random number in `[l, r]`.
  *
  * @param l Left endpoint of the range.
@@ -68,7 +92,10 @@ template <typename T> T tgen::next(T l, T r);
 
 /**
  * @ingroup general
- * @brief Shuffles `[first, last)` inplace.
+ * @brief Shuffles `[first, last)` inplace, for RandomAccessIterator.
+ *
+ * Works for `std::vector`, `std::string`, etc, but not `std::set`. For those,
+ * use `tgen::shuffle(container)`.
  *
  * @param first First iterator of range.
  * @param last First iterator outside of range.
@@ -87,6 +114,9 @@ template <typename It> void tgen::shuffle(It first, It last);
  * @ingroup general
  * @brief Shuffles `container`.
  *
+ * Works for containers and `std::initializer_list`. If container is ordered
+ * (`std::set`, etc) or `std::initializer_list`, returns a `std::vector` (different function).
+ *
  * @param container Container to be shuffled.
  *
  * @return The shuffled container.
@@ -94,11 +124,14 @@ template <typename It> void tgen::shuffle(It first, It last);
  * #### Examples
  *
  * ```cpp
- * std::set<int> st = {1, 2, 3, 4, 5};
+ * std::vector<int> st = {1, 2, 3, 4, 5};
  * st = tgen::shuffle(st);
+ * st = tgen::shuffle({1, 2, 3});
+ * st = tgen::shuffle(std::set<int>({1, 2, 3}));
  * ```
  */
-template <typename C> C tgen::shuffle(const C &container);
+template <typename C, std::enable_if_t<!is_associative_container_internal<C>::value, int> = 0>>
+C tgen::shuffle(const C &container);
 
 
 /**
@@ -124,6 +157,8 @@ template <typename It> typename It::value_type tgen::any(It first, It last);
  * @ingroup general
  * @brief Choses a random element from `container`.
  *
+ * Also works with `std::initializer_list`.
+ *
  * @param container Container to choose from.
  *
  * @return A uniformly random element from `container`.
@@ -141,6 +176,8 @@ template <typename C> typename C::value_type tgen::any(const C &container);
 /**
  * @ingroup general
  * @brief Chooses `k` values from the container, as in a subsequence of size `k`.
+ *
+ * Also works with `std::initializer_list`.
  *
  * @param k Number of elements to be chosen.
  * @param container Container to choose from.

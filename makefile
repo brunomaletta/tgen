@@ -1,9 +1,9 @@
 all: lint doc test
 
 a:
-	g++ -std=c++17 a.cpp -I src -o a -O2
-	-./a
-	rm -r a
+	@g++ -std=c++17 a.cpp -I src -o a -O2
+	@-./a
+	@rm -r a
 
 debug:
 	g++ -fsanitize=address,undefined -fno-omit-frame-pointer -g -Wall -Wshadow -std=c++17 a.cpp -I src -o a
