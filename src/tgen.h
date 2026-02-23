@@ -75,6 +75,11 @@ struct is_container_internal<
 				   decltype(std::end(std::declval<T>()))>> : std::true_type {};
 template <> struct is_container_internal<std::string> : std::false_type {};
 
+// Detects tuple.
+template <typename T> struct is_tuple_internal : std::false_type {};
+template <typename... Ts>
+struct is_tuple_internal<std::tuple<Ts...>> : std::true_type {};
+
 // Struct to print standard types to std::ostream;
 struct print {
 	std::string s;
@@ -84,11 +89,26 @@ struct print {
 		write(oss, x);
 		s = oss.str();
 	}
+	template <class T> print(const std::initializer_list<T> &il) {
+		std::ostringstream oss;
+		write(oss, std::vector<T>(il.begin(), il.end()));
+		s = oss.str();
+	}
+	template <class T>
+	print(const std::initializer_list<std::initializer_list<T>> &il) {
+		std::ostringstream oss;
+		std::vector<std::vector<T>> mat;
+		for (const auto &i : il)
+			mat.push_back(i);
+		write(oss, mat);
+		s = oss.str();
+	}
 
 	// Scalar.
 	template <class T>
-	std::enable_if_t<!is_container_internal<T>::value> write(std::ostream &os,
-															 const T &x) {
+	std::enable_if_t<!is_container_internal<T>::value and
+					 !is_tuple_internal<T>::value>
+	write(std::ostream &os, const T &x) {
 		os << x;
 	}
 
@@ -98,6 +118,22 @@ struct print {
 		write(os, p.first);
 		os << ' ';
 		write(os, p.second);
+	}
+
+	// std::tuple.
+	template <typename Tuple, std::size_t... I>
+	void write_tuple_impl(std::ostream &os, const Tuple &tp,
+						  std::index_sequence<I...>) {
+		bool first = true;
+		((os << (first ? (first = false, "") : " "),
+		  write(os, std::get<I>(tp))),
+		 ...);
+	}
+	template <class T>
+	std::enable_if_t<is_tuple_internal<T>::value> write(std::ostream &os,
+														const T &tp) {
+		write_tuple_impl(os, tp,
+						 std::make_index_sequence<std::tuple_size<T>::value>{});
 	}
 
 	// 1D container.

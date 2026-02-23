@@ -35,6 +35,81 @@ inline std::vector<char *> get_argv(std::initializer_list<const char *> list) {
  * Tests.
  */
 
+TEST(general_test, print_scalar) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print(10);
+	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("10"));
+
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print(std::string("str"));
+	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("str"));
+}
+
+TEST(general_test, print_pair) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print(std::pair<std::string, double>("str", 0.1));
+	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("str 0.1"));
+}
+
+TEST(general_test, print_tuple) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print(
+		std::tuple<int, double, std::string>(5, 0.1, "str"));
+	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("5 0.1 str"));
+}
+
+TEST(general_test, print_1d_container) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print({1, 2, 3});
+	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2 3"));
+
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print(std::vector<int>({1, 2, 3}));
+	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2 3"));
+
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print(std::set<int>({1, 2, 3}));
+	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2 3"));
+
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print(std::array<int, 3>({1, 2, 3}));
+	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2 3"));
+}
+
+TEST(general_test, print_2d_container) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
+	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+			  std::string("1 2 3\n4 5 6\n7 8 9"));
+
+	std::vector<int> r1 = {1, 2, 3}, r2 = {4, 5, 6}, r3 = {7, 8, 9};
+
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print({r1, r2, r3});
+	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+			  std::string("1 2 3\n4 5 6\n7 8 9"));
+
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print(std::vector<std::vector<int>>({r1, r2, r3}));
+	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+			  std::string("1 2 3\n4 5 6\n7 8 9"));
+}
+
 TEST(general_test, next_invalid_range) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
