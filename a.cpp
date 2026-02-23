@@ -74,10 +74,13 @@ int main(int argc, char **argv) {
 
 	std::cout << tgen::math::gen_even(1, 10) << std::endl;
 
-	std::cout << tgen::sequence<int>::instance(tgen::math::gen_partition(10))
+	std::cout << tgen::println(tgen::math::gen_partition(10));
+
+	std::cout << tgen::print(tgen::math::gen_partition_fixed_size(10, 2, 3, 7))
 			  << std::endl;
 
-	std::cout << tgen::sequence<int>::instance(
-					 tgen::math::gen_partition_fixed_size(10, 2, 3, 7))
-			  << std::endl;
+	std::vector<std::vector<int>> mat = {{1, 2}, {3, 4}};
+	std::cout << tgen::println(mat);
+
+	std::cout << tgen::println(tgen::shuffle(std::set<int>({1, 2, 3})));
 }

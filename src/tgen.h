@@ -7,6 +7,7 @@
 #include <queue>
 #include <random>
 #include <set>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -62,6 +63,84 @@ std::runtime_error there_is_no_upto_error_internal(const std::string &type,
 		tgen::throw_assertion_error_internal(#cond, ##__VA_ARGS__);
 
 /*
+ * Easier printing.
+ */
+
+// Template magic to detect containers != std::string.
+template <typename T, typename = void>
+struct is_container_internal : std::false_type {};
+template <typename T>
+struct is_container_internal<
+	T, std::void_t<decltype(std::begin(std::declval<T>())),
+				   decltype(std::end(std::declval<T>()))>> : std::true_type {};
+template <> struct is_container_internal<std::string> : std::false_type {};
+
+// Struct to print standard types to std::ostream;
+struct print {
+	std::string s;
+
+	template <class T> print(const T &x) {
+		std::ostringstream oss;
+		write(oss, x);
+		s = oss.str();
+	}
+
+	// Scalar.
+	template <class T>
+	std::enable_if_t<!is_container_internal<T>::value> write(std::ostream &os,
+															 const T &x) {
+		os << x;
+	}
+
+	// std::pair.
+	template <class A, class B>
+	void write(std::ostream &os, const std::pair<A, B> &p) {
+		write(os, p.first);
+		os << ' ';
+		write(os, p.second);
+	}
+
+	// 1D container.
+	template <class C>
+	std::enable_if_t<is_container_internal<C>::value and
+					 !is_container_internal<typename C::value_type>::value>
+	write(std::ostream &os, const C &container) {
+		bool first = true;
+		for (const auto &i : container) {
+			if (!first)
+				os << ' ';
+			first = false;
+			write(os, i);
+		}
+	}
+
+	// 2D contianer.
+	template <class C>
+	std::enable_if_t<is_container_internal<C>::value and
+					 is_container_internal<typename C::value_type>::value>
+	write(std::ostream &os, const C &matrix) {
+		bool first = true;
+		for (const auto &row : matrix) {
+			if (!first)
+				os << '\n';
+			first = false;
+			write(os, row);
+		}
+	}
+
+	friend std::ostream &operator<<(std::ostream &out, const print &pr) {
+		return out << pr.s;
+	}
+};
+
+// Prints in a new line.
+template <typename T> inline print println(const T &x) {
+	print p(x);
+	p.s += '\n';
+	return p;
+}
+
+/*
  * Global random operations.
  */
 
@@ -79,7 +158,7 @@ template <typename T> T next(T l, T r) {
 							 std::string(typeid(T).name()) + ")");
 }
 
-// Shuffles [first, last) inplace uniformly.
+// Shuffles [first, last) inplace uniformly, for RandomAccessIterator.
 template <typename It> void shuffle(It first, It last) {
 	if (first == last)
 		return;
@@ -88,11 +167,31 @@ template <typename It> void shuffle(It first, It last) {
 		std::iter_swap(i, first + next(0, static_cast<int>(i - first)));
 }
 
+template <typename T, typename = void>
+struct is_associative_container_internal : std::false_type {};
+template <typename T>
+struct is_associative_container_internal<
+	T, std::void_t<typename T::key_type, typename T::key_compare>>
+	: std::true_type {};
+
 // Shuffles container uniformly.
-template <typename C> [[nodiscard]] C shuffle(const C &container) {
+template <
+	typename C,
+	std::enable_if_t<!is_associative_container_internal<C>::value, int> = 0>
+[[nodiscard]] C shuffle(const C &container) {
 	auto new_container = container;
 	shuffle(new_container.begin(), new_container.end());
 	return new_container;
+}
+template <typename C, std::enable_if_t<
+						  is_associative_container_internal<C>::value, int> = 0>
+[[nodiscard]] std::vector<typename C::value_type> shuffle(const C &container) {
+	return shuffle(std::vector<typename C::value_type>(container.begin(),
+													   container.end()));
+}
+template <typename T>
+[[nodiscard]] std::vector<T> shuffle(const std::initializer_list<T> &il) {
+	return shuffle(std::vector<T>(il.begin(), il.end()));
 }
 
 // Returns a random element from [first, last).
@@ -1526,7 +1625,7 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 		//   = B + log[exp(A - B) + U - U * exp(A - B))]
 		//   = B + log[U + (1 - U) * exp(A - B)].
 		long double val_l = l ? dp_pref[l - 1] : LOG_ZERO_INTERNAL,
-			   val_r = dp_pref[r];
+					val_r = dp_pref[r];
 		while (nxt_sum > l and
 			   dp_pref[nxt_sum - 1] >=
 				   val_r + log_space_internal(random + (1 - random) *
@@ -1559,12 +1658,13 @@ inline std::vector<int> gen_partition_fixed_size(int n, int k, int part_l = 0,
 
 	std::vector<int> part(k);
 	if (part_r == n) {
-		// Stars and bars - O(k).
+		// Stars and bars - O(n).
 		std::vector<int> cuts = {-1};
 
 		int total = s + k - 1, bars = k - 1;
 		for (int i = 0; i < total and bars > 0; ++i)
-			if (next<long double>(0, 1) < static_cast<long double>(bars) / (total - i)) {
+			if (next<long double>(0, 1) <
+				static_cast<long double>(bars) / (total - i)) {
 				cuts.push_back(i);
 				--bars;
 			}
@@ -1608,7 +1708,8 @@ inline std::vector<int> gen_partition_fixed_size(int n, int k, int part_l = 0,
 			// dp[i-1][.].
 
 			// log(rand() * total) = log(rand()) + log(total).
-			long double random = log_space_internal(next<long double>(0, 1)) + log_total;
+			long double random =
+				log_space_internal(next<long double>(0, 1)) + log_total;
 
 			long double cur_prob = LOG_ZERO_INTERNAL;
 			int chosen = 0;
