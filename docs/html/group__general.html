@@ -166,10 +166,10 @@ Examples</h3>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Choses a subsequence of length 5.</span></div>
 <div class="line">v = <a class="code hl_function" href="#ga5deceed8488585530188dbd266739771">tgen::choose</a>(5, v);</div>
-<div class="ttc" id="agroup__general_html_ga5494e4e347f9d1dc5b88695e0777f65b"><div class="ttname"><a href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a></div><div class="ttdeci">void shuffle(It first, It last)</div><div class="ttdoc">Shuffles [first, last) inplace, for RandomAccessIterator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00198">tgen.h:198</a></div></div>
-<div class="ttc" id="agroup__general_html_ga5deceed8488585530188dbd266739771"><div class="ttname"><a href="#ga5deceed8488585530188dbd266739771">tgen::choose</a></div><div class="ttdeci">C choose(int k, const C &amp;container)</div><div class="ttdoc">Chooses k values from the container, as in a subsequence of size k.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00251">tgen.h:251</a></div></div>
-<div class="ttc" id="agroup__general_html_ga9c1c0431948210b949f5d1500e7235ec"><div class="ttname"><a href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a></div><div class="ttdeci">It::value_type any(It first, It last)</div><div class="ttdoc">Choses a random element from [first, last).</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00234">tgen.h:234</a></div></div>
-<div class="ttc" id="agroup__general_html_gaa007cf5e254380332a3548711d5f9b16"><div class="ttname"><a href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a></div><div class="ttdeci">T next(T l, T r)</div><div class="ttdoc">Returns a random number in [l, r].</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00186">tgen.h:186</a></div></div>
+<div class="ttc" id="agroup__general_html_ga5494e4e347f9d1dc5b88695e0777f65b"><div class="ttname"><a href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a></div><div class="ttdeci">void shuffle(It first, It last)</div><div class="ttdoc">Shuffles [first, last) inplace, for RandomAccessIterator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00200">tgen.h:200</a></div></div>
+<div class="ttc" id="agroup__general_html_ga5deceed8488585530188dbd266739771"><div class="ttname"><a href="#ga5deceed8488585530188dbd266739771">tgen::choose</a></div><div class="ttdeci">C choose(int k, const C &amp;container)</div><div class="ttdoc">Chooses k values from the container, as in a subsequence of size k.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00257">tgen.h:257</a></div></div>
+<div class="ttc" id="agroup__general_html_ga9c1c0431948210b949f5d1500e7235ec"><div class="ttname"><a href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a></div><div class="ttdeci">It::value_type any(It first, It last)</div><div class="ttdoc">Choses a random element from [first, last).</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00238">tgen.h:238</a></div></div>
+<div class="ttc" id="agroup__general_html_gaa007cf5e254380332a3548711d5f9b16"><div class="ttname"><a href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a></div><div class="ttdeci">T next(T l, T r)</div><div class="ttdoc">Returns a random number in [l, r].</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00187">tgen.h:187</a></div></div>
 <div class="ttc" id="agroup__general_html_gabc423cf4476d436001120351be24e896"><div class="ttname"><a href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a></div><div class="ttdeci">#define tgen_ensure(cond,...)</div><div class="ttdoc">Ensures condition cond is true.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00061">tgen.h:61</a></div></div>
 </div><!-- fragment --> <a name="doc-define-members" id="doc-define-members"></a><h2 id="header-doc-define-members" class="groupheader">Macro Definition Documentation</h2>
 <a id="gabc423cf4476d436001120351be24e896" name="gabc423cf4476d436001120351be24e896"></a>
@@ -243,12 +243,15 @@ template&lt;typename C&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random element from <span class="tt">container</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md13"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md17"></a>
+Complexity</h4>
+<p><span class="tt">O(1)</span> for random_access_iterator, <span class="tt">O(|container|)</span> otherwise.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md18"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
 <div class="line"><span class="keywordtype">int</span> value = <a class="code hl_function" href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a>(v);</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00242">242</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00247">247</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -282,12 +285,15 @@ template&lt;typename It&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random element from the range <span class="tt">[first, last)</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md12"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md15"></a>
+Complexity</h4>
+<p><span class="tt">O(1)</span> for random_access_iterator, <span class="tt">O(|last - first|)</span> otherwise.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md16"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::set&lt;int&gt; st = {1, 2, 3, 4, 5};</div>
 <div class="line"><span class="keywordtype">int</span> value = <a class="code hl_function" href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a>(st.begin(), st.end());</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00234">234</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00238">238</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -322,12 +328,15 @@ template&lt;typename C&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random subsequence of length <span class="tt">k</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md14"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md19"></a>
+Complexity</h4>
+<p><span class="tt">O(|container|)</span>.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md20"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
 <div class="line">v = <a class="code hl_function" href="#ga5deceed8488585530188dbd266739771">tgen::choose</a>(3, v); <span class="comment">// Chooses 3 elements from v.</span></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00251">251</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00257">257</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -363,11 +372,14 @@ template&lt;typename T&gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>A random number in <span class="tt">[l, r]</span>, chosen uniformly.</dd></dl>
 <p><span class="tt">T</span> can be either an integral type (<span class="tt">int</span>, <span class="tt">long long</span>, ...) or floating point (<span class="tt">float</span>, <span class="tt">double</span>).</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md9"></a>
+Complexity</h4>
+<p><span class="tt">O(1)</span>.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md10"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Random value from 1 to 10.</span></div>
 <div class="line"><span class="keywordtype">int</span> value = <a class="code hl_function" href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a>(1, 10);</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00186">186</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00187">187</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -405,14 +417,17 @@ template&lt;typename C, std::enable_if_t&lt;!<a class="el" href="structtgen_1_1i
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The shuffled container.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md11"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md13"></a>
+Complexity</h4>
+<p><span class="tt">O(|container|)</span>.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md14"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; st = {1, 2, 3, 4, 5};</div>
 <div class="line">st = <a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(st);</div>
 <div class="line">st = <a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>({1, 2, 3});</div>
 <div class="line">st = <a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(std::set&lt;int&gt;({1, 2, 3}));</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00217">217</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00220">220</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -446,12 +461,15 @@ template&lt;typename It&gt; </div>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md10"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md11"></a>
+Complexity</h4>
+<p><span class="tt">O(|last - first|)</span>.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md12"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
 <div class="line"><a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(v.begin(), v.end());</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00198">198</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00200">200</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>

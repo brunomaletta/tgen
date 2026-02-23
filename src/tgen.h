@@ -183,6 +183,7 @@ template <typename T> inline print println(const T &x) {
 inline std::mt19937 rng_internal;
 
 // Returns a random number in [l, r].
+// O(1).
 template <typename T> T next(T l, T r) {
 	tgen_ensure(l <= r, "range for `next` bust be valid");
 	if constexpr (std::is_integral_v<T>)
@@ -195,6 +196,7 @@ template <typename T> T next(T l, T r) {
 }
 
 // Shuffles [first, last) inplace uniformly, for RandomAccessIterator.
+// O(|container|).
 template <typename It> void shuffle(It first, It last) {
 	if (first == last)
 		return;
@@ -211,6 +213,7 @@ struct is_associative_container_internal<
 	: std::true_type {};
 
 // Shuffles container uniformly.
+// O(|container|).
 template <
 	typename C,
 	std::enable_if_t<!is_associative_container_internal<C>::value, int> = 0>
@@ -231,6 +234,7 @@ template <typename T>
 }
 
 // Returns a random element from [first, last).
+// O(1) for random_access_iterator, O(|last - first|) otherwise.
 template <typename It> typename It::value_type any(It first, It last) {
 	int size = std::distance(first, last);
 	It it = first;
@@ -239,6 +243,7 @@ template <typename It> typename It::value_type any(It first, It last) {
 }
 
 // Returns a random element from container.
+// O(1) for random_access_iterator, O(|container|) otherwise.
 template <typename C> typename C::value_type any(const C &container) {
 	return any(container.begin(), container.end());
 }
@@ -248,6 +253,7 @@ template <typename T> T any(const std::initializer_list<T> &il) {
 
 // Chooses k values from the container, as in a subsequence of size k. Returns a
 // copy.
+// O(|container|).
 template <typename C> C choose(int k, const C &container) {
 	tgen_ensure(0 < k and k <= container.size(),
 				"number of elements to choose must be valid");
@@ -572,10 +578,9 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 
 	// Restricts sequences with distinct elements.
 	sequence &distinct() {
-		std::set<int> indices;
-		for (int i = 0; i < size_; ++i)
-			indices.insert(i);
-		return distinct(indices);
+		std::vector<int> indices(size_);
+		std::iota(indices.begin(), indices.end(), 0);
+		return distinct(std::set<int>(indices.begin(), indices.end()));
 	}
 
 	// Sequence instance.
@@ -589,28 +594,31 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 			: vec_(il.begin(), il.end()) {}
 
 		// Fetches size.
-		std::size_t size() const { return vec_.size(); }
+		int size() const { return vec_.size(); }
 
 		// Fetches position idx.
 		T &operator[](int idx) { return vec_[idx]; }
 		const T &operator[](int idx) const { return vec_[idx]; }
 
 		// Sorts values in non-decreasing order.
+		// O(n log n).
 		instance &sort() {
 			std::sort(vec_.begin(), vec_.end());
 			return *this;
 		}
 
 		// Reverses sequence.
+		// O(n).
 		instance &reverse() {
 			std::reverse(vec_.begin(), vec_.end());
 			return *this;
 		}
 
 		// Concatenates two instances.
+		// Linear.
 		instance operator+(const instance &rhs) {
 			std::vector<T> new_vec = vec_;
-			for (std::size_t i = 0; i < rhs.size(); ++i)
+			for (int i = 0; i < rhs.size(); ++i)
 				new_vec.push_back(rhs[i]);
 			return instance(new_vec);
 		}
@@ -618,18 +626,12 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		// Prints to std::ostream, separated by spaces.
 		friend std::ostream &operator<<(std::ostream &out,
 										const instance &inst) {
-			for (std::size_t i = 0; i < inst.size(); ++i) {
+			for (int i = 0; i < inst.size(); ++i) {
 				if (i > 0)
 					out << ' ';
 				out << inst[i];
 			}
 			return out;
-		}
-
-		// Prints std::vector.
-		friend std::ostream &operator<<(std::ostream &out,
-										const std::vector<T> &vec) {
-			return out << instance(vec);
 		}
 
 		// Gets a std::vector representing the instance.
@@ -687,6 +689,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 	}
 
 	// Generates sequence instance.
+	// O(n log n).
 	instance gen() {
 		std::vector<T> vec(size_);
 		std::vector<bool> defined_idx(
@@ -956,6 +959,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 namespace sequence_op {
 
 // Shuffles a sequence.
+// O(n).
 template <typename INST> INST shuffle(const INST &inst) {
 	INST new_inst = inst;
 	tgen::shuffle(new_inst.vec_);
@@ -963,11 +967,13 @@ template <typename INST> INST shuffle(const INST &inst) {
 }
 
 // Choses any value in the sequence.
+// O(1).
 template <typename INST> typename INST::value_type any(const INST &inst) {
 	return inst.vec_[next<int>(0, inst.vec_.size() - 1)];
 }
 
 // Chooses k values from the sequence, as in a subsequence of size k.
+// O(n).
 template <typename INST> INST choose(int k, const INST &inst) {
 	tgen_ensure(0 < k and k <= inst.vec_.size(),
 				"number of elements to choose must be valid");
@@ -1022,7 +1028,7 @@ struct permutation : gen_base<permutation> {
 		instance(const std::vector<int> &vec) : vec_(vec), add_1_(false) {
 			tgen_ensure(!vec_.empty(), "permutation cannot be empty");
 			std::vector<bool> vis(vec_.size(), false);
-			for (std::size_t i = 0; i < vec_.size(); i++) {
+			for (int i = 0; i < size(); i++) {
 				tgen_ensure(0 <= vec_[i] and
 								vec_[i] < static_cast<int>(vec_.size()),
 							"permutation values must be from `0` to `size-1`");
@@ -1035,18 +1041,19 @@ struct permutation : gen_base<permutation> {
 			: instance(std::vector<int>(il.begin(), il.end())) {}
 
 		// Fetches size.
-		std::size_t size() const { return vec_.size(); }
+		int size() const { return vec_.size(); }
 
 		// Fetches position idx.
 		int &operator[](int idx) { return vec_[idx]; }
 		const int &operator[](int idx) const { return vec_[idx]; }
 
 		// Returns parity of the permutation (+1 if even, -1 if odd).
+		// O(n).
 		int parity() const {
 			std::vector<bool> vis(size(), false);
 			int cycles = 0;
 
-			for (std::size_t i = 0; i < size(); ++i)
+			for (int i = 0; i < size(); ++i)
 				if (!vis[i]) {
 					cycles++;
 					for (int j = i; !vis[j]; j = vec_[j])
@@ -1057,27 +1064,31 @@ struct permutation : gen_base<permutation> {
 		}
 
 		// Sorts values in increasign order.
+		// O(n).
 		instance &sort() {
-			std::sort(vec_.begin(), vec_.end());
+			for (int i = 0; i < size(); ++i) vec_[i] = i;
 			return *this;
 		}
 
 		// Reverses permutation.
+		// O(n).
 		instance &reverse() {
 			std::reverse(vec_.begin(), vec_.end());
 			return *this;
 		}
 
 		// Inverse of the permutation.
+		// O(n).
 		instance &inverse() {
 			std::vector<int> inv(size());
-			for (std::size_t i = 0; i < size(); ++i)
+			for (int i = 0; i < size(); ++i)
 				inv[vec_[i]] = i;
 			swap(vec_, inv);
 			return *this;
 		}
 
 		// Sets that should print values 1-based.
+		// O(1).
 		instance &add_1() {
 			add_1_ = true;
 			return *this;
@@ -1086,7 +1097,7 @@ struct permutation : gen_base<permutation> {
 		// Prints to std::ostream, separated by spaces.
 		friend std::ostream &operator<<(std::ostream &out,
 										const instance &inst) {
-			for (std::size_t i = 0; i < inst.size(); ++i) {
+			for (int i = 0; i < inst.size(); ++i) {
 				if (i > 0)
 					out << ' ';
 				out << inst[i] + inst.add_1_;
@@ -1099,7 +1110,9 @@ struct permutation : gen_base<permutation> {
 	};
 
 	// Generates permutation instance.
+	// O(n log n).
 	instance gen() {
+		// TODO: generate directly in O(n), instead of calling sequence<int>.
 		sequence<int> seq(size_, 0, size_ - 1);
 		seq.distinct();
 		for (auto [idx, val] : sets)
@@ -1108,6 +1121,7 @@ struct permutation : gen_base<permutation> {
 	}
 
 	// Generates permutation instance, given cycle sizes.
+	// O(n).
 	instance gen(std::vector<int> cycle_sizes) {
 		tgen_ensure(
 			size_ == std::accumulate(cycle_sizes.begin(), cycle_sizes.end(), 0),
@@ -1145,11 +1159,7 @@ struct permutation : gen_base<permutation> {
 
 namespace math {
 
-// O(1).
-// 0 < x.
-inline int ctzll(uint64_t x) {
-	tgen_ensure(x > 0, "ctz is undefined for 0");
-
+inline int ctzll_internal(uint64_t x) {
 	// Mistery code found on the internet.
 	static const unsigned char index64[64] = {
 		0,	1,	2,	53, 3,	7,	54, 27, 4,	38, 41, 8,	34, 55, 48, 28,
@@ -1159,18 +1169,17 @@ inline int ctzll(uint64_t x) {
 	return index64[((x & -x) * 0x022FDD63CC95386D) >> 58];
 }
 
-// O(1).
-inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t m) {
+inline uint64_t mul_mod_internal(uint64_t a, uint64_t b, uint64_t m) {
 	return static_cast<unsigned __int128>(a) * b % m;
 }
 
 // O(log n).
 // 0 <= x < m.
-inline uint64_t expo_mod(uint64_t x, uint64_t y, uint64_t m) {
+inline uint64_t expo_mod_internal(uint64_t x, uint64_t y, uint64_t m) {
 	if (!y)
 		return 1;
-	uint64_t ans = expo_mod(mul_mod(x, x, m), y / 2, m);
-	return y % 2 ? mul_mod(x, ans, m) : ans;
+	uint64_t ans = expo_mod_internal(mul_mod_internal(x, x, m), y / 2, m);
+	return y % 2 ? mul_mod_internal(x, ans, m) : ans;
 }
 
 // O(log^2 n).
@@ -1182,15 +1191,15 @@ inline bool is_prime(uint64_t n) {
 	if (n % 2 == 0)
 		return false;
 
-	uint64_t r = ctzll(n - 1), d = n >> r;
+	uint64_t r = ctzll_internal(n - 1), d = n >> r;
 	// These bases are guaranteed to work for n <= 2^64.
 	for (int a : {2, 325, 9375, 28178, 450775, 9780504, 1795265022}) {
-		uint64_t x = expo_mod(a, d, n);
+		uint64_t x = expo_mod_internal(a, d, n);
 		if (x == 1 or x == n - 1 or a % n == 0)
 			continue;
 
 		for (uint64_t j = 0; j < r - 1; ++j) {
-			x = mul_mod(x, x, n);
+			x = mul_mod_internal(x, x, n);
 			if (x == n - 1)
 				break;
 		}
@@ -1203,13 +1212,13 @@ inline bool is_prime(uint64_t n) {
 inline uint64_t pollard_rho_internal(uint64_t n) {
 	if (n == 1 or is_prime(n))
 		return n;
-	auto f = [n](uint64_t x) { return mul_mod(x, x, n) + 1; };
+	auto f = [n](uint64_t x) { return mul_mod_internal(x, x, n) + 1; };
 
 	uint64_t x = 0, y = 0, t = 30, prd = 2, x0 = 1, q;
 	while (t % 40 != 0 or std::gcd(prd, n) == 1) {
 		if (x == y)
 			x = ++x0, y = f(x);
-		q = mul_mod(prd, x > y ? x - y : y - x, n);
+		q = mul_mod_internal(prd, x > y ? x - y : y - x, n);
 		if (q != 0)
 			prd = q;
 		x = f(x), y = f(f(y)), t++;
@@ -1281,7 +1290,7 @@ inline uint64_t totient(uint64_t n) {
 	return phi;
 }
 
-// O(ln r) expected..
+// O(ln r) expected.
 // If adjust_distribution = true, then generates uniformly over value ranges.
 // Otherwise, uniform over primes, so smaller primes are generated more often.
 inline uint64_t gen_prime(uint64_t l, uint64_t r,

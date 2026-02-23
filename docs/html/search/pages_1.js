@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['configuration_0',['Opts configuration',['../index.html#autotoc_md4',1,'']]],
-  ['consuming_20opts_1',['Consuming opts',['../group__opts.html#autotoc_md17',1,'']]]
+  ['complexity_0',['Complexity',['../group__general.html#autotoc_md9',1,'Complexity'],['../group__general.html#autotoc_md11',1,'Complexity'],['../group__general.html#autotoc_md13',1,'Complexity'],['../group__general.html#autotoc_md15',1,'Complexity'],['../group__general.html#autotoc_md17',1,'Complexity'],['../group__general.html#autotoc_md19',1,'Complexity'],['../group__permutation__gen.html#autotoc_md27',1,'Complexity'],['../group__permutation__gen.html#autotoc_md29',1,'Complexity'],['../group__permutation__gen.html#autotoc_md31',1,'Complexity'],['../group__permutation__inst.html#autotoc_md37',1,'Complexity'],['../group__permutation__inst.html#autotoc_md39',1,'Complexity'],['../group__permutation__inst.html#autotoc_md41',1,'Complexity'],['../group__permutation__inst.html#autotoc_md43',1,'Complexity'],['../group__sequence__gen.html#autotoc_md56',1,'Complexity'],['../group__sequence__gen.html#autotoc_md58',1,'Complexity'],['../group__sequence__inst.html#autotoc_md63',1,'Complexity'],['../group__sequence__inst.html#autotoc_md65',1,'Complexity'],['../group__sequence__inst.html#autotoc_md67',1,'Complexity'],['../group__sequence__op.html#autotoc_md71',1,'Complexity'],['../group__sequence__op.html#autotoc_md73',1,'Complexity'],['../group__sequence__op.html#autotoc_md75',1,'Complexity']]],
+  ['configuration_1',['Opts configuration',['../index.html#autotoc_md4',1,'']]],
+  ['consuming_20opts_2',['Consuming opts',['../group__opts.html#autotoc_md23',1,'']]]
 ];

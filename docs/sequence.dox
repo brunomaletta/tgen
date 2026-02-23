@@ -239,6 +239,10 @@ tgen::sequence &tgen::sequence::distinct();
  *
  * @return A uniformly random instance from the set of valid sequences, given the added constraints.
  *
+ * #### Complexity
+ *
+ * `O(n log n)`.
+ *
  * #### Examples
  *
  * ```cpp
@@ -267,6 +271,10 @@ tgen::sequence::instance tgen::sequence::gen();
  *
  * @return An instance found by repeatedly choosing a uniformly random valid sequence and checking
  * if it satisfies `predicate`.
+ *
+ * #### Complexity
+ *
+ * `O((1/p) n log n)` expected, `O(max_tries * n log n)` worst case.
  *
  * #### Examples
  *
@@ -372,6 +380,10 @@ T& tgen::sequence::instance::operator[](int idx) const;
  * @ingroup sequence_inst
  * @brief Sorts the instance in non-decreasing order.
  *
+ * #### Complexity
+ *
+ * `O(n log n)`.
+ *
  * #### Examples
  *
  * ```cpp
@@ -388,6 +400,10 @@ instance &tgen::sequence::instance::sort();
  * @ingroup sequence_inst
  * @brief Reverses the instance.
  *
+ * #### Complexity
+ *
+ * `O(n)`.
+ *
  * #### Examples
  *
  * ```cpp
@@ -403,6 +419,10 @@ instance &tgen::sequence::instance::reverse();
 /**
  * @ingroup sequence_inst
  * @brief Concatenates two instances.
+ *
+ * #### Complexity
+ *
+ * Linear.
  *
  * #### Examples
  *
@@ -472,6 +492,10 @@ std::vector<T> tgen::sequence::instance::to_std() const;
  *
  * `INST` must be a `tgen::sequence::instance`.
  *
+ * #### Complexity
+ *
+ * `O(n)`.
+ *
  * #### Examples
  *
  * ```cpp
@@ -493,6 +517,10 @@ INST tgen::sequence_op::shuffle(const INST &inst);
  * @return A uniformly random element from the instance.
  *
  * @note `INST` must be a `tgen::sequence::instance`.
+ *
+ * #### Complexity
+ *
+ * `O(1)`.
  *
  * #### Examples
  *
@@ -516,6 +544,10 @@ typename INST::value_type tgen::sequence_op::any(const INST &inst);
  * @return A uniformly random subsequence of length k.
  *
  * @note `INST` must be a `tgen::sequence::instance`.
+ *
+ * #### Complexity
+ *
+ * `O(n)`.
  *
  * #### Examples
  *

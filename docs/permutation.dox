@@ -86,6 +86,10 @@ tgen::permutation &tgen::permutation::set(int idx, int value);
  * @ingroup permutation_gen
  * @brief Generates a random instance from the set of valid permutations.
  *
+ * #### Complexity
+ *
+ * `O(n log n)`.
+ *
  * #### Examples
  *
  * ```cpp
@@ -108,6 +112,10 @@ tgen::permutation::instance tgen::permutation::gen();
  *
  * The sizes of cycles of the generated permuttion will be `cycle_sizes`. The permutation is generated
  * uniformly at random among all permutations with these cycle sizes.
+ *
+ * #### Complexity
+ *
+ * `O(n)`.
  *
  * #### Examples
  *
@@ -138,6 +146,10 @@ tgen::permutation::instance tgen::permutation::gen(std::vector<int> cycle_sizes)
  *
  * @return An instance found by repeatedly choosing a uniformly random valid permutation and checking
  * if it satisfies `predicate`.
+ *
+ * #### Complexity
+ *
+ * `O((1/p) n log n)` expected, `O(max_tries * n log n)` worst case.
  *
  * #### Examples
  *
@@ -265,6 +277,10 @@ int tgen::permutation::instance::parity();
  * @ingroup permutation_inst
  * @brief Sorts the instance in non-decreasing order.
  *
+ * #### Complexity
+ *
+ * `O(n)`.
+ *
  * #### Examples
  *
  * ```cpp
@@ -280,6 +296,10 @@ instance &tgen::permutation::instance::sort();
 /**
  * @ingroup permutation_inst
  * @brief Reverses the instance.
+ *
+ * #### Complexity
+ *
+ * `O(n)`.
  *
  * #### Examples
  *
@@ -299,6 +319,10 @@ instance &tgen::permutation::instance::reverse();
  *
  * The inverse of the permutation `p` is another `pi` such that `pi[p[i]] = p[pi[i]] = i`.
  *
+ * #### Complexity
+ *
+ * `O(n)`.
+ *
  * #### Examples
  *
  * ```cpp
@@ -316,6 +340,10 @@ instance &tgen::permutation::instance::inverse();
  * @brief Adds 1 for printing.
  *
  * This makes it so, when given to `std::cout`, the permutation will be printed as 1-based.
+ *
+ * #### Complexity
+ *
+ * `O(1)`.
  *
  * #### Examples
  *

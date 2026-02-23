@@ -1,6 +1,7 @@
 var searchData=
 [
   ['choose_0',['choose',['../group__general.html#ga5deceed8488585530188dbd266739771',1,'tgen::choose()'],['../group__sequence__op.html#gae983696fba517df4aa22a44ffaa88ba2',1,'tgen::sequence_op::choose()']]],
-  ['configuration_1',['Opts configuration',['../index.html#autotoc_md4',1,'']]],
-  ['consuming_20opts_2',['Consuming opts',['../group__opts.html#autotoc_md17',1,'']]]
+  ['complexity_1',['Complexity',['../group__general.html#autotoc_md9',1,'Complexity'],['../group__general.html#autotoc_md11',1,'Complexity'],['../group__general.html#autotoc_md13',1,'Complexity'],['../group__general.html#autotoc_md15',1,'Complexity'],['../group__general.html#autotoc_md17',1,'Complexity'],['../group__general.html#autotoc_md19',1,'Complexity'],['../group__permutation__gen.html#autotoc_md27',1,'Complexity'],['../group__permutation__gen.html#autotoc_md29',1,'Complexity'],['../group__permutation__gen.html#autotoc_md31',1,'Complexity'],['../group__permutation__inst.html#autotoc_md37',1,'Complexity'],['../group__permutation__inst.html#autotoc_md39',1,'Complexity'],['../group__permutation__inst.html#autotoc_md41',1,'Complexity'],['../group__permutation__inst.html#autotoc_md43',1,'Complexity'],['../group__sequence__gen.html#autotoc_md56',1,'Complexity'],['../group__sequence__gen.html#autotoc_md58',1,'Complexity'],['../group__sequence__inst.html#autotoc_md63',1,'Complexity'],['../group__sequence__inst.html#autotoc_md65',1,'Complexity'],['../group__sequence__inst.html#autotoc_md67',1,'Complexity'],['../group__sequence__op.html#autotoc_md71',1,'Complexity'],['../group__sequence__op.html#autotoc_md73',1,'Complexity'],['../group__sequence__op.html#autotoc_md75',1,'Complexity']]],
+  ['configuration_2',['Opts configuration',['../index.html#autotoc_md4',1,'']]],
+  ['consuming_20opts_3',['Consuming opts',['../group__opts.html#autotoc_md23',1,'']]]
 ];
