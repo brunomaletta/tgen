@@ -1672,12 +1672,15 @@ inline uint64_t gen_odd(uint64_t l, uint64_t r) {
 inline constexpr int FFT_MOD = 998244353;
 
 // Fibonacci sequence up to 2^64.
-inline std::vector<uint64_t> fibonacci() {
-	std::vector<uint64_t> fib = {0, 1};
-	while (fib.back() <=
-		   std::numeric_limits<uint64_t>::max() - fib[fib.size() - 2])
-		fib.push_back(fib.back() + fib[fib.size() - 2]);
-	return fib;
+inline const std::vector<uint64_t>& fibonacci() {
+    static const std::vector<uint64_t> fib = []{
+        std::vector<uint64_t> v = {0, 1};
+        while (v.back() <=
+               std::numeric_limits<uint64_t>::max() - v[v.size() - 2])
+            v.push_back(v.back() + v[v.size() - 2]);
+        return v;
+    }();
+    return fib;
 }
 
 inline constexpr long double LOG_ZERO_INTERNAL = -INFINITY;

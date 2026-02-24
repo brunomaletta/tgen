@@ -481,4 +481,4 @@ inline constexpr int tgen::math::FFT_MOD = 998244353;
  * std::cout << tgen::math::fibonacci().back() << std::endl;
  * ```
  */
-std::vector<uint64_t> tgen::math::fibonacci();
+const std::vector<uint64_t> &tgen::math::fibonacci();

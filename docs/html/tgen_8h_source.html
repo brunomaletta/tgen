@@ -1911,205 +1911,208 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l01673" name="l01673"></a><span class="lineno"> 1673</span> </div>
 <div class="line"><a id="l01674" name="l01674"></a><span class="lineno"> 1674</span><span class="comment">// Fibonacci sequence up to 2^64.</span></div>
 <div class="foldopen" id="foldopen01675" data-start="{" data-end="}">
-<div class="line"><a id="l01675" name="l01675"></a><span class="lineno"><a class="line" href="group__math.html#gaca0fed1d648b82792961af842c96658f"> 1675</a></span><span class="keyword">inline</span> std::vector&lt;uint64_t&gt; <a class="code hl_function" href="group__math.html#gaca0fed1d648b82792961af842c96658f">fibonacci</a>() {</div>
-<div class="line"><a id="l01676" name="l01676"></a><span class="lineno"> 1676</span>    std::vector&lt;uint64_t&gt; fib = {0, 1};</div>
-<div class="line"><a id="l01677" name="l01677"></a><span class="lineno"> 1677</span>    <span class="keywordflow">while</span> (fib.back() &lt;=</div>
-<div class="line"><a id="l01678" name="l01678"></a><span class="lineno"> 1678</span>           std::numeric_limits&lt;uint64_t&gt;::max() - fib[fib.size() - 2])</div>
-<div class="line"><a id="l01679" name="l01679"></a><span class="lineno"> 1679</span>        fib.push_back(fib.back() + fib[fib.size() - 2]);</div>
-<div class="line"><a id="l01680" name="l01680"></a><span class="lineno"> 1680</span>    <span class="keywordflow">return</span> fib;</div>
-<div class="line"><a id="l01681" name="l01681"></a><span class="lineno"> 1681</span>}</div>
+<div class="line"><a id="l01675" name="l01675"></a><span class="lineno"><a class="line" href="group__math.html#gaa0d2967e4dd57d03f455d5380d1a848d"> 1675</a></span><span class="keyword">inline</span> <span class="keyword">const</span> std::vector&lt;uint64_t&gt;&amp; <a class="code hl_function" href="group__math.html#gaa0d2967e4dd57d03f455d5380d1a848d">fibonacci</a>() {</div>
+<div class="line"><a id="l01676" name="l01676"></a><span class="lineno"> 1676</span>    <span class="keyword">static</span> <span class="keyword">const</span> std::vector&lt;uint64_t&gt; fib = []{</div>
+<div class="line"><a id="l01677" name="l01677"></a><span class="lineno"> 1677</span>        std::vector&lt;uint64_t&gt; v = {0, 1};</div>
+<div class="line"><a id="l01678" name="l01678"></a><span class="lineno"> 1678</span>        <span class="keywordflow">while</span> (v.back() &lt;=</div>
+<div class="line"><a id="l01679" name="l01679"></a><span class="lineno"> 1679</span>               std::numeric_limits&lt;uint64_t&gt;::max() - v[v.size() - 2])</div>
+<div class="line"><a id="l01680" name="l01680"></a><span class="lineno"> 1680</span>            v.push_back(v.back() + v[v.size() - 2]);</div>
+<div class="line"><a id="l01681" name="l01681"></a><span class="lineno"> 1681</span>        <span class="keywordflow">return</span> v;</div>
+<div class="line"><a id="l01682" name="l01682"></a><span class="lineno"> 1682</span>    }();</div>
+<div class="line"><a id="l01683" name="l01683"></a><span class="lineno"> 1683</span>    <span class="keywordflow">return</span> fib;</div>
+<div class="line"><a id="l01684" name="l01684"></a><span class="lineno"> 1684</span>}</div>
 </div>
-<div class="line"><a id="l01682" name="l01682"></a><span class="lineno"> 1682</span> </div>
-<div class="line"><a id="l01683" name="l01683"></a><span class="lineno"> 1683</span><span class="keyword">inline</span> <span class="keyword">constexpr</span> <span class="keywordtype">long</span> <span class="keywordtype">double</span> LOG_ZERO_INTERNAL = -INFINITY;</div>
-<div class="line"><a id="l01684" name="l01684"></a><span class="lineno"> 1684</span><span class="keyword">inline</span> <span class="keyword">constexpr</span> <span class="keywordtype">long</span> <span class="keywordtype">double</span> LOG_ONE_INTERNAL = 0.0;</div>
 <div class="line"><a id="l01685" name="l01685"></a><span class="lineno"> 1685</span> </div>
-<div class="line"><a id="l01686" name="l01686"></a><span class="lineno"> 1686</span><span class="keyword">inline</span> <span class="keywordtype">long</span> <span class="keywordtype">double</span> log_space_internal(<span class="keywordtype">long</span> <span class="keywordtype">double</span> x) {</div>
-<div class="line"><a id="l01687" name="l01687"></a><span class="lineno"> 1687</span>    <span class="keywordflow">return</span> x == 0.0 ? LOG_ZERO_INTERNAL : std::log(x);</div>
-<div class="line"><a id="l01688" name="l01688"></a><span class="lineno"> 1688</span>}</div>
-<div class="line"><a id="l01689" name="l01689"></a><span class="lineno"> 1689</span> </div>
-<div class="line"><a id="l01690" name="l01690"></a><span class="lineno"> 1690</span><span class="comment">// Math hack to add two values in log space.</span></div>
-<div class="line"><a id="l01691" name="l01691"></a><span class="lineno"> 1691</span><span class="keyword">inline</span> <span class="keywordtype">long</span> <span class="keywordtype">double</span> add_log_space_internal(<span class="keywordtype">long</span> <span class="keywordtype">double</span> a, <span class="keywordtype">long</span> <span class="keywordtype">double</span> b) {</div>
-<div class="line"><a id="l01692" name="l01692"></a><span class="lineno"> 1692</span>    <span class="keywordflow">if</span> (a == LOG_ZERO_INTERNAL)</div>
-<div class="line"><a id="l01693" name="l01693"></a><span class="lineno"> 1693</span>        <span class="keywordflow">return</span> b;</div>
-<div class="line"><a id="l01694" name="l01694"></a><span class="lineno"> 1694</span>    <span class="keywordflow">if</span> (b == LOG_ZERO_INTERNAL)</div>
-<div class="line"><a id="l01695" name="l01695"></a><span class="lineno"> 1695</span>        <span class="keywordflow">return</span> a;</div>
-<div class="line"><a id="l01696" name="l01696"></a><span class="lineno"> 1696</span>    <span class="keywordflow">if</span> (a &lt; b)</div>
-<div class="line"><a id="l01697" name="l01697"></a><span class="lineno"> 1697</span>        std::swap(a, b);</div>
-<div class="line"><a id="l01698" name="l01698"></a><span class="lineno"> 1698</span>    <span class="keywordflow">if</span> (b == LOG_ZERO_INTERNAL)</div>
-<div class="line"><a id="l01699" name="l01699"></a><span class="lineno"> 1699</span>        <span class="keywordflow">return</span> a;</div>
-<div class="line"><a id="l01700" name="l01700"></a><span class="lineno"> 1700</span>    <span class="keywordflow">return</span> a + log1p(exp(b - a));</div>
-<div class="line"><a id="l01701" name="l01701"></a><span class="lineno"> 1701</span>}</div>
-<div class="line"><a id="l01702" name="l01702"></a><span class="lineno"> 1702</span> </div>
-<div class="line"><a id="l01703" name="l01703"></a><span class="lineno"> 1703</span><span class="comment">// Math hack to subtract two values in log space.</span></div>
-<div class="line"><a id="l01704" name="l01704"></a><span class="lineno"> 1704</span><span class="comment">// a &gt;= b.</span></div>
-<div class="line"><a id="l01705" name="l01705"></a><span class="lineno"> 1705</span><span class="keyword">inline</span> <span class="keywordtype">long</span> <span class="keywordtype">double</span> sub_log_space_internal(<span class="keywordtype">long</span> <span class="keywordtype">double</span> a, <span class="keywordtype">long</span> <span class="keywordtype">double</span> b) {</div>
-<div class="line"><a id="l01706" name="l01706"></a><span class="lineno"> 1706</span>    <span class="keywordflow">if</span> (b &gt;= a)</div>
-<div class="line"><a id="l01707" name="l01707"></a><span class="lineno"> 1707</span>        <span class="keywordflow">return</span> LOG_ZERO_INTERNAL;</div>
-<div class="line"><a id="l01708" name="l01708"></a><span class="lineno"> 1708</span>    <span class="keywordflow">if</span> (b == LOG_ZERO_INTERNAL)</div>
-<div class="line"><a id="l01709" name="l01709"></a><span class="lineno"> 1709</span>        <span class="keywordflow">return</span> a;</div>
-<div class="line"><a id="l01710" name="l01710"></a><span class="lineno"> 1710</span>    <span class="keywordflow">return</span> a + log1p(-exp(b - a));</div>
-<div class="line"><a id="l01711" name="l01711"></a><span class="lineno"> 1711</span>}</div>
-<div class="line"><a id="l01712" name="l01712"></a><span class="lineno"> 1712</span> </div>
-<div class="line"><a id="l01713" name="l01713"></a><span class="lineno"> 1713</span><span class="comment">// Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).</span></div>
-<div class="line"><a id="l01714" name="l01714"></a><span class="lineno"> 1714</span><span class="comment">// O(n).</span></div>
-<div class="line"><a id="l01715" name="l01715"></a><span class="lineno"> 1715</span><span class="comment">// 0 &lt; n.</span></div>
-<div class="line"><a id="l01716" name="l01716"></a><span class="lineno"> 1716</span><span class="comment">// 0 &lt; part_l.</span></div>
-<div class="line"><a id="l01717" name="l01717"></a><span class="lineno"> 1717</span><span class="keyword">inline</span> std::vector&lt;int&gt; gen_partition(<span class="keywordtype">int</span> n, <span class="keywordtype">int</span> part_l = 1, <span class="keywordtype">int</span> part_r = -1) {</div>
-<div class="line"><a id="l01718" name="l01718"></a><span class="lineno"> 1718</span>    <span class="keywordflow">if</span> (part_r == -1)</div>
-<div class="line"><a id="l01719" name="l01719"></a><span class="lineno"> 1719</span>        part_r = n;</div>
-<div class="line"><a id="l01720" name="l01720"></a><span class="lineno"> 1720</span>    part_r = std::min(part_r, n);</div>
-<div class="line"><a id="l01721" name="l01721"></a><span class="lineno"> 1721</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(n &gt; 0 and part_l &gt; 0, <span class="stringliteral">&quot;invalid parameters to gen_partition&quot;</span>);</div>
-<div class="line"><a id="l01722" name="l01722"></a><span class="lineno"> 1722</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(part_l &lt;= n and part_r &gt; 0, <span class="stringliteral">&quot;no such partition&quot;</span>);</div>
-<div class="line"><a id="l01723" name="l01723"></a><span class="lineno"> 1723</span> </div>
-<div class="line"><a id="l01724" name="l01724"></a><span class="lineno"> 1724</span>    <span class="comment">// dp[i] = log(numbers of ways to add to i).</span></div>
-<div class="line"><a id="l01725" name="l01725"></a><span class="lineno"> 1725</span>    std::vector&lt;long double&gt; dp(n + 1, LOG_ZERO_INTERNAL);</div>
-<div class="line"><a id="l01726" name="l01726"></a><span class="lineno"> 1726</span>    dp[0] = LOG_ONE_INTERNAL;</div>
-<div class="line"><a id="l01727" name="l01727"></a><span class="lineno"> 1727</span>    <span class="keywordtype">long</span> <span class="keywordtype">double</span> window = LOG_ZERO_INTERNAL;</div>
-<div class="line"><a id="l01728" name="l01728"></a><span class="lineno"> 1728</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt;= n; ++i) {</div>
-<div class="line"><a id="l01729" name="l01729"></a><span class="lineno"> 1729</span>        <span class="keywordflow">if</span> (i &gt;= part_l)</div>
-<div class="line"><a id="l01730" name="l01730"></a><span class="lineno"> 1730</span>            window = add_log_space_internal(window, dp[i - part_l]);</div>
-<div class="line"><a id="l01731" name="l01731"></a><span class="lineno"> 1731</span>        <span class="keywordflow">if</span> (i &gt;= part_r + 1)</div>
-<div class="line"><a id="l01732" name="l01732"></a><span class="lineno"> 1732</span>            window = sub_log_space_internal(window, dp[i - part_r - 1]);</div>
-<div class="line"><a id="l01733" name="l01733"></a><span class="lineno"> 1733</span>        dp[i] = window;</div>
-<div class="line"><a id="l01734" name="l01734"></a><span class="lineno"> 1734</span>    }</div>
-<div class="line"><a id="l01735" name="l01735"></a><span class="lineno"> 1735</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(dp[n] &gt;= 0, <span class="stringliteral">&quot;no such partition&quot;</span>);</div>
-<div class="line"><a id="l01736" name="l01736"></a><span class="lineno"> 1736</span> </div>
-<div class="line"><a id="l01737" name="l01737"></a><span class="lineno"> 1737</span>    <span class="comment">// Crazy math tricks ahead.</span></div>
-<div class="line"><a id="l01738" name="l01738"></a><span class="lineno"> 1738</span>    <span class="keyword">auto</span> dp_pref = dp;</div>
-<div class="line"><a id="l01739" name="l01739"></a><span class="lineno"> 1739</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt;= n; ++i)</div>
-<div class="line"><a id="l01740" name="l01740"></a><span class="lineno"> 1740</span>        dp_pref[i] = add_log_space_internal(dp_pref[i - 1], dp[i]);</div>
-<div class="line"><a id="l01741" name="l01741"></a><span class="lineno"> 1741</span> </div>
-<div class="line"><a id="l01742" name="l01742"></a><span class="lineno"> 1742</span>    std::vector&lt;int&gt; part;</div>
-<div class="line"><a id="l01743" name="l01743"></a><span class="lineno"> 1743</span>    <span class="keywordtype">int</span> sum = n;</div>
-<div class="line"><a id="l01744" name="l01744"></a><span class="lineno"> 1744</span>    <span class="keywordflow">while</span> (sum &gt; 0) {</div>
-<div class="line"><a id="l01745" name="l01745"></a><span class="lineno"> 1745</span>        <span class="comment">// Will generate a number such that what remains is in [l, r].</span></div>
-<div class="line"><a id="l01746" name="l01746"></a><span class="lineno"> 1746</span>        <span class="keywordtype">int</span> l = std::max(0, sum - part_r), r = sum - part_l;</div>
-<div class="line"><a id="l01747" name="l01747"></a><span class="lineno"> 1747</span>        tgen_ensure_against_bug(r &gt;= 0);</div>
-<div class="line"><a id="l01748" name="l01748"></a><span class="lineno"> 1748</span> </div>
-<div class="line"><a id="l01749" name="l01749"></a><span class="lineno"> 1749</span>        <span class="keywordtype">int</span> nxt_sum = std::min(sum, r);</div>
-<div class="line"><a id="l01750" name="l01750"></a><span class="lineno"> 1750</span>        <span class="keywordtype">long</span> <span class="keywordtype">double</span> random = <a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next&lt;long double&gt;</a>(0, 1);</div>
+<div class="line"><a id="l01686" name="l01686"></a><span class="lineno"> 1686</span><span class="keyword">inline</span> <span class="keyword">constexpr</span> <span class="keywordtype">long</span> <span class="keywordtype">double</span> LOG_ZERO_INTERNAL = -INFINITY;</div>
+<div class="line"><a id="l01687" name="l01687"></a><span class="lineno"> 1687</span><span class="keyword">inline</span> <span class="keyword">constexpr</span> <span class="keywordtype">long</span> <span class="keywordtype">double</span> LOG_ONE_INTERNAL = 0.0;</div>
+<div class="line"><a id="l01688" name="l01688"></a><span class="lineno"> 1688</span> </div>
+<div class="line"><a id="l01689" name="l01689"></a><span class="lineno"> 1689</span><span class="keyword">inline</span> <span class="keywordtype">long</span> <span class="keywordtype">double</span> log_space_internal(<span class="keywordtype">long</span> <span class="keywordtype">double</span> x) {</div>
+<div class="line"><a id="l01690" name="l01690"></a><span class="lineno"> 1690</span>    <span class="keywordflow">return</span> x == 0.0 ? LOG_ZERO_INTERNAL : std::log(x);</div>
+<div class="line"><a id="l01691" name="l01691"></a><span class="lineno"> 1691</span>}</div>
+<div class="line"><a id="l01692" name="l01692"></a><span class="lineno"> 1692</span> </div>
+<div class="line"><a id="l01693" name="l01693"></a><span class="lineno"> 1693</span><span class="comment">// Math hack to add two values in log space.</span></div>
+<div class="line"><a id="l01694" name="l01694"></a><span class="lineno"> 1694</span><span class="keyword">inline</span> <span class="keywordtype">long</span> <span class="keywordtype">double</span> add_log_space_internal(<span class="keywordtype">long</span> <span class="keywordtype">double</span> a, <span class="keywordtype">long</span> <span class="keywordtype">double</span> b) {</div>
+<div class="line"><a id="l01695" name="l01695"></a><span class="lineno"> 1695</span>    <span class="keywordflow">if</span> (a == LOG_ZERO_INTERNAL)</div>
+<div class="line"><a id="l01696" name="l01696"></a><span class="lineno"> 1696</span>        <span class="keywordflow">return</span> b;</div>
+<div class="line"><a id="l01697" name="l01697"></a><span class="lineno"> 1697</span>    <span class="keywordflow">if</span> (b == LOG_ZERO_INTERNAL)</div>
+<div class="line"><a id="l01698" name="l01698"></a><span class="lineno"> 1698</span>        <span class="keywordflow">return</span> a;</div>
+<div class="line"><a id="l01699" name="l01699"></a><span class="lineno"> 1699</span>    <span class="keywordflow">if</span> (a &lt; b)</div>
+<div class="line"><a id="l01700" name="l01700"></a><span class="lineno"> 1700</span>        std::swap(a, b);</div>
+<div class="line"><a id="l01701" name="l01701"></a><span class="lineno"> 1701</span>    <span class="keywordflow">if</span> (b == LOG_ZERO_INTERNAL)</div>
+<div class="line"><a id="l01702" name="l01702"></a><span class="lineno"> 1702</span>        <span class="keywordflow">return</span> a;</div>
+<div class="line"><a id="l01703" name="l01703"></a><span class="lineno"> 1703</span>    <span class="keywordflow">return</span> a + log1p(exp(b - a));</div>
+<div class="line"><a id="l01704" name="l01704"></a><span class="lineno"> 1704</span>}</div>
+<div class="line"><a id="l01705" name="l01705"></a><span class="lineno"> 1705</span> </div>
+<div class="line"><a id="l01706" name="l01706"></a><span class="lineno"> 1706</span><span class="comment">// Math hack to subtract two values in log space.</span></div>
+<div class="line"><a id="l01707" name="l01707"></a><span class="lineno"> 1707</span><span class="comment">// a &gt;= b.</span></div>
+<div class="line"><a id="l01708" name="l01708"></a><span class="lineno"> 1708</span><span class="keyword">inline</span> <span class="keywordtype">long</span> <span class="keywordtype">double</span> sub_log_space_internal(<span class="keywordtype">long</span> <span class="keywordtype">double</span> a, <span class="keywordtype">long</span> <span class="keywordtype">double</span> b) {</div>
+<div class="line"><a id="l01709" name="l01709"></a><span class="lineno"> 1709</span>    <span class="keywordflow">if</span> (b &gt;= a)</div>
+<div class="line"><a id="l01710" name="l01710"></a><span class="lineno"> 1710</span>        <span class="keywordflow">return</span> LOG_ZERO_INTERNAL;</div>
+<div class="line"><a id="l01711" name="l01711"></a><span class="lineno"> 1711</span>    <span class="keywordflow">if</span> (b == LOG_ZERO_INTERNAL)</div>
+<div class="line"><a id="l01712" name="l01712"></a><span class="lineno"> 1712</span>        <span class="keywordflow">return</span> a;</div>
+<div class="line"><a id="l01713" name="l01713"></a><span class="lineno"> 1713</span>    <span class="keywordflow">return</span> a + log1p(-exp(b - a));</div>
+<div class="line"><a id="l01714" name="l01714"></a><span class="lineno"> 1714</span>}</div>
+<div class="line"><a id="l01715" name="l01715"></a><span class="lineno"> 1715</span> </div>
+<div class="line"><a id="l01716" name="l01716"></a><span class="lineno"> 1716</span><span class="comment">// Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).</span></div>
+<div class="line"><a id="l01717" name="l01717"></a><span class="lineno"> 1717</span><span class="comment">// O(n).</span></div>
+<div class="line"><a id="l01718" name="l01718"></a><span class="lineno"> 1718</span><span class="comment">// 0 &lt; n.</span></div>
+<div class="line"><a id="l01719" name="l01719"></a><span class="lineno"> 1719</span><span class="comment">// 0 &lt; part_l.</span></div>
+<div class="line"><a id="l01720" name="l01720"></a><span class="lineno"> 1720</span><span class="keyword">inline</span> std::vector&lt;int&gt; gen_partition(<span class="keywordtype">int</span> n, <span class="keywordtype">int</span> part_l = 1, <span class="keywordtype">int</span> part_r = -1) {</div>
+<div class="line"><a id="l01721" name="l01721"></a><span class="lineno"> 1721</span>    <span class="keywordflow">if</span> (part_r == -1)</div>
+<div class="line"><a id="l01722" name="l01722"></a><span class="lineno"> 1722</span>        part_r = n;</div>
+<div class="line"><a id="l01723" name="l01723"></a><span class="lineno"> 1723</span>    part_r = std::min(part_r, n);</div>
+<div class="line"><a id="l01724" name="l01724"></a><span class="lineno"> 1724</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(n &gt; 0 and part_l &gt; 0, <span class="stringliteral">&quot;invalid parameters to gen_partition&quot;</span>);</div>
+<div class="line"><a id="l01725" name="l01725"></a><span class="lineno"> 1725</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(part_l &lt;= n and part_r &gt; 0, <span class="stringliteral">&quot;no such partition&quot;</span>);</div>
+<div class="line"><a id="l01726" name="l01726"></a><span class="lineno"> 1726</span> </div>
+<div class="line"><a id="l01727" name="l01727"></a><span class="lineno"> 1727</span>    <span class="comment">// dp[i] = log(numbers of ways to add to i).</span></div>
+<div class="line"><a id="l01728" name="l01728"></a><span class="lineno"> 1728</span>    std::vector&lt;long double&gt; dp(n + 1, LOG_ZERO_INTERNAL);</div>
+<div class="line"><a id="l01729" name="l01729"></a><span class="lineno"> 1729</span>    dp[0] = LOG_ONE_INTERNAL;</div>
+<div class="line"><a id="l01730" name="l01730"></a><span class="lineno"> 1730</span>    <span class="keywordtype">long</span> <span class="keywordtype">double</span> window = LOG_ZERO_INTERNAL;</div>
+<div class="line"><a id="l01731" name="l01731"></a><span class="lineno"> 1731</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt;= n; ++i) {</div>
+<div class="line"><a id="l01732" name="l01732"></a><span class="lineno"> 1732</span>        <span class="keywordflow">if</span> (i &gt;= part_l)</div>
+<div class="line"><a id="l01733" name="l01733"></a><span class="lineno"> 1733</span>            window = add_log_space_internal(window, dp[i - part_l]);</div>
+<div class="line"><a id="l01734" name="l01734"></a><span class="lineno"> 1734</span>        <span class="keywordflow">if</span> (i &gt;= part_r + 1)</div>
+<div class="line"><a id="l01735" name="l01735"></a><span class="lineno"> 1735</span>            window = sub_log_space_internal(window, dp[i - part_r - 1]);</div>
+<div class="line"><a id="l01736" name="l01736"></a><span class="lineno"> 1736</span>        dp[i] = window;</div>
+<div class="line"><a id="l01737" name="l01737"></a><span class="lineno"> 1737</span>    }</div>
+<div class="line"><a id="l01738" name="l01738"></a><span class="lineno"> 1738</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(dp[n] &gt;= 0, <span class="stringliteral">&quot;no such partition&quot;</span>);</div>
+<div class="line"><a id="l01739" name="l01739"></a><span class="lineno"> 1739</span> </div>
+<div class="line"><a id="l01740" name="l01740"></a><span class="lineno"> 1740</span>    <span class="comment">// Crazy math tricks ahead.</span></div>
+<div class="line"><a id="l01741" name="l01741"></a><span class="lineno"> 1741</span>    <span class="keyword">auto</span> dp_pref = dp;</div>
+<div class="line"><a id="l01742" name="l01742"></a><span class="lineno"> 1742</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt;= n; ++i)</div>
+<div class="line"><a id="l01743" name="l01743"></a><span class="lineno"> 1743</span>        dp_pref[i] = add_log_space_internal(dp_pref[i - 1], dp[i]);</div>
+<div class="line"><a id="l01744" name="l01744"></a><span class="lineno"> 1744</span> </div>
+<div class="line"><a id="l01745" name="l01745"></a><span class="lineno"> 1745</span>    std::vector&lt;int&gt; part;</div>
+<div class="line"><a id="l01746" name="l01746"></a><span class="lineno"> 1746</span>    <span class="keywordtype">int</span> sum = n;</div>
+<div class="line"><a id="l01747" name="l01747"></a><span class="lineno"> 1747</span>    <span class="keywordflow">while</span> (sum &gt; 0) {</div>
+<div class="line"><a id="l01748" name="l01748"></a><span class="lineno"> 1748</span>        <span class="comment">// Will generate a number such that what remains is in [l, r].</span></div>
+<div class="line"><a id="l01749" name="l01749"></a><span class="lineno"> 1749</span>        <span class="keywordtype">int</span> l = std::max(0, sum - part_r), r = sum - part_l;</div>
+<div class="line"><a id="l01750" name="l01750"></a><span class="lineno"> 1750</span>        tgen_ensure_against_bug(r &gt;= 0);</div>
 <div class="line"><a id="l01751" name="l01751"></a><span class="lineno"> 1751</span> </div>
-<div class="line"><a id="l01752" name="l01752"></a><span class="lineno"> 1752</span>        <span class="comment">// We generate a value X (log space), and then choose nxt_sum such that</span></div>
-<div class="line"><a id="l01753" name="l01753"></a><span class="lineno"> 1753</span>        <span class="comment">// dp_pref[nxt_sum-1] &lt; X &lt;= dp_pref[nxt_sum].</span></div>
+<div class="line"><a id="l01752" name="l01752"></a><span class="lineno"> 1752</span>        <span class="keywordtype">int</span> nxt_sum = std::min(sum, r);</div>
+<div class="line"><a id="l01753" name="l01753"></a><span class="lineno"> 1753</span>        <span class="keywordtype">long</span> <span class="keywordtype">double</span> random = <a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next&lt;long double&gt;</a>(0, 1);</div>
 <div class="line"><a id="l01754" name="l01754"></a><span class="lineno"> 1754</span> </div>
-<div class="line"><a id="l01755" name="l01755"></a><span class="lineno"> 1755</span>        <span class="comment">// Math hack:</span></div>
-<div class="line"><a id="l01756" name="l01756"></a><span class="lineno"> 1756</span>        <span class="comment">// Let A = pref[l-1], B = pref[r], U = rand().</span></div>
-<div class="line"><a id="l01757" name="l01757"></a><span class="lineno"> 1757</span>        <span class="comment">// X = log[exp(A) + U * (exp(B) - exp(A))]</span></div>
-<div class="line"><a id="l01758" name="l01758"></a><span class="lineno"> 1758</span>        <span class="comment">//   = log{exp(B) * [exp(A) / exp(B) + U * (1 - exp(A) / exp(B))]}</span></div>
-<div class="line"><a id="l01759" name="l01759"></a><span class="lineno"> 1759</span>        <span class="comment">//   = B + log[exp(A - B) + U - U * exp(A - B))]</span></div>
-<div class="line"><a id="l01760" name="l01760"></a><span class="lineno"> 1760</span>        <span class="comment">//   = B + log[U + (1 - U) * exp(A - B)].</span></div>
-<div class="line"><a id="l01761" name="l01761"></a><span class="lineno"> 1761</span>        <span class="keywordtype">long</span> <span class="keywordtype">double</span> val_l = l ? dp_pref[l - 1] : LOG_ZERO_INTERNAL,</div>
-<div class="line"><a id="l01762" name="l01762"></a><span class="lineno"> 1762</span>                    val_r = dp_pref[r];</div>
-<div class="line"><a id="l01763" name="l01763"></a><span class="lineno"> 1763</span>        <span class="keywordflow">while</span> (nxt_sum &gt; l and</div>
-<div class="line"><a id="l01764" name="l01764"></a><span class="lineno"> 1764</span>               dp_pref[nxt_sum - 1] &gt;=</div>
-<div class="line"><a id="l01765" name="l01765"></a><span class="lineno"> 1765</span>                   val_r + log_space_internal(random + (1 - random) *</div>
-<div class="line"><a id="l01766" name="l01766"></a><span class="lineno"> 1766</span>                                                           exp(val_l - val_r)))</div>
-<div class="line"><a id="l01767" name="l01767"></a><span class="lineno"> 1767</span>            --nxt_sum;</div>
-<div class="line"><a id="l01768" name="l01768"></a><span class="lineno"> 1768</span> </div>
-<div class="line"><a id="l01769" name="l01769"></a><span class="lineno"> 1769</span>        part.push_back(sum - nxt_sum);</div>
-<div class="line"><a id="l01770" name="l01770"></a><span class="lineno"> 1770</span>        sum = nxt_sum;</div>
-<div class="line"><a id="l01771" name="l01771"></a><span class="lineno"> 1771</span>    }</div>
-<div class="line"><a id="l01772" name="l01772"></a><span class="lineno"> 1772</span> </div>
-<div class="line"><a id="l01773" name="l01773"></a><span class="lineno"> 1773</span>    <span class="keywordflow">return</span> part;</div>
-<div class="line"><a id="l01774" name="l01774"></a><span class="lineno"> 1774</span>}</div>
+<div class="line"><a id="l01755" name="l01755"></a><span class="lineno"> 1755</span>        <span class="comment">// We generate a value X (log space), and then choose nxt_sum such that</span></div>
+<div class="line"><a id="l01756" name="l01756"></a><span class="lineno"> 1756</span>        <span class="comment">// dp_pref[nxt_sum-1] &lt; X &lt;= dp_pref[nxt_sum].</span></div>
+<div class="line"><a id="l01757" name="l01757"></a><span class="lineno"> 1757</span> </div>
+<div class="line"><a id="l01758" name="l01758"></a><span class="lineno"> 1758</span>        <span class="comment">// Math hack:</span></div>
+<div class="line"><a id="l01759" name="l01759"></a><span class="lineno"> 1759</span>        <span class="comment">// Let A = pref[l-1], B = pref[r], U = rand().</span></div>
+<div class="line"><a id="l01760" name="l01760"></a><span class="lineno"> 1760</span>        <span class="comment">// X = log[exp(A) + U * (exp(B) - exp(A))]</span></div>
+<div class="line"><a id="l01761" name="l01761"></a><span class="lineno"> 1761</span>        <span class="comment">//   = log{exp(B) * [exp(A) / exp(B) + U * (1 - exp(A) / exp(B))]}</span></div>
+<div class="line"><a id="l01762" name="l01762"></a><span class="lineno"> 1762</span>        <span class="comment">//   = B + log[exp(A - B) + U - U * exp(A - B))]</span></div>
+<div class="line"><a id="l01763" name="l01763"></a><span class="lineno"> 1763</span>        <span class="comment">//   = B + log[U + (1 - U) * exp(A - B)].</span></div>
+<div class="line"><a id="l01764" name="l01764"></a><span class="lineno"> 1764</span>        <span class="keywordtype">long</span> <span class="keywordtype">double</span> val_l = l ? dp_pref[l - 1] : LOG_ZERO_INTERNAL,</div>
+<div class="line"><a id="l01765" name="l01765"></a><span class="lineno"> 1765</span>                    val_r = dp_pref[r];</div>
+<div class="line"><a id="l01766" name="l01766"></a><span class="lineno"> 1766</span>        <span class="keywordflow">while</span> (nxt_sum &gt; l and</div>
+<div class="line"><a id="l01767" name="l01767"></a><span class="lineno"> 1767</span>               dp_pref[nxt_sum - 1] &gt;=</div>
+<div class="line"><a id="l01768" name="l01768"></a><span class="lineno"> 1768</span>                   val_r + log_space_internal(random + (1 - random) *</div>
+<div class="line"><a id="l01769" name="l01769"></a><span class="lineno"> 1769</span>                                                           exp(val_l - val_r)))</div>
+<div class="line"><a id="l01770" name="l01770"></a><span class="lineno"> 1770</span>            --nxt_sum;</div>
+<div class="line"><a id="l01771" name="l01771"></a><span class="lineno"> 1771</span> </div>
+<div class="line"><a id="l01772" name="l01772"></a><span class="lineno"> 1772</span>        part.push_back(sum - nxt_sum);</div>
+<div class="line"><a id="l01773" name="l01773"></a><span class="lineno"> 1773</span>        sum = nxt_sum;</div>
+<div class="line"><a id="l01774" name="l01774"></a><span class="lineno"> 1774</span>    }</div>
 <div class="line"><a id="l01775" name="l01775"></a><span class="lineno"> 1775</span> </div>
-<div class="line"><a id="l01776" name="l01776"></a><span class="lineno"> 1776</span><span class="comment">// Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).</span></div>
-<div class="line"><a id="l01777" name="l01777"></a><span class="lineno"> 1777</span><span class="comment">// O(n) time/memory if part_r = -1, O(n * k) time/memory otherwise.</span></div>
-<div class="line"><a id="l01778" name="l01778"></a><span class="lineno"> 1778</span><span class="comment">// 0 &lt; k &lt;= n.</span></div>
-<div class="line"><a id="l01779" name="l01779"></a><span class="lineno"> 1779</span><span class="comment">// 0 &lt;= part_l.</span></div>
-<div class="line"><a id="l01780" name="l01780"></a><span class="lineno"> 1780</span><span class="keyword">inline</span> std::vector&lt;int&gt; gen_partition_fixed_size(<span class="keywordtype">int</span> n, <span class="keywordtype">int</span> k, <span class="keywordtype">int</span> part_l = 0,</div>
-<div class="line"><a id="l01781" name="l01781"></a><span class="lineno"> 1781</span>                                                 <span class="keywordtype">int</span> part_r = -1) {</div>
-<div class="line"><a id="l01782" name="l01782"></a><span class="lineno"> 1782</span>    <span class="keywordflow">if</span> (part_r == -1)</div>
-<div class="line"><a id="l01783" name="l01783"></a><span class="lineno"> 1783</span>        part_r = n;</div>
-<div class="line"><a id="l01784" name="l01784"></a><span class="lineno"> 1784</span>    part_r = std::min(part_r, n);</div>
-<div class="line"><a id="l01785" name="l01785"></a><span class="lineno"> 1785</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(0 &lt; k and k &lt;= n and part_l &gt;= 0,</div>
-<div class="line"><a id="l01786" name="l01786"></a><span class="lineno"> 1786</span>                <span class="stringliteral">&quot;invalid parameters to gen_partition_fixed_size&quot;</span>);</div>
-<div class="line"><a id="l01787" name="l01787"></a><span class="lineno"> 1787</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(<span class="keyword">static_cast&lt;</span><span class="keywordtype">long</span> <span class="keywordtype">long</span><span class="keyword">&gt;</span>(k) * part_l &lt;= n and</div>
-<div class="line"><a id="l01788" name="l01788"></a><span class="lineno"> 1788</span>                    n &lt;= <span class="keyword">static_cast&lt;</span><span class="keywordtype">long</span> <span class="keywordtype">long</span><span class="keyword">&gt;</span>(k) * part_r,</div>
-<div class="line"><a id="l01789" name="l01789"></a><span class="lineno"> 1789</span>                <span class="stringliteral">&quot;no such partition&quot;</span>);</div>
-<div class="line"><a id="l01790" name="l01790"></a><span class="lineno"> 1790</span> </div>
-<div class="line"><a id="l01791" name="l01791"></a><span class="lineno"> 1791</span>    <span class="comment">// What we need to distribute to the parts.</span></div>
-<div class="line"><a id="l01792" name="l01792"></a><span class="lineno"> 1792</span>    <span class="keywordtype">int</span> s = n - k * part_l;</div>
+<div class="line"><a id="l01776" name="l01776"></a><span class="lineno"> 1776</span>    <span class="keywordflow">return</span> part;</div>
+<div class="line"><a id="l01777" name="l01777"></a><span class="lineno"> 1777</span>}</div>
+<div class="line"><a id="l01778" name="l01778"></a><span class="lineno"> 1778</span> </div>
+<div class="line"><a id="l01779" name="l01779"></a><span class="lineno"> 1779</span><span class="comment">// Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).</span></div>
+<div class="line"><a id="l01780" name="l01780"></a><span class="lineno"> 1780</span><span class="comment">// O(n) time/memory if part_r = -1, O(n * k) time/memory otherwise.</span></div>
+<div class="line"><a id="l01781" name="l01781"></a><span class="lineno"> 1781</span><span class="comment">// 0 &lt; k &lt;= n.</span></div>
+<div class="line"><a id="l01782" name="l01782"></a><span class="lineno"> 1782</span><span class="comment">// 0 &lt;= part_l.</span></div>
+<div class="line"><a id="l01783" name="l01783"></a><span class="lineno"> 1783</span><span class="keyword">inline</span> std::vector&lt;int&gt; gen_partition_fixed_size(<span class="keywordtype">int</span> n, <span class="keywordtype">int</span> k, <span class="keywordtype">int</span> part_l = 0,</div>
+<div class="line"><a id="l01784" name="l01784"></a><span class="lineno"> 1784</span>                                                 <span class="keywordtype">int</span> part_r = -1) {</div>
+<div class="line"><a id="l01785" name="l01785"></a><span class="lineno"> 1785</span>    <span class="keywordflow">if</span> (part_r == -1)</div>
+<div class="line"><a id="l01786" name="l01786"></a><span class="lineno"> 1786</span>        part_r = n;</div>
+<div class="line"><a id="l01787" name="l01787"></a><span class="lineno"> 1787</span>    part_r = std::min(part_r, n);</div>
+<div class="line"><a id="l01788" name="l01788"></a><span class="lineno"> 1788</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(0 &lt; k and k &lt;= n and part_l &gt;= 0,</div>
+<div class="line"><a id="l01789" name="l01789"></a><span class="lineno"> 1789</span>                <span class="stringliteral">&quot;invalid parameters to gen_partition_fixed_size&quot;</span>);</div>
+<div class="line"><a id="l01790" name="l01790"></a><span class="lineno"> 1790</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(<span class="keyword">static_cast&lt;</span><span class="keywordtype">long</span> <span class="keywordtype">long</span><span class="keyword">&gt;</span>(k) * part_l &lt;= n and</div>
+<div class="line"><a id="l01791" name="l01791"></a><span class="lineno"> 1791</span>                    n &lt;= <span class="keyword">static_cast&lt;</span><span class="keywordtype">long</span> <span class="keywordtype">long</span><span class="keyword">&gt;</span>(k) * part_r,</div>
+<div class="line"><a id="l01792" name="l01792"></a><span class="lineno"> 1792</span>                <span class="stringliteral">&quot;no such partition&quot;</span>);</div>
 <div class="line"><a id="l01793" name="l01793"></a><span class="lineno"> 1793</span> </div>
-<div class="line"><a id="l01794" name="l01794"></a><span class="lineno"> 1794</span>    std::vector&lt;int&gt; part(k);</div>
-<div class="line"><a id="l01795" name="l01795"></a><span class="lineno"> 1795</span>    <span class="keywordflow">if</span> (part_r == n) {</div>
-<div class="line"><a id="l01796" name="l01796"></a><span class="lineno"> 1796</span>        <span class="comment">// Stars and bars - O(n).</span></div>
-<div class="line"><a id="l01797" name="l01797"></a><span class="lineno"> 1797</span>        std::vector&lt;int&gt; cuts = {-1};</div>
-<div class="line"><a id="l01798" name="l01798"></a><span class="lineno"> 1798</span> </div>
-<div class="line"><a id="l01799" name="l01799"></a><span class="lineno"> 1799</span>        <span class="keywordtype">int</span> total = s + k - 1, bars = k - 1;</div>
-<div class="line"><a id="l01800" name="l01800"></a><span class="lineno"> 1800</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; total and bars &gt; 0; ++i)</div>
-<div class="line"><a id="l01801" name="l01801"></a><span class="lineno"> 1801</span>            <span class="keywordflow">if</span> (<a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next&lt;long double&gt;</a>(0, 1) &lt;</div>
-<div class="line"><a id="l01802" name="l01802"></a><span class="lineno"> 1802</span>                <span class="keyword">static_cast&lt;</span><span class="keywordtype">long</span> <span class="keywordtype">double</span><span class="keyword">&gt;</span>(bars) / (total - i)) {</div>
-<div class="line"><a id="l01803" name="l01803"></a><span class="lineno"> 1803</span>                cuts.push_back(i);</div>
-<div class="line"><a id="l01804" name="l01804"></a><span class="lineno"> 1804</span>                --bars;</div>
-<div class="line"><a id="l01805" name="l01805"></a><span class="lineno"> 1805</span>            }</div>
-<div class="line"><a id="l01806" name="l01806"></a><span class="lineno"> 1806</span>        cuts.push_back(total);</div>
-<div class="line"><a id="l01807" name="l01807"></a><span class="lineno"> 1807</span> </div>
-<div class="line"><a id="l01808" name="l01808"></a><span class="lineno"> 1808</span>        <span class="comment">// Recovers parts.</span></div>
-<div class="line"><a id="l01809" name="l01809"></a><span class="lineno"> 1809</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; k; ++i)</div>
-<div class="line"><a id="l01810" name="l01810"></a><span class="lineno"> 1810</span>            part[i] = cuts[i + 1] - cuts[i] - 1;</div>
-<div class="line"><a id="l01811" name="l01811"></a><span class="lineno"> 1811</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l01812" name="l01812"></a><span class="lineno"> 1812</span>        <span class="comment">// DP with log trick - O(nk).</span></div>
-<div class="line"><a id="l01813" name="l01813"></a><span class="lineno"> 1813</span>        <span class="keywordtype">int</span> u = part_r - part_l;</div>
-<div class="line"><a id="l01814" name="l01814"></a><span class="lineno"> 1814</span> </div>
-<div class="line"><a id="l01815" name="l01815"></a><span class="lineno"> 1815</span>        <span class="comment">// dp[i][j] = log(#ways to fill i parts with sum j)</span></div>
-<div class="line"><a id="l01816" name="l01816"></a><span class="lineno"> 1816</span>        std::vector&lt;std::vector&lt;long double&gt;&gt; dp(</div>
-<div class="line"><a id="l01817" name="l01817"></a><span class="lineno"> 1817</span>            k + 1, std::vector&lt;long double&gt;(s + 1, LOG_ZERO_INTERNAL));</div>
-<div class="line"><a id="l01818" name="l01818"></a><span class="lineno"> 1818</span>        dp[0][0] = LOG_ONE_INTERNAL;</div>
-<div class="line"><a id="l01819" name="l01819"></a><span class="lineno"> 1819</span> </div>
-<div class="line"><a id="l01820" name="l01820"></a><span class="lineno"> 1820</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt;= k; ++i) {</div>
-<div class="line"><a id="l01821" name="l01821"></a><span class="lineno"> 1821</span>            std::vector&lt;long double&gt; pref = dp[i - 1];</div>
-<div class="line"><a id="l01822" name="l01822"></a><span class="lineno"> 1822</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 1; j &lt;= s; ++j)</div>
-<div class="line"><a id="l01823" name="l01823"></a><span class="lineno"> 1823</span>                pref[j] = add_log_space_internal(pref[j - 1], dp[i - 1][j]);</div>
-<div class="line"><a id="l01824" name="l01824"></a><span class="lineno"> 1824</span> </div>
-<div class="line"><a id="l01825" name="l01825"></a><span class="lineno"> 1825</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt;= s; ++j) {</div>
-<div class="line"><a id="l01826" name="l01826"></a><span class="lineno"> 1826</span>                dp[i][j] = pref[j];</div>
-<div class="line"><a id="l01827" name="l01827"></a><span class="lineno"> 1827</span>                <span class="keywordflow">if</span> (j &gt;= u + 1)</div>
-<div class="line"><a id="l01828" name="l01828"></a><span class="lineno"> 1828</span>                    dp[i][j] =</div>
-<div class="line"><a id="l01829" name="l01829"></a><span class="lineno"> 1829</span>                        sub_log_space_internal(dp[i][j], pref[j - u - 1]);</div>
-<div class="line"><a id="l01830" name="l01830"></a><span class="lineno"> 1830</span>            }</div>
-<div class="line"><a id="l01831" name="l01831"></a><span class="lineno"> 1831</span>        }</div>
-<div class="line"><a id="l01832" name="l01832"></a><span class="lineno"> 1832</span> </div>
-<div class="line"><a id="l01833" name="l01833"></a><span class="lineno"> 1833</span>        <span class="comment">// Recovers parts backwards.</span></div>
-<div class="line"><a id="l01834" name="l01834"></a><span class="lineno"> 1834</span>        <span class="keywordtype">int</span> left_to_distribute = s;</div>
-<div class="line"><a id="l01835" name="l01835"></a><span class="lineno"> 1835</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = k; i &gt;= 1; --i) {</div>
-<div class="line"><a id="l01836" name="l01836"></a><span class="lineno"> 1836</span>            <span class="keywordtype">long</span> <span class="keywordtype">double</span> log_total = LOG_ZERO_INTERNAL;</div>
-<div class="line"><a id="l01837" name="l01837"></a><span class="lineno"> 1837</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt;= u and j &lt;= left_to_distribute; ++j)</div>
-<div class="line"><a id="l01838" name="l01838"></a><span class="lineno"> 1838</span>                log_total = add_log_space_internal(</div>
-<div class="line"><a id="l01839" name="l01839"></a><span class="lineno"> 1839</span>                    log_total, dp[i - 1][left_to_distribute - j]);</div>
-<div class="line"><a id="l01840" name="l01840"></a><span class="lineno"> 1840</span>            tgen_ensure_against_bug(log_total != LOG_ZERO_INTERNAL);</div>
-<div class="line"><a id="l01841" name="l01841"></a><span class="lineno"> 1841</span> </div>
-<div class="line"><a id="l01842" name="l01842"></a><span class="lineno"> 1842</span>            <span class="comment">// Now we choose a number with probability proportional to</span></div>
-<div class="line"><a id="l01843" name="l01843"></a><span class="lineno"> 1843</span>            <span class="comment">// dp[i-1][.].</span></div>
+<div class="line"><a id="l01794" name="l01794"></a><span class="lineno"> 1794</span>    <span class="comment">// What we need to distribute to the parts.</span></div>
+<div class="line"><a id="l01795" name="l01795"></a><span class="lineno"> 1795</span>    <span class="keywordtype">int</span> s = n - k * part_l;</div>
+<div class="line"><a id="l01796" name="l01796"></a><span class="lineno"> 1796</span> </div>
+<div class="line"><a id="l01797" name="l01797"></a><span class="lineno"> 1797</span>    std::vector&lt;int&gt; part(k);</div>
+<div class="line"><a id="l01798" name="l01798"></a><span class="lineno"> 1798</span>    <span class="keywordflow">if</span> (part_r == n) {</div>
+<div class="line"><a id="l01799" name="l01799"></a><span class="lineno"> 1799</span>        <span class="comment">// Stars and bars - O(n).</span></div>
+<div class="line"><a id="l01800" name="l01800"></a><span class="lineno"> 1800</span>        std::vector&lt;int&gt; cuts = {-1};</div>
+<div class="line"><a id="l01801" name="l01801"></a><span class="lineno"> 1801</span> </div>
+<div class="line"><a id="l01802" name="l01802"></a><span class="lineno"> 1802</span>        <span class="keywordtype">int</span> total = s + k - 1, bars = k - 1;</div>
+<div class="line"><a id="l01803" name="l01803"></a><span class="lineno"> 1803</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; total and bars &gt; 0; ++i)</div>
+<div class="line"><a id="l01804" name="l01804"></a><span class="lineno"> 1804</span>            <span class="keywordflow">if</span> (<a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next&lt;long double&gt;</a>(0, 1) &lt;</div>
+<div class="line"><a id="l01805" name="l01805"></a><span class="lineno"> 1805</span>                <span class="keyword">static_cast&lt;</span><span class="keywordtype">long</span> <span class="keywordtype">double</span><span class="keyword">&gt;</span>(bars) / (total - i)) {</div>
+<div class="line"><a id="l01806" name="l01806"></a><span class="lineno"> 1806</span>                cuts.push_back(i);</div>
+<div class="line"><a id="l01807" name="l01807"></a><span class="lineno"> 1807</span>                --bars;</div>
+<div class="line"><a id="l01808" name="l01808"></a><span class="lineno"> 1808</span>            }</div>
+<div class="line"><a id="l01809" name="l01809"></a><span class="lineno"> 1809</span>        cuts.push_back(total);</div>
+<div class="line"><a id="l01810" name="l01810"></a><span class="lineno"> 1810</span> </div>
+<div class="line"><a id="l01811" name="l01811"></a><span class="lineno"> 1811</span>        <span class="comment">// Recovers parts.</span></div>
+<div class="line"><a id="l01812" name="l01812"></a><span class="lineno"> 1812</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; k; ++i)</div>
+<div class="line"><a id="l01813" name="l01813"></a><span class="lineno"> 1813</span>            part[i] = cuts[i + 1] - cuts[i] - 1;</div>
+<div class="line"><a id="l01814" name="l01814"></a><span class="lineno"> 1814</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l01815" name="l01815"></a><span class="lineno"> 1815</span>        <span class="comment">// DP with log trick - O(nk).</span></div>
+<div class="line"><a id="l01816" name="l01816"></a><span class="lineno"> 1816</span>        <span class="keywordtype">int</span> u = part_r - part_l;</div>
+<div class="line"><a id="l01817" name="l01817"></a><span class="lineno"> 1817</span> </div>
+<div class="line"><a id="l01818" name="l01818"></a><span class="lineno"> 1818</span>        <span class="comment">// dp[i][j] = log(#ways to fill i parts with sum j)</span></div>
+<div class="line"><a id="l01819" name="l01819"></a><span class="lineno"> 1819</span>        std::vector&lt;std::vector&lt;long double&gt;&gt; dp(</div>
+<div class="line"><a id="l01820" name="l01820"></a><span class="lineno"> 1820</span>            k + 1, std::vector&lt;long double&gt;(s + 1, LOG_ZERO_INTERNAL));</div>
+<div class="line"><a id="l01821" name="l01821"></a><span class="lineno"> 1821</span>        dp[0][0] = LOG_ONE_INTERNAL;</div>
+<div class="line"><a id="l01822" name="l01822"></a><span class="lineno"> 1822</span> </div>
+<div class="line"><a id="l01823" name="l01823"></a><span class="lineno"> 1823</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt;= k; ++i) {</div>
+<div class="line"><a id="l01824" name="l01824"></a><span class="lineno"> 1824</span>            std::vector&lt;long double&gt; pref = dp[i - 1];</div>
+<div class="line"><a id="l01825" name="l01825"></a><span class="lineno"> 1825</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 1; j &lt;= s; ++j)</div>
+<div class="line"><a id="l01826" name="l01826"></a><span class="lineno"> 1826</span>                pref[j] = add_log_space_internal(pref[j - 1], dp[i - 1][j]);</div>
+<div class="line"><a id="l01827" name="l01827"></a><span class="lineno"> 1827</span> </div>
+<div class="line"><a id="l01828" name="l01828"></a><span class="lineno"> 1828</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt;= s; ++j) {</div>
+<div class="line"><a id="l01829" name="l01829"></a><span class="lineno"> 1829</span>                dp[i][j] = pref[j];</div>
+<div class="line"><a id="l01830" name="l01830"></a><span class="lineno"> 1830</span>                <span class="keywordflow">if</span> (j &gt;= u + 1)</div>
+<div class="line"><a id="l01831" name="l01831"></a><span class="lineno"> 1831</span>                    dp[i][j] =</div>
+<div class="line"><a id="l01832" name="l01832"></a><span class="lineno"> 1832</span>                        sub_log_space_internal(dp[i][j], pref[j - u - 1]);</div>
+<div class="line"><a id="l01833" name="l01833"></a><span class="lineno"> 1833</span>            }</div>
+<div class="line"><a id="l01834" name="l01834"></a><span class="lineno"> 1834</span>        }</div>
+<div class="line"><a id="l01835" name="l01835"></a><span class="lineno"> 1835</span> </div>
+<div class="line"><a id="l01836" name="l01836"></a><span class="lineno"> 1836</span>        <span class="comment">// Recovers parts backwards.</span></div>
+<div class="line"><a id="l01837" name="l01837"></a><span class="lineno"> 1837</span>        <span class="keywordtype">int</span> left_to_distribute = s;</div>
+<div class="line"><a id="l01838" name="l01838"></a><span class="lineno"> 1838</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = k; i &gt;= 1; --i) {</div>
+<div class="line"><a id="l01839" name="l01839"></a><span class="lineno"> 1839</span>            <span class="keywordtype">long</span> <span class="keywordtype">double</span> log_total = LOG_ZERO_INTERNAL;</div>
+<div class="line"><a id="l01840" name="l01840"></a><span class="lineno"> 1840</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt;= u and j &lt;= left_to_distribute; ++j)</div>
+<div class="line"><a id="l01841" name="l01841"></a><span class="lineno"> 1841</span>                log_total = add_log_space_internal(</div>
+<div class="line"><a id="l01842" name="l01842"></a><span class="lineno"> 1842</span>                    log_total, dp[i - 1][left_to_distribute - j]);</div>
+<div class="line"><a id="l01843" name="l01843"></a><span class="lineno"> 1843</span>            tgen_ensure_against_bug(log_total != LOG_ZERO_INTERNAL);</div>
 <div class="line"><a id="l01844" name="l01844"></a><span class="lineno"> 1844</span> </div>
-<div class="line"><a id="l01845" name="l01845"></a><span class="lineno"> 1845</span>            <span class="comment">// log(rand() * total) = log(rand()) + log(total).</span></div>
-<div class="line"><a id="l01846" name="l01846"></a><span class="lineno"> 1846</span>            <span class="keywordtype">long</span> <span class="keywordtype">double</span> random =</div>
-<div class="line"><a id="l01847" name="l01847"></a><span class="lineno"> 1847</span>                log_space_internal(<a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next&lt;long double&gt;</a>(0, 1)) + log_total;</div>
-<div class="line"><a id="l01848" name="l01848"></a><span class="lineno"> 1848</span> </div>
-<div class="line"><a id="l01849" name="l01849"></a><span class="lineno"> 1849</span>            <span class="keywordtype">long</span> <span class="keywordtype">double</span> cur_prob = LOG_ZERO_INTERNAL;</div>
-<div class="line"><a id="l01850" name="l01850"></a><span class="lineno"> 1850</span>            <span class="keywordtype">int</span> chosen = 0;</div>
-<div class="line"><a id="l01851" name="l01851"></a><span class="lineno"> 1851</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt;= u and j &lt;= left_to_distribute; ++j) {</div>
-<div class="line"><a id="l01852" name="l01852"></a><span class="lineno"> 1852</span>                cur_prob = add_log_space_internal(</div>
-<div class="line"><a id="l01853" name="l01853"></a><span class="lineno"> 1853</span>                    cur_prob, dp[i - 1][left_to_distribute - j]);</div>
-<div class="line"><a id="l01854" name="l01854"></a><span class="lineno"> 1854</span>                <span class="keywordflow">if</span> (random &lt; cur_prob) {</div>
-<div class="line"><a id="l01855" name="l01855"></a><span class="lineno"> 1855</span>                    chosen = j;</div>
-<div class="line"><a id="l01856" name="l01856"></a><span class="lineno"> 1856</span>                    <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l01857" name="l01857"></a><span class="lineno"> 1857</span>                }</div>
-<div class="line"><a id="l01858" name="l01858"></a><span class="lineno"> 1858</span>            }</div>
-<div class="line"><a id="l01859" name="l01859"></a><span class="lineno"> 1859</span> </div>
-<div class="line"><a id="l01860" name="l01860"></a><span class="lineno"> 1860</span>            part[k - i] = chosen;</div>
-<div class="line"><a id="l01861" name="l01861"></a><span class="lineno"> 1861</span>            left_to_distribute -= chosen;</div>
-<div class="line"><a id="l01862" name="l01862"></a><span class="lineno"> 1862</span>        }</div>
-<div class="line"><a id="l01863" name="l01863"></a><span class="lineno"> 1863</span>    }</div>
-<div class="line"><a id="l01864" name="l01864"></a><span class="lineno"> 1864</span> </div>
-<div class="line"><a id="l01865" name="l01865"></a><span class="lineno"> 1865</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> &amp;i : part)</div>
-<div class="line"><a id="l01866" name="l01866"></a><span class="lineno"> 1866</span>        i += part_l;</div>
-<div class="line"><a id="l01867" name="l01867"></a><span class="lineno"> 1867</span>    <span class="keywordflow">return</span> part;</div>
-<div class="line"><a id="l01868" name="l01868"></a><span class="lineno"> 1868</span>}</div>
-<div class="line"><a id="l01869" name="l01869"></a><span class="lineno"> 1869</span> </div>
-<div class="line"><a id="l01870" name="l01870"></a><span class="lineno"> 1870</span>}; <span class="comment">// namespace math</span></div>
-<div class="line"><a id="l01871" name="l01871"></a><span class="lineno"> 1871</span> </div>
-<div class="line"><a id="l01872" name="l01872"></a><span class="lineno"> 1872</span>}; <span class="comment">// namespace tgen</span></div>
+<div class="line"><a id="l01845" name="l01845"></a><span class="lineno"> 1845</span>            <span class="comment">// Now we choose a number with probability proportional to</span></div>
+<div class="line"><a id="l01846" name="l01846"></a><span class="lineno"> 1846</span>            <span class="comment">// dp[i-1][.].</span></div>
+<div class="line"><a id="l01847" name="l01847"></a><span class="lineno"> 1847</span> </div>
+<div class="line"><a id="l01848" name="l01848"></a><span class="lineno"> 1848</span>            <span class="comment">// log(rand() * total) = log(rand()) + log(total).</span></div>
+<div class="line"><a id="l01849" name="l01849"></a><span class="lineno"> 1849</span>            <span class="keywordtype">long</span> <span class="keywordtype">double</span> random =</div>
+<div class="line"><a id="l01850" name="l01850"></a><span class="lineno"> 1850</span>                log_space_internal(<a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">next&lt;long double&gt;</a>(0, 1)) + log_total;</div>
+<div class="line"><a id="l01851" name="l01851"></a><span class="lineno"> 1851</span> </div>
+<div class="line"><a id="l01852" name="l01852"></a><span class="lineno"> 1852</span>            <span class="keywordtype">long</span> <span class="keywordtype">double</span> cur_prob = LOG_ZERO_INTERNAL;</div>
+<div class="line"><a id="l01853" name="l01853"></a><span class="lineno"> 1853</span>            <span class="keywordtype">int</span> chosen = 0;</div>
+<div class="line"><a id="l01854" name="l01854"></a><span class="lineno"> 1854</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt;= u and j &lt;= left_to_distribute; ++j) {</div>
+<div class="line"><a id="l01855" name="l01855"></a><span class="lineno"> 1855</span>                cur_prob = add_log_space_internal(</div>
+<div class="line"><a id="l01856" name="l01856"></a><span class="lineno"> 1856</span>                    cur_prob, dp[i - 1][left_to_distribute - j]);</div>
+<div class="line"><a id="l01857" name="l01857"></a><span class="lineno"> 1857</span>                <span class="keywordflow">if</span> (random &lt; cur_prob) {</div>
+<div class="line"><a id="l01858" name="l01858"></a><span class="lineno"> 1858</span>                    chosen = j;</div>
+<div class="line"><a id="l01859" name="l01859"></a><span class="lineno"> 1859</span>                    <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l01860" name="l01860"></a><span class="lineno"> 1860</span>                }</div>
+<div class="line"><a id="l01861" name="l01861"></a><span class="lineno"> 1861</span>            }</div>
+<div class="line"><a id="l01862" name="l01862"></a><span class="lineno"> 1862</span> </div>
+<div class="line"><a id="l01863" name="l01863"></a><span class="lineno"> 1863</span>            part[k - i] = chosen;</div>
+<div class="line"><a id="l01864" name="l01864"></a><span class="lineno"> 1864</span>            left_to_distribute -= chosen;</div>
+<div class="line"><a id="l01865" name="l01865"></a><span class="lineno"> 1865</span>        }</div>
+<div class="line"><a id="l01866" name="l01866"></a><span class="lineno"> 1866</span>    }</div>
+<div class="line"><a id="l01867" name="l01867"></a><span class="lineno"> 1867</span> </div>
+<div class="line"><a id="l01868" name="l01868"></a><span class="lineno"> 1868</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> &amp;i : part)</div>
+<div class="line"><a id="l01869" name="l01869"></a><span class="lineno"> 1869</span>        i += part_l;</div>
+<div class="line"><a id="l01870" name="l01870"></a><span class="lineno"> 1870</span>    <span class="keywordflow">return</span> part;</div>
+<div class="line"><a id="l01871" name="l01871"></a><span class="lineno"> 1871</span>}</div>
+<div class="line"><a id="l01872" name="l01872"></a><span class="lineno"> 1872</span> </div>
+<div class="line"><a id="l01873" name="l01873"></a><span class="lineno"> 1873</span>}; <span class="comment">// namespace math</span></div>
+<div class="line"><a id="l01874" name="l01874"></a><span class="lineno"> 1874</span> </div>
+<div class="line"><a id="l01875" name="l01875"></a><span class="lineno"> 1875</span>}; <span class="comment">// namespace tgen</span></div>
 <div class="ttc" id="agroup__general_html_ga5494e4e347f9d1dc5b88695e0777f65b"><div class="ttname"><a href="group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a></div><div class="ttdeci">void shuffle(It first, It last)</div><div class="ttdoc">Shuffles [first, last) inplace, for RandomAccessIterator.</div><div class="ttdef"><b>Definition</b> <a href="#l00205">tgen.h:205</a></div></div>
 <div class="ttc" id="agroup__general_html_ga5deceed8488585530188dbd266739771"><div class="ttname"><a href="group__general.html#ga5deceed8488585530188dbd266739771">tgen::choose</a></div><div class="ttdeci">C choose(int k, const C &amp;container)</div><div class="ttdoc">Chooses k values from the container, as in a subsequence of size k.</div><div class="ttdef"><b>Definition</b> <a href="#l00262">tgen.h:262</a></div></div>
 <div class="ttc" id="agroup__general_html_ga9c1c0431948210b949f5d1500e7235ec"><div class="ttname"><a href="group__general.html#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a></div><div class="ttdeci">It::value_type any(It first, It last)</div><div class="ttdoc">Choses a random element from [first, last).</div><div class="ttdef"><b>Definition</b> <a href="#l00243">tgen.h:243</a></div></div>
@@ -2129,11 +2132,11 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="ttc" id="agroup__math_html_ga881fc166dc15ffba9dfc35e83f60f8e3"><div class="ttname"><a href="group__math.html#ga881fc166dc15ffba9dfc35e83f60f8e3">tgen::math::gen_congruent</a></div><div class="ttdeci">uint64_t gen_congruent(uint64_t l, uint64_t r, std::vector&lt; uint64_t &gt; rems, std::vector&lt; uint64_t &gt; mods)</div><div class="ttdoc">Generates random number in range given modular congruences.</div><div class="ttdef"><b>Definition</b> <a href="#l01615">tgen.h:1615</a></div></div>
 <div class="ttc" id="agroup__math_html_ga8bba2f77b31c71efb052b52fb3524dcf"><div class="ttname"><a href="group__math.html#ga8bba2f77b31c71efb052b52fb3524dcf">tgen::math::gen_even</a></div><div class="ttdeci">uint64_t gen_even(uint64_t l, uint64_t r)</div><div class="ttdoc">Generates random even number in a given range.</div><div class="ttdef"><b>Definition</b> <a href="#l01662">tgen.h:1662</a></div></div>
 <div class="ttc" id="agroup__math_html_ga95c2e941edd52005c8f2285d1faab432"><div class="ttname"><a href="group__math.html#ga95c2e941edd52005c8f2285d1faab432">tgen::math::factor_by_prime</a></div><div class="ttdeci">std::vector&lt; std::pair&lt; uint64_t, int &gt; &gt; factor_by_prime(uint64_t n)</div><div class="ttdoc">Factors a number into primes and its powers.</div><div class="ttdef"><b>Definition</b> <a href="#l01260">tgen.h:1260</a></div></div>
+<div class="ttc" id="agroup__math_html_gaa0d2967e4dd57d03f455d5380d1a848d"><div class="ttname"><a href="group__math.html#gaa0d2967e4dd57d03f455d5380d1a848d">tgen::math::fibonacci</a></div><div class="ttdeci">const std::vector&lt; uint64_t &gt; &amp; fibonacci()</div><div class="ttdoc">Fetches Fibonacci numbers.</div><div class="ttdef"><b>Definition</b> <a href="#l01675">tgen.h:1675</a></div></div>
 <div class="ttc" id="agroup__math_html_gaa2ffbc7459ec7ad9cc68e63c0f1b4efe"><div class="ttname"><a href="group__math.html#gaa2ffbc7459ec7ad9cc68e63c0f1b4efe">tgen::math::highly_composite_upto</a></div><div class="ttdeci">uint64_t highly_composite_upto(uint64_t r)</div><div class="ttdoc">Largest highly composite number up to given number.</div><div class="ttdef"><b>Definition</b> <a href="#l01536">tgen.h:1536</a></div></div>
 <div class="ttc" id="agroup__math_html_gab4ac6778da02f425d55f6c971db8d933"><div class="ttname"><a href="group__math.html#gab4ac6778da02f425d55f6c971db8d933">tgen::math::gen_divisor_count</a></div><div class="ttdeci">uint64_t gen_divisor_count(uint64_t l, uint64_t r, int divisor_count)</div><div class="ttdoc">Generates random number in range with a given prime number of divisors.</div><div class="ttdef"><b>Definition</b> <a href="#l01432">tgen.h:1432</a></div></div>
 <div class="ttc" id="agroup__math_html_gabf0a79bacc6946f032b58627baf9302d"><div class="ttname"><a href="group__math.html#gabf0a79bacc6946f032b58627baf9302d">tgen::math::highly_composites</a></div><div class="ttdeci">const std::vector&lt; uint64_t &gt; &amp; highly_composites()</div><div class="ttdoc">Fetches highly composite numbers.</div><div class="ttdef"><b>Definition</b> <a href="#l01496">tgen.h:1496</a></div></div>
 <div class="ttc" id="agroup__math_html_gac5ff6eed324cb720e4d93f3f9f203aa3"><div class="ttname"><a href="group__math.html#gac5ff6eed324cb720e4d93f3f9f203aa3">tgen::math::prev_prime</a></div><div class="ttdeci">uint64_t prev_prime(uint64_t r)</div><div class="ttdoc">Computes largest prime smaller than given value.</div><div class="ttdef"><b>Definition</b> <a href="#l01360">tgen.h:1360</a></div></div>
-<div class="ttc" id="agroup__math_html_gaca0fed1d648b82792961af842c96658f"><div class="ttname"><a href="group__math.html#gaca0fed1d648b82792961af842c96658f">tgen::math::fibonacci</a></div><div class="ttdeci">std::vector&lt; uint64_t &gt; fibonacci()</div><div class="ttdoc">Fetches Fibonacci numbers.</div><div class="ttdef"><b>Definition</b> <a href="#l01675">tgen.h:1675</a></div></div>
 <div class="ttc" id="agroup__opts_html_ga7ffeca211fbda39e0fcdfad2383c43ba"><div class="ttname"><a href="group__opts.html#ga7ffeca211fbda39e0fcdfad2383c43ba">tgen::has_opt</a></div><div class="ttdeci">bool has_opt(std::size_t index)</div><div class="ttdoc">Checks if opt with at index exists.</div><div class="ttdef"><b>Definition</b> <a href="#l00339">tgen.h:339</a></div></div>
 <div class="ttc" id="agroup__opts_html_ga9f0e855b0b1931d436369a57e8d52730"><div class="ttname"><a href="group__opts.html#ga9f0e855b0b1931d436369a57e8d52730">tgen::opt</a></div><div class="ttdeci">T opt(const KEY &amp;key, std::optional&lt; T &gt; default_value=std::nullopt)</div><div class="ttdoc">Gets opt by key.</div><div class="ttdef"><b>Definition</b> <a href="#l00374">tgen.h:374</a></div></div>
 <div class="ttc" id="agroup__opts_html_gae8eca919976894c15b44713f00f33bd8"><div class="ttname"><a href="group__opts.html#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a></div><div class="ttdeci">void register_gen(int argc, char **argv)</div><div class="ttdoc">Sets up the generator.</div><div class="ttdef"><b>Definition</b> <a href="#l00469">tgen.h:469</a></div></div>

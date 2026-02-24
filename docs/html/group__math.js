@@ -2,7 +2,7 @@ var group__math =
 [
     [ "tgen::math::factor", "group__math.html#ga5c371d66540b387fb992a49b799c40fa", null ],
     [ "tgen::math::factor_by_prime", "group__math.html#ga95c2e941edd52005c8f2285d1faab432", null ],
-    [ "tgen::math::fibonacci", "group__math.html#gaca0fed1d648b82792961af842c96658f", null ],
+    [ "tgen::math::fibonacci", "group__math.html#gaa0d2967e4dd57d03f455d5380d1a848d", null ],
     [ "tgen::math::gen_congruent", "group__math.html#ga881fc166dc15ffba9dfc35e83f60f8e3", null ],
     [ "tgen::math::gen_congruent", "group__math.html#ga7780eceb3c6661c2e4756e02238137f3", null ],
     [ "tgen::math::gen_divisor_count", "group__math.html#gab4ac6778da02f425d55f6c971db8d933", null ],
