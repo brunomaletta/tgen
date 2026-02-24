@@ -247,7 +247,7 @@ TEST(sequence_test, gen_with_equal) {
 		sequence_test test(n, 1, n);
 
 		int q = tgen::next(1, 2 * n);
-		for (int i = 0; i < q; ++i)
+		for (int j = 0; j < q; ++j)
 			test.equal(tgen::next(0, n - 1), tgen::next(0, n - 1));
 
 		test.check();
@@ -262,20 +262,20 @@ TEST(sequence_test, gen_with_equal_range) {
 		std::vector<std::pair<int, int>> equals;
 		int n = 10;
 		int q = tgen::next(1, 2 * n);
-		for (int i = 0; i < q; ++i)
+		for (int j = 0; j < q; ++j)
 			equals.emplace_back(tgen::next(0, n - 1), tgen::next(0, n - 1));
 		tgen::shuffle(equals.begin(), equals.end());
 
 		auto s = tgen::sequence<int>(n, 1, n);
-		for (auto &[i, j] : equals) {
-			if (j < i)
-				std::swap(i, j);
-			s.equal_range(i, j);
+		for (auto &[a, b] : equals) {
+			if (b < a)
+				std::swap(a, b);
+			s.equal_range(a, b);
 		}
 
 		auto v = s.gen();
-		for (auto [i, j] : equals) {
-			for (int k = i + 1; k < j; ++k)
+		for (auto [a, b] : equals) {
+			for (int k = a + 1; k < b; ++k)
 				EXPECT_EQ(v[k - 1], v[k]);
 		}
 	}
@@ -290,11 +290,11 @@ TEST(sequence_test, gen_with_distinct) {
 		sequence_test test(n, 1, n);
 
 		int q = 2;
-		for (int i = 0; i < q; ++i) {
+		for (int j = 0; j < q; ++j) {
 			int sz = tgen::next(1, n);
 			std::set<int> idx;
-			for (int j = 0; j < n; ++j)
-				idx.insert(j);
+			for (int k = 0; k < n; ++k)
+				idx.insert(k);
 			idx = tgen::choose(sz, idx);
 			test.distinct(idx);
 		}
@@ -386,11 +386,11 @@ TEST(sequence_test, gen_two_distincts_one_set) {
 		sequence_test test(n, 1, n);
 
 		int q = 2;
-		for (int i = 0; i < q; ++i) {
+		for (int j = 0; j < q; ++j) {
 			int sz = tgen::next(1, n);
 			std::set<int> idx;
-			for (int j = 0; j < n; ++j)
-				idx.insert(j);
+			for (int k = 0; k < n; ++k)
+				idx.insert(k);
 			idx = tgen::choose(sz, idx);
 			test.distinct(idx);
 		}
@@ -456,8 +456,8 @@ TEST(sequence_test, gen_until) {
 
 	for (int i = 0; i < 100; ++i) {
 		auto inst = tgen::sequence<int>(10, 0, 1).set(0, 1).gen_until(
-			[](const auto &inst) {
-				auto vec = inst.to_std();
+			[](const auto &inst2) {
+				auto vec = inst2.to_std();
 				return std::accumulate(vec.begin(), vec.end(), 0) == 5;
 			},
 			100);

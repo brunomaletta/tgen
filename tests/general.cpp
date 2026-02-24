@@ -174,8 +174,8 @@ TEST(general_test, choose_check_subsequence) {
 		auto subseq = tgen::choose(k, v);
 		auto subseq_it = subseq.begin();
 		// Tests if subseq is a subsequence of v.
-		for (int i : v)
-			if (subseq_it != subseq.end() and *subseq_it == i)
+		for (int j : v)
+			if (subseq_it != subseq.end() and *subseq_it == j)
 				++subseq_it;
 		EXPECT_TRUE(subseq_it == subseq.end());
 	}

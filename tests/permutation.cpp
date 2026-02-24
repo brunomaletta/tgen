@@ -121,8 +121,9 @@ TEST(permutation_test, gen) {
 
 		auto inst = perm.gen();
 		for (int j = 0; j < num_op; ++j)
-			if (set_idx[j])
+			if (set_idx[j]) {
 				EXPECT_EQ(inst[j], set_val[j]);
+			}
 	}
 }
 
@@ -139,7 +140,7 @@ TEST(permutation_test, gen_cycles) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	for (int i = 0; i < 100; ++i) {
-		int n = 10, num_op = tgen::next(1, 10);
+		int n = 10;
 		std::vector<int> cycles;
 		while (true) {
 			int left = n - std::accumulate(cycles.begin(), cycles.end(), 0);

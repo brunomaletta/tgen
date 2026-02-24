@@ -21,7 +21,7 @@ lint:
 	find a.cpp src/* tests/*.cpp -iname '*.h' -o -iname '*.cpp' | xargs clang-format -i
 
 test:
-	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I src -o test
+	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I src -o test -fsanitize=address,undefined -fno-omit-frame-pointer -g -Wall -Wshadow
 	-./test
 	rm -r test
 

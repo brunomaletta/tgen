@@ -255,7 +255,7 @@ template <typename T> T any(const std::initializer_list<T> &il) {
 // copy.
 // O(|container|).
 template <typename C> C choose(int k, const C &container) {
-	tgen_ensure(0 < k and k <= container.size(),
+	tgen_ensure(0 < k and k <= static_cast<int>(container.size()),
 				"number of elements to choose must be valid");
 	std::vector<typename C::value_type> new_vec;
 	C new_container;
@@ -975,7 +975,7 @@ template <typename INST> typename INST::value_type any(const INST &inst) {
 // Chooses k values from the sequence, as in a subsequence of size k.
 // O(n).
 template <typename INST> INST choose(int k, const INST &inst) {
-	tgen_ensure(0 < k and k <= inst.vec_.size(),
+	tgen_ensure(0 < k and k <= static_cast<int>(inst.vec_.size()),
 				"number of elements to choose must be valid");
 	std::vector<typename INST::value_type> new_vec;
 	int need = k;
@@ -1066,7 +1066,8 @@ struct permutation : gen_base<permutation> {
 		// Sorts values in increasign order.
 		// O(n).
 		instance &sort() {
-			for (int i = 0; i < size(); ++i) vec_[i] = i;
+			for (int i = 0; i < size(); ++i)
+				vec_[i] = i;
 			return *this;
 		}
 
@@ -1241,6 +1242,7 @@ inline std::vector<uint64_t> factor_internal(uint64_t n) {
 // O(n^(1/4) log n) expected.
 // 0 < n.
 inline std::vector<uint64_t> factor(uint64_t n) {
+	tgen_ensure(n > 0, "number to factor must be positive");
 	auto factors = factor_internal(n);
 	std::sort(factors.begin(), factors.end());
 	return factors;
@@ -1250,6 +1252,7 @@ inline std::vector<uint64_t> factor(uint64_t n) {
 // O(n^(1/4) log n) expected.
 // 0 < n.
 inline std::vector<std::pair<uint64_t, int>> factor_by_prime(uint64_t n) {
+	tgen_ensure(n > 0, "number to factor must be positive");
 	std::vector<std::pair<uint64_t, int>> primes;
 	for (uint64_t p : factor(n)) {
 		if (!primes.empty() and primes.back().first == p)
@@ -1269,19 +1272,21 @@ inline std::tuple<__int128, __int128, __int128> ext_gcd_internal(__int128 a,
 }
 
 // O(log m).
-// 0 <= a < m.
+// 0 < a < m.
 // gcd(a,m) = 1.
 inline uint64_t modular_inverse(uint64_t a, uint64_t m) {
-	tgen_ensure(0 <= a and a < m, "remainder must be valid");
-	auto [x, y, g] = ext_gcd_internal(a, m);
-	tgen_ensure(g == 1, "gcd(a, m) must be 1");
+	tgen_ensure(0 < a and a < m,
+				"remainder must be positive and smaller than the mod");
+	auto [g, x, y] = ext_gcd_internal(a, m);
+	tgen_ensure(g == 1, "remainder and mod must be coprime");
 
-	return x;
+	return (x % m + m) % m;
 }
 
 // O(n^(1/4) log n) expected.
 // 0 < n.
 inline uint64_t totient(uint64_t n) {
+	tgen_ensure(n > 0, "totient(0) is undefined");
 	uint64_t phi = n;
 
 	for (auto [p, e] : factor_by_prime(n))
@@ -1372,7 +1377,7 @@ inline std::optional<uint64_t> expo_internal(uint64_t base, uint64_t exp,
 // O(log n log k).
 // 0 <= n.
 // 0 < k.
-inline uint64_t kth_root_floor(uint64_t n, uint64_t k) {
+inline uint64_t kth_root_floor_internal(uint64_t n, uint64_t k) {
 	tgen_ensure(k > 0 and n > 0, "values must be valid");
 	if (k == 1 or n <= 1)
 		return n;
@@ -1391,12 +1396,22 @@ inline uint64_t kth_root_floor(uint64_t n, uint64_t k) {
 	return lo;
 }
 
+// O(n^(1/4) log n) expected.
+// 0 < n.
+inline int num_divisors(uint64_t n) {
+	int divisors = 1;
+	for (auto [p, e] : factor_by_prime(n))
+		divisors *= (e + 1);
+	return divisors;
+}
+
 // O(log(r) log(divisor_count)).
 // divisor_count is prime.
 inline uint64_t gen_divisor_count(uint64_t l, uint64_t r, int divisor_count) {
 	tgen_ensure(is_prime(divisor_count), "divisor count must be prime");
 	int root = divisor_count - 1;
-	uint64_t p = gen_prime(kth_root_floor(l, root), kth_root_floor(r, root));
+	uint64_t p = gen_prime(kth_root_floor_internal(l, root),
+						   kth_root_floor_internal(r, root));
 	return *expo_internal(p, root, r);
 }
 
@@ -1449,15 +1464,6 @@ inline std::pair<uint64_t, uint64_t> prime_gap_upto(uint64_t r) {
 		if (curr >= prev)
 			return {P[i] + 1, right};
 	}
-}
-
-// O(n^(1/4) log n) expected.
-// 0 < n.
-inline int num_divisors(uint64_t n) {
-	int divisors = 1;
-	for (auto [p, e] : factor_by_prime(n))
-		divisors *= (e + 1);
-	return divisors;
 }
 
 // From https://oeis.org/A002182/b002182.txt.
