@@ -207,7 +207,7 @@ template&lt;typename T&gt; </div>
   </dd>
 </dl>
 <p>Equivalent to <span class="tt"><a class="el" href="#ga4255e7e7d683fd6d5aa3c66323456aea" title="Restricts generator s.t. all values at indices in indices are distinct.">tgen::sequence::distinct</a>({idx_1, idx_2})</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md89"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md93"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 with the first and last values different.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#gad430f6b0f40960ff302eabbcaaba7b68">different</a>(0, 9);</div>
@@ -246,7 +246,7 @@ template&lt;typename T&gt; </div>
 <p>Restricts generator s.t. all values are distinct. </p>
 <p>Equivalent to <span class="tt"><a class="el" href="#ga4255e7e7d683fd6d5aa3c66323456aea" title="Restricts generator s.t. all values at indices in indices are distinct.">tgen::sequence::distinct</a>({0, 1, ... size-1})</span>.</p>
 <dl class="section note"><dt>Note</dt><dd>If you add this restriction, do not add another <span class="tt"><a class="el" href="#ga4255e7e7d683fd6d5aa3c66323456aea" title="Restricts generator s.t. all values at indices in indices are distinct.">tgen::sequence::distinct</a></span> restriction! Generation might fail otherwise.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md90"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md94"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 5 distinct ints from 1 to 5.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(5, 1, 5).<a class="code hl_function" href="#ga4255e7e7d683fd6d5aa3c66323456aea">distinct</a>();</div>
@@ -289,7 +289,7 @@ template&lt;typename T&gt; </div>
   </dd>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>Generation might fail if restrictions are considered to be too complex! The restrictions are considered too complex if the following condition does not hold. Consider the graph defined with vertices as the <span class="tt"><a class="el" href="#ga4255e7e7d683fd6d5aa3c66323456aea" title="Restricts generator s.t. all values at indices in indices are distinct.">tgen::sequence::distinct</a></span> sets added, and there is an edge between two vertices if they share an index. Note that you need to consider indices (directed or indirectly) connected by equality constraints as being the same. This resulting graph must be a acyclic. Moreover, for every tree in this graph, all of its indices with a <span class="tt"><a class="el" href="#gaff196db1265936038bcb8761192f5a8c" title="Restricts generator s.t. value at index idx is value.">tgen::sequence::set</a></span> operation must be covered by a single distinct constraint set.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md88"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md92"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 with the first half distinct.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#ga4255e7e7d683fd6d5aa3c66323456aea">distinct</a>({0, 1, 2, 3, 4});</div>
@@ -335,7 +335,7 @@ template&lt;typename T&gt; </div>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md86"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md90"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 that start and end with the same value.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#ga4beb1b5e29f21f329346d005fada1c9b">equal</a>(0, 9);</div>
@@ -382,7 +382,7 @@ template&lt;typename T&gt; </div>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md87"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md91"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 with the first half all equal.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#gaa6ca6fc2e5c9edcf0d25165f9f25ad12">equal_range</a>(0, 4);</div>
@@ -419,10 +419,10 @@ template&lt;typename T&gt; </div>
 
 <p>Generates a random instance from the set of valid sequences. </p>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random instance from the set of valid sequences, given the added constraints.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md91"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md95"></a>
 Complexity</h4>
 <p><span class="tt">O(n log n)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md92"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md96"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Generates and prints a random sequence of 5 ints from 1 to 5.</span></div>
 <div class="line"><span class="keyword">auto</span> inst = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(5, 1, 5).<a class="code hl_function" href="#ga0dc45ca71b1cc8087eac28188334dc91">gen</a>();</div>
@@ -470,10 +470,10 @@ template&lt;typename PRED, typename T&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>An instance found by repeatedly choosing a uniformly random valid sequence and checking if it satisfies <span class="tt">predicate</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md93"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md97"></a>
 Complexity</h4>
 <p><span class="tt">O((1/p) n log n)</span> expected, <span class="tt">O(max_tries * n log n)</span> worst case.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md94"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md98"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints a sequence of 10 distinct ints from 1 to 10 such that the first element is larger than the last.</span></div>
 <div class="line">std::cout &lt;&lt;</div>
@@ -529,7 +529,7 @@ template&lt;typename T&gt; </div>
   </dd>
 </dl>
 <p>Defines a generator of sequences of length <span class="tt">size</span> with values in <span class="tt">values</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md84"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md88"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints that are either 3, 6, or 9.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, std::set&lt;int&gt;({3, 6, 9}));</div>
@@ -582,7 +582,7 @@ template&lt;typename T&gt; </div>
   </dd>
 </dl>
 <p>Defines a generator of sequences of length <span class="tt">size</span> with values in <span class="tt">[value_l, value_r]</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md83"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md87"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 100.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 100);</div>
@@ -634,7 +634,7 @@ template&lt;typename T&gt; </div>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md85"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md89"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 that start with 1.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#gaff196db1265936038bcb8761192f5a8c">set</a>(0, 1);</div>

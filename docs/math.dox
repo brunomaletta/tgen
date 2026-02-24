@@ -482,3 +482,75 @@ inline constexpr int tgen::math::FFT_MOD = 998244353;
  * ```
  */
 const std::vector<uint64_t> &tgen::math::fibonacci();
+
+
+/**
+ * @ingroup math
+ * @brief Generates a random partition of a number.
+ *
+ * @param n Number to partition.
+ * @param part_l Minimum part value.
+ * @param part_r Maximum part value.
+ *
+ * @return A uniformly random ordered partition of `n` with values in `[part_l, part_r]`.
+ *
+ * @pre
+ * `n > 0`. <br>
+ * `part_l > 0`.
+ *
+ * @throws std::runtime_error if there is no such partition.
+ *
+ * Partition is ordered (so technically a composition). That is, `(1, 1, 2) != (1, 2, 1)`.
+ * If `part_r = -1`, `part_r` is considered to be `n` (unbounded).
+ *
+ * @note Distribution might be slighly biased because of floating point arithmetic.
+ *
+ * #### Complexity
+ *
+ * `O(n)`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Random partition of 10 into parts in [2, 3].
+ * auto part = tgen::math::partition(10, 2, 3);
+ * ```
+ */
+std::vector<int> &tgen::math::gen_partition(int n, int part_l = 1, int part_r = -1);
+
+
+/**
+ * @ingroup math
+ * @brief Generates a random partition with fixed size of a number.
+ *
+ * @param n Number to partition.
+ * @param k Number of parts.
+ * @param part_l Minimum part value.
+ * @param part_r Maximum part value.
+ *
+ * @return A uniformly random ordered partition of `n` with length `k` and values in `[part_l, part_r]`.
+ *
+ * @pre
+ * `n >= k > 0`. <br>
+ * `part_l >= 0`.
+ *
+ * @throws std::runtime_error if there is no such partition.
+ *
+ * Partition is ordered (so technically a composition). That is, `(1, 1, 2) != (1, 2, 1)`.
+ * If `part_r = -1`, `part_r` is considered to be `n` (unbounded).
+ *
+ * @note Distribution might be slighly biased because of floating point arithmetic.
+ *
+ * #### Complexity
+ *
+ * `O(n)` time/memory if `part_r = -1`; <br>
+ * `O(n * k)` time/memory otherwise.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Random partition of 10 into 4 parts in [2, 3].
+ * auto part = tgen::math::partition_fixed_size(10, 4, 2, 3);
+ * ```
+ */
+std::vector<int> &tgen::math::gen_partition_fixed_size(int n, int k, int part_l = 0, int part_r = -1);

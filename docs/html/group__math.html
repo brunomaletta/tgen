@@ -176,6 +176,10 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga15e352dff6af8059d6c44d4bf02f944e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates random odd number in a given range.  <br /></td></tr>
 <tr class="memitem:gaa0d2967e4dd57d03f455d5380d1a848d" id="r_gaa0d2967e4dd57d03f455d5380d1a848d"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; uint64_t &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaa0d2967e4dd57d03f455d5380d1a848d">tgen::math::fibonacci</a> ()</td></tr>
 <tr class="memdesc:gaa0d2967e4dd57d03f455d5380d1a848d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fetches Fibonacci numbers.  <br /></td></tr>
+<tr class="memitem:ga6a6295d94315ea828fc71a4085eeace2" id="r_ga6a6295d94315ea828fc71a4085eeace2"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga6a6295d94315ea828fc71a4085eeace2">tgen::math::gen_partition</a> (int n, int part_l=1, int part_r=-1)</td></tr>
+<tr class="memdesc:ga6a6295d94315ea828fc71a4085eeace2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random partition of a number.  <br /></td></tr>
+<tr class="memitem:ga9ed3d2520bc7848ceb82e54bef04083d" id="r_ga9ed3d2520bc7848ceb82e54bef04083d"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga9ed3d2520bc7848ceb82e54bef04083d">tgen::math::gen_partition_fixed_size</a> (int n, int k, int part_l=0, int part_r=-1)</td></tr>
+<tr class="memdesc:ga9ed3d2520bc7848ceb82e54bef04083d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random partition with fixed size of a number.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -614,6 +618,141 @@ Examples</h4>
 <div class="ttc" id="agroup__math_html_ga15e352dff6af8059d6c44d4bf02f944e"><div class="ttname"><a href="#ga15e352dff6af8059d6c44d4bf02f944e">tgen::math::gen_odd</a></div><div class="ttdeci">uint64_t gen_odd(uint64_t l, uint64_t r)</div><div class="ttdoc">Generates random odd number in a given range.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01667">tgen.h:1667</a></div></div>
 </div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01667">1667</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+
+</div>
+</div>
+<a id="ga6a6295d94315ea828fc71a4085eeace2" name="ga6a6295d94315ea828fc71a4085eeace2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6a6295d94315ea828fc71a4085eeace2">&#9670;&#160;</a></span>gen_partition()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; int &gt; &amp; tgen::math::gen_partition </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>n</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>part_l</em></span><span class="paramdefsep"> = </span><span class="paramdefval">1</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>part_r</em></span><span class="paramdefsep"> = </span><span class="paramdefval">-1</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Generates a random partition of a number. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n</td><td>Number to partition. </td></tr>
+    <tr><td class="paramname">part_l</td><td>Minimum part value. </td></tr>
+    <tr><td class="paramname">part_r</td><td>Maximum part value.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A uniformly random ordered partition of <span class="tt">n</span> with values in <span class="tt">[part_l, part_r]</span>.</dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd><span class="tt">n &gt; 0</span>. <br  />
+ <span class="tt">part_l &gt; 0</span>.</dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>if there is no such partition.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Partition is ordered (so technically a composition). That is, <span class="tt">(1, 1, 2) != (1, 2, 1)</span>. If <span class="tt">part_r = -1</span>, <span class="tt">part_r</span> is considered to be <span class="tt">n</span> (unbounded).</p>
+<dl class="section note"><dt>Note</dt><dd>Distribution might be slighly biased because of floating point arithmetic.</dd></dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md56"></a>
+Complexity</h4>
+<p><span class="tt">O(n)</span>.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md57"></a>
+Examples</h4>
+<div class="fragment"><div class="line"><span class="comment">// Random partition of 10 into parts in [2, 3].</span></div>
+<div class="line"><span class="keyword">auto</span> part = tgen::math::partition(10, 2, 3);</div>
+</div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01720">1720</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+
+</div>
+</div>
+<a id="ga9ed3d2520bc7848ceb82e54bef04083d" name="ga9ed3d2520bc7848ceb82e54bef04083d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9ed3d2520bc7848ceb82e54bef04083d">&#9670;&#160;</a></span>gen_partition_fixed_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; int &gt; &amp; tgen::math::gen_partition_fixed_size </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>n</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>k</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>part_l</em></span><span class="paramdefsep"> = </span><span class="paramdefval">0</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>part_r</em></span><span class="paramdefsep"> = </span><span class="paramdefval">-1</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Generates a random partition with fixed size of a number. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n</td><td>Number to partition. </td></tr>
+    <tr><td class="paramname">k</td><td>Number of parts. </td></tr>
+    <tr><td class="paramname">part_l</td><td>Minimum part value. </td></tr>
+    <tr><td class="paramname">part_r</td><td>Maximum part value.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A uniformly random ordered partition of <span class="tt">n</span> with length <span class="tt">k</span> and values in <span class="tt">[part_l, part_r]</span>.</dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd><span class="tt">n &gt;= k &gt; 0</span>. <br  />
+ <span class="tt">part_l &gt;= 0</span>.</dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>if there is no such partition.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Partition is ordered (so technically a composition). That is, <span class="tt">(1, 1, 2) != (1, 2, 1)</span>. If <span class="tt">part_r = -1</span>, <span class="tt">part_r</span> is considered to be <span class="tt">n</span> (unbounded).</p>
+<dl class="section note"><dt>Note</dt><dd>Distribution might be slighly biased because of floating point arithmetic.</dd></dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md58"></a>
+Complexity</h4>
+<p><span class="tt">O(n)</span> time/memory if <span class="tt">part_r = -1</span>; <br  />
+ <span class="tt">O(n * k)</span> time/memory otherwise.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md59"></a>
+Examples</h4>
+<div class="fragment"><div class="line"><span class="comment">// Random partition of 10 into 4 parts in [2, 3].</span></div>
+<div class="line"><span class="keyword">auto</span> part = tgen::math::partition_fixed_size(10, 4, 2, 3);</div>
+</div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01783">1783</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
