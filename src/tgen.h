@@ -389,7 +389,7 @@ T opt(const KEY &key, std::optional<T> default_value = std::nullopt) {
 inline void parse_opts_internal(int argc, char **argv) {
 	// Parses the opts into `pos_opts_internal` vector and `named_opts_internal`
 	// map. Starting from 1 to ignore the name of the executable.
-	for (int i = 1; i < argc; i++) {
+	for (int i = 1; i < argc; ++i) {
 		std::string key(argv[i]);
 
 		if (key[0] == '-') {
@@ -439,7 +439,7 @@ inline void parse_opts_internal(int argc, char **argv) {
 						"cannot have repeated keys");
 			tgen_ensure(argv[i + 1], "value cannot be empty");
 			named_opts_internal[key] = std::string(argv[i + 1]);
-			i++;
+			++i;
 		}
 	}
 }
@@ -654,7 +654,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 				"failed to generate sequence: complex constraints");
 		std::map<T, T> virtual_list;
 		std::vector<T> gen_list;
-		for (int i = 0; i < k; i++) {
+		for (int i = 0; i < k; ++i) {
 			T j = next<T>(i, num_available - 1);
 			T vj = virtual_list.count(j) ? virtual_list[j] : j;
 			T vi = virtual_list.count(i) ? virtual_list[i] : i;
@@ -1028,7 +1028,7 @@ struct permutation : gen_base<permutation> {
 		instance(const std::vector<int> &vec) : vec_(vec), add_1_(false) {
 			tgen_ensure(!vec_.empty(), "permutation cannot be empty");
 			std::vector<bool> vis(vec_.size(), false);
-			for (int i = 0; i < size(); i++) {
+			for (int i = 0; i < size(); ++i) {
 				tgen_ensure(0 <= vec_[i] and
 								vec_[i] < static_cast<int>(vec_.size()),
 							"permutation values must be from `0` to `size-1`");
@@ -1162,6 +1162,7 @@ namespace math {
 
 inline int ctzll_internal(uint64_t x) {
 	// Mistery code found on the internet.
+	// Uses de Brujin sequence.
 	static const unsigned char index64[64] = {
 		0,	1,	2,	53, 3,	7,	54, 27, 4,	38, 41, 8,	34, 55, 48, 28,
 		62, 5,	39, 46, 44, 42, 22, 9,	24, 35, 59, 56, 49, 18, 29, 11,
@@ -1263,24 +1264,40 @@ inline std::vector<std::pair<uint64_t, int>> factor_by_prime(uint64_t n) {
 	return primes;
 }
 
-inline std::tuple<__int128, __int128, __int128> ext_gcd_internal(__int128 a,
-																 __int128 b) {
-	if (!a)
-		return {b, 0, 1};
-	auto [g, x, y] = ext_gcd_internal(b % a, a);
-	return {g, y - b / a * x, x};
+// O(log m).
+// 0 < a < m.
+// gcd(a,m) = 1.
+inline __int128 modular_inverse_128_internal(__int128 a, __int128 m) {
+	tgen_ensure(0 < a and a < m,
+				"remainder must be positive and smaller than the mod");
+
+	__int128 t = 0, new_t = 1;
+	__int128 r = m, new_r = a;
+
+	while (new_r != 0) {
+		__int128 q = r / new_r;
+
+		auto tmp_t = t - q * new_t;
+		t = new_t;
+		new_t = tmp_t;
+
+		auto tmp_r = r - q * new_r;
+		r = new_r;
+		new_r = tmp_r;
+	}
+
+	tgen_ensure(r == 1, "remainder and mod must be coprime");
+
+	if (t < 0)
+		t += m;
+	return t;
 }
 
 // O(log m).
 // 0 < a < m.
 // gcd(a,m) = 1.
 inline uint64_t modular_inverse(uint64_t a, uint64_t m) {
-	tgen_ensure(0 < a and a < m,
-				"remainder must be positive and smaller than the mod");
-	auto [g, x, y] = ext_gcd_internal(a, m);
-	tgen_ensure(g == 1, "remainder and mod must be coprime");
-
-	return (x % m + m) % m;
+	return modular_inverse_128_internal(a, m);
 }
 
 // O(n^(1/4) log n) expected.
@@ -1378,7 +1395,7 @@ inline std::optional<uint64_t> expo_internal(uint64_t base, uint64_t exp,
 // 0 <= n.
 // 0 < k.
 inline uint64_t kth_root_floor_internal(uint64_t n, uint64_t k) {
-	tgen_ensure(k > 0 and n > 0, "values must be valid");
+	tgen_ensure(k > 0 and n >= 0, "values must be valid");
 	if (k == 1 or n <= 1)
 		return n;
 
@@ -1408,51 +1425,55 @@ inline int num_divisors(uint64_t n) {
 // O(log(r) log(divisor_count)).
 // divisor_count is prime.
 inline uint64_t gen_divisor_count(uint64_t l, uint64_t r, int divisor_count) {
-	tgen_ensure(is_prime(divisor_count), "divisor count must be prime");
+	tgen_ensure(divisor_count > 0 and is_prime(divisor_count),
+				"divisor count must be prime");
 	int root = divisor_count - 1;
 	uint64_t p = gen_prime(kth_root_floor_internal(l, root),
 						   kth_root_floor_internal(r, root));
 	return *expo_internal(p, root, r);
 }
 
-// From https://en.wikipedia.org/wiki/Prime_gap.
-/* clang-format off */ inline std::vector<uint64_t> prime_gap_p_internal = {
-	2, 3, 7, 23, 89, 113, 523, 887, 1129, 1327, 9551, 15683, 19609, 31397,
-	155921, 360653, 370261, 492113, 1349533, 1357201, 2010733, 4652353,
-	17051707, 20831323, 47326693, 122164747, 189695659, 191912783, 387096133,
-	436273009, 1294268491, 1453168141, 2300942549, 3842610773, 4302407359,
-	10726904659, 20678048297, 22367084959, 25056082087, 42652618343,
-	127976334671, 182226896239, 241160624143, 297501075799, 303371455241,
-	304599508537, 416608695821, 461690510011, 614487453523, 738832927927,
-	1346294310749, 1408695493609, 1968188556461, 2614941710599, 7177162611713,
-	13829048559701, 19581334192423, 42842283925351, 90874329411493,
-	171231342420521, 218209405436543, 1189459969825483, 1686994940955803,
-	1693182318746371, 43841547845541059, 55350776431903243, 80873624627234849,
-	203986478517455989, 218034721194214273, 305405826521087869,
-	352521223451364323, 401429925999153707, 418032645936712127,
-	804212830686677669, 1425172824437699411, 5733241593241196731,
-	6787988999657777797}; /* clang-format on */
-inline std::vector<uint64_t> prime_gap_g_internal = {
-	1,	  2,	4,	  6,	8,	  14,	18,	  20,	22,	  34,	36,
-	44,	  52,	72,	  86,	96,	  112,	114,  118,	132,  148,	154,
-	180,  210,	220,  222,	234,  248,	250,  282,	288,  292,	320,
-	336,  354,	382,  384,	394,  456,	464,  468,	474,  486,	490,
-	500,  514,	516,  532,	534,  540,	582,  588,	602,  652,	674,
-	716,  766,	778,  804,	806,  906,	916,  924,	1132, 1184, 1198,
-	1220, 1224, 1248, 1272, 1328, 1356, 1370, 1442, 1476, 1488, 1510};
-
 // Returns `(p_i, g_i)`: `p_i` is the prime, `g_i` is the gap.
-inline std::pair<std::vector<uint64_t>, std::vector<uint64_t>> prime_gaps() {
-	return {prime_gap_p_internal, prime_gap_g_internal};
+inline const std::pair<std::vector<uint64_t>, std::vector<uint64_t>> &
+prime_gaps() {
+	// From https://en.wikipedia.org/wiki/Prime_gap.
+	static const std::pair<std::vector<uint64_t>, std::vector<uint64_t>> value{
+		/* clang-format off */ {
+			2, 3, 7, 23, 89, 113, 523, 887, 1129, 1327, 9551, 15683, 19609,
+			31397, 155921, 360653, 370261, 492113, 1349533, 1357201, 2010733,
+			4652353, 17051707, 20831323, 47326693, 122164747, 189695659,
+			191912783, 387096133, 436273009, 1294268491, 1453168141,
+			2300942549, 3842610773, 4302407359, 10726904659, 20678048297,
+			22367084959, 25056082087, 42652618343, 127976334671, 182226896239,
+			241160624143, 297501075799, 303371455241, 304599508537,
+			416608695821, 461690510011, 614487453523, 738832927927,
+			1346294310749, 1408695493609, 1968188556461, 2614941710599,
+			7177162611713, 13829048559701, 19581334192423, 42842283925351,
+			90874329411493, 171231342420521, 218209405436543, 1189459969825483,
+			1686994940955803, 1693182318746371, 43841547845541059,
+			55350776431903243, 80873624627234849, 203986478517455989,
+			218034721194214273, 305405826521087869, 352521223451364323,
+			401429925999153707, 418032645936712127, 804212830686677669,
+			1425172824437699411, 5733241593241196731, 6787988999657777797
+		}, /* clang-format on */
+		{1,	   2,	 4,	   6,	 8,	   14,	 18,   20,	 22,   34,	 36,
+		 44,   52,	 72,   86,	 96,   112,	 114,  118,	 132,  148,	 154,
+		 180,  210,	 220,  222,	 234,  248,	 250,  282,	 288,  292,	 320,
+		 336,  354,	 382,  384,	 394,  456,	 464,  468,	 474,  486,	 490,
+		 500,  514,	 516,  532,	 534,  540,	 582,  588,	 602,  652,	 674,
+		 716,  766,	 778,  804,	 806,  906,	 916,  924,	 1132, 1184, 1198,
+		 1220, 1224, 1248, 1272, 1328, 1356, 1370, 1442, 1476, 1488, 1510}};
+
+	return value;
 }
 
 // Returns pair (first_composite_in_gap, last_composite_in_gap).
-// O(1);
+// O(log r) approximately.
 inline std::pair<uint64_t, uint64_t> prime_gap_upto(uint64_t r) {
 	if (r < 4)
 		throw there_is_no_upto_error_internal("prime gap", r);
 
-	const auto &[P, G] = std::pair(prime_gap_p_internal, prime_gap_g_internal);
+	const auto &[P, G] = prime_gaps();
 	for (int i = P.size() - 1;; --i) {
 		if (P[i] >= r)
 			continue;
@@ -1467,66 +1488,119 @@ inline std::pair<uint64_t, uint64_t> prime_gap_upto(uint64_t r) {
 }
 
 // From https://oeis.org/A002182/b002182.txt.
-/* clang-format off */ inline std::vector<uint64_t> highly_composites_internal = {
-1, 2, 4, 6, 12, 24, 36, 48, 60, 120, 180, 240, 360, 720, 840, 1260, 1680, 2520,
-5040, 7560, 10080, 15120, 20160, 25200, 27720, 45360, 50400, 55440, 83160,
-110880, 166320, 221760, 277200, 332640, 498960, 554400, 665280, 720720,
-1081080, 1441440, 2162160, 2882880, 3603600, 4324320, 6486480, 7207200,
-8648640, 10810800, 14414400, 17297280, 21621600, 32432400, 36756720, 43243200,
-61261200, 73513440, 110270160, 122522400, 147026880, 183783600, 245044800,
-294053760, 367567200, 551350800, 698377680, 735134400, 1102701600, 1396755360,
-2095133040, 2205403200, 2327925600, 2793510720, 3491888400, 4655851200,
-5587021440, 6983776800, 10475665200, 13967553600, 20951330400, 27935107200,
-41902660800, 48886437600, 64250746560, 73329656400, 80313433200, 97772875200,
-128501493120, 146659312800, 160626866400, 240940299600, 293318625600,
-321253732800, 481880599200, 642507465600, 963761198400, 1124388064800,
-1606268664000, 1686582097200, 1927522396800, 2248776129600, 3212537328000,
-3373164194400, 4497552259200, 6746328388800, 8995104518400, 9316358251200,
-13492656777600, 18632716502400, 26985313555200, 27949074753600, 32607253879200,
-46581791256000, 48910880818800, 55898149507200, 65214507758400, 93163582512000,
-97821761637600, 130429015516800, 195643523275200, 260858031033600,
-288807105787200, 391287046550400, 577614211574400, 782574093100800,
-866421317361600, 1010824870255200, 1444035528936000, 1516237305382800,
-1732842634723200, 2021649740510400, 2888071057872000, 3032474610765600,
-4043299481020800, 6064949221531200, 8086598962041600, 10108248702552000,
-12129898443062400, 18194847664593600, 20216497405104000, 24259796886124800,
-30324746107656000, 36389695329187200, 48519593772249600, 60649492215312000,
-72779390658374400, 74801040398884800, 106858629141264000, 112201560598327200,
-149602080797769600, 224403121196654400, 299204161595539200, 374005201994424000,
-448806242393308800, 673209363589963200, 748010403988848000, 897612484786617600,
-1122015605983272000, 1346418727179926400, 1795224969573235200,
-2244031211966544000, 2692837454359852800, 3066842656354276800,
-4381203794791824000, 4488062423933088000, 6133685312708553600,
-8976124847866176000, 9200527969062830400, 12267370625417107200ULL,
-15334213281771384000ULL, 18401055938125660800ULL}; /* clang-format on */
-
-inline std::vector<uint64_t> highly_composites() {
+inline const std::vector<uint64_t> &highly_composites() {
+	/* clang-format off */
+	static const std::vector<uint64_t> highly_composites_internal = {
+	1, 2, 4, 6, 12, 24, 36, 48, 60, 120, 180, 240, 360, 720, 840, 1260, 1680,
+	2520, 5040, 7560, 10080, 15120, 20160, 25200, 27720, 45360, 50400, 55440,
+	83160, 110880, 166320, 221760, 277200, 332640, 498960, 554400, 665280,
+	720720, 1081080, 1441440, 2162160, 2882880, 3603600, 4324320, 6486480,
+	7207200, 8648640, 10810800, 14414400, 17297280, 21621600, 32432400,
+	36756720, 43243200, 61261200, 73513440, 110270160, 122522400, 147026880,
+	183783600, 245044800, 294053760, 367567200, 551350800, 698377680, 735134400,
+	1102701600, 1396755360, 2095133040, 2205403200, 2327925600, 2793510720,
+	3491888400, 4655851200, 5587021440, 6983776800, 10475665200, 13967553600,
+	20951330400, 27935107200, 41902660800, 48886437600, 64250746560,
+	73329656400, 80313433200, 97772875200, 128501493120, 146659312800,
+	160626866400, 240940299600, 293318625600, 321253732800, 481880599200,
+	642507465600, 963761198400, 1124388064800, 1606268664000, 1686582097200,
+	1927522396800, 2248776129600, 3212537328000, 3373164194400, 4497552259200,
+	6746328388800, 8995104518400, 9316358251200, 13492656777600, 18632716502400,
+	26985313555200, 27949074753600, 32607253879200, 46581791256000,
+	48910880818800, 55898149507200, 65214507758400, 93163582512000,
+	97821761637600, 130429015516800, 195643523275200, 260858031033600,
+	288807105787200, 391287046550400, 577614211574400, 782574093100800,
+	866421317361600, 1010824870255200, 1444035528936000, 1516237305382800,
+	1732842634723200, 2021649740510400, 2888071057872000, 3032474610765600,
+	4043299481020800, 6064949221531200, 8086598962041600, 10108248702552000,
+	12129898443062400, 18194847664593600, 20216497405104000, 24259796886124800,
+	30324746107656000, 36389695329187200, 48519593772249600, 60649492215312000,
+	72779390658374400, 74801040398884800, 106858629141264000,
+	112201560598327200, 149602080797769600, 224403121196654400,
+	299204161595539200, 374005201994424000, 448806242393308800,
+	673209363589963200, 748010403988848000, 897612484786617600,
+	1122015605983272000, 1346418727179926400, 1795224969573235200,
+	2244031211966544000, 2692837454359852800, 3066842656354276800,
+	4381203794791824000, 4488062423933088000, 6133685312708553600,
+	8976124847866176000, 9200527969062830400, 12267370625417107200ULL,
+	15334213281771384000ULL, 18401055938125660800ULL}; /* clang-format on */
 	return highly_composites_internal;
 }
 
-// O(1).
+// O(log r) approximately.
 inline uint64_t highly_composite_upto(uint64_t r) {
-	for (int i = highly_composites_internal.size(); i >= 0; --i)
-		if (highly_composites_internal[i] <= r)
-			return highly_composites_internal[i];
+	for (int i = highly_composites().size() - 1; i >= 0; --i)
+		if (highly_composites()[i] <= r)
+			return highly_composites()[i];
 
 	throw there_is_no_upto_error_internal("highly composite number", r);
 }
 
+// gcd(a, b).
+// O(log a).
+inline __int128 gcd128_internal(__int128 a, __int128 b) {
+	if (a < 0)
+		a = -a;
+	if (b < 0)
+		b = -b;
+	while (b != 0) {
+		__int128 t = a % b;
+		a = b;
+		b = t;
+	}
+	return a;
+}
+
+// min(2^64, a*b).
+// O(log a).
+// a, b >= 0.
+inline __int128 mul_saturate_internal(__int128 a, __int128 b) {
+	tgen_ensure(a >= 0 and b >= 0);
+	static const __int128 LIMIT = (__int128)1 << 64;
+	if (a == 0 or b == 0)
+		return 0;
+	if (a > LIMIT / b)
+		return LIMIT;
+	return a * b;
+}
+
 struct crt_internal {
-	__int128 a, m;
+	using T = __int128;
+	T a, m;
 
 	crt_internal() : a(0), m(1) {}
-	crt_internal(__int128 a_, __int128 m_) : a(a_), m(m_) {}
+	crt_internal(T a_, T m_) : a(a_), m(m_) {}
 	crt_internal operator*(crt_internal C) {
-		auto [g, x, y] = ext_gcd_internal(m, C.m);
-		if ((a - C.a) % g)
-			a = -1;
-		if (a == -1 or C.a == -1)
-			return crt_internal(-1, 0);
-		__int128 lcm = m / g * C.m;
-		__int128 ans = a + (x * (C.a - a) / g % (C.m / g)) * m;
-		return crt_internal((ans % lcm + lcm) % lcm, lcm);
+		if (m == 0 or C.m == 0)
+			return {-1, 0};
+
+		T g = gcd128_internal(m, C.m);
+		if ((C.a - a) % g != 0)
+			return {-1, 0};
+
+		T m1 = m / g;
+		T m2 = C.m / g;
+
+		if (m2 == 1)
+			return {a, m};
+
+		T inv = modular_inverse_128_internal(m1 % m2, m2);
+
+		T k = ((C.a - a) / g) % m2;
+		if (k < 0)
+			k += m2;
+
+		k = static_cast<unsigned __int128>(k) * inv % m2;
+
+		T lcm = mul_saturate_internal(m, m2);
+
+		T res = (a + static_cast<T>((static_cast<unsigned __int128>(k) * m) %
+									lcm)) %
+				lcm;
+		if (res < 0)
+			res += lcm;
+
+		return {res, lcm};
 	}
 };
 
@@ -1545,8 +1619,8 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 					"remainder must be smaller than the mod");
 		crt = crt * crt_internal(rems[i], mods[i]);
 
-		if (crt.m > r) {
-			if (crt.a > r)
+		if (crt.a == -1 or crt.m > r) {
+			if (!(l <= crt.a and crt.a <= r))
 				throw there_is_no_in_range_error_internal("congruent number", l,
 														  r);
 
@@ -1559,9 +1633,6 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 			throw there_is_no_in_range_error_internal("congruent number", l, r);
 		}
 	}
-
-	if (crt.a > r)
-		throw there_is_no_in_range_error_internal("congruent number", l, r);
 
 	uint64_t k_min = crt.a >= l ? 0 : ((l - crt.a) + crt.m - 1) / crt.m;
 	uint64_t k_max = (r - crt.a) / crt.m;
@@ -1589,8 +1660,10 @@ inline uint64_t gen_odd(uint64_t l, uint64_t r) {
 	return gen_congruent(l, r, 1, 2);
 }
 
-const inline int FFT_MOD = 998244353;
+// Mod used for FFT/NTT.
+inline constexpr int FFT_MOD = 998244353;
 
+// Fibonacci sequence up to 2^64.
 inline std::vector<uint64_t> fibonacci() {
 	std::vector<uint64_t> fib = {0, 1};
 	while (fib.back() <=
@@ -1599,15 +1672,15 @@ inline std::vector<uint64_t> fibonacci() {
 	return fib;
 }
 
-static constexpr long double LOG_ZERO_INTERNAL = -INFINITY;
-static constexpr long double LOG_ONE_INTERNAL = 0.0;
+inline constexpr long double LOG_ZERO_INTERNAL = -INFINITY;
+inline constexpr long double LOG_ONE_INTERNAL = 0.0;
 
-static long double log_space_internal(long double x) {
+inline long double log_space_internal(long double x) {
 	return x == 0.0 ? LOG_ZERO_INTERNAL : std::log(x);
 }
 
 // Math hack to add two values in log space.
-static long double add_log_space_internal(long double a, long double b) {
+inline long double add_log_space_internal(long double a, long double b) {
 	if (a == LOG_ZERO_INTERNAL)
 		return b;
 	if (b == LOG_ZERO_INTERNAL)
@@ -1655,7 +1728,7 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 
 	// Crazy math tricks ahead.
 	auto dp_pref = dp;
-	for (int i = 1; i <= n; i++)
+	for (int i = 1; i <= n; ++i)
 		dp_pref[i] = add_log_space_internal(dp_pref[i - 1], dp[i]);
 
 	std::vector<int> part;

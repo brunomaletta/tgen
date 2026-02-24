@@ -6,7 +6,7 @@ a:
 	@rm -r a
 
 debug:
-	g++ -fsanitize=address,undefined -fno-omit-frame-pointer -g -Wall -Wshadow -std=c++17 a.cpp -I src -o a
+	g++ -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow -std=c++17 a.cpp -I src -o a
 
 doc:
 	doxygen docs/Doxyfile
@@ -21,7 +21,7 @@ lint:
 	find a.cpp src/* tests/*.cpp -iname '*.h' -o -iname '*.cpp' | xargs clang-format -i
 
 test:
-	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I src -o test -fsanitize=address,undefined -fno-omit-frame-pointer -g -Wall -Wshadow
+	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I src -o test -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow
 	-./test
 	rm -r test
 
