@@ -1714,8 +1714,9 @@ inline long double sub_log_space_internal(long double a, long double b) {
 inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 	if (part_r == -1)
 		part_r = n;
+	part_r = std::min(part_r, n);
 	tgen_ensure(n > 0 and part_l > 0, "invalid parameters to gen_partition");
-	tgen_ensure(part_l <= n, "no such partition");
+	tgen_ensure(part_l <= n and part_r > 0, "no such partition");
 
 	// dp[i] = log(numbers of ways to add to i).
 	std::vector<long double> dp(n + 1, LOG_ZERO_INTERNAL);
@@ -1777,6 +1778,7 @@ inline std::vector<int> gen_partition_fixed_size(int n, int k, int part_l = 0,
 												 int part_r = -1) {
 	if (part_r == -1)
 		part_r = n;
+	part_r = std::min(part_r, n);
 	tgen_ensure(0 < k and k <= n and part_l >= 0,
 				"invalid parameters to gen_partition_fixed_size");
 	tgen_ensure(static_cast<long long>(k) * part_l <= n and
@@ -1832,7 +1834,7 @@ inline std::vector<int> gen_partition_fixed_size(int n, int k, int part_l = 0,
 			for (int j = 0; j <= u and j <= left_to_distribute; ++j)
 				log_total = add_log_space_internal(
 					log_total, dp[i - 1][left_to_distribute - j]);
-			tgen_ensure(log_total != LOG_ZERO_INTERNAL, "partition not found");
+			tgen_ensure_against_bug(log_total != LOG_ZERO_INTERNAL);
 
 			// Now we choose a number with probability proportional to
 			// dp[i-1][.].

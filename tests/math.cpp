@@ -479,6 +479,8 @@ TEST(math_test, gen_partition_invalid) {
 							 "no such partition");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(100, 40, 45),
 							 "no such partition");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(100, 10, -10),
+							 "no such partition");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(65005, 1e4, 1e4 + 10),
 							 "no such partition");
 
@@ -496,6 +498,12 @@ TEST(math_test, gen_partition) {
 
 	auto test_partition = [&](int n, int part_l = 1, int part_r = -1) {
 		auto part = tgen::math::gen_partition(n, part_l, part_r);
+		for (int i : part) {
+			EXPECT_TRUE(part_l <= i);
+			if (part_r != -1) {
+				EXPECT_TRUE(i <= part_r);
+			}
+		}
 		EXPECT_EQ(std::accumulate(part.begin(), part.end(), 0), n);
 		return part;
 	};
@@ -507,11 +515,72 @@ TEST(math_test, gen_partition) {
 		test_partition(tgen::next<int>(1, 1e3));
 		test_partition(tgen::next<int>(1e2, 1e3), 1e2);
 		test_partition(tgen::next<int>(1e2, 1e3), 10, 1e2 + 10);
+		test_partition(tgen::next<int>(1e2, 1e3), 10, 1e9);
 	}
 	for (int i = 0; i < 5; ++i) {
 		test_partition(tgen::next<int>(1, 1e5));
 		test_partition(tgen::next<int>(1e4, 1e5), 1e4);
 		test_partition(tgen::next<int>(1e4, 1e5), 10, 1e4 + 10);
+		test_partition(tgen::next<int>(1e4, 1e5), 10, 1e9);
 	}
 	test_partition(1e6);
+}
+
+TEST(math_test, gen_partition_fixed_size_invalid) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition_fixed_size(1, 0),
+							 "invalid parameters to gen_partition_fixed_size");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition_fixed_size(1, 2),
+							 "invalid parameters to gen_partition_fixed_size");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition_fixed_size(1, 1, -1, 1),
+							 "invalid parameters to gen_partition_fixed_size");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition_fixed_size(3, 3, 0, -10),
+							 "no such partition");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition_fixed_size(3, 2, 2, 3),
+							 "no such partition");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition_fixed_size(7, 2, 2, 3),
+							 "no such partition");
+}
+
+TEST(math_test, gen_partition_fixed_size) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	auto test_partition_fixed_size = [&](int n, int k, int part_l = 0,
+										 int part_r = -1) {
+		auto part = tgen::math::gen_partition_fixed_size(n, k, part_l, part_r);
+		for (int i : part) {
+			EXPECT_TRUE(part_l <= i);
+			if (part_r != -1) {
+				EXPECT_TRUE(i <= part_r);
+			}
+		}
+		EXPECT_EQ(part.size(), k);
+		EXPECT_EQ(std::accumulate(part.begin(), part.end(), 0), n);
+		return part;
+	};
+
+	for (int i = 0; i < 100; ++i) {
+		test_partition_fixed_size(tgen::next<int>(10, 1e3), tgen::next(1, 10));
+		test_partition_fixed_size(tgen::next<int>(1e2, 1e3),
+								  tgen::next<int>(1, 1e2), 1);
+		test_partition_fixed_size(tgen::next<int>(1e2, 1e3),
+								  tgen::next<int>(1, 10), 10, 1e3 + 10);
+		test_partition_fixed_size(tgen::next<int>(1e2, 1e3),
+								  tgen::next<int>(1, 10), 10, 1e9);
+	}
+	for (int i = 0; i < 5; ++i) {
+		test_partition_fixed_size(tgen::next<int>(10, 1e5), tgen::next(1, 10));
+		test_partition_fixed_size(tgen::next<int>(1e4, 1e5),
+								  tgen::next<int>(1, 1e4), 1);
+		test_partition_fixed_size(tgen::next<int>(1e4, 1e5),
+								  tgen::next<int>(1, 10), 10, 1e5 + 10);
+		test_partition_fixed_size(tgen::next<int>(1e4, 1e5),
+								  tgen::next<int>(1, 10), 10, 1e9);
+	}
+	test_partition_fixed_size(1e6, 10);
+	test_partition_fixed_size(1e6, 5, 0);
+	test_partition_fixed_size(1e6, 5, 0, 1e6);
 }
