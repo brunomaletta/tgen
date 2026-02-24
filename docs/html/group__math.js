@@ -1,0 +1,23 @@
+var group__math =
+[
+    [ "tgen::math::factor", "group__math.html#ga5c371d66540b387fb992a49b799c40fa", null ],
+    [ "tgen::math::factor_by_prime", "group__math.html#ga95c2e941edd52005c8f2285d1faab432", null ],
+    [ "tgen::math::fibonacci", "group__math.html#gaca0fed1d648b82792961af842c96658f", null ],
+    [ "tgen::math::gen_congruent", "group__math.html#ga881fc166dc15ffba9dfc35e83f60f8e3", null ],
+    [ "tgen::math::gen_congruent", "group__math.html#ga7780eceb3c6661c2e4756e02238137f3", null ],
+    [ "tgen::math::gen_divisor_count", "group__math.html#gab4ac6778da02f425d55f6c971db8d933", null ],
+    [ "tgen::math::gen_even", "group__math.html#ga8bba2f77b31c71efb052b52fb3524dcf", null ],
+    [ "tgen::math::gen_odd", "group__math.html#ga15e352dff6af8059d6c44d4bf02f944e", null ],
+    [ "tgen::math::gen_prime", "group__math.html#ga27fcaa21afa26007d0b89599c9e8a4fc", null ],
+    [ "tgen::math::highly_composite_upto", "group__math.html#gaa2ffbc7459ec7ad9cc68e63c0f1b4efe", null ],
+    [ "tgen::math::highly_composites", "group__math.html#gabf0a79bacc6946f032b58627baf9302d", null ],
+    [ "tgen::math::is_prime", "group__math.html#ga5ee9541bd1b0e242551eb4c626241f4d", null ],
+    [ "tgen::math::modular_inverse", "group__math.html#ga5d09e223c69f14056fb9dafcbdfd3122", null ],
+    [ "tgen::math::next_prime", "group__math.html#ga6ddd2290db1853f260b39d3cbe22337d", null ],
+    [ "tgen::math::num_divisors", "group__math.html#ga5d5dda7616f5db664b050a75e9ce1aa1", null ],
+    [ "tgen::math::prev_prime", "group__math.html#gac5ff6eed324cb720e4d93f3f9f203aa3", null ],
+    [ "tgen::math::prime_gap_upto", "group__math.html#ga13460b7ed2494b9be9cb46052b30aac9", null ],
+    [ "tgen::math::prime_gaps", "group__math.html#ga087cc8f45a697f44dc8370c3f025fd58", null ],
+    [ "tgen::math::totient", "group__math.html#ga4849c3f95638a417f58d164d753c69a1", null ],
+    [ "tgen::math::FFT_MOD", "group__math.html#ga70a5af9e73c354e43e12535aaa846e2c", null ]
+];

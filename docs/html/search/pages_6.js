@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['opts_0',['Opts',['../group__opts.html#autotoc_md22',1,'']]],
-  ['opts_1',['Consuming opts',['../group__opts.html#autotoc_md23',1,'']]],
+  ['opts_0',['Opts',['../group__opts.html#autotoc_md57',1,'']]],
+  ['opts_1',['Consuming opts',['../group__opts.html#autotoc_md58',1,'']]],
   ['opts_20configuration_2',['Opts configuration',['../index.html#autotoc_md4',1,'']]],
   ['overview_3',['Overview',['../index.html#autotoc_md1',1,'']]]
 ];

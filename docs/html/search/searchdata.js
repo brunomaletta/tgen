@@ -1,11 +1,12 @@
 var indexSectionsWithContent =
 {
-  0: "acdeghinoprst",
+  0: "acdefghimnoprst",
   1: "ips",
-  2: "acdeghinoprst",
-  3: "o",
-  4: "agioprs",
-  5: "acdegiort"
+  2: "acdefghimnoprst",
+  3: "f",
+  4: "o",
+  5: "agimoprs",
+  6: "acdegiort"
 };
 
 var indexSectionNames =
@@ -13,9 +14,10 @@ var indexSectionNames =
   0: "all",
   1: "classes",
   2: "functions",
-  3: "related",
-  4: "groups",
-  5: "pages"
+  3: "variables",
+  4: "related",
+  5: "groups",
+  6: "pages"
 };
 
 var indexSectionLabels =
@@ -23,8 +25,9 @@ var indexSectionLabels =
   0: "All",
   1: "Classes",
   2: "Functions",
-  3: "Friends",
-  4: "Modules",
-  5: "Pages"
+  3: "Variables",
+  4: "Friends",
+  5: "Modules",
+  6: "Pages"
 };
 

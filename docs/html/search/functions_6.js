@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['instance_0',['instance',['../group__sequence__inst.html#ga9eb0d4dcf6732346c6ce1bff5c2c4590',1,'tgen::sequence::instance::instance()'],['../group__permutation__inst.html#ga271b8fe87c631589e34245c77058b88b',1,'tgen::permutation::instance::instance(const std::vector&lt; int &gt; &amp;vec)']]],
-  ['inverse_1',['inverse',['../group__permutation__inst.html#gaeb967ffde958a906c4f41a47fe382a07',1,'tgen::permutation::instance']]]
+  ['has_5fopt_0',['has_opt',['../group__opts.html#ga7ffeca211fbda39e0fcdfad2383c43ba',1,'tgen::has_opt(std::size_t index)'],['../group__opts.html#ga87fb2f31789744477371960792b7540f',1,'tgen::has_opt(const std::string &amp;key)']]],
+  ['highly_5fcomposite_5fupto_1',['highly_composite_upto',['../group__math.html#gaa2ffbc7459ec7ad9cc68e63c0f1b4efe',1,'tgen::math']]],
+  ['highly_5fcomposites_2',['highly_composites',['../group__math.html#gabf0a79bacc6946f032b58627baf9302d',1,'tgen::math']]]
 ];

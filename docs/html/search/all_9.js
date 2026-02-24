@@ -1,9 +1,6 @@
 var searchData=
 [
-  ['parity_0',['parity',['../group__permutation__inst.html#gafcc9d919a2a9fa56ef25fa596a119deb',1,'tgen::permutation::instance']]],
-  ['permutation_1',['permutation',['../structtgen_1_1permutation.html',1,'tgen::permutation'],['../group__permutation__gen.html#gae82b7c5e3108917d7acdf20f42d0b772',1,'tgen::permutation::permutation()']]],
-  ['permutation_20generators_2',['Permutation generators',['../group__permutation__gen.html',1,'']]],
-  ['permutation_20instances_3',['Permutation instances',['../group__permutation__inst.html',1,'']]],
-  ['permutations_4',['Permutations',['../group__permutation.html',1,'']]],
-  ['print_5',['print',['../structtgen_1_1print.html',1,'tgen']]]
+  ['next_0',['next',['../group__general.html#gaa007cf5e254380332a3548711d5f9b16',1,'tgen']]],
+  ['next_5fprime_1',['next_prime',['../group__math.html#ga6ddd2290db1853f260b39d3cbe22337d',1,'tgen::math']]],
+  ['num_5fdivisors_2',['num_divisors',['../group__math.html#ga5d5dda7616f5db664b050a75e9ce1aa1',1,'tgen::math']]]
 ];

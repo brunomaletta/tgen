@@ -20,14 +20,19 @@
 
 The first thing is to [register the generator](https://brunomaletta.github.io/tgen/group__opts.html). That defines the seed for random generation and parses the opts.
 
-There are [general operations](https://brunomaletta.github.io/tgen/group__general.html) and operations for specific data types:
+There are:
+
+- [General operations](https://brunomaletta.github.io/tgen/group__general.html)
+- [Math operations](https://brunomaletta.github.io/tgen/group__math.html)
+
+and operations for specific data types:
 
 - [Sequences](https://brunomaletta.github.io/tgen/group__sequence.html)
 - [Permutations](https://brunomaletta.github.io/tgen/group__permutation.html)
 
 ### Type generators and instances
 
-All types specified above define a **generator**, that when called upon will generate a uniformly random **instance** with the given constraints. Let's see an example with `tgen::sequence`:
+All data types specified above define a **generator**, that when called upon will generate a uniformly random **instance** with the given constraints. Let's see an example with `tgen::sequence`:
 
 ```cpp
 tgen::sequence<int> seq_gen = tgen::sequence<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/100);

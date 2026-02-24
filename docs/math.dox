@@ -1,0 +1,484 @@
+/**
+ * @defgroup math Math Operations
+ * @brief Operations regarding number theory and related topics.
+ *
+ * ### Examples
+ *
+ * ```cpp
+ * ```
+ */
+
+
+/**
+ * @ingroup math
+ * @brief Checks if a number is prime.
+ *
+ * @param n Number to check.
+ *
+ * @return If the number is prime.
+ *
+ * #### Complexity
+ *
+ * ` O(log^2 n)`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * bool is_prime = tgen::math::is_prime(17);
+ * // true
+ * ```
+ */
+bool tgen::math::is_prime(uint64_t n);
+
+
+/**
+ * @ingroup math
+ * @brief Factors a number into primes.
+ *
+ * @param n Number to factor.
+ *
+ * @return List of prime factors of `n`, in non-decreasing order.
+ *
+ * @pre `n > 0`.
+ *
+ * #### Complexity
+ *
+ * ` O(n^(1/4) log n)` expected.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto fact = tgen::math::factor(24);
+ * // {2, 2, 2, 3}
+ * ```
+ */
+std::vector<uint64_t> tgen::math::factor(uint64_t n);
+
+
+/**
+ * @ingroup math
+ * @brief Factors a number into primes and its powers.
+ *
+ * @param n Number to factor.
+ *
+ * @return List of prime factors of `n`, in increasing order, with its respective powers.
+ *
+ * @pre `n > 0`.
+ *
+ * #### Complexity
+ *
+ * ` O(n^(1/4) log n)` expected.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto fact = tgen::math::factor_by_prime(24);
+ * // {{2, 3}, {3, 1}}
+ * ```
+ */
+std::vector<std::pair<uint64_t, int>>> tgen::math::factor_by_prime(uint64_t n);
+
+
+/**
+ * @ingroup math
+ * @brief Computes modular inverse.
+ *
+ * @param a Number to compute the inverse of, mod `m`.
+ * @param m Mod.
+ *
+ * @return Inverse of `a` mod `m`.
+ *
+ * @pre
+ * `n > 0`. <br>
+ * `gcd(a, m) = 1`.
+ *
+ * #### Complexity
+ *
+ * `O(log m)`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto inv = tgen::math::modular_inverse(3, 10);
+ * std::cout << 3 * inv % 10 << std::endl;
+ * // "1"
+ * ```
+ */
+uint64_t tgen::math::modular_inverse(uint64_t a, uint64_t m);
+
+
+/**
+ * @ingroup math
+ * @brief Euler's totient function.
+ *
+ * @param n Number to compute the totient of.
+ *
+ * @return Totient of `n`.
+ *
+ * @pre
+ * `n > 0`.
+ *
+ * #### Complexity
+ *
+ * `O(n^(1/4) log n)` expected.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * std::cout << tgen::math::totient(10) << std::endl;
+ * // "4"
+ * ```
+ */
+uint64_t tgen::math::totient(uint64_t n);
+
+
+/**
+ * @ingroup math
+ * @brief Generates a random prime in given range.
+ *
+ * @param l Left endpoint of range.
+ * @param r Right endpoint of range.
+ * @param adjust_distribution If the distribution should be adjusted.
+ *
+ * @return A uniformly random prime in `[l, r]`.
+ *
+ * @pre
+ * `n > 0`.
+ *
+ * If `adjust_distribution = true`, then generates uniformly over value ranges.
+ * Otherwise, uniform over primes, so smaller primes are generated more often.
+ *
+ * #### Complexity
+ *
+ * `O(log r)` expected.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Generates a random prime from 1 to 1e18.
+ * auto p = tgen::math::gen_prime(1, 1e18);
+ * ```
+ */
+uint64_t tgen::math::gen_prime(uint64_t l, uint64_t r, bool adjust_distribution = true);
+
+
+/**
+ * @ingroup math
+ * @brief Computes smallest prime larger than given value.
+ *
+ * @param l Bound.
+ *
+ * @return Smallest prime larger than `l`.
+ *
+ * @pre
+ * `l < 2^64 - 59`.
+ *
+ * #### Complexity
+ *
+ * `O(log l)` expected.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints primes between 100 and 200.
+ * for (int p = tgen::math::next_prime(100); p < 200; p = tgen::math::next_prime(p)) {
+ *     std::cout << p << std::endl;
+ * }
+ * ```
+ */
+uint64_t tgen::math::next_prime(uint64_t l);
+
+
+/**
+ * @ingroup math
+ * @brief Computes largest prime smaller than given value.
+ *
+ * @param r Bound.
+ *
+ * @return Largest prime smaller than `r`.
+ *
+ * #### Complexity
+ *
+ * `O(log r)` expected.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints primes between 100 and 200 in reverse.
+ * for (int p = tgen::math::prev_prime(200); p > 100; p = tgen::math::prev_prime(p)) {
+ *     std::cout << p << std::endl;
+ * }
+ * ```
+ */
+uint64_t tgen::math::prev_prime(uint64_t r);
+
+
+/**
+ * @ingroup math
+ * @brief Computes the number of divisors of a given number.
+ *
+ * @param n Number to compute the ammount of divisors of.
+ *
+ * @return Number of divisors of `n`.
+ *
+ * @pre
+ * `n > 0`.
+ *
+ * #### Complexity
+ *
+ * `O(n^(1/4) log n)` expected.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * std::cout << tgen::math::num_divisors(12) << std::endl;
+ * // "6"
+ * ```
+ */
+int tgen::math::num_divisors(uint64_t n);
+
+
+/**
+ * @ingroup math
+ * @brief Generates random number in range with a given prime number of divisors.
+ *
+ * @param l Left endpoint of range.
+ * @param r Right endpoint of range.
+ * @param divisor_count Number of divisors.
+ *
+ * @return Uniformly random number with given prime number of divisors.
+ *
+ * @pre
+ * `divisor_count` is prime.
+ *
+ * #### Complexity
+ *
+ * `O(log(r) log(divisor_count))`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Generates a random number from 100 to 200 with 3 divisors (p^2).
+ * auto n = tgen::math::num_divisors(100, 200, 3);
+ * ```
+ */
+uint64_t tgen::math::gen_divisor_count(uint64_t l, uint64_t r, int divisor_count);
+
+
+/**
+ * @ingroup math
+ * @brief Fetches prime gaps.
+ *
+ * Fetches maximal prime gaps for numbers that fit in `uint64_t` (less than `2^64`).
+ *
+ * @return Columns `p_n` and `g_n` from
+ * <a href="https://en.wikipedia.org/wiki/Prime_gap#Numerical_results" target="_blank">wikipedia</a>.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * const auto &[p, g] = tgen::math::prime_gaps();
+ * ```
+ */
+const std::pair<std::vector<uint64_t>, std::vector<uint64_t>> &tgen::math::prime_gaps();
+
+
+/**
+ * @ingroup math
+ * @brief Largest prime gap up to given number.
+ *
+ * @param r Bound.
+ *
+ * @return Largest prime gap no larger than `r`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Computes largest prime gap up to 1e12.
+ * auto [l, r] = tgen::math::prime_gap_upto(1e12);
+ * ```
+ */
+std::pair<uint64_t, uint64_t> tgen::math::prime_gap_upto(uint64_t r);
+
+
+/**
+ * @ingroup math
+ * @brief Fetches highly composite numbers.
+ *
+ * Fetches highly composite numbers that fit in `uint64_t` (less than `2^64`).
+ *
+ * @return Highly composite numbers from 
+ * <a href="https://oeis.org/A002182/b002182.txt" target="_blank">wikipedia</a>.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints largest highly composite number that fits in 64 bits.
+ * std::cout << tgen::math::highly_composites().back() << std::endl;
+ * ```
+ */
+const std::vector<uint64_t> &tgen::math::highly_composites();
+
+
+/**
+ * @ingroup math
+ * @brief Largest highly composite number up to given number.
+ *
+ * @param r Bound.
+ *
+ * @return Largest highly composite number no larger than `r`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints largest highly composite number up to 1e12.
+ * std::cout << tgen::math::highly_composite_upto(1e12) << std::endl;
+ * ```
+ */
+uint64_t &tgen::math::highly_composite_upto(uint64_t r);
+
+
+/**
+ * @ingroup math
+ * @brief Generates random number in range given modular congruences.
+ *
+ * @param l Left endpoint of range.
+ * @param r Right endpoint of range.
+ * @param rems Remainders.
+ * @param mods Mods.
+ *
+ * @return Uniformly random number in `[l, r]` that is congruent to `rems[i]` mod `mods[i]`.
+ *
+ * @pre
+ * `|rems| = |mods|`. <br>
+ * `rems[i] < mods[i]`.
+ *
+ * @throws std::runtime_error if there is no such number.
+ *
+ * #### Complexity
+ *
+ * `O(|mods| + log r)`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints random two-digit number that is even and congruent to 1 mod 3.
+ * std::cout << tgen::math::gen_congruent(10, 99, {0, 1}, {2, 3}) << std::endl;
+ * ```
+ */
+uint64_t tgen::math::gen_congruent(uint64_t l, uint64_t r, std::vector<uint64_t> rems, std::vector<uint64_t> mods);
+
+
+/**
+ * @ingroup math
+ * @brief Generates random number in range given a modular congruence.
+ *
+ * @param l Left endpoint of range.
+ * @param r Right endpoint of range.
+ * @param rem Remainder.
+ * @param mod Mod.
+ *
+ * @return Uniformly random number in `[l, r]` that is congruent to `rem` mod `mod`.
+ *
+ * @pre
+ * `rem < mod`.
+ *
+ * @throws std::runtime_error if there is no such number.
+ *
+ * Equivalent to `tgen::math::gen_congruent(l, r, {rem}, {mod})`.
+ *
+ * #### Complexity
+ *
+ * `O(log r)`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints random two-digit number that is congruent to 1 mod 3.
+ * std::cout << tgen::math::gen_congruent(10, 99, 1, 3) << std::endl;
+ * ```
+ */
+uint64_t tgen::math::gen_congruent(uint64_t l, uint64_t r, uint64_t rem, uint64_t mod);
+
+
+/**
+ * @ingroup math
+ * @brief Generates random even number in a given range.
+ *
+ * @param l Left endpoint of range.
+ * @param r Right endpoint of range.
+ *
+ * @return Uniformly random even number in `[l, r]`.
+ *
+ * @throws std::runtime_error if there is no such number.
+ *
+ * Equivalent to `tgen::math::gen_congruent(l, r, {0}, {2})`.
+ *
+ * #### Complexity
+ *
+ * `O(log r)`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints random two-digit even number.
+ * std::cout << tgen::math::gen_even(10, 99) << std::endl;
+ * ```
+ */
+uint64_t tgen::math::gen_even(uint64_t l, uint64_t r);
+
+
+/**
+ * @ingroup math
+ * @brief Generates random odd number in a given range.
+ *
+ * @param l Left endpoint of range.
+ * @param r Right endpoint of range.
+ *
+ * @return Uniformly random odd number in `[l, r]`.
+ *
+ * @throws std::runtime_error if there is no such number.
+ *
+ * Equivalent to `tgen::math::gen_congruent(l, r, {1}, {2})`.
+ *
+ * #### Complexity
+ *
+ * `O(log r)`.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints random two-digit odd number.
+ * std::cout << tgen::math::gen_odd(10, 99) << std::endl;
+ * ```
+ */
+uint64_t tgen::math::gen_odd(uint64_t l, uint64_t r);
+
+
+/**
+ * @ingroup math
+ * @brief FFT/NTT mod.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * int fft_mod = tgen::math::FFT_MOD;
+ * ```
+ */
+inline constexpr int tgen::math::FFT_MOD = 998244353;
+
+
+/**
+ * @ingroup math
+ * @brief Fetches Fibonacci numbers.
+ *
+ * Fetches Fibonacci numbers that fit in `uint64_t` (less than `2^64`).
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints largest fibonacci number that fits in 64 bits.
+ * std::cout << tgen::math::fibonacci().back() << std::endl;
+ * ```
+ */
+std::vector<uint64_t> tgen::math::fibonacci();

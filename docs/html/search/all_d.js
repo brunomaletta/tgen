@@ -1,11 +1,12 @@
 var searchData=
 [
-  ['val_5frange_0',['val_range',['../structtgen_1_1sequence.html#a20a912680a37f6f6072e335e61ecf5a1',1,'tgen::sequence']]],
-  ['value_5fat_5fidx_1',['value_at_idx',['../group__sequence.html#ga7f53ab64d071882db37c9d1b6222242d',1,'tgen::sequence']]],
-  ['value_5fidx_5fin_5fset_2',['value_idx_in_set',['../structtgen_1_1sequence.html#a0cc70ae7344c958bf4bb3fe2089e6cfc',1,'tgen::sequence']]],
-  ['value_5fl_3',['value_l',['../structtgen_1_1sequence.html#a990f6adf90d945d73af80932077351d3',1,'tgen::sequence']]],
-  ['value_5fr_4',['value_r',['../structtgen_1_1sequence.html#a9be9f5756137bfffdabc82de84be1b76',1,'tgen::sequence']]],
-  ['value_5ftype_5',['value_type',['../structtgen_1_1sequence_1_1instance.html#aee420d97fd16766439fdc564381b4582',1,'tgen::sequence::instance']]],
-  ['values_6',['values',['../structtgen_1_1sequence.html#a407f89dc3e1fbd2e576d7fd7287bf51d',1,'tgen::sequence']]],
-  ['vec_7',['vec',['../structtgen_1_1sequence_1_1instance.html#a600a32265179130416370e5d4925fd9b',1,'tgen::sequence::instance']]]
+  ['sequence_0',['sequence',['../structtgen_1_1sequence.html',1,'tgen::sequence&lt; T &gt;'],['../group__sequence__gen.html#ga4238ffc66ac290692a12eccf93ac689d',1,'tgen::sequence::sequence(int size, T value_l, T value_r)'],['../group__sequence__gen.html#gae43870b873c490224665739f160a540c',1,'tgen::sequence::sequence(int size, std::set&lt; T &gt; values)']]],
+  ['sequence_20generators_1',['Sequence generators',['../group__sequence__gen.html',1,'']]],
+  ['sequence_20instances_2',['Sequence instances',['../group__sequence__inst.html',1,'']]],
+  ['sequence_20operations_3',['Sequence operations',['../group__sequence__op.html',1,'']]],
+  ['sequences_4',['Sequences',['../group__sequence.html',1,'']]],
+  ['set_5',['set',['../group__sequence__gen.html#gaff196db1265936038bcb8761192f5a8c',1,'tgen::sequence::set()'],['../group__permutation__gen.html#ga58d4602c9f9fada547c3f261f520e654',1,'tgen::permutation::set()']]],
+  ['shuffle_6',['shuffle',['../group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b',1,'tgen::shuffle(It first, It last)'],['../group__general.html#ga440766a0d1b82b481e532cc2a8dbc717',1,'tgen::shuffle(const C &amp;container)'],['../group__sequence__op.html#ga6dbb723e2e97121cfaa7a2d2d6e63e68',1,'tgen::sequence_op::shuffle()']]],
+  ['size_7',['size',['../group__sequence__inst.html#ga9b7d3f185bcf60aea75a5cb02755fa87',1,'tgen::sequence::instance::size()'],['../group__permutation__inst.html#ga60b23e06f3ffa2326f4e85148e1b2714',1,'tgen::permutation::instance::size()']]],
+  ['sort_8',['sort',['../group__sequence__inst.html#gaabbbd20653bd6b4149aea1914267db56',1,'tgen::sequence::instance::sort()'],['../group__permutation__inst.html#gac2ccb0e0ae1ea90a345321c4774a8c4d',1,'tgen::permutation::instance::sort()']]]
 ];

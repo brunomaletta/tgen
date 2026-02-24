@@ -1317,7 +1317,7 @@ inline uint64_t totient(uint64_t n) {
 	return phi;
 }
 
-// O(ln r) expected.
+// O(log r) expected.
 // If adjust_distribution = true, then generates uniformly over value ranges.
 // Otherwise, uniform over primes, so smaller primes are generated more often.
 inline uint64_t gen_prime(uint64_t l, uint64_t r,
@@ -1347,7 +1347,7 @@ inline uint64_t gen_prime(uint64_t l, uint64_t r,
 	}
 }
 
-// O(ln r) expected.
+// O(log l) expected.
 // l < 2^64 - 59.
 inline uint64_t next_prime(uint64_t l) {
 	tgen_ensure(l < std::numeric_limits<uint64_t>::max() - 58, "invalid bound");
@@ -1356,7 +1356,7 @@ inline uint64_t next_prime(uint64_t l) {
 			return i;
 }
 
-// O(ln r) expected.
+// O(log r) expected.
 inline uint64_t prev_prime(uint64_t r) {
 	if (r >= 3)
 		for (uint64_t i = r - 1; i >= 2; --i)
@@ -1610,6 +1610,8 @@ struct crt_internal {
 };
 
 // O(|mods| + log r).
+// |rems| = |mods|.
+// rems_i < mods_i.
 inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 							  std::vector<uint64_t> rems,
 							  std::vector<uint64_t> mods) {
@@ -1649,6 +1651,7 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 }
 
 // O(log r).
+// rem < mod.
 inline uint64_t gen_congruent(uint64_t l, uint64_t r, uint64_t rem,
 							  uint64_t mod) {
 	return gen_congruent(l, r, std::vector<uint64_t>({rem}),

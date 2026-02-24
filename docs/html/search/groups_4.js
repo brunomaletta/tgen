@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['permutation_20generators_0',['Permutation generators',['../group__permutation__gen.html',1,'']]],
-  ['permutation_20instances_1',['Permutation instances',['../group__permutation__inst.html',1,'']]],
-  ['permutations_2',['Permutations',['../group__permutation.html',1,'']]]
+  ['operations_0',['Operations',['../group__general.html',1,'General Operations'],['../group__math.html',1,'Math Operations']]],
+  ['operations_1',['Sequence operations',['../group__sequence__op.html',1,'']]],
+  ['opts_2',['Registering and Opts',['../group__opts.html',1,'']]]
 ];
