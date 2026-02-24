@@ -38,6 +38,29 @@ $extrastylesheet
 	DoxygenAwesomeTabs.init()
 </script>
 
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    // Find all member declaration tables
+    var tables = document.querySelectorAll('table.memberdecls');
+    tables.forEach(function(table) {
+        // Create colgroup
+        var colgroup = document.createElement('colgroup');
+        var col1 = document.createElement('col');
+        var col2 = document.createElement('col');
+        
+        // Set widths: first column 300px, second column takes rest
+        col1.style.width = '300px';
+        col2.style.width = 'auto';
+        
+        colgroup.appendChild(col1);
+        colgroup.appendChild(col2);
+        
+        // Insert colgroup as first child of table
+        table.insertBefore(colgroup, table.firstChild);
+    });
+});
+</script>
+
 </head>
 <body>
 <!--BEGIN DISABLE_INDEX-->

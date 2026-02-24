@@ -145,3 +145,13 @@ dl.section.note dd {
 dl.section.note dt::before {
     content: "⚠ ";
 }
+
+
+
+/* Return‑type column: give it a preferred width and cap it */
+td.memItemLeft {
+    width: 25%;                /* hint: aim for ~40% of table width */
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
