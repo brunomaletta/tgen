@@ -464,5 +464,54 @@ TEST(math_test, fibonacci) {
 	EXPECT_EQ(fib[0], 0);
 	EXPECT_EQ(fib[1], 1);
 	for (int i = 2; i < static_cast<int>(fib.size()); ++i)
-		EXPECT_EQ(fib[i], fib[i-1] + fib[i-2]);
+		EXPECT_EQ(fib[i], fib[i - 1] + fib[i - 2]);
+}
+
+TEST(math_test, gen_partition_invalid) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(0, 1, 2),
+							 "invalid parameters to gen_partition");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(1, 0, 1),
+							 "invalid parameters to gen_partition");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(1, 2, 3),
+							 "no such partition");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(100, 40, 45),
+							 "no such partition");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(65005, 1e4, 1e4 + 10),
+							 "no such partition");
+
+	for (int i = 0; i < 10; ++i) {
+		EXPECT_THROW_TGEN_PREFIX(
+			tgen::math::gen_partition(tgen::next<int>(1e4 + 1e3, 1e4 + 2e3),
+									  1e4, 1e4 + 10),
+			"no such partition");
+	}
+}
+
+TEST(math_test, gen_partition) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	auto test_partition = [&](int n, int part_l = 1, int part_r = -1) {
+		auto part = tgen::math::gen_partition(n, part_l, part_r);
+		EXPECT_EQ(std::accumulate(part.begin(), part.end(), 0), n);
+		return part;
+	};
+
+	EXPECT_EQ(test_partition(1e5, 5e4, 5e4 + 10),
+			  std::vector<int>({50000, 50000}));
+
+	for (int i = 0; i < 100; ++i) {
+		test_partition(tgen::next<int>(1, 1e3));
+		test_partition(tgen::next<int>(1e2, 1e3), 1e2);
+		test_partition(tgen::next<int>(1e2, 1e3), 10, 1e2 + 10);
+	}
+	for (int i = 0; i < 5; ++i) {
+		test_partition(tgen::next<int>(1, 1e5));
+		test_partition(tgen::next<int>(1e4, 1e5), 1e4);
+		test_partition(tgen::next<int>(1e4, 1e5), 10, 1e4 + 10);
+	}
+	test_partition(1e6);
 }

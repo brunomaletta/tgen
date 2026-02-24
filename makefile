@@ -3,7 +3,7 @@ all: lint doc test
 a:
 	@g++ -std=c++17 a.cpp -I src -o a -O2
 	@-./a
-	@rm -r a
+	@rm -f a
 
 debug:
 	g++ -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow -std=c++17 a.cpp -I src -o a
@@ -23,7 +23,7 @@ lint:
 test:
 	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I src -o test -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow
 	-./test
-	rm -r test
+	rm -f test
 
 clean:
-	rm -r a
+	rm -f a

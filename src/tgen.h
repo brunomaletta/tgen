@@ -56,6 +56,11 @@ std::runtime_error there_is_no_upto_error_internal(const std::string &type,
 	return error_internal("there is no " + type + " up to " +
 						  std::to_string(r));
 }
+inline void tgen_ensure_against_bug(bool cond) {
+	if (!cond)
+		throw std::runtime_error(
+			"tgen: THERE IS A BUG IN TGEN; PLEASE CONTACT MAINTAINERS");
+}
 
 // Ensures condition is true, with nice debug.
 #define tgen_ensure(cond, ...)                                                 \
@@ -1709,8 +1714,7 @@ inline long double sub_log_space_internal(long double a, long double b) {
 inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 	if (part_r == -1)
 		part_r = n;
-	tgen_ensure(n > 0 and 0 < part_l and part_l,
-				"invalid parameters to gen_partition");
+	tgen_ensure(n > 0 and part_l > 0, "invalid parameters to gen_partition");
 	tgen_ensure(part_l <= n, "no such partition");
 
 	// dp[i] = log(numbers of ways to add to i).
@@ -1724,7 +1728,7 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 			window = sub_log_space_internal(window, dp[i - part_r - 1]);
 		dp[i] = window;
 	}
-	tgen_ensure(dp[n] != LOG_ZERO_INTERNAL, "partition not found");
+	tgen_ensure(dp[n] >= 0, "no such partition");
 
 	// Crazy math tricks ahead.
 	auto dp_pref = dp;
@@ -1736,6 +1740,8 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 	while (sum > 0) {
 		// Will generate a number such that what remains is in [l, r].
 		int l = std::max(0, sum - part_r), r = sum - part_l;
+		tgen_ensure_against_bug(r >= 0);
+
 		int nxt_sum = std::min(sum, r);
 		long double random = next<long double>(0, 1);
 
@@ -1771,7 +1777,7 @@ inline std::vector<int> gen_partition_fixed_size(int n, int k, int part_l = 0,
 												 int part_r = -1) {
 	if (part_r == -1)
 		part_r = n;
-	tgen_ensure(0 < k and k <= n and 0 <= part_l,
+	tgen_ensure(0 < k and k <= n and part_l >= 0,
 				"invalid parameters to gen_partition_fixed_size");
 	tgen_ensure(static_cast<long long>(k) * part_l <= n and
 					n <= static_cast<long long>(k) * part_r,
