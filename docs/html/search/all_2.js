@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['different_0',['different',['../group__sequence__gen.html#gad430f6b0f40960ff302eabbcaaba7b68',1,'tgen::sequence']]],
-  ['distinct_1',['distinct',['../group__sequence__gen.html#ga4255e7e7d683fd6d5aa3c66323456aea',1,'tgen::sequence::distinct(std::set&lt; int &gt; indices)'],['../group__sequence__gen.html#ga09c96c92fc2f97328c75e6d260a6ee27',1,'tgen::sequence::distinct()']]],
+  ['different_0',['different',['../group__sequence__gen.html#ga72a3d74713ed00ffe9c2e0dc509db04c',1,'tgen::sequence']]],
+  ['distinct_1',['distinct',['../group__sequence__gen.html#ga716d751a780c06624b428c6b969fa398',1,'tgen::sequence::distinct(std::set&lt; int &gt; indices)'],['../group__sequence__gen.html#gaa0ae40d52de23eb632e9bc3bcd84111e',1,'tgen::sequence::distinct()']]],
   ['documentation_2',['Documentation',['../index.html#autotoc_md0',1,'']]]
 ];

@@ -1,3 +1,5 @@
+namespace tgen {
+
 /**
  * @defgroup general General Operations
  * @brief Operations for basic number generation and basic random operations.
@@ -19,7 +21,6 @@
  * // Choses a subsequence of length 5.
  * v = tgen::choose(5, v);
  * ```
- *
  */
 
 
@@ -40,6 +41,7 @@
  * // With error message:
  * tgen_ensure(a == b, "values must be the same");
  * ```
+ *
  * \hideinitializer
  * \def tgen_ensure(cond, ...)
  */
@@ -65,8 +67,9 @@
  * std::cout << print({{1, 2}, {3, 4}});
  * // "1 2\n3 4"
  * ```
+ *
+ * @struct print;
  */
-template <> struct tgen::print;
 
 
 /**
@@ -90,8 +93,9 @@ template <> struct tgen::print;
  * // Random value from 1 to 10.
  * int value = tgen::next(1, 10);
  * ```
+ *
+ * @fn next(T l, T r);
  */
-template <typename T> T tgen::next(T l, T r);
 
 
 /**
@@ -114,8 +118,9 @@ template <typename T> T tgen::next(T l, T r);
  * std::vector<int> v = {1, 2, 3, 4, 5};
  * tgen::shuffle(v.begin(), v.end());
  * ```
+ *
+ * @fn shuffle(It first, It last);
  */
-template <typename It> void tgen::shuffle(It first, It last);
 
 
 /**
@@ -141,9 +146,9 @@ template <typename It> void tgen::shuffle(It first, It last);
  * st = tgen::shuffle({1, 2, 3});
  * st = tgen::shuffle(std::set<int>({1, 2, 3}));
  * ```
+ *
+ * @fn shuffle(const C &container);
  */
-template <typename C, std::enable_if_t<!is_associative_container_internal<C>::value, int> = 0>>
-C tgen::shuffle(const C &container);
 
 
 /**
@@ -165,8 +170,9 @@ C tgen::shuffle(const C &container);
  * std::set<int> st = {1, 2, 3, 4, 5};
  * int value = tgen::any(st.begin(), st.end());
  * ```
+ *
+ * @fn any(It first, It last);
  */
-template <typename It> typename It::value_type tgen::any(It first, It last);
 
 
 /**
@@ -189,8 +195,9 @@ template <typename It> typename It::value_type tgen::any(It first, It last);
  * std::vector<int> v = {1, 2, 3, 4, 5};
  * int value = tgen::any(v);
  * ```
+ *
+ * @fn any(const C &container);
  */
-template <typename C> typename C::value_type tgen::any(const C &container);
 
 
 /**
@@ -214,6 +221,8 @@ template <typename C> typename C::value_type tgen::any(const C &container);
  * std::vector<int> v = {1, 2, 3, 4, 5};
  * v = tgen::choose(3, v); // Chooses 3 elements from v.
  * ```
+ *
+ * @fn choose(int k, const C &container);
  */
-template <typename C> C tgen::choose(int k, const C &container);
 
+};

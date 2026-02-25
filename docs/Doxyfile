@@ -2993,3 +2993,6 @@ GENERATE_LATEX = NO
 EXCLUDE_SYMBOLS = gen_base crt_internal
 
 
+CLANG_ASSISTED_PARSING = YES
+CLANG_OPTIONS          = -std=c++17
+

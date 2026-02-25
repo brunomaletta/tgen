@@ -1,3 +1,5 @@
+namespace tgen {
+
 /**
  * @defgroup permutation Permutations
  * @brief Generation of permutations.
@@ -45,8 +47,9 @@
  * @brief Permutation generator.
  *
  * \see @ref permutation_gen.
+ *
+ * @struct permutation;
  */
-template <> struct tgen::permutation;
 
 
 /**
@@ -61,8 +64,9 @@ template <> struct tgen::permutation;
  * // Permutations of size 10.
  * auto perm_gen = tgen::permutation(10);
  * ```
+ *
+ * @fn permutation::permutation(int size);
  */
-struct tgen::permutation::permutation(int size);
 
 
 /**
@@ -78,8 +82,9 @@ struct tgen::permutation::permutation(int size);
  * // Permutations of size 10 that start with 1.
  * auto perm_gen = tgen::permutation(10).set(0, 1);
  * ```
+ *
+ * @fn permutation::set(int idx, int value);
  */
-tgen::permutation &tgen::permutation::set(int idx, int value);
 
 
 /**
@@ -99,8 +104,9 @@ tgen::permutation &tgen::permutation::set(int idx, int value);
  * ```
  *
  * @throws std::runtime_error if there is no valid permutation satisfying all added constraints.
+ *
+ * @fn permutation::gen();
  */
-tgen::permutation::instance tgen::permutation::gen();
 
 
 /**
@@ -126,8 +132,9 @@ tgen::permutation::instance tgen::permutation::gen();
  * ```
  *
  * @throws std::runtime_error if there is no valid permutation satisfying all added constraints.
+ *
+ * @fn permutation::gen(std::vector<int> cycle_sizes);
  */
-tgen::permutation::instance tgen::permutation::gen(std::vector<int> cycle_sizes);
 
 
 /**
@@ -170,9 +177,9 @@ tgen::permutation::instance tgen::permutation::gen(std::vector<int> cycle_sizes)
  * @throws std::runtime_error if no valid instance satisfying `predicate` is found after `max_tries`
  *         tries.
  * @memberof tgen::permutation
+ *
+ * @fn template <typename PRED, typename... Args> tgen::permutation::instance tgen::permutation::gen_until(PRED predicate, int max_tries, Args &&...args);
  */
-template <typename... Args>
-tgen::permutation::instance tgen::permutation::gen_until(PRED predicate, int max_tries, Args &&...args);
 
 
 
@@ -186,13 +193,15 @@ tgen::permutation::instance tgen::permutation::gen_until(PRED predicate, int max
  * It can be deterministically operated upon and printed through `std::cout`.
  */
 
+
 /**
  * @ingroup permutation_inst
  * @brief Permutation instance.
  *
  * \see @ref permutation_inst.
+ *
+ * @struct permutation::instance;
  */
-template <> struct tgen::permutation::instance;
 
 
 /**
@@ -213,8 +222,9 @@ template <> struct tgen::permutation::instance;
  * inst = {1, 0};
  * std::cout << inst.add_1() << std::endl; // Prints "2 1".
  * ```
+ *
+ * @fn permutation::instance::instance(const std::vector<int> &vec);
  */
-struct tgen::permutation::instance::instance(const std::vector<int> &vec);
 
 
 /**
@@ -231,8 +241,9 @@ struct tgen::permutation::instance::instance(const std::vector<int> &vec);
  * std::cout <<
  *     inst.size() << std::endl; // Prints "3".
  * ```
+ *
+ * @fn permutation::instance::size();
  */
-size_t tgen::permutation::instance::size();
 
 
 /**
@@ -251,8 +262,9 @@ size_t tgen::permutation::instance::size();
  * ++inst[1];
  * std::cout << inst[1] << std::endl; // Prints "0".
  * ```
+ *
+ * @fn permutation::instance::operator[](int idx);
  */
-T& tgen::permutation::instance::operator[](int idx) const;
 
 
 /**
@@ -269,8 +281,9 @@ T& tgen::permutation::instance::operator[](int idx) const;
  * std::cout <<
  *     inst.parity() << std::endl; // Prints "1".
  * ```
+ *
+ * @fn permutation::instance::parity();
  */
-int tgen::permutation::instance::parity();
 
 
 /**
@@ -289,8 +302,9 @@ int tgen::permutation::instance::parity();
  * std::cout <<
  *     inst.sort() << std::endl; // Prints "0 1 2".
  * ```
+ *
+ * @fn permutation::instance::sort();
  */
-instance &tgen::permutation::instance::sort();
 
 
 /**
@@ -309,8 +323,9 @@ instance &tgen::permutation::instance::sort();
  * std::cout <<
  *     inst.reverse() << std::endl; // Prints "1 0 2".
  * ```
+ *
+ * @fn permutation::instance::reverse();
  */
-instance &tgen::permutation::instance::reverse();
 
 
 /**
@@ -331,8 +346,9 @@ instance &tgen::permutation::instance::reverse();
  * std::cout <<
  *     inst.inverse() << std::endl; // Prints "1 2 0".
  * ```
+ *
+ * @fn permutation::instance::inverse();
  */
-instance &tgen::permutation::instance::inverse();
 
 
 /**
@@ -353,8 +369,9 @@ instance &tgen::permutation::instance::inverse();
  * std::cout <<
  *     inst.add_1() << std::endl; // Prints "3 1 2".
  * ```
+ *
+ * @fn permutation::instance::add_1();
  */
-instance &tgen::permutation::instance::add_1();
 
 
 /**
@@ -371,8 +388,9 @@ instance &tgen::permutation::instance::add_1();
  * std::cout <<
  *     tgen::permutation::instance({2, 0, 1}) << std::endl; // Prints "2 0 1".
  * ```
+ *
+ * @fn permutation::instance::operator<<(std::ostream &out, const instance &inst);
  */
-friend std::ostream &tgen::permutation::instance::operator<<(std::ostream &out, const instance &inst);
 
 
 /**
@@ -389,5 +407,8 @@ friend std::ostream &tgen::permutation::instance::operator<<(std::ostream &out, 
  * v = tgen::permutation::instance(v).reverse().to_std();
  * // v = {2, 1, 3}.
  * ```
+ *
+ * @fn @fn permutation::instance::to_std();
  */
-std::vector<T> tgen::permutation::instance::to_std() const;
+
+};

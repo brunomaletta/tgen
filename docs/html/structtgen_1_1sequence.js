@@ -9,5 +9,6 @@ var structtgen_1_1sequence =
     [ "equal_range", "group__sequence__gen.html#gaa6ca6fc2e5c9edcf0d25165f9f25ad12", null ],
     [ "gen", "group__sequence__gen.html#ga0dc45ca71b1cc8087eac28188334dc91", null ],
     [ "gen_until", "group__sequence__gen.html#ga792dbeb2564a0e338acbf78bc47ac896", null ],
+    [ "generate_distinct_values", "structtgen_1_1sequence.html#ace227dd07b19224a38a15097e1aee109", null ],
     [ "set", "group__sequence__gen.html#gaff196db1265936038bcb8761192f5a8c", null ]
 ];

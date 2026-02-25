@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['idx_5fdistinct_5fconstraints_0',['idx_distinct_constraints',['../structtgen_1_1sequence.html#a8f169c022f6ab4c268143f442b4a5892',1,'tgen::sequence']]]
+  ['fft_5fmod_0',['FFT_MOD',['../group__math.html#ga70a5af9e73c354e43e12535aaa846e2c',1,'tgen::math']]]
 ];

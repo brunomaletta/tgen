@@ -155,3 +155,99 @@ td.memItemLeft {
     overflow-wrap: break-word;
 }
 
+
+
+/* =========================================================
+FUNCTION SIGNATURE COLORING (no code blocks / no hover)
+========================================================= */
+
+/* base signature text */
+.memproto {
+color: #D4D4D4;
+}
+
+/* punctuation (parentheses, commas) softer */
+.memproto td {
+color: #9AA7B5;
+}
+
+/* =========================================================
+RETURN TYPE + FUNCTION NAME
+========================================================= */
+
+/* return type — contextual info */
+.tgen-return {
+    color: var(--page-secondary-foreground-color);
+}
+
+/* add visual space between return and name */
+.tgen-return::after {
+content: "\00A0"; /* non-breaking space */
+}
+
+/* namespace scope (if JS splits it) */
+.tgen-scope {
+color: #7F8C9A;
+font-weight: 400;
+}
+
+/* function name — main focus */
+.tgen-name {
+font-weight: 700;
+color: #4FC1FF;
+}
+
+/* clickable symbol */
+.memproto .memname a.el {
+color: #4FC1FF !important;
+font-weight: 700;
+text-decoration: none;
+}
+
+.memproto .memname a.el:hover {
+color: #82DDFF !important;
+text-decoration: underline;
+}
+
+/* =========================================================
+PARAMETERS
+========================================================= */
+
+/* parameter types */
+.memproto .paramtype,
+.memproto .keywordtype {
+color: #C586C0;
+}
+
+/* parameter names softer than symbol */
+.memproto .paramname {
+color: #A8B3C2;
+}
+
+/* =========================================================
+TEMPLATE / TYPE READABILITY
+========================================================= */
+
+/* soften templates */
+.memproto .paramtype .template,
+.tgen-return .template {
+color: #808B96;
+}
+
+/* subtle spacing inside types */
+.memproto .paramtype,
+.tgen-return {
+letter-spacing: 0.02em;
+}
+
+
+
+
+
+.memdoc > p:first-of-type {
+    font-size: 1.06em;
+    font-weight: 500;
+    opacity: 0.92;
+}
+
+

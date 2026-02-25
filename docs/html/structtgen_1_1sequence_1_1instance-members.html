@@ -39,21 +39,31 @@
 </script>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-    // Find all member declaration tables
+    // --- keep your colgroup code ---
     var tables = document.querySelectorAll('table.memberdecls');
     tables.forEach(function(table) {
-        // Create colgroup
         var colgroup = document.createElement('colgroup');
         var col1 = document.createElement('col');
         var col2 = document.createElement('col');
-        // Set widths: first column 300px, second column takes rest
         col1.style.width = '300px';
         col2.style.width = 'auto';
         colgroup.appendChild(col1);
         colgroup.appendChild(col2);
-        // Insert colgroup as first child of table
         table.insertBefore(colgroup, table.firstChild);
     });
+    // --- split signatures ---
+    document.querySelectorAll(".memproto .memname").forEach(el => {
+		const text = el.textContent.trim();
+		if (!text) return;
+		// Match: (everything) (qualified function name at end)
+		const match = text.match(/^(.*)\s+([~\w:]+)$/);
+		if (!match) return;
+		const ret  = match[1].trim();
+		const name = match[2].trim();
+		el.innerHTML =
+			`<span class="tgen-return">${ret}</span>` +
+			`<span class="tgen-name">${name}</span>`;
+	});
 });
 </script>
 </head>
@@ -132,12 +142,12 @@ $(function(){initNavTree('structtgen_1_1sequence_1_1instance.html','',''); });
 
 <p>This is the complete list of members for <a class="el" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt; T &gt;::instance</a>, including all inherited members.</p>
 <table class="directory">
-  <tr class="even"><td class="entry"><a class="el" href="group__sequence__inst.html#ga9eb0d4dcf6732346c6ce1bff5c2c4590">instance</a>(const std::vector&lt; T &gt; &amp;vec)</td><td class="entry"><a class="el" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt; T &gt;::instance</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="group__sequence__inst.html#ga39249fd872f46b057ab7674883236dc1">instance</a>(const std::vector&lt; T &gt; &amp;vec)</td><td class="entry"><a class="el" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt; T &gt;::instance</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="odd"><td class="entry"><a class="el" href="group__sequence__inst.html#ga38f0671cac2012b9010553908409f475">operator+</a>(const instance &amp;rhs)</td><td class="entry"><a class="el" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt; T &gt;::instance</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="group__sequence__inst.html#gac5aa4456b0e4503a152e2113a48d8465">operator&lt;&lt;</a>(std::ostream &amp;out, const instance &amp;inst)</td><td class="entry"><a class="el" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt; T &gt;::instance</a></td><td class="entry"><span class="mlabel">friend</span></td></tr>
-  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__inst.html#gaff18d725e764509492a1a50589870180">operator[]</a>(int idx) const</td><td class="entry"><a class="el" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt; T &gt;::instance</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__inst.html#ga4041d7424166c97342bbeeb0412f4400">operator[]</a>(int idx) const</td><td class="entry"><a class="el" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt; T &gt;::instance</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="group__sequence__inst.html#ga2fef50f7e022b0432142fd19ef2f6bad">reverse</a>()</td><td class="entry"><a class="el" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt; T &gt;::instance</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__inst.html#ga9b7d3f185bcf60aea75a5cb02755fa87">size</a>() const</td><td class="entry"><a class="el" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt; T &gt;::instance</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__inst.html#ga81b30da123bf6745caf7795dc8315131">size</a>() const</td><td class="entry"><a class="el" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt; T &gt;::instance</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="group__sequence__inst.html#gaabbbd20653bd6b4149aea1914267db56">sort</a>()</td><td class="entry"><a class="el" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt; T &gt;::instance</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="odd"><td class="entry"><a class="el" href="group__sequence__inst.html#gaad19beb57245e1e5ec4cc4ac5bd9030e">to_std</a>() const</td><td class="entry"><a class="el" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt; T &gt;::instance</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
 </table></div><!-- contents -->

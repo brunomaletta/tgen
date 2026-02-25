@@ -39,21 +39,31 @@
 </script>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-    // Find all member declaration tables
+    // --- keep your colgroup code ---
     var tables = document.querySelectorAll('table.memberdecls');
     tables.forEach(function(table) {
-        // Create colgroup
         var colgroup = document.createElement('colgroup');
         var col1 = document.createElement('col');
         var col2 = document.createElement('col');
-        // Set widths: first column 300px, second column takes rest
         col1.style.width = '300px';
         col2.style.width = 'auto';
         colgroup.appendChild(col1);
         colgroup.appendChild(col2);
-        // Insert colgroup as first child of table
         table.insertBefore(colgroup, table.firstChild);
     });
+    // --- split signatures ---
+    document.querySelectorAll(".memproto .memname").forEach(el => {
+		const text = el.textContent.trim();
+		if (!text) return;
+		// Match: (everything) (qualified function name at end)
+		const match = text.match(/^(.*)\s+([~\w:]+)$/);
+		if (!match) return;
+		const ret  = match[1].trim();
+		const name = match[2].trim();
+		el.innerHTML =
+			`<span class="tgen-return">${ret}</span>` +
+			`<span class="tgen-name">${name}</span>`;
+	});
 });
 </script>
 </head>
@@ -132,16 +142,16 @@ $(function(){initNavTree('structtgen_1_1sequence.html','',''); });
 
 <p>This is the complete list of members for <a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a>, including all inherited members.</p>
 <table class="directory">
-  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#gad430f6b0f40960ff302eabbcaaba7b68">different</a>(int idx_1, int idx_2)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#ga4255e7e7d683fd6d5aa3c66323456aea">distinct</a>(std::set&lt; int &gt; indices)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#ga09c96c92fc2f97328c75e6d260a6ee27">distinct</a>()</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#ga4beb1b5e29f21f329346d005fada1c9b">equal</a>(int idx_1, int idx_2)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#gaa6ca6fc2e5c9edcf0d25165f9f25ad12">equal_range</a>(int left, int right)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#ga0dc45ca71b1cc8087eac28188334dc91">gen</a>()</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#ga792dbeb2564a0e338acbf78bc47ac896">gen_until</a>(PRED predicate, int max_tries)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"></td></tr>
-  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#ga4238ffc66ac290692a12eccf93ac689d">sequence</a>(int size, T value_l, T value_r)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#gae43870b873c490224665739f160a540c">sequence</a>(int size, std::set&lt; T &gt; values)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#gaff196db1265936038bcb8761192f5a8c">set</a>(int idx, T value)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#ga72a3d74713ed00ffe9c2e0dc509db04c">different</a>(int idx_1, int idx_2)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#ga716d751a780c06624b428c6b969fa398">distinct</a>(std::set&lt; int &gt; indices)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#gaa0ae40d52de23eb632e9bc3bcd84111e">distinct</a>()</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#gad9c173d0b1ff829de543ef76692d4b38">equal</a>(int idx_1, int idx_2)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#gac76ec822587cf23ea8aae3f8aaf35def">equal_range</a>(int left, int right)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">gen</a>()</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#ga0bae18156d0b6c97aecec180bc4f5559">gen_until</a>(PRED predicate, int max_tries)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"></td></tr>
+  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#gafa5a380cac4944722440f0d6ae1e8f78">sequence</a>(int size, T value_l, T value_r)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#ga51679a609a8e93d8c061de7e6379d7fd">sequence</a>(int size, std::set&lt; T &gt; values)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#gaf4b015251066523c2b23cc4f3cda9919">set</a>(int idx, T value)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
 </table></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->

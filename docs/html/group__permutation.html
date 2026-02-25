@@ -39,21 +39,31 @@
 </script>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-    // Find all member declaration tables
+    // --- keep your colgroup code ---
     var tables = document.querySelectorAll('table.memberdecls');
     tables.forEach(function(table) {
-        // Create colgroup
         var colgroup = document.createElement('colgroup');
         var col1 = document.createElement('col');
         var col2 = document.createElement('col');
-        // Set widths: first column 300px, second column takes rest
         col1.style.width = '300px';
         col2.style.width = 'auto';
         colgroup.appendChild(col1);
         colgroup.appendChild(col2);
-        // Insert colgroup as first child of table
         table.insertBefore(colgroup, table.firstChild);
     });
+    // --- split signatures ---
+    document.querySelectorAll(".memproto .memname").forEach(el => {
+		const text = el.textContent.trim();
+		if (!text) return;
+		// Match: (everything) (qualified function name at end)
+		const match = text.match(/^(.*)\s+([~\w:]+)$/);
+		if (!match) return;
+		const ret  = match[1].trim();
+		const name = match[2].trim();
+		el.innerHTML =
+			`<span class="tgen-return">${ret}</span>` +
+			`<span class="tgen-name">${name}</span>`;
+	});
 });
 </script>
 </head>
@@ -148,24 +158,24 @@ Topics</h2></td></tr>
 Examples</h3>
 <div class="fragment"><div class="line"><span class="comment">// Prints a random 1-based permutation of size 10 that start with 2.</span></div>
 <div class="line">std::cout &lt;&lt;</div>
-<div class="line">    <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(10).<a class="code hl_function" href="group__permutation__gen.html#ga58d4602c9f9fada547c3f261f520e654">set</a>(0, 1).<a class="code hl_function" href="group__permutation__gen.html#ga3dde693756e718dea410448ae21d5d43">gen</a>().<a class="code hl_function" href="group__permutation__inst.html#ga6d233f8f6071775beef07568a533ddd0">add_1</a>() &lt;&lt; std::endl;</div>
+<div class="line">    <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(10).<a class="code hl_function" href="group__permutation__gen.html#ga93ed551342af2f51b5f04bba721b6c95">set</a>(0, 1).<a class="code hl_function" href="group__permutation__gen.html#gaeecbe05053f2e0f2ce306458ffd99983">gen</a>().<a class="code hl_function" href="group__permutation__inst.html#ga6d233f8f6071775beef07568a533ddd0">add_1</a>() &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// &quot;2 7 10 4 3 9 1 5 8 6&quot;</span></div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Prints a random permutation of size 5 with only one cycle.</span></div>
 <div class="line">std::cout &lt;&lt;</div>
-<div class="line">    <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(5).<a class="code hl_function" href="group__permutation__gen.html#ga3dde693756e718dea410448ae21d5d43">gen</a>({5}) &lt;&lt; std::endl;</div>
+<div class="line">    <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(5).<a class="code hl_function" href="group__permutation__gen.html#gaeecbe05053f2e0f2ce306458ffd99983">gen</a>({5}) &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// &quot;1 4 3 0 2&quot;</span></div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Prints the inverse of a random odd permutation of size 5.</span></div>
 <div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(5)</div>
-<div class="line">        .<a class="code hl_function" href="group__permutation__gen.html#ga10b2233af3c58bc540b2bcfec51665f3">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;perm) { <span class="keywordflow">return</span> perm.parity() == -1; }, 100)</div>
+<div class="line">        .<a class="code hl_function" href="group__permutation__gen.html#ga02efc1c1bf9fa3a011bd856dad943093">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;perm) { <span class="keywordflow">return</span> perm.parity() == -1; }, 100)</div>
 <div class="line">    .inverse()</div>
 <div class="line">  &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// &quot;4 2 3 1 0&quot;</span></div>
-<div class="ttc" id="agroup__permutation__gen_html_ga10b2233af3c58bc540b2bcfec51665f3"><div class="ttname"><a href="group__permutation__gen.html#ga10b2233af3c58bc540b2bcfec51665f3">tgen::permutation::gen_until</a></div><div class="ttdeci">tgen::permutation::instance gen_until(PRED predicate, int max_tries, Args &amp;&amp;...args)</div><div class="ttdoc">Generates a random instance from the set of valid permutations until a condition is met.</div></div>
-<div class="ttc" id="agroup__permutation__gen_html_ga3dde693756e718dea410448ae21d5d43"><div class="ttname"><a href="group__permutation__gen.html#ga3dde693756e718dea410448ae21d5d43">tgen::permutation::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid permutations.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01120">tgen.h:1120</a></div></div>
-<div class="ttc" id="agroup__permutation__gen_html_ga58d4602c9f9fada547c3f261f520e654"><div class="ttname"><a href="group__permutation__gen.html#ga58d4602c9f9fada547c3f261f520e654">tgen::permutation::set</a></div><div class="ttdeci">permutation &amp; set(int idx, int value)</div><div class="ttdoc">Restricts generator s.t. value at index idx is value.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01021">tgen.h:1021</a></div></div>
+<div class="ttc" id="agroup__permutation__gen_html_ga02efc1c1bf9fa3a011bd856dad943093"><div class="ttname"><a href="group__permutation__gen.html#ga02efc1c1bf9fa3a011bd856dad943093">tgen::permutation::gen_until</a></div><div class="ttdeci">template&lt; typename PRED, typename... Args &gt; tgen::permutation::instance gen_until(PRED predicate, int max_tries, Args &amp;&amp;...args)</div><div class="ttdoc">Generates a random instance from the set of valid permutations until a condition is met.</div></div>
+<div class="ttc" id="agroup__permutation__gen_html_ga93ed551342af2f51b5f04bba721b6c95"><div class="ttname"><a href="group__permutation__gen.html#ga93ed551342af2f51b5f04bba721b6c95">tgen::permutation::set</a></div><div class="ttdeci">permutation &amp; set(int idx, int value)</div><div class="ttdoc">Restricts generator s.t. value at index idx is value.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01021">tgen.h:1021</a></div></div>
+<div class="ttc" id="agroup__permutation__gen_html_gaeecbe05053f2e0f2ce306458ffd99983"><div class="ttname"><a href="group__permutation__gen.html#gaeecbe05053f2e0f2ce306458ffd99983">tgen::permutation::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid permutations.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01120">tgen.h:1120</a></div></div>
 <div class="ttc" id="agroup__permutation__inst_html_ga6d233f8f6071775beef07568a533ddd0"><div class="ttname"><a href="group__permutation__inst.html#ga6d233f8f6071775beef07568a533ddd0">tgen::permutation::instance::add_1</a></div><div class="ttdeci">instance &amp; add_1()</div><div class="ttdoc">Adds 1 for printing.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01098">tgen.h:1098</a></div></div>
 <div class="ttc" id="astructtgen_1_1permutation_html"><div class="ttname"><a href="structtgen_1_1permutation.html">tgen::permutation</a></div><div class="ttdoc">Permutation generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01011">tgen.h:1011</a></div></div>
 </div><!-- fragment --> </div><!-- contents -->

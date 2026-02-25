@@ -39,21 +39,31 @@
 </script>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-    // Find all member declaration tables
+    // --- keep your colgroup code ---
     var tables = document.querySelectorAll('table.memberdecls');
     tables.forEach(function(table) {
-        // Create colgroup
         var colgroup = document.createElement('colgroup');
         var col1 = document.createElement('col');
         var col2 = document.createElement('col');
-        // Set widths: first column 300px, second column takes rest
         col1.style.width = '300px';
         col2.style.width = 'auto';
         colgroup.appendChild(col1);
         colgroup.appendChild(col2);
-        // Insert colgroup as first child of table
         table.insertBefore(colgroup, table.firstChild);
     });
+    // --- split signatures ---
+    document.querySelectorAll(".memproto .memname").forEach(el => {
+		const text = el.textContent.trim();
+		if (!text) return;
+		// Match: (everything) (qualified function name at end)
+		const match = text.match(/^(.*)\s+([~\w:]+)$/);
+		if (!match) return;
+		const ret  = match[1].trim();
+		const name = match[2].trim();
+		el.innerHTML =
+			`<span class="tgen-return">${ret}</span>` +
+			`<span class="tgen-name">${name}</span>`;
+	});
 });
 </script>
 </head>
@@ -134,38 +144,38 @@ $(function(){initNavTree('functions_func.html','',''); });
 
 
 <h3 class="doxsection"><a id="index_d" name="index_d"></a>- d -</h3><ul>
-<li>different()&#160;:&#160;<a class="el" href="group__sequence__gen.html#gad430f6b0f40960ff302eabbcaaba7b68">tgen::sequence&lt; T &gt;</a></li>
-<li>distinct()&#160;:&#160;<a class="el" href="group__sequence__gen.html#ga4255e7e7d683fd6d5aa3c66323456aea">tgen::sequence&lt; T &gt;</a></li>
+<li>different()&#160;:&#160;<a class="el" href="group__sequence__gen.html#ga72a3d74713ed00ffe9c2e0dc509db04c">tgen::sequence&lt; T &gt;</a></li>
+<li>distinct()&#160;:&#160;<a class="el" href="group__sequence__gen.html#ga716d751a780c06624b428c6b969fa398">tgen::sequence&lt; T &gt;</a></li>
 </ul>
 
 
 <h3 class="doxsection"><a id="index_e" name="index_e"></a>- e -</h3><ul>
-<li>equal()&#160;:&#160;<a class="el" href="group__sequence__gen.html#ga4beb1b5e29f21f329346d005fada1c9b">tgen::sequence&lt; T &gt;</a></li>
-<li>equal_range()&#160;:&#160;<a class="el" href="group__sequence__gen.html#gaa6ca6fc2e5c9edcf0d25165f9f25ad12">tgen::sequence&lt; T &gt;</a></li>
+<li>equal()&#160;:&#160;<a class="el" href="group__sequence__gen.html#gad9c173d0b1ff829de543ef76692d4b38">tgen::sequence&lt; T &gt;</a></li>
+<li>equal_range()&#160;:&#160;<a class="el" href="group__sequence__gen.html#gac76ec822587cf23ea8aae3f8aaf35def">tgen::sequence&lt; T &gt;</a></li>
 </ul>
 
 
 <h3 class="doxsection"><a id="index_g" name="index_g"></a>- g -</h3><ul>
-<li>gen()&#160;:&#160;<a class="el" href="group__permutation__gen.html#ga3dde693756e718dea410448ae21d5d43">tgen::permutation</a>, <a class="el" href="group__sequence__gen.html#ga0dc45ca71b1cc8087eac28188334dc91">tgen::sequence&lt; T &gt;</a></li>
-<li>gen_until()&#160;:&#160;<a class="el" href="group__permutation__gen.html#ga10b2233af3c58bc540b2bcfec51665f3">tgen::permutation</a>, <a class="el" href="group__sequence__gen.html#ga792dbeb2564a0e338acbf78bc47ac896">tgen::sequence&lt; T &gt;</a></li>
+<li>gen()&#160;:&#160;<a class="el" href="group__permutation__gen.html#gaeecbe05053f2e0f2ce306458ffd99983">tgen::permutation</a>, <a class="el" href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">tgen::sequence&lt; T &gt;</a></li>
+<li>gen_until()&#160;:&#160;<a class="el" href="group__permutation__gen.html#ga02efc1c1bf9fa3a011bd856dad943093">tgen::permutation</a>, <a class="el" href="group__sequence__gen.html#ga0bae18156d0b6c97aecec180bc4f5559">tgen::sequence&lt; T &gt;</a></li>
 </ul>
 
 
 <h3 class="doxsection"><a id="index_i" name="index_i"></a>- i -</h3><ul>
-<li>instance()&#160;:&#160;<a class="el" href="group__permutation__inst.html#ga271b8fe87c631589e34245c77058b88b">tgen::permutation::instance</a>, <a class="el" href="group__sequence__inst.html#ga9eb0d4dcf6732346c6ce1bff5c2c4590">tgen::sequence&lt; T &gt;::instance</a></li>
+<li>instance()&#160;:&#160;<a class="el" href="group__permutation__inst.html#ga022bd193f265bdddb5e88563bf539bdc">tgen::permutation::instance</a>, <a class="el" href="group__sequence__inst.html#ga39249fd872f46b057ab7674883236dc1">tgen::sequence&lt; T &gt;::instance</a></li>
 <li>inverse()&#160;:&#160;<a class="el" href="group__permutation__inst.html#gaeb967ffde958a906c4f41a47fe382a07">tgen::permutation::instance</a></li>
 </ul>
 
 
 <h3 class="doxsection"><a id="index_o" name="index_o"></a>- o -</h3><ul>
 <li>operator+()&#160;:&#160;<a class="el" href="group__sequence__inst.html#ga38f0671cac2012b9010553908409f475">tgen::sequence&lt; T &gt;::instance</a></li>
-<li>operator[]()&#160;:&#160;<a class="el" href="group__permutation__inst.html#ga9c140895bb0d9126660d1dafda4e9b8a">tgen::permutation::instance</a>, <a class="el" href="group__sequence__inst.html#gaff18d725e764509492a1a50589870180">tgen::sequence&lt; T &gt;::instance</a></li>
+<li>operator[]()&#160;:&#160;<a class="el" href="group__permutation__inst.html#ga18be60008a91144647cd8fcd35fd2ce7">tgen::permutation::instance</a>, <a class="el" href="group__sequence__inst.html#ga4041d7424166c97342bbeeb0412f4400">tgen::sequence&lt; T &gt;::instance</a></li>
 </ul>
 
 
 <h3 class="doxsection"><a id="index_p" name="index_p"></a>- p -</h3><ul>
 <li>parity()&#160;:&#160;<a class="el" href="group__permutation__inst.html#gafcc9d919a2a9fa56ef25fa596a119deb">tgen::permutation::instance</a></li>
-<li>permutation()&#160;:&#160;<a class="el" href="group__permutation__gen.html#gae82b7c5e3108917d7acdf20f42d0b772">tgen::permutation</a></li>
+<li>permutation()&#160;:&#160;<a class="el" href="group__permutation__gen.html#gaa6173196c6a1a88fa877426a3bfc5fa4">tgen::permutation</a></li>
 </ul>
 
 
@@ -175,15 +185,15 @@ $(function(){initNavTree('functions_func.html','',''); });
 
 
 <h3 class="doxsection"><a id="index_s" name="index_s"></a>- s -</h3><ul>
-<li>sequence()&#160;:&#160;<a class="el" href="group__sequence__gen.html#ga4238ffc66ac290692a12eccf93ac689d">tgen::sequence&lt; T &gt;</a></li>
-<li>set()&#160;:&#160;<a class="el" href="group__permutation__gen.html#ga58d4602c9f9fada547c3f261f520e654">tgen::permutation</a>, <a class="el" href="group__sequence__gen.html#gaff196db1265936038bcb8761192f5a8c">tgen::sequence&lt; T &gt;</a></li>
-<li>size()&#160;:&#160;<a class="el" href="group__permutation__inst.html#ga60b23e06f3ffa2326f4e85148e1b2714">tgen::permutation::instance</a>, <a class="el" href="group__sequence__inst.html#ga9b7d3f185bcf60aea75a5cb02755fa87">tgen::sequence&lt; T &gt;::instance</a></li>
+<li>sequence()&#160;:&#160;<a class="el" href="group__sequence__gen.html#gafa5a380cac4944722440f0d6ae1e8f78">tgen::sequence&lt; T &gt;</a></li>
+<li>set()&#160;:&#160;<a class="el" href="group__permutation__gen.html#ga93ed551342af2f51b5f04bba721b6c95">tgen::permutation</a>, <a class="el" href="group__sequence__gen.html#gaf4b015251066523c2b23cc4f3cda9919">tgen::sequence&lt; T &gt;</a></li>
+<li>size()&#160;:&#160;<a class="el" href="group__permutation__inst.html#ga37dc74a069f7982c5c59874526fdd515">tgen::permutation::instance</a>, <a class="el" href="group__sequence__inst.html#ga81b30da123bf6745caf7795dc8315131">tgen::sequence&lt; T &gt;::instance</a></li>
 <li>sort()&#160;:&#160;<a class="el" href="group__permutation__inst.html#gac2ccb0e0ae1ea90a345321c4774a8c4d">tgen::permutation::instance</a>, <a class="el" href="group__sequence__inst.html#gaabbbd20653bd6b4149aea1914267db56">tgen::sequence&lt; T &gt;::instance</a></li>
 </ul>
 
 
 <h3 class="doxsection"><a id="index_t" name="index_t"></a>- t -</h3><ul>
-<li>to_std()&#160;:&#160;<a class="el" href="group__permutation__inst.html#ga84cb3dd79d268fe9fa616780926e9557">tgen::permutation::instance</a>, <a class="el" href="group__sequence__inst.html#gaad19beb57245e1e5ec4cc4ac5bd9030e">tgen::sequence&lt; T &gt;::instance</a></li>
+<li>to_std()&#160;:&#160;<a class="el" href="group__permutation__inst.html#ga1e6f34f948818cccea36f53ef728fb00">tgen::permutation::instance</a>, <a class="el" href="group__sequence__inst.html#gaad19beb57245e1e5ec4cc4ac5bd9030e">tgen::sequence&lt; T &gt;::instance</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

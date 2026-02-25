@@ -39,21 +39,31 @@
 </script>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-    // Find all member declaration tables
+    // --- keep your colgroup code ---
     var tables = document.querySelectorAll('table.memberdecls');
     tables.forEach(function(table) {
-        // Create colgroup
         var colgroup = document.createElement('colgroup');
         var col1 = document.createElement('col');
         var col2 = document.createElement('col');
-        // Set widths: first column 300px, second column takes rest
         col1.style.width = '300px';
         col2.style.width = 'auto';
         colgroup.appendChild(col1);
         colgroup.appendChild(col2);
-        // Insert colgroup as first child of table
         table.insertBefore(colgroup, table.firstChild);
     });
+    // --- split signatures ---
+    document.querySelectorAll(".memproto .memname").forEach(el => {
+		const text = el.textContent.trim();
+		if (!text) return;
+		// Match: (everything) (qualified function name at end)
+		const match = text.match(/^(.*)\s+([~\w:]+)$/);
+		if (!match) return;
+		const ret  = match[1].trim();
+		const name = match[2].trim();
+		el.innerHTML =
+			`<span class="tgen-return">${ret}</span>` +
+			`<span class="tgen-name">${name}</span>`;
+	});
 });
 </script>
 </head>
@@ -139,12 +149,12 @@ $(function(){initNavTree('structtgen_1_1permutation_1_1instance.html','','struct
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ga271b8fe87c631589e34245c77058b88b" id="r_ga271b8fe87c631589e34245c77058b88b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__inst.html#ga271b8fe87c631589e34245c77058b88b">instance</a> (const std::vector&lt; int &gt; &amp;vec)</td></tr>
-<tr class="memdesc:ga271b8fe87c631589e34245c77058b88b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a permutation instance from a <span class="tt">std::vector</span>.  <br /></td></tr>
-<tr class="memitem:ga60b23e06f3ffa2326f4e85148e1b2714" id="r_ga60b23e06f3ffa2326f4e85148e1b2714"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__inst.html#ga60b23e06f3ffa2326f4e85148e1b2714">size</a> () const</td></tr>
-<tr class="memdesc:ga60b23e06f3ffa2326f4e85148e1b2714"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of the permutation instance.  <br /></td></tr>
-<tr class="memitem:ga9c140895bb0d9126660d1dafda4e9b8a" id="r_ga9c140895bb0d9126660d1dafda4e9b8a"><td class="memItemLeft" align="right" valign="top">const int &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__inst.html#ga9c140895bb0d9126660d1dafda4e9b8a">operator[]</a> (int idx) const</td></tr>
-<tr class="memdesc:ga9c140895bb0d9126660d1dafda4e9b8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value at some position of the instance.  <br /></td></tr>
+<tr class="memitem:ga022bd193f265bdddb5e88563bf539bdc" id="r_ga022bd193f265bdddb5e88563bf539bdc"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__inst.html#ga022bd193f265bdddb5e88563bf539bdc">instance</a> (const std::vector&lt; int &gt; &amp;vec)</td></tr>
+<tr class="memdesc:ga022bd193f265bdddb5e88563bf539bdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a permutation instance from a <span class="tt">std::vector</span>.  <br /></td></tr>
+<tr class="memitem:ga37dc74a069f7982c5c59874526fdd515" id="r_ga37dc74a069f7982c5c59874526fdd515"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__inst.html#ga37dc74a069f7982c5c59874526fdd515">size</a> () const</td></tr>
+<tr class="memdesc:ga37dc74a069f7982c5c59874526fdd515"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of the permutation instance.  <br /></td></tr>
+<tr class="memitem:ga18be60008a91144647cd8fcd35fd2ce7" id="r_ga18be60008a91144647cd8fcd35fd2ce7"><td class="memItemLeft" align="right" valign="top">int &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__inst.html#ga18be60008a91144647cd8fcd35fd2ce7">operator[]</a> (int idx)</td></tr>
+<tr class="memdesc:ga18be60008a91144647cd8fcd35fd2ce7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value at some position of the instance.  <br /></td></tr>
 <tr class="memitem:gafcc9d919a2a9fa56ef25fa596a119deb" id="r_gafcc9d919a2a9fa56ef25fa596a119deb"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__inst.html#gafcc9d919a2a9fa56ef25fa596a119deb">parity</a> () const</td></tr>
 <tr class="memdesc:gafcc9d919a2a9fa56ef25fa596a119deb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parity of the permutation.  <br /></td></tr>
 <tr class="memitem:gac2ccb0e0ae1ea90a345321c4774a8c4d" id="r_gac2ccb0e0ae1ea90a345321c4774a8c4d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__inst.html#gac2ccb0e0ae1ea90a345321c4774a8c4d">sort</a> ()</td></tr>
@@ -155,8 +165,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:gaeb967ffde958a906c4f41a47fe382a07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inverse of the permutation.  <br /></td></tr>
 <tr class="memitem:ga6d233f8f6071775beef07568a533ddd0" id="r_ga6d233f8f6071775beef07568a533ddd0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__inst.html#ga6d233f8f6071775beef07568a533ddd0">add_1</a> ()</td></tr>
 <tr class="memdesc:ga6d233f8f6071775beef07568a533ddd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds 1 for printing.  <br /></td></tr>
-<tr class="memitem:ga84cb3dd79d268fe9fa616780926e9557" id="r_ga84cb3dd79d268fe9fa616780926e9557"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__inst.html#ga84cb3dd79d268fe9fa616780926e9557">to_std</a> () const</td></tr>
-<tr class="memdesc:ga84cb3dd79d268fe9fa616780926e9557"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the instance to a <span class="tt">std::vector</span>.  <br /></td></tr>
+<tr class="memitem:ga1e6f34f948818cccea36f53ef728fb00" id="r_ga1e6f34f948818cccea36f53ef728fb00"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__permutation__inst.html#ga1e6f34f948818cccea36f53ef728fb00">to_std</a> () const</td></tr>
+<tr class="memdesc:ga1e6f34f948818cccea36f53ef728fb00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the instance to a <span class="tt">std::vector</span>.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-friends" class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>

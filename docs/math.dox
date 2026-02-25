@@ -1,3 +1,5 @@
+namespace tgen::math {
+
 /**
  * @defgroup math Math Operations
  * @brief Operations regarding number theory and related topics.
@@ -27,8 +29,9 @@
  * bool is_prime = tgen::math::is_prime(17);
  * // true
  * ```
+ *
+ * @fn is_prime(uint64_t n);
  */
-bool tgen::math::is_prime(uint64_t n);
 
 
 /**
@@ -51,8 +54,9 @@ bool tgen::math::is_prime(uint64_t n);
  * auto fact = tgen::math::factor(24);
  * // {2, 2, 2, 3}
  * ```
+ *
+ * @fn factor(uint64_t n);
  */
-std::vector<uint64_t> tgen::math::factor(uint64_t n);
 
 
 /**
@@ -75,8 +79,9 @@ std::vector<uint64_t> tgen::math::factor(uint64_t n);
  * auto fact = tgen::math::factor_by_prime(24);
  * // {{2, 3}, {3, 1}}
  * ```
+ *
+ * @fn factor_by_prime(uint64_t n);
  */
-std::vector<std::pair<uint64_t, int>>> tgen::math::factor_by_prime(uint64_t n);
 
 
 /**
@@ -103,8 +108,9 @@ std::vector<std::pair<uint64_t, int>>> tgen::math::factor_by_prime(uint64_t n);
  * std::cout << 3 * inv % 10 << std::endl;
  * // "1"
  * ```
+ *
+ * @fn modular_inverse(uint64_t a, uint64_t m);
  */
-uint64_t tgen::math::modular_inverse(uint64_t a, uint64_t m);
 
 
 /**
@@ -128,8 +134,9 @@ uint64_t tgen::math::modular_inverse(uint64_t a, uint64_t m);
  * std::cout << tgen::math::totient(10) << std::endl;
  * // "4"
  * ```
+ *
+ * @fn totient(uint64_t n);
  */
-uint64_t tgen::math::totient(uint64_t n);
 
 
 /**
@@ -158,8 +165,9 @@ uint64_t tgen::math::totient(uint64_t n);
  * // Generates a random prime from 1 to 1e18.
  * auto p = tgen::math::gen_prime(1, 1e18);
  * ```
+ *
+ * @fn gen_prime(uint64_t l, uint64_t r, bool adjust_distribution = true);
  */
-uint64_t tgen::math::gen_prime(uint64_t l, uint64_t r, bool adjust_distribution = true);
 
 
 /**
@@ -185,8 +193,9 @@ uint64_t tgen::math::gen_prime(uint64_t l, uint64_t r, bool adjust_distribution 
  *     std::cout << p << std::endl;
  * }
  * ```
+ *
+ * @fn next_prime(uint64_t l);
  */
-uint64_t tgen::math::next_prime(uint64_t l);
 
 
 /**
@@ -209,8 +218,9 @@ uint64_t tgen::math::next_prime(uint64_t l);
  *     std::cout << p << std::endl;
  * }
  * ```
+ *
+ * @fn prev_prime(uint64_t r);
  */
-uint64_t tgen::math::prev_prime(uint64_t r);
 
 
 /**
@@ -234,8 +244,9 @@ uint64_t tgen::math::prev_prime(uint64_t r);
  * std::cout << tgen::math::num_divisors(12) << std::endl;
  * // "6"
  * ```
+ *
+ * @fn num_divisors(uint64_t n);
  */
-int tgen::math::num_divisors(uint64_t n);
 
 
 /**
@@ -261,8 +272,9 @@ int tgen::math::num_divisors(uint64_t n);
  * // Generates a random number from 100 to 200 with 3 divisors (p^2).
  * auto n = tgen::math::num_divisors(100, 200, 3);
  * ```
+ *
+ * @fn gen_divisor_count(uint64_t l, uint64_t r, int divisor_count);
  */
-uint64_t tgen::math::gen_divisor_count(uint64_t l, uint64_t r, int divisor_count);
 
 
 /**
@@ -279,8 +291,9 @@ uint64_t tgen::math::gen_divisor_count(uint64_t l, uint64_t r, int divisor_count
  * ```cpp
  * const auto &[p, g] = tgen::math::prime_gaps();
  * ```
+ *
+ * @fn prime_gaps();
  */
-const std::pair<std::vector<uint64_t>, std::vector<uint64_t>> &tgen::math::prime_gaps();
 
 
 /**
@@ -297,8 +310,9 @@ const std::pair<std::vector<uint64_t>, std::vector<uint64_t>> &tgen::math::prime
  * // Computes largest prime gap up to 1e12.
  * auto [l, r] = tgen::math::prime_gap_upto(1e12);
  * ```
+ *
+ * @fn prime_gap_upto(uint64_t r);
  */
-std::pair<uint64_t, uint64_t> tgen::math::prime_gap_upto(uint64_t r);
 
 
 /**
@@ -316,8 +330,9 @@ std::pair<uint64_t, uint64_t> tgen::math::prime_gap_upto(uint64_t r);
  * // Prints largest highly composite number that fits in 64 bits.
  * std::cout << tgen::math::highly_composites().back() << std::endl;
  * ```
+ *
+ * @fn highly_composites();
  */
-const std::vector<uint64_t> &tgen::math::highly_composites();
 
 
 /**
@@ -334,8 +349,9 @@ const std::vector<uint64_t> &tgen::math::highly_composites();
  * // Prints largest highly composite number up to 1e12.
  * std::cout << tgen::math::highly_composite_upto(1e12) << std::endl;
  * ```
+ *
+ * @fn highly_composite_upto(uint64_t r);
  */
-uint64_t &tgen::math::highly_composite_upto(uint64_t r);
 
 
 /**
@@ -365,8 +381,9 @@ uint64_t &tgen::math::highly_composite_upto(uint64_t r);
  * // Prints random two-digit number that is even and congruent to 1 mod 3.
  * std::cout << tgen::math::gen_congruent(10, 99, {0, 1}, {2, 3}) << std::endl;
  * ```
+ *
+ * @fn gen_congruent(uint64_t l, uint64_t r, std::vector<uint64_t> rems, std::vector<uint64_t> mods);
  */
-uint64_t tgen::math::gen_congruent(uint64_t l, uint64_t r, std::vector<uint64_t> rems, std::vector<uint64_t> mods);
 
 
 /**
@@ -397,8 +414,9 @@ uint64_t tgen::math::gen_congruent(uint64_t l, uint64_t r, std::vector<uint64_t>
  * // Prints random two-digit number that is congruent to 1 mod 3.
  * std::cout << tgen::math::gen_congruent(10, 99, 1, 3) << std::endl;
  * ```
+ *
+ * @fn gen_congruent(uint64_t l, uint64_t r, uint64_t rem, uint64_t mod);
  */
-uint64_t tgen::math::gen_congruent(uint64_t l, uint64_t r, uint64_t rem, uint64_t mod);
 
 
 /**
@@ -424,8 +442,9 @@ uint64_t tgen::math::gen_congruent(uint64_t l, uint64_t r, uint64_t rem, uint64_
  * // Prints random two-digit even number.
  * std::cout << tgen::math::gen_even(10, 99) << std::endl;
  * ```
+ *
+ * @fn gen_even(uint64_t l, uint64_t r);
  */
-uint64_t tgen::math::gen_even(uint64_t l, uint64_t r);
 
 
 /**
@@ -451,8 +470,9 @@ uint64_t tgen::math::gen_even(uint64_t l, uint64_t r);
  * // Prints random two-digit odd number.
  * std::cout << tgen::math::gen_odd(10, 99) << std::endl;
  * ```
+ *
+ * @fn gen_odd(uint64_t l, uint64_t r);
  */
-uint64_t tgen::math::gen_odd(uint64_t l, uint64_t r);
 
 
 /**
@@ -464,8 +484,9 @@ uint64_t tgen::math::gen_odd(uint64_t l, uint64_t r);
  * ```cpp
  * int fft_mod = tgen::math::FFT_MOD;
  * ```
+ *
+ * @var FFT_MOD;
  */
-inline constexpr int tgen::math::FFT_MOD = 998244353;
 
 
 /**
@@ -480,8 +501,9 @@ inline constexpr int tgen::math::FFT_MOD = 998244353;
  * // Prints largest fibonacci number that fits in 64 bits.
  * std::cout << tgen::math::fibonacci().back() << std::endl;
  * ```
+ *
+ * @fn fibonacci();
  */
-const std::vector<uint64_t> &tgen::math::fibonacci();
 
 
 /**
@@ -515,8 +537,9 @@ const std::vector<uint64_t> &tgen::math::fibonacci();
  * // Random partition of 10 into parts in [2, 3].
  * auto part = tgen::math::partition(10, 2, 3);
  * ```
+ *
+ * @fn gen_partition(int n, int part_l = 1, int part_r = -1);
  */
-std::vector<int> &tgen::math::gen_partition(int n, int part_l = 1, int part_r = -1);
 
 
 /**
@@ -552,5 +575,8 @@ std::vector<int> &tgen::math::gen_partition(int n, int part_l = 1, int part_r = 
  * // Random partition of 10 into 4 parts in [2, 3].
  * auto part = tgen::math::partition_fixed_size(10, 4, 2, 3);
  * ```
+ *
+ * @fn gen_partition_fixed_size(int n, int k, int part_l = 0, int part_r = -1);
  */
-std::vector<int> &tgen::math::gen_partition_fixed_size(int n, int k, int part_l = 0, int part_r = -1);
+
+};

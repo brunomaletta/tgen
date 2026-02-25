@@ -39,26 +39,43 @@ $extrastylesheet
 </script>
 
 <script type="text/javascript">
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Find all member declaration tables
+
+    // --- keep your colgroup code ---
     var tables = document.querySelectorAll('table.memberdecls');
     tables.forEach(function(table) {
-        // Create colgroup
         var colgroup = document.createElement('colgroup');
         var col1 = document.createElement('col');
         var col2 = document.createElement('col');
-        
-        // Set widths: first column 300px, second column takes rest
         col1.style.width = '300px';
         col2.style.width = 'auto';
-        
         colgroup.appendChild(col1);
         colgroup.appendChild(col2);
-        
-        // Insert colgroup as first child of table
         table.insertBefore(colgroup, table.firstChild);
     });
+
+    // --- split signatures ---
+    document.querySelectorAll(".memproto .memname").forEach(el => {
+
+		const text = el.textContent.trim();
+		if (!text) return;
+
+		// Match: (everything) (qualified function name at end)
+		const match = text.match(/^(.*)\s+([~\w:]+)$/);
+
+		if (!match) return;
+
+		const ret  = match[1].trim();
+		const name = match[2].trim();
+
+		el.innerHTML =
+			`<span class="tgen-return">${ret}</span>` +
+			`<span class="tgen-name">${name}</span>`;
+	});
+
 });
+
 </script>
 
 </head>
@@ -109,5 +126,6 @@ document.addEventListener('DOMContentLoaded', function() {
  </tbody>
 </table>
 </div>
+
 <!--END TITLEAREA-->
 <!-- end header part -->

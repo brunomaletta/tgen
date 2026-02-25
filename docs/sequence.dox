@@ -1,3 +1,5 @@
+namespace tgen {
+
 /**
  * @defgroup sequence Sequences
  * @brief Generation of sequences.
@@ -74,8 +76,9 @@
  * @brief Sequence generator.
  *
  * \see @ref sequence_gen.
+ *
+ * @struct sequence;
  */
-template <typename T> struct tgen::sequence;
 
 
 /**
@@ -95,8 +98,9 @@ template <typename T> struct tgen::sequence;
  * // Sequences of 10 ints from 1 to 100.
  * auto seq_gen = tgen::sequence<int>(10, 1, 100);
  * ```
+ *
+ * @fn sequence::sequence(int size, T value_l, T value_r);
  */
-struct tgen::sequence::sequence(int size, T value_l, T value_r);
 
 
 /**
@@ -114,8 +118,9 @@ struct tgen::sequence::sequence(int size, T value_l, T value_r);
  * // Sequences of 10 ints that are either 3, 6, or 9.
  * auto seq_gen = tgen::sequence<int>(10, std::set<int>({3, 6, 9}));
  * ```
+ *
+ * @fn sequence::sequence(int size, std::set<T> values);
  */
-struct tgen::sequence::sequence(int size, std::set<T> values);
 
 
 /**
@@ -133,8 +138,9 @@ struct tgen::sequence::sequence(int size, std::set<T> values);
  * // Sequences of 10 ints from 1 to 5 that start with 1.
  * auto seq_gen = tgen::sequence<int>(10, 1, 5).set(0, 1);
  * ```
+ *
+ * @fn sequence::set(int idx, T value);
  */
-tgen::sequence &tgen::sequence::set(int idx, T value);
 
 
 /**
@@ -150,8 +156,9 @@ tgen::sequence &tgen::sequence::set(int idx, T value);
  * // Sequences of 10 ints from 1 to 5 that start and end with the same value.
  * auto seq_gen = tgen::sequence<int>(10, 1, 5).equal(0, 9);
  * ```
+ *
+ * @fn sequence::equal(int idx_1, int idx_2);
  */
-tgen::sequence &tgen::sequence::equal(int idx_1, int idx_2);
 
 
 /**
@@ -167,8 +174,9 @@ tgen::sequence &tgen::sequence::equal(int idx_1, int idx_2);
  * // Sequences of 10 ints from 1 to 5 with the first half all equal.
  * auto seq_gen = tgen::sequence<int>(10, 1, 5).equal_range(0, 4);
  * ```
+ *
+ * @fn sequence::equal_range(int left, int right);
  */
-tgen::sequence &tgen::sequence::equal_range(int left, int right);
 
 
 /**
@@ -192,8 +200,9 @@ tgen::sequence &tgen::sequence::equal_range(int left, int right);
  * // Sequences of 10 ints from 1 to 5 with the first half distinct.
  * auto seq_gen = tgen::sequence<int>(10, 1, 5).distinct({0, 1, 2, 3, 4});
  * ```
+ *
+ * @fn sequence::distinct(std::set<int> indices);
  */
-tgen::sequence &tgen::sequence::distinct(std::set<int> indices);
 
 
 /**
@@ -211,8 +220,9 @@ tgen::sequence &tgen::sequence::distinct(std::set<int> indices);
  * // Sequences of 10 ints from 1 to 5 with the first and last values different.
  * auto seq_gen = tgen::sequence<int>(10, 1, 5).different(0, 9);
  * ```
+ *
+ * @fn sequence::different(int idx_1, int idx_2);
  */
-tgen::sequence &tgen::sequence::different(int idx_1, int idx_2);
 
 
 /**
@@ -229,8 +239,9 @@ tgen::sequence &tgen::sequence::different(int idx_1, int idx_2);
  * // Sequences of 5 distinct ints from 1 to 5.
  * auto seq_gen = tgen::sequence<int>(5, 1, 5).distinct();
  * ```
+ *
+ * @fn sequence::distinct();
  */
-tgen::sequence &tgen::sequence::distinct();
 
 
 /**
@@ -253,8 +264,9 @@ tgen::sequence &tgen::sequence::distinct();
  *
  * @throws std::runtime_error if there is no valid sequence satisfying all added constraints,
  *         or if the added constraints are considered to be too complex (see `tgen::sequence::distinct`).
+ *
+ * @fn sequence::gen();
  */
-tgen::sequence::instance tgen::sequence::gen();
 
 
 /**
@@ -290,9 +302,9 @@ tgen::sequence::instance tgen::sequence::gen();
  * @throws std::runtime_error if no valid instance satisfying `predicate` is found after `max_tries`
  *         tries.
  * @memberof tgen::sequence
+ *
+ * @fn template <typename PRED> sequence::gen_until(PRED predicate, int max_tries);
  */
-template <typename PRED, typename T>
-tgen::sequence::instance tgen::sequence::gen_until(PRED predicate, int max_tries);
 
 
 
@@ -312,8 +324,9 @@ tgen::sequence::instance tgen::sequence::gen_until(PRED predicate, int max_tries
  * @brief Sequence instance.
  *
  * \see @ref sequence_inst.
+ *
+ * @struct sequence::instance;
  */
-template <typename T> struct tgen::sequence::instance;
 
 
 /**
@@ -334,8 +347,9 @@ template <typename T> struct tgen::sequence::instance;
  * inst = {5, 4};
  * std::cout << inst << std::endl; // Prints "5 4".
  * ```
+ *
+ * @fn sequence::instance::instance(const std::vector<T>& vec);
  */
-struct tgen::sequence::instance::instance(const std::vector<T>& vec);
 
 
 /**
@@ -352,8 +366,9 @@ struct tgen::sequence::instance::instance(const std::vector<T>& vec);
  * std::cout <<
  *     inst.size() << std::endl; // Prints "3".
  * ```
+ *
+ * @fn sequence::instance::size();
  */
-size_t tgen::sequence::instance::size();
 
 
 /**
@@ -372,8 +387,9 @@ size_t tgen::sequence::instance::size();
  * ++inst[1];
  * std::cout << inst[1] << std::endl; // Prints "3".
  * ```
+ *
+ * @fn sequence::instance::operator[](int idx) const;
  */
-T& tgen::sequence::instance::operator[](int idx) const;
 
 
 /**
@@ -392,8 +408,9 @@ T& tgen::sequence::instance::operator[](int idx) const;
  * std::cout <<
  *     inst.sort() << std::endl; // Prints "1 2 3".
  * ```
+ *
+ * @fn sequence::instance::sort();
  */
-instance &tgen::sequence::instance::sort();
 
 
 /**
@@ -412,8 +429,9 @@ instance &tgen::sequence::instance::sort();
  * std::cout <<
  *     inst.reverse() << std::endl; // Prints "2 1 3".
  * ```
+ *
+ * @fn sequence::instance::reverse();
  */
-instance &tgen::sequence::instance::reverse();
 
 
 /**
@@ -431,8 +449,9 @@ instance &tgen::sequence::instance::reverse();
  * tgen::sequence<int> s = tgen::sequence<int>(5, 1, 5).distinct();
  * std::cout << s.gen() + s.gen() << std::endl;
  * ```
+ *
+ * @fn sequence::instance::operator+(const instance& rhs);
  */
-instance tgen::sequence::instance::operator+(const instance& rhs);
 
 
 /**
@@ -449,8 +468,9 @@ instance tgen::sequence::instance::operator+(const instance& rhs);
  * std::cout << 
  *     tgen::sequence<int>::instance({3, 1, 2}) << std::endl; // Prints "3 1 2".
  * ```
+ *
+ * @fn sequence::instance::operator<<(std::ostream &out, const instance &inst);
  */
-friend std::ostream &tgen::sequence::instance::operator<<(std::ostream &out, const instance &inst);
 
 
 /**
@@ -467,12 +487,15 @@ friend std::ostream &tgen::sequence::instance::operator<<(std::ostream &out, con
  * v = tgen::sequence<int>::instance(v).reverse().to_std();
  * // v = {2, 1, 3}.
  * ```
+ *
+ * @fn sequence::instance::to_std() const;
  */
-std::vector<T> tgen::sequence::instance::to_std() const;
 
 
 
 
+
+namespace sequence_op {
 
 /**
  * @defgroup sequence_op Sequence operations
@@ -481,6 +504,7 @@ std::vector<T> tgen::sequence::instance::to_std() const;
  *
  * These operations make random decisions.
  */
+
 
 /**
  * @ingroup sequence_op
@@ -504,8 +528,9 @@ std::vector<T> tgen::sequence::instance::to_std() const;
  * std::cout <<
  *     tgen::sequence_op::shuffle(inst) << std::endl;
  * ```
+ *
+ * @fn shuffle(const INST &inst);
  */
-INST tgen::sequence_op::shuffle(const INST &inst);
 
 
 /**
@@ -530,8 +555,9 @@ INST tgen::sequence_op::shuffle(const INST &inst);
  * std::cout <<
  *     tgen::sequence_op::any(inst) << std::endl;
  * ```
+ *
+ * @fn any(const INST &inst);
  */
-typename INST::value_type tgen::sequence_op::any(const INST &inst);
 
 
 /**
@@ -557,9 +583,10 @@ typename INST::value_type tgen::sequence_op::any(const INST &inst);
  * std::cout <<
  *     tgen::sequence_op::choose(2, inst) << std::endl;
  * ```
+ *
+ * @fn choose(int k, const INST &inst);
  */
-INST tgen::sequence_op::choose(int k, const INST &inst) {
 
+};
 
-
-
+};

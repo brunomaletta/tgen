@@ -39,21 +39,31 @@
 </script>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-    // Find all member declaration tables
+    // --- keep your colgroup code ---
     var tables = document.querySelectorAll('table.memberdecls');
     tables.forEach(function(table) {
-        // Create colgroup
         var colgroup = document.createElement('colgroup');
         var col1 = document.createElement('col');
         var col2 = document.createElement('col');
-        // Set widths: first column 300px, second column takes rest
         col1.style.width = '300px';
         col2.style.width = 'auto';
         colgroup.appendChild(col1);
         colgroup.appendChild(col2);
-        // Insert colgroup as first child of table
         table.insertBefore(colgroup, table.firstChild);
     });
+    // --- split signatures ---
+    document.querySelectorAll(".memproto .memname").forEach(el => {
+		const text = el.textContent.trim();
+		if (!text) return;
+		// Match: (everything) (qualified function name at end)
+		const match = text.match(/^(.*)\s+([~\w:]+)$/);
+		if (!match) return;
+		const ret  = match[1].trim();
+		const name = match[2].trim();
+		el.innerHTML =
+			`<span class="tgen-return">${ret}</span>` +
+			`<span class="tgen-name">${name}</span>`;
+	});
 });
 </script>
 </head>
@@ -144,12 +154,12 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga271b8fe87c631589e34245c77058b88b" id="r_ga271b8fe87c631589e34245c77058b88b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga271b8fe87c631589e34245c77058b88b">tgen::permutation::instance::instance</a> (const std::vector&lt; int &gt; &amp;vec)</td></tr>
-<tr class="memdesc:ga271b8fe87c631589e34245c77058b88b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a permutation instance from a <span class="tt">std::vector</span>.  <br /></td></tr>
-<tr class="memitem:ga60b23e06f3ffa2326f4e85148e1b2714" id="r_ga60b23e06f3ffa2326f4e85148e1b2714"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga60b23e06f3ffa2326f4e85148e1b2714">tgen::permutation::instance::size</a> () const</td></tr>
-<tr class="memdesc:ga60b23e06f3ffa2326f4e85148e1b2714"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of the permutation instance.  <br /></td></tr>
-<tr class="memitem:ga9c140895bb0d9126660d1dafda4e9b8a" id="r_ga9c140895bb0d9126660d1dafda4e9b8a"><td class="memItemLeft" align="right" valign="top">const int &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga9c140895bb0d9126660d1dafda4e9b8a">tgen::permutation::instance::operator[]</a> (int idx) const</td></tr>
-<tr class="memdesc:ga9c140895bb0d9126660d1dafda4e9b8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value at some position of the instance.  <br /></td></tr>
+<tr class="memitem:ga022bd193f265bdddb5e88563bf539bdc" id="r_ga022bd193f265bdddb5e88563bf539bdc"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga022bd193f265bdddb5e88563bf539bdc">tgen::permutation::instance::instance</a> (const std::vector&lt; int &gt; &amp;vec)</td></tr>
+<tr class="memdesc:ga022bd193f265bdddb5e88563bf539bdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a permutation instance from a <span class="tt">std::vector</span>.  <br /></td></tr>
+<tr class="memitem:ga37dc74a069f7982c5c59874526fdd515" id="r_ga37dc74a069f7982c5c59874526fdd515"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga37dc74a069f7982c5c59874526fdd515">tgen::permutation::instance::size</a> () const</td></tr>
+<tr class="memdesc:ga37dc74a069f7982c5c59874526fdd515"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of the permutation instance.  <br /></td></tr>
+<tr class="memitem:ga18be60008a91144647cd8fcd35fd2ce7" id="r_ga18be60008a91144647cd8fcd35fd2ce7"><td class="memItemLeft" align="right" valign="top">int &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga18be60008a91144647cd8fcd35fd2ce7">tgen::permutation::instance::operator[]</a> (int idx)</td></tr>
+<tr class="memdesc:ga18be60008a91144647cd8fcd35fd2ce7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value at some position of the instance.  <br /></td></tr>
 <tr class="memitem:gafcc9d919a2a9fa56ef25fa596a119deb" id="r_gafcc9d919a2a9fa56ef25fa596a119deb"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gafcc9d919a2a9fa56ef25fa596a119deb">tgen::permutation::instance::parity</a> () const</td></tr>
 <tr class="memdesc:gafcc9d919a2a9fa56ef25fa596a119deb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parity of the permutation.  <br /></td></tr>
 <tr class="memitem:gac2ccb0e0ae1ea90a345321c4774a8c4d" id="r_gac2ccb0e0ae1ea90a345321c4774a8c4d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gac2ccb0e0ae1ea90a345321c4774a8c4d">tgen::permutation::instance::sort</a> ()</td></tr>
@@ -160,8 +170,8 @@ Functions</h2></td></tr>
 <tr class="memdesc:gaeb967ffde958a906c4f41a47fe382a07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inverse of the permutation.  <br /></td></tr>
 <tr class="memitem:ga6d233f8f6071775beef07568a533ddd0" id="r_ga6d233f8f6071775beef07568a533ddd0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga6d233f8f6071775beef07568a533ddd0">tgen::permutation::instance::add_1</a> ()</td></tr>
 <tr class="memdesc:ga6d233f8f6071775beef07568a533ddd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds 1 for printing.  <br /></td></tr>
-<tr class="memitem:ga84cb3dd79d268fe9fa616780926e9557" id="r_ga84cb3dd79d268fe9fa616780926e9557"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga84cb3dd79d268fe9fa616780926e9557">tgen::permutation::instance::to_std</a> () const</td></tr>
-<tr class="memdesc:ga84cb3dd79d268fe9fa616780926e9557"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the instance to a <span class="tt">std::vector</span>.  <br /></td></tr>
+<tr class="memitem:ga1e6f34f948818cccea36f53ef728fb00" id="r_ga1e6f34f948818cccea36f53ef728fb00"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga1e6f34f948818cccea36f53ef728fb00">tgen::permutation::instance::to_std</a> () const</td></tr>
+<tr class="memdesc:ga1e6f34f948818cccea36f53ef728fb00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the instance to a <span class="tt">std::vector</span>.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-friend-members" class="groupheader"><a id="friend-members" name="friend-members"></a>
 Friends</h2></td></tr>
@@ -213,8 +223,8 @@ Examples</h4>
 
 </div>
 </div>
-<a id="ga271b8fe87c631589e34245c77058b88b" name="ga271b8fe87c631589e34245c77058b88b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga271b8fe87c631589e34245c77058b88b">&#9670;&#160;</a></span>instance()</h2>
+<a id="ga022bd193f265bdddb5e88563bf539bdc" name="ga022bd193f265bdddb5e88563bf539bdc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga022bd193f265bdddb5e88563bf539bdc">&#9670;&#160;</a></span>instance()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -223,7 +233,7 @@ Examples</h4>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">struct tgen::permutation::instance::instance </td>
+          <td class="memname">tgen::permutation::instance::instance </td>
           <td>(</td>
           <td class="paramtype">const std::vector&lt; int &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>vec</em></span></td><td>)</td>
           <td></td>
@@ -298,8 +308,8 @@ Examples</h4>
 
 </div>
 </div>
-<a id="ga9c140895bb0d9126660d1dafda4e9b8a" name="ga9c140895bb0d9126660d1dafda4e9b8a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga9c140895bb0d9126660d1dafda4e9b8a">&#9670;&#160;</a></span>operator[]()</h2>
+<a id="ga18be60008a91144647cd8fcd35fd2ce7" name="ga18be60008a91144647cd8fcd35fd2ce7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga18be60008a91144647cd8fcd35fd2ce7">&#9670;&#160;</a></span>operator[]()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -308,10 +318,10 @@ Examples</h4>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">T &amp; tgen::permutation::instance::operator[] </td>
+          <td class="memname">int &amp; tgen::permutation::instance::operator[] </td>
           <td>(</td>
           <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>idx</em></span></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -336,7 +346,7 @@ Examples</h4>
 <div class="line">++inst[1];</div>
 <div class="line">std::cout &lt;&lt; inst[1] &lt;&lt; std::endl; <span class="comment">// Prints &quot;0&quot;.</span></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01053">1053</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01052">1052</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -416,8 +426,8 @@ Examples</h4>
 
 </div>
 </div>
-<a id="ga60b23e06f3ffa2326f4e85148e1b2714" name="ga60b23e06f3ffa2326f4e85148e1b2714"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga60b23e06f3ffa2326f4e85148e1b2714">&#9670;&#160;</a></span>size()</h2>
+<a id="ga37dc74a069f7982c5c59874526fdd515" name="ga37dc74a069f7982c5c59874526fdd515"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga37dc74a069f7982c5c59874526fdd515">&#9670;&#160;</a></span>size()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -426,7 +436,7 @@ Examples</h4>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">size_t tgen::permutation::instance::size </td>
+          <td class="memname">int tgen::permutation::instance::size </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td> const</td>
@@ -446,8 +456,8 @@ Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints the size of an instance.</span></div>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1permutation_1_1instance.html">tgen::permutation::instance</a> inst = {0, 1, 2};</div>
 <div class="line">std::cout &lt;&lt;</div>
-<div class="line">    inst.<a class="code hl_function" href="#ga60b23e06f3ffa2326f4e85148e1b2714">size</a>() &lt;&lt; std::endl; <span class="comment">// Prints &quot;3&quot;.</span></div>
-<div class="ttc" id="agroup__permutation__inst_html_ga60b23e06f3ffa2326f4e85148e1b2714"><div class="ttname"><a href="#ga60b23e06f3ffa2326f4e85148e1b2714">tgen::permutation::instance::size</a></div><div class="ttdeci">int size() const</div><div class="ttdoc">Returns the size of the permutation instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01049">tgen.h:1049</a></div></div>
+<div class="line">    inst.<a class="code hl_function" href="#ga37dc74a069f7982c5c59874526fdd515">size</a>() &lt;&lt; std::endl; <span class="comment">// Prints &quot;3&quot;.</span></div>
+<div class="ttc" id="agroup__permutation__inst_html_ga37dc74a069f7982c5c59874526fdd515"><div class="ttname"><a href="#ga37dc74a069f7982c5c59874526fdd515">tgen::permutation::instance::size</a></div><div class="ttdeci">int size() const</div><div class="ttdoc">Returns the size of the permutation instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01049">tgen.h:1049</a></div></div>
 </div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01049">1049</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
@@ -492,8 +502,8 @@ Examples</h4>
 
 </div>
 </div>
-<a id="ga84cb3dd79d268fe9fa616780926e9557" name="ga84cb3dd79d268fe9fa616780926e9557"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga84cb3dd79d268fe9fa616780926e9557">&#9670;&#160;</a></span>to_std()</h2>
+<a id="ga1e6f34f948818cccea36f53ef728fb00" name="ga1e6f34f948818cccea36f53ef728fb00"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1e6f34f948818cccea36f53ef728fb00">&#9670;&#160;</a></span>to_std()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -502,7 +512,7 @@ Examples</h4>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::vector&lt; T &gt; tgen::permutation::instance::to_std </td>
+          <td class="memname">std::vector&lt; int &gt; tgen::permutation::instance::to_std </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td> const</td>
@@ -521,9 +531,9 @@ Examples</h4>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Convoluted way to reverse a permutation.</span></div>
 <div class="line">std::vector&lt;int&gt; v = {2, 0, 1};</div>
-<div class="line">v = <a class="code hl_struct" href="structtgen_1_1permutation_1_1instance.html">tgen::permutation::instance</a>(v).<a class="code hl_function" href="#ga394a7eabd584374ed258c45aca307076">reverse</a>().<a class="code hl_function" href="#ga84cb3dd79d268fe9fa616780926e9557">to_std</a>();</div>
+<div class="line">v = <a class="code hl_struct" href="structtgen_1_1permutation_1_1instance.html">tgen::permutation::instance</a>(v).<a class="code hl_function" href="#ga394a7eabd584374ed258c45aca307076">reverse</a>().<a class="code hl_function" href="#ga1e6f34f948818cccea36f53ef728fb00">to_std</a>();</div>
 <div class="line"><span class="comment">// v = {2, 1, 3}.</span></div>
-<div class="ttc" id="agroup__permutation__inst_html_ga84cb3dd79d268fe9fa616780926e9557"><div class="ttname"><a href="#ga84cb3dd79d268fe9fa616780926e9557">tgen::permutation::instance::to_std</a></div><div class="ttdeci">std::vector&lt; int &gt; to_std() const</div><div class="ttdoc">Converts the instance to a std::vector.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01115">tgen.h:1115</a></div></div>
+<div class="ttc" id="agroup__permutation__inst_html_ga1e6f34f948818cccea36f53ef728fb00"><div class="ttname"><a href="#ga1e6f34f948818cccea36f53ef728fb00">tgen::permutation::instance::to_std</a></div><div class="ttdeci">std::vector&lt; int &gt; to_std() const</div><div class="ttdoc">Converts the instance to a std::vector.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01115">tgen.h:1115</a></div></div>
 </div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01115">1115</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
