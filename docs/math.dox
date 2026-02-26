@@ -21,7 +21,7 @@ namespace tgen::math {
  *
  * #### Complexity
  *
- * ` O(log^2 n)`.
+ * @tt{O(log^2 @pname{n})}.
  *
  * #### Examples
  *
@@ -40,13 +40,13 @@ namespace tgen::math {
  *
  * @param n Number to factor.
  *
- * @return List of prime factors of `n`, in non-decreasing order.
+ * @return List of prime factors of @pname{n}, in non-decreasing order.
  *
- * @pre `n > 0`.
+ * @pre @tt{@pname{n} > 0}.
  *
  * #### Complexity
  *
- * `O(n^(1/4) log n)` expected.
+ * @tt{O(@pname{n}^(1/4) log @pname{n})} expected.
  *
  * #### Examples
  *
@@ -65,13 +65,13 @@ namespace tgen::math {
  *
  * @param n Number to factor.
  *
- * @return List of prime factors of `n`, in increasing order, with its respective powers.
+ * @return List of prime factors of @pname{n}, in increasing order, with its respective powers.
  *
- * @pre `n > 0`.
+ * @pre @tt{@pname{n} > 0}.
  *
  * #### Complexity
  *
- * ` O(n^(1/4) log n)` expected.
+ * @tt{O(@pname{n}^(1/4) log @pname{n})} expected.
  *
  * #### Examples
  *
@@ -88,18 +88,18 @@ namespace tgen::math {
  * @ingroup math
  * @brief Computes modular inverse.
  *
- * @param a Number to compute the inverse of, mod `m`.
+ * @param a Number to compute the inverse of, mod @pname{m}.
  * @param m Mod.
  *
- * @return Inverse of `a` mod `m`.
+ * @return Inverse of @pname{a} mod @pname{m}.
  *
  * @pre
- * `n > 0`. <br>
- * `gcd(a, m) = 1`.
+ * @tt{@pname{mod} > @pname{a} >= 0}. <br>
+ * @tt{gcd(@pname{a}, @pname{mod}) = 1}.
  *
  * #### Complexity
  *
- * `O(log m)`.
+ * @tt{O(log mod)}.
  *
  * #### Examples
  *
@@ -119,14 +119,14 @@ namespace tgen::math {
  *
  * @param n Number to compute the totient of.
  *
- * @return Totient of `n`.
+ * @return Totient of @pname{n}.
  *
  * @pre
- * `n > 0`.
+ * @tt{@pname{n} > 0}.
  *
  * #### Complexity
  *
- * `O(n^(1/4) log n)` expected.
+ * @tt{O(@pname{n}^(1/4) log @pname{n})} expected.
  *
  * #### Examples
  *
@@ -147,17 +147,17 @@ namespace tgen::math {
  * @param r Right endpoint of range.
  * @param adjust_distribution If the distribution should be adjusted.
  *
- * @return A uniformly random prime in `[l, r]`.
+ * @return A uniformly random prime in @tt{[@pname{l}, @pname{r}]}.
  *
  * @pre
- * `n > 0`.
+ * @tt{@pname{n} > 0}.
  *
- * If `adjust_distribution = true`, then generates uniformly over value ranges.
+ * If @tt{@pname{adjust_distribution} = true}, then generates uniformly over value ranges.
  * Otherwise, uniform over primes, so smaller primes are generated more often.
  *
  * #### Complexity
  *
- * `O(log r)` expected.
+ * @tt{O(log @pname{r})} expected.
  *
  * #### Examples
  *
@@ -176,14 +176,14 @@ namespace tgen::math {
  *
  * @param l Bound.
  *
- * @return Smallest prime larger than `l`.
+ * @return Smallest prime larger than @pname{l}.
  *
  * @pre
- * `l < 2^64 - 59`.
+ * @tt{@pname{l} < 2^64 - 59}.
  *
  * #### Complexity
  *
- * `O(log^3 l)` expected.
+ * @tt{O(log^3 @pname{l})} expected.
  *
  * #### Examples
  *
@@ -204,11 +204,11 @@ namespace tgen::math {
  *
  * @param r Bound.
  *
- * @return Largest prime smaller than `r`.
+ * @return Largest prime smaller than @pname{r}.
  *
  * #### Complexity
  *
- * `O(log^3 r)` expected.
+ * @tt{O(log^3 @pname{r})} expected.
  *
  * #### Examples
  *
@@ -229,14 +229,14 @@ namespace tgen::math {
  *
  * @param n Number to compute the ammount of divisors of.
  *
- * @return Number of divisors of `n`.
+ * @return Number of divisors of @pname{n}.
  *
  * @pre
- * `n > 0`.
+ * @tt{@pname{n} > 0}.
  *
  * #### Complexity
  *
- * `O(n^(1/4) log n)` expected.
+ * @tt{O(@pname{n}^(1/4) log @pname{n})} expected.
  *
  * #### Examples
  *
@@ -260,11 +260,11 @@ namespace tgen::math {
  * @return Uniformly random number with given prime number of divisors.
  *
  * @pre
- * `divisor_count` is prime.
+ * @pname{divisor_count} is prime.
  *
  * #### Complexity
  *
- * `O(log(r) log(divisor_count))`.
+ * @tt{O(log(@pname{r}) log(@pname{divisor_count}))}.
  *
  * #### Examples
  *
@@ -281,9 +281,9 @@ namespace tgen::math {
  * @ingroup math
  * @brief Fetches prime gaps.
  *
- * Fetches maximal prime gaps for numbers that fit in `uint64_t` (less than `2^64`).
+ * Fetches maximal prime gaps for numbers that fit in @primitive{uint64_t} (less than @tt{2^64}).
  *
- * @return Columns `p_n` and `g_n` from
+ * @return Columns @tt{p_n} and @tt{g_n} from
  * <a href="https://en.wikipedia.org/wiki/Prime_gap#Numerical_results" target="_blank">wikipedia</a>.
  *
  * #### Examples
@@ -302,7 +302,7 @@ namespace tgen::math {
  *
  * @param r Bound.
  *
- * @return Largest prime gap no larger than `r`.
+ * @return Largest prime gap no larger than @pname{r}.
  *
  * #### Examples
  *
@@ -319,7 +319,7 @@ namespace tgen::math {
  * @ingroup math
  * @brief Fetches highly composite numbers.
  *
- * Fetches highly composite numbers that fit in `uint64_t` (less than `2^64`).
+ * Fetches highly composite numbers that fit in @primitive{uint64_t} (less than @tt{2^64}).
  *
  * @return Highly composite numbers from 
  * <a href="https://oeis.org/A002182/b002182.txt" target="_blank">wikipedia</a>.
@@ -341,7 +341,7 @@ namespace tgen::math {
  *
  * @param r Bound.
  *
- * @return Largest highly composite number no larger than `r`.
+ * @return Largest highly composite number no larger than @pname{r}.
  *
  * #### Examples
  *
@@ -363,17 +363,18 @@ namespace tgen::math {
  * @param rems Remainders.
  * @param mods Mods.
  *
- * @return Uniformly random number in `[l, r]` that is congruent to `rems[i]` mod `mods[i]`.
+ * @return Uniformly random number in @tt{[@pname{l}, @pname{r}]} that is congruent to
+ * @tt{@pname{rems}[i]} mod @tt{@pname{mods}[i]}.
  *
  * @pre
- * `|rems| = |mods|`. <br>
- * `rems[i] < mods[i]`.
+ * @tt{|@pname{rems}| = |@pname{mods}|}. <br>
+ * @tt{@pname{rems}[i] < @pname{mods}[i]}.
  *
  * @throws std::runtime_error if there is no such number.
  *
  * #### Complexity
  *
- * `O(|mods| + log r)`.
+ * @tt{O(|@pname{mods}| + log @pname{r})}.
  *
  * #### Examples
  *
@@ -395,18 +396,19 @@ namespace tgen::math {
  * @param rem Remainder.
  * @param mod Mod.
  *
- * @return Uniformly random number in `[l, r]` that is congruent to `rem` mod `mod`.
+ * @return Uniformly random number in @tt{[@pname{l}, @pname{r}]} that is congruent
+ * to @pname{rem} mod @pname{mod}.
  *
  * @pre
- * `rem < mod`.
+ * @tt{@pname{rem} < @pname{mod}}.
  *
  * @throws std::runtime_error if there is no such number.
  *
- * Equivalent to `tgen::math::gen_congruent(l, r, {rem}, {mod})`.
+ * Equivalent to @tt{tgen::math::gen_congruent(@pname{l}, @pname{r}, {@pname{rem}}, {@pname{mod}})}.
  *
  * #### Complexity
  *
- * `O(log r)`.
+ * @tt{O(log @pname{r})}.
  *
  * #### Examples
  *
@@ -426,15 +428,15 @@ namespace tgen::math {
  * @param l Left endpoint of range.
  * @param r Right endpoint of range.
  *
- * @return Uniformly random even number in `[l, r]`.
+ * @return Uniformly random even number in @tt{[@pname{l}, @pname{r}]}.
  *
  * @throws std::runtime_error if there is no such number.
  *
- * Equivalent to `tgen::math::gen_congruent(l, r, {0}, {2})`.
+ * Equivalent to @tt{tgen::math::gen_congruent(@pname{l}, @pname{r}, {0}, {2})}.
  *
  * #### Complexity
  *
- * `O(log r)`.
+ * @tt{O(log @pname{r})}.
  *
  * #### Examples
  *
@@ -454,15 +456,15 @@ namespace tgen::math {
  * @param l Left endpoint of range.
  * @param r Right endpoint of range.
  *
- * @return Uniformly random odd number in `[l, r]`.
+ * @return Uniformly random odd number in @tt{[@pname{l}, @pname{r}]}.
  *
  * @throws std::runtime_error if there is no such number.
  *
- * Equivalent to `tgen::math::gen_congruent(l, r, {1}, {2})`.
+ * Equivalent to @tt{tgen::math::gen_congruent(@pname{l}, @pname{r}, {1}, {2})}.
  *
  * #### Complexity
  *
- * `O(log r)`.
+ * @tt{O(log @pname{r})}.
  *
  * #### Examples
  *
@@ -493,7 +495,7 @@ namespace tgen::math {
  * @ingroup math
  * @brief Fetches Fibonacci numbers.
  *
- * Fetches Fibonacci numbers that fit in `uint64_t` (less than `2^64`).
+ * Fetches Fibonacci numbers that fit in @primitive{uint64_t} (less than @tt{2^64}).
  *
  * #### Examples
  *
@@ -514,22 +516,22 @@ namespace tgen::math {
  * @param part_l Minimum part value.
  * @param part_r Maximum part value.
  *
- * @return A uniformly random ordered partition of `n` with values in `[part_l, part_r]`.
+ * @return A uniformly random ordered partition of @pname{n} with values in @tt{[@pname{part_l}, @pname{part_r}]}.
  *
  * @pre
- * `n > 0`. <br>
- * `part_l > 0`.
+ * @tt{@pname{n} > 0}. <br>
+ * @tt{@pname{part_l} > 0}.
  *
  * @throws std::runtime_error if there is no such partition.
  *
- * Partition is ordered (so technically a composition). That is, `(1, 1, 2) != (1, 2, 1)`.
- * If `part_r = -1`, `part_r` is considered to be `n` (unbounded).
+ * Partition is ordered (so technically a composition). That is, @tt{(1, 1, 2) != (1, 2, 1)}.
+ * If @tt{@pname{part_r} = -1}, @pname{part_r} is considered to be @pname{n} (unbounded).
  *
  * @note Distribution might be slighly biased because of floating point arithmetic.
  *
  * #### Complexity
  *
- * `O(n)`.
+ * @tt{O(@pname{n})}.
  *
  * #### Examples
  *
@@ -551,23 +553,24 @@ namespace tgen::math {
  * @param part_l Minimum part value.
  * @param part_r Maximum part value.
  *
- * @return A uniformly random ordered partition of `n` with length `k` and values in `[part_l, part_r]`.
+ * @return A uniformly random ordered partition of @pname{n} with length @pname{k} and values
+ * in @tt{[@pname{part_l}, @pname{part_r}]}.
  *
  * @pre
- * `n >= k > 0`. <br>
- * `part_l >= 0`.
+ * @tt{@pname{n} >= @pname{k} > 0}. <br>
+ * @tt{@pname{part_l} >= 0}.
  *
  * @throws std::runtime_error if there is no such partition.
  *
- * Partition is ordered (so technically a composition). That is, `(1, 1, 2) != (1, 2, 1)`.
- * If `part_r = -1`, `part_r` is considered to be `n` (unbounded).
+ * Partition is ordered (so technically a composition). That is, @tt{(1, 1, 2) != (1, 2, 1)}.
+ * If @tt{@pname{part_r} = -1}, @pname{part_r} is considered to be @pname{n} (unbounded).
  *
  * @note Distribution might be slighly biased because of floating point arithmetic.
  *
  * #### Complexity
  *
- * `O(n)` time/memory if `part_r = -1`; <br>
- * `O(n * k)` time/memory otherwise.
+ * @tt{O(@pname{n})} time/memory if @tt{@pname{part_r} = -1}; <br>
+ * @tt{O(@pname{n} * @pname{k})} time/memory otherwise.
  *
  * #### Examples
  *

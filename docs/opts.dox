@@ -20,8 +20,8 @@ namespace tgen {
  * 
  * This does two things:
  * 1. Sets up the seed for random generator based on the arguments
- *    (excluding the executable name). That is, `./a.out -n 10` and
- *    `./b.out -n 10` will use the same seed.
+ *    (excluding the executable name). That is, @tt{./a.out -n 10} and
+ *    @tt{./b.out -n 10} will use the same seed.
  * 2. Parses the opts (given in the arguments).
  *
  * ### Opts
@@ -29,23 +29,23 @@ namespace tgen {
  * Opts are a list of either named or positional options.
  *
  * Named options is given in one of the following formats:
- * 1. `-keyname=value` or `--keyname=value` (ex. `-n=10`, `--test-count=20`)
- * 2. `-keyname value` or `--keyname value` (ex. `-n 10`, `--test-count 20`)
+ * 1. @tt{-keyname=value} or @tt{--keyname=value} (ex. @tt{-n=10}, @tt{--test-count=20})
+ * 2. @tt{-keyname value} or @tt{--keyname value} (ex. @tt{-n 10}, @tt{--test-count 20})
  *
  * Positional options are numbered from 0 sequentially.
  *
- * For example, if you compile your code to `a.out`, calling
- * `./a.out -n 10 str --q=5 -1.1e2` results in the following opts:
+ * For example, if you compile your code to @tt{a.out}, calling
+ * @tt{./a.out -n 10 str --q=5 -1.1e2} results in the following opts:
  * - Named
- *   - `n`: `10`
- *   - `q`: `5`
+ *   - @tt{n}: @tt{10}
+ *   - @tt{q}: @tt{5}
  * - Positional
- *   - `0`: `str`
- *   - `1`: `-110`
+ *   - @tt{0}: @tt{str}
+ *   - @tt{1}: @tt{-110}
  * 
  * #### Consuming opts
  * 
- * You can consume the opts by using `opt<>`:
+ * You can consume the opts by using @tt{opt<>}:
  * 
  * ```cpp
  * int n = tgen::opt<int>("n");
@@ -57,11 +57,11 @@ namespace tgen {
 
 /**
  * @ingroup opts
- * @brief Checks if opt with at `index` exists.
+ * @brief Checks if opt at some index exists.
  *
  * @param index Index of positional opt.
  *
- * @return If there is positional opt at `index`.
+ * @return If there is positional opt at @pname{index}.
  *
  * #### Examples
  *
@@ -76,11 +76,11 @@ namespace tgen {
 
 /**
  * @ingroup opts
- * @brief Checks if opt with with `key` exists.
+ * @brief Checks if opt with with some key exists.
  *
  * @param key Key of named opt.
  *
- * @return If there is named opt with `key`.
+ * @return If there is named opt with @pname{key}.
  *
  * #### Examples
  *
@@ -99,13 +99,13 @@ namespace tgen {
  *
  * @tparam T Type of the opt.
  *
- * @param key Key to fetch. If it is of type `int`, considered to be an index.
- * Otherwise, considered to be a `std::string` named opt key.
- * @param default_value Default value to be returned, if `key` is not found.
+ * @param key Key to fetch. If it is of type @primitive{int}, considered to be an index.
+ * Otherwise, considered to be a @type{std::string} named opt key.
+ * @param default_value Default value to be returned, if @pname{key} is not found.
  *
- * @return The value of opt at `key` (index or name). If not found, returns `default_value`.
+ * @return The value of opt at/with @pname{key} (index or name). If not found, returns @pname{default_value}.
  *
- * @throws std::runtime_error if opt is not found and `default_value` is not given.
+ * @throws std::runtime_error if opt is not found and @pname{default_value} is not given.
  *
  * #### Examples
  *

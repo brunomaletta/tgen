@@ -38,9 +38,9 @@ namespace tgen {
  * @ingroup permutation
  * @brief Defines a set of permutations, subject to restrictions.
  *
- * A uniformly random `tgen::permutation::instance`
+ * A uniformly random @tt{tgen::permutation::instance}
  * (see @ref permutation_inst) from this set of permutations (that satisfies the restrictions) can be
- * generated with `tgen::permutation::gen`.
+ * generated with @tt{tgen::permutation::gen}.
  */
 
 
@@ -73,7 +73,7 @@ namespace tgen {
 
 /**
  * @ingroup permutation_gen
- * @brief Restricts generator s.t. value at index `idx` is `value`.
+ * @brief Restricts generator s.t. value at index is fixed.
  *
  * @param idx Index.
  * @param value Value.
@@ -95,7 +95,7 @@ namespace tgen {
  *
  * #### Complexity
  *
- * `O(n log n)`.
+ * @tt{O(n log n)}.
  *
  * #### Examples
  *
@@ -118,12 +118,12 @@ namespace tgen {
  *
  * @param cycle_sizes Sizes of cycles.
  *
- * The sizes of cycles of the generated permuttion will be `cycle_sizes`. The permutation is generated
+ * The sizes of cycles of the generated permuttion will be @pname{cycle_sizes}. The permutation is generated
  * uniformly at random among all permutations with these cycle sizes.
  *
  * #### Complexity
  *
- * `O(n)`.
+ * @tt{O(n)}.
  *
  * #### Examples
  *
@@ -143,26 +143,27 @@ namespace tgen {
  * @ingroup permutation_gen
  * @brief Generates a random instance from the set of valid permutations until a condition is met.
  *
- * Calls `tgen::permutation::gen(args...)` until `predicate` is true, at most `max_tries` times.
- * If `predicate` has probabiliyy `p` of returning `true`, then the `::tgen::sequence::instance`
- * will be found with probability `1 - (1-p)^max_tries`.
+ * Calls @tt{tgen::permutation::gen(args...)} until @pname{predicate} is true, at most @pname{max_tries} times.
+ * If @pname{predicate} has probabiliyy @tt{p} of returning @tt{true}, then the @tt{tgen::sequence::instance}
+ * will be found with probability @tt{1 - (1-p)^@pname{max_tries}}.
  *
- * @tparam Gen Automatically set to `tgen::permutation`.
- * @tparam Pred Type of `predicate`, deduced automatically.
- * @tparam Args Empty or `std::vector<int>` with cycle sizes, deduced automatically.
+ * @tparam Gen Automatically set to @tt{tgen::permutation}.
+ * @tparam Pred Type of @pname{predicate}, deduced automatically.
+ * @tparam Args Empty or @texttt{@namespace{std}::@type{vector}<@primitive{int}>} with cycle sizes,
+ *         deduced automatically.
  *
  * @param predicate Condition to be checked. Should be a function that takes in a
- *        `tgen::sequence::instance`, and returns a `bool`.
+ *        @tt{tgen::sequence::instance}, and returns a @primitive{bool}.
  * @param max_tries The maximum number of times the function will try to generate a valid instance
- *        satisfying `predicate`.
- * @param args Arguments for the the function `tgen::permutation::gen`.
+ *        satisfying @pname{predicate}.
+ * @param args Arguments for the the function @tt{tgen::permutation::gen}.
  *
  * @return An instance found by repeatedly choosing a uniformly random valid permutation and checking
- * if it satisfies `predicate`.
+ * if it satisfies @pname{predicate}.
  *
  * #### Complexity
  *
- * `O((1/p) n log n)` expected, `O(max_tries * n log n)` worst case.
+ * @tt{O((1/p) n log n)} expected, @tt{O(@pname{max_tries} * n log n)} worst case.
  *
  * #### Examples
  *
@@ -180,7 +181,7 @@ namespace tgen {
  * 	 << std::endl;
  * ```
  *
- * @throws std::runtime_error if no valid instance satisfying `predicate` is found after `max_tries`
+ * @throws std::runtime_error if no valid instance satisfying @pname{predicate} is found after @pname{max_tries}
  *         tries.
  *
  * @memberof tgen::permutation
@@ -213,9 +214,9 @@ instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... a
 
 /**
  * @ingroup permutation_inst
- * @brief Creates a permutation instance from a `std::vector`.
+ * @brief Creates a permutation instance from a @texttt{@namespace{std}::@type{vector}}.
  *
- * @param vec The `std::vector` representing the instance.
+ * @param vec The @texttt{@namespace{std}::@type{vector}} representing the instance.
  *
  * #### Examples
  *
@@ -339,11 +340,11 @@ instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... a
  * @ingroup permutation_inst
  * @brief Inverse of the permutation.
  *
- * The inverse of the permutation `p` is another `pi` such that `pi[p[i]] = p[pi[i]] = i`.
+ * The inverse of the permutation @tt{p} is another @tt{pi} such that @tt{pi[p[i]] = p[pi[i]] = i}.
  *
  * #### Complexity
  *
- * `O(n)`.
+ * @tt{O(n)}.
  *
  * #### Examples
  *
@@ -362,11 +363,12 @@ instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... a
  * @ingroup permutation_inst
  * @brief Adds 1 for printing.
  *
- * This makes it so, when given to `std::cout`, the permutation will be printed as 1-based.
+ * This makes it so, when given to @texttt{@namespace{std}::@type{cout}}, the permutation will be printed as
+ * 1-based.
  *
  * #### Complexity
  *
- * `O(1)`.
+ * @tt{O(1)}.
  *
  * #### Examples
  *
@@ -383,7 +385,7 @@ instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... a
 
 /**
  * @ingroup permutation_inst
- * @brief Prints the instance to a `std::ostream`.
+ * @brief Prints the instance to a @texttt{@namespace{std}::@type{ostream}}.
  *
  * The values are printed with one space as a separator,
  * and with no end of line.
@@ -402,9 +404,9 @@ instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... a
 
 /**
  * @ingroup permutation_inst
- * @brief Converts the instance to a `std::vector`.
+ * @brief Converts the instance to a @texttt{@namespace{std}::@type{vector}}.
  *
- * @return A `std::vector` representing the instance.
+ * @return A @texttt{@namespace{std}::@type{vector}} representing the instance.
  *
  * #### Examples
  *
@@ -415,7 +417,7 @@ instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... a
  * // v = {2, 1, 3}.
  * ```
  *
- * @fn @fn permutation::instance::to_std();
+ * @fn permutation::instance::to_std();
  */
 
 };

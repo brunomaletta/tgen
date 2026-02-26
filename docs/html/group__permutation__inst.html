@@ -327,6 +327,9 @@ document.addEventListener('DOMContentLoaded', function() {
 					return "paramdefval";       // numeric literal
 				return "paramdefval";           // anything in default expr
 			}
+			// namespace std.
+			if (tok === "std")
+				return "namespace";
 			// KEYWORDS
 			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
 				return "keyword";
@@ -488,7 +491,7 @@ Classes</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ga022bd193f265bdddb5e88563bf539bdc" id="r_ga022bd193f265bdddb5e88563bf539bdc"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga022bd193f265bdddb5e88563bf539bdc">tgen::permutation::instance::instance</a> (const std::vector&lt; int &gt; &amp;vec)</td></tr>
-<tr class="memdesc:ga022bd193f265bdddb5e88563bf539bdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a permutation instance from a <span class="tt">std::vector</span>.  <br /></td></tr>
+<tr class="memdesc:ga022bd193f265bdddb5e88563bf539bdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a permutation instance from a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>.  <br /></td></tr>
 <tr class="memitem:ga37dc74a069f7982c5c59874526fdd515" id="r_ga37dc74a069f7982c5c59874526fdd515"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga37dc74a069f7982c5c59874526fdd515">tgen::permutation::instance::size</a> () const</td></tr>
 <tr class="memdesc:ga37dc74a069f7982c5c59874526fdd515"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of the permutation instance.  <br /></td></tr>
 <tr class="memitem:ga18be60008a91144647cd8fcd35fd2ce7" id="r_ga18be60008a91144647cd8fcd35fd2ce7"><td class="memItemLeft" align="right" valign="top">int &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga18be60008a91144647cd8fcd35fd2ce7">tgen::permutation::instance::operator[]</a> (int idx)</td></tr>
@@ -504,12 +507,12 @@ Functions</h2></td></tr>
 <tr class="memitem:ga6d233f8f6071775beef07568a533ddd0" id="r_ga6d233f8f6071775beef07568a533ddd0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga6d233f8f6071775beef07568a533ddd0">tgen::permutation::instance::add_1</a> ()</td></tr>
 <tr class="memdesc:ga6d233f8f6071775beef07568a533ddd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds 1 for printing.  <br /></td></tr>
 <tr class="memitem:ga1e6f34f948818cccea36f53ef728fb00" id="r_ga1e6f34f948818cccea36f53ef728fb00"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga1e6f34f948818cccea36f53ef728fb00">tgen::permutation::instance::to_std</a> () const</td></tr>
-<tr class="memdesc:ga1e6f34f948818cccea36f53ef728fb00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the instance to a <span class="tt">std::vector</span>.  <br /></td></tr>
+<tr class="memdesc:ga1e6f34f948818cccea36f53ef728fb00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the instance to a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-friend-members" class="groupheader"><a id="friend-members" name="friend-members"></a>
 Friends</h2></td></tr>
 <tr class="memitem:gac5aa4456b0e4503a152e2113a48d8465" id="r_gac5aa4456b0e4503a152e2113a48d8465"><td class="memItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gac5aa4456b0e4503a152e2113a48d8465">tgen::permutation::instance::operator&lt;&lt;</a> (std::ostream &amp;out, const <a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a> &amp;inst)</td></tr>
-<tr class="memdesc:gac5aa4456b0e4503a152e2113a48d8465"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints the instance to a <span class="tt">std::ostream</span>.  <br /></td></tr>
+<tr class="memdesc:gac5aa4456b0e4503a152e2113a48d8465"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints the instance to a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">ostream</span></span>.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <p>Instance of a permutation. </p>
@@ -539,10 +542,10 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Adds 1 for printing. </p>
-<p>This makes it so, when given to <span class="tt">std::cout</span>, the permutation will be printed as 1-based.</p>
+<p>This makes it so, when given to <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">cout</span></span>, the permutation will be printed as 1-based.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md86"></a>
 Complexity</h4>
-<p><span class="tt">O(1)</span>.</p>
+<p><span class="tgen-code texttt">O(1)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md87"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints a 1-based permutation.</span></div>
@@ -579,10 +582,10 @@ Examples</h4>
 </table>
 </div><div class="memdoc">
 
-<p>Creates a permutation instance from a <span class="tt">std::vector</span>. </p>
+<p>Creates a permutation instance from a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">vec</td><td>The <span class="tt">std::vector</span> representing the instance.</td></tr>
+    <tr><td class="paramname">vec</td><td>The <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span> representing the instance.</td></tr>
   </table>
   </dd>
 </dl>
@@ -625,10 +628,10 @@ Examples</h4>
 </div><div class="memdoc">
 
 <p>Inverse of the permutation. </p>
-<p>The inverse of the permutation <span class="tt">p</span> is another <span class="tt">pi</span> such that <span class="tt">pi[p[i]] = p[pi[i]] = i</span>.</p>
+<p>The inverse of the permutation <span class="tgen-code texttt">p</span> is another <span class="tgen-code texttt">pi</span> such that <span class="tgen-code texttt">pi[p[i]] = p[pi[i]] = i</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md84"></a>
 Complexity</h4>
-<p><span class="tt">O(n)</span>.</p>
+<p><span class="tgen-code texttt">O(n)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md85"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints inverse of permutation.</span></div>
@@ -858,8 +861,8 @@ Examples</h4>
 </table>
 </div><div class="memdoc">
 
-<p>Converts the instance to a <span class="tt">std::vector</span>. </p>
-<dl class="section return"><dt>Returns</dt><dd>A <span class="tt">std::vector</span> representing the instance.</dd></dl>
+<p>Converts the instance to a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>. </p>
+<dl class="section return"><dt>Returns</dt><dd>A <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span> representing the instance.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md89"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Convoluted way to reverse a permutation.</span></div>
@@ -900,7 +903,7 @@ Examples</h4>
 </table>
 </div><div class="memdoc">
 
-<p>Prints the instance to a <span class="tt">std::ostream</span>. </p>
+<p>Prints the instance to a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">ostream</span></span>. </p>
 <p>The values are printed with one space as a separator, and with no end of line.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md88"></a>
 Examples</h4>

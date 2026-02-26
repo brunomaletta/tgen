@@ -26,12 +26,12 @@ namespace tgen {
 
 /**
  * @ingroup general
- * @brief Ensures condition `cond` is true.
+ * @brief Ensures condition is true.
  *
  * @param cond Condition to me ensured.
  * @param ... Empty or a string with an error message.
  *
- * @throws std::runtime_error if `cond` is not true.
+ * @throws std::runtime_error if @pname{cond} is not true.
  *
  * #### Examples
  *
@@ -51,11 +51,11 @@ namespace tgen {
  * @ingroup general
  * @brief Printer helper for standard types.
  *
- * Just call `std::cout << print(x)` to print `x`, or `std::cout << println(x)` to
- * print `x` and `\n`. Works with `std::initializer_list`.
+ * Just call @tt{std::cout << print(x)} to print @tt{x}, or @tt{std::cout << println(x)} to
+ * print @tt{x} and @tt{\\n}. Works with @tt{std::initializer_list}.
  *
- * Prints `std::pair`, `std::tuple` and containers nicely (separade by a space).
- * Matrices (`container<container<T>>`) are also handleled nicely, printing one
+ * Prints @tt{std::pair}, @tt{std::tuple} and containers nicely (separade by a space).
+ * Matrices (@tt{container<container<T>>}) are also handleled nicely, printing one
  * row per line.
  *
  * #### Examples
@@ -76,18 +76,16 @@ namespace tgen {
  * @ingroup general
  * @brief Returns a random number in @tt{[@pname{l}, @pname{r}]}.
  *
- * @tparam T type to be generated. Should be an arithmetic type: `int`, `long long`, `char`, etc.
+ * @tparam T type to be generated. Should be an arithmetic type: @primitive{int}, @primitive{double}, @primitive{long long}, @primitive{char}, etc.
  *
  * @param l Left endpoint of the range.
  * @param r Light endpoint of the range.
  *
- * @return A random number in `[l, r]`, chosen uniformly.
- *
- * `T` can be either an integral type (`int`, `long long`, ...) or floating point (`float`, `double`).
+ * @return A random number in @tt{[@pname{l}, @pname{r}]}, chosen uniformly.
  *
  * #### Complexity
  *
- * `O(1)`.
+ * @tt{O(1)}.
  *
  * #### Examples
  *
@@ -102,17 +100,18 @@ namespace tgen {
 
 /**
  * @ingroup general
- * @brief Shuffles `[first, last)` inplace, for RandomAccessIterator.
+ * @brief Shuffles range inplace, for random_access_iterator.
  *
- * Works for `std::vector`, `std::string`, etc, but not `std::set`. For those,
- * use `tgen::shuffle(container)`.
+ * Shuffles @tt{[@pname{first}, @pname{last})} uniformly inplace. Works for
+ * @texttt{@namespace{std}::@type{vector}}, @texttt{@namespace{std}::@type{string}}, etc, but not
+ * @texttt{@namespace{std}::@type{set}}. For those, use @tt{tgen::shuffle(@pname{container})}.
  *
  * @param first First iterator of range.
  * @param last First iterator outside of range.
  *
  * #### Complexity
  *
- * `O(|last - first|)`.
+ * @tt{O(|@pname{last} - @pname{first}|)}.
  *
  * #### Examples
  *
@@ -127,10 +126,11 @@ namespace tgen {
 
 /**
  * @ingroup general
- * @brief Shuffles `container`.
+ * @brief Shuffles a container.
  *
- * Works for containers and `std::initializer_list`. If container is ordered
- * (`std::set`, etc) or `std::initializer_list`, returns a `std::vector` (different function).
+ * Works for containers and @texttt{@namespace{std}::@type{initializer_list}}. If @pname{container} is ordered
+ * (@texttt{@namespace{std}::@type{set}}, etc) or @texttt{@namespace{std}::@type{initializer_list}}, returns a
+ * @texttt{@namespace{std}::@type{vector}} (implemented in a different function).
  *
  * @param container Container to be shuffled.
  *
@@ -138,7 +138,7 @@ namespace tgen {
  *
  * #### Complexity
  *
- * `O(|container|)`.
+ * @tt{O(|@pname{container}|)}.
  *
  * #### Examples
  *
@@ -155,16 +155,16 @@ namespace tgen {
 
 /**
  * @ingroup general
- * @brief Choses a random element from `[first, last)`.
+ * @brief Choses a random element from iterator range.
  *
  * @param first First iterator of range.
  * @param last First iterator outside of range.
  *
- * @return A uniformly random element from the range `[first, last)`.
+ * @return A uniformly random element from the range @tt{[@pname{first}, @pname{last})}.
  *
  * #### Complexity
  *
- * `O(1)` for random_access_iterator, `O(|last - first|)` otherwise.
+ * @tt{O(1)} for random_access_iterator, @tt{O(|@pname{last} - @pname{first}|)} otherwise.
  *
  * #### Examples
  *
@@ -179,17 +179,17 @@ namespace tgen {
 
 /**
  * @ingroup general
- * @brief Choses a random element from `container`.
+ * @brief Choses a random element from container.
  *
- * Also works with `std::initializer_list`.
+ * Also works with @texttt{@namespace{std}::@type{initializer_list}}.
  *
  * @param container Container to choose from.
  *
- * @return A uniformly random element from `container`.
+ * @return A uniformly random element from @pname{container}.
  *
  * #### Complexity
  *
- * `O(1)` for random_access_iterator, `O(|container|)` otherwise.
+ * @tt{O(1)} for random_access_iterator, @tt{O(|@pname{container}|)} otherwise.
  *
  * #### Examples
  *
@@ -204,18 +204,18 @@ namespace tgen {
 
 /**
  * @ingroup general
- * @brief Chooses `k` values from the container, as in a subsequence of size `k`.
+ * @brief Chooses elements from container, as in a subsequence fixed length.
  *
- * Also works with `std::initializer_list`.
+ * Also works with @texttt{@namespace{std}::@type{initializer_list}}.
  *
  * @param k Number of elements to be chosen.
  * @param container Container to choose from.
  *
- * @return A uniformly random subsequence of length `k`.
+ * @return A uniformly random subsequence of length @pname{k}.
  *
  * #### Complexity
  *
- * `O(|container|)`.
+ * @tt{O(|@pname{container}|)}.
  *
  * #### Examples
  *

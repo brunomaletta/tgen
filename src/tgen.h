@@ -1269,15 +1269,15 @@ inline std::vector<std::pair<uint64_t, int>> factor_by_prime(uint64_t n) {
 	return primes;
 }
 
-// O(log m).
-// 0 < a < m.
-// gcd(a,m) = 1.
-inline __int128 modular_inverse_128_internal(__int128 a, __int128 m) {
-	tgen_ensure(0 < a and a < m,
+// O(log mod).
+// 0 < a < mod.
+// gcd(a, mod) = 1.
+inline __int128 modular_inverse_128_internal(__int128 a, __int128 mod) {
+	tgen_ensure(0 < a and a < mod,
 				"remainder must be positive and smaller than the mod");
 
 	__int128 t = 0, new_t = 1;
-	__int128 r = m, new_r = a;
+	__int128 r = mod, new_r = a;
 
 	while (new_r != 0) {
 		__int128 q = r / new_r;
@@ -1294,7 +1294,7 @@ inline __int128 modular_inverse_128_internal(__int128 a, __int128 m) {
 	tgen_ensure(r == 1, "remainder and mod must be coprime");
 
 	if (t < 0)
-		t += m;
+		t += mod;
 	return t;
 }
 

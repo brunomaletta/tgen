@@ -327,6 +327,9 @@ document.addEventListener('DOMContentLoaded', function() {
 					return "paramdefval";       // numeric literal
 				return "paramdefval";           // anything in default expr
 			}
+			// namespace std.
+			if (tok === "std")
+				return "namespace";
 			// KEYWORDS
 			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
 				return "keyword";
@@ -489,7 +492,7 @@ Functions</h2></td></tr>
 <tr class="memitem:gaa6173196c6a1a88fa877426a3bfc5fa4" id="r_gaa6173196c6a1a88fa877426a3bfc5fa4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaa6173196c6a1a88fa877426a3bfc5fa4">tgen::permutation::permutation</a> (int size)</td></tr>
 <tr class="memdesc:gaa6173196c6a1a88fa877426a3bfc5fa4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates permutation generator defined by size.  <br /></td></tr>
 <tr class="memitem:ga93ed551342af2f51b5f04bba721b6c95" id="r_ga93ed551342af2f51b5f04bba721b6c95"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation.html">permutation</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga93ed551342af2f51b5f04bba721b6c95">tgen::permutation::set</a> (int idx, int value)</td></tr>
-<tr class="memdesc:ga93ed551342af2f51b5f04bba721b6c95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. value at index <span class="tt">idx</span> is <span class="tt">value</span>.  <br /></td></tr>
+<tr class="memdesc:ga93ed551342af2f51b5f04bba721b6c95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. value at index is fixed.  <br /></td></tr>
 <tr class="memitem:gaeecbe05053f2e0f2ce306458ffd99983" id="r_gaeecbe05053f2e0f2ce306458ffd99983"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaeecbe05053f2e0f2ce306458ffd99983">tgen::permutation::gen</a> ()</td></tr>
 <tr class="memdesc:gaeecbe05053f2e0f2ce306458ffd99983"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid permutations.  <br /></td></tr>
 <tr class="memitem:gacf686b873af79b58f3ecae1c208cb022" id="r_gacf686b873af79b58f3ecae1c208cb022"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gacf686b873af79b58f3ecae1c208cb022">tgen::permutation::gen</a> (std::vector&lt; int &gt; cycle_sizes)</td></tr>
@@ -500,7 +503,7 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <p>Defines a set of permutations, subject to restrictions. </p>
-<p>A uniformly random <span class="tt"><a class="el" href="structtgen_1_1permutation_1_1instance.html" title="Permutation instance.">tgen::permutation::instance</a></span> (see <a class="el" href="group__permutation__inst.html">Permutation instances</a>) from this set of permutations (that satisfies the restrictions) can be generated with <span class="tt"><a class="el" href="#gaeecbe05053f2e0f2ce306458ffd99983" title="Generates a random instance from the set of valid permutations.">tgen::permutation::gen</a></span>. </p>
+<p>A uniformly random <span class="tgen-code texttt"><a class="el" href="structtgen_1_1permutation_1_1instance.html" title="Permutation instance.">tgen::permutation::instance</a></span> (see <a class="el" href="group__permutation__inst.html">Permutation instances</a>) from this set of permutations (that satisfies the restrictions) can be generated with <span class="tgen-code texttt"><a class="el" href="#gaeecbe05053f2e0f2ce306458ffd99983" title="Generates a random instance from the set of valid permutations.">tgen::permutation::gen</a></span>. </p>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
 <a id="gaeecbe05053f2e0f2ce306458ffd99983" name="gaeecbe05053f2e0f2ce306458ffd99983"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaeecbe05053f2e0f2ce306458ffd99983">&#9670;&#160;</a></span>gen() <span class="overload">[1/2]</span></h2>
@@ -528,7 +531,7 @@ Functions</h2></td></tr>
 <p>Generates a random instance from the set of valid permutations. </p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md70"></a>
 Complexity</h4>
-<p><span class="tt">O(n log n)</span>.</p>
+<p><span class="tgen-code texttt">O(n log n)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md71"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Generates and prints a random permutation of size 5.</span></div>
@@ -577,10 +580,10 @@ Examples</h4>
   </table>
   </dd>
 </dl>
-<p>The sizes of cycles of the generated permuttion will be <span class="tt">cycle_sizes</span>. The permutation is generated uniformly at random among all permutations with these cycle sizes.</p>
+<p>The sizes of cycles of the generated permuttion will be <span class="paramname texttt">cycle_sizes</span>. The permutation is generated uniformly at random among all permutations with these cycle sizes.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md72"></a>
 Complexity</h4>
-<p><span class="tt">O(n)</span>.</p>
+<p><span class="tgen-code texttt">O(n)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md73"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Generates and prints a random permutation of size 5 with only one cycle.</span></div>
@@ -624,27 +627,27 @@ template&lt;typename Gen, typename Pred, typename... Args&gt; </div>
 </div><div class="memdoc">
 
 <p>Generates a random instance from the set of valid permutations until a condition is met. </p>
-<p>Calls <span class="tt">tgen::permutation::gen(args...)</span> until <span class="tt">predicate</span> is true, at most <span class="tt">max_tries</span> times. If <span class="tt">predicate</span> has probabiliyy <span class="tt">p</span> of returning <span class="tt">true</span>, then the <span class="tt"><a class="el" href="structtgen_1_1sequence_1_1instance.html" title="Sequence instance.">tgen::sequence::instance</a></span> will be found with probability <span class="tt">1 - (1-p)^max_tries</span>.</p>
+<p>Calls <span class="tgen-code texttt">tgen::permutation::gen(args...)</span> until <span class="paramname texttt">predicate</span> is true, at most <span class="paramname texttt">max_tries</span> times. If <span class="paramname texttt">predicate</span> has probabiliyy <span class="tgen-code texttt">p</span> of returning <span class="tgen-code texttt">true</span>, then the <span class="tgen-code texttt"><a class="el" href="structtgen_1_1sequence_1_1instance.html" title="Sequence instance.">tgen::sequence::instance</a></span> will be found with probability <span class="tgen-code texttt">1 - (1-p)^<span class="paramname texttt">max_tries</span></span>.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">Gen</td><td>Automatically set to <span class="tt"><a class="el" href="structtgen_1_1permutation.html" title="Permutation generator.">tgen::permutation</a></span>. </td></tr>
-    <tr><td class="paramname">Pred</td><td>Type of <span class="tt">predicate</span>, deduced automatically. </td></tr>
-    <tr><td class="paramname">Args</td><td>Empty or <span class="tt">std::vector&lt;int&gt;</span> with cycle sizes, deduced automatically.</td></tr>
+    <tr><td class="paramname">Gen</td><td>Automatically set to <span class="tgen-code texttt"><a class="el" href="structtgen_1_1permutation.html" title="Permutation generator.">tgen::permutation</a></span>. </td></tr>
+    <tr><td class="paramname">Pred</td><td>Type of <span class="paramname texttt">predicate</span>, deduced automatically. </td></tr>
+    <tr><td class="paramname">Args</td><td>Empty or <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span>&lt;<span class="tgen-primitive texttt">int</span>&gt;</span> with cycle sizes, deduced automatically.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">predicate</td><td>Condition to be checked. Should be a function that takes in a <span class="tt"><a class="el" href="structtgen_1_1sequence_1_1instance.html" title="Sequence instance.">tgen::sequence::instance</a></span>, and returns a <span class="tt">bool</span>. </td></tr>
-    <tr><td class="paramname">max_tries</td><td>The maximum number of times the function will try to generate a valid instance satisfying <span class="tt">predicate</span>. </td></tr>
-    <tr><td class="paramname">args</td><td>Arguments for the the function <span class="tt"><a class="el" href="#gaeecbe05053f2e0f2ce306458ffd99983" title="Generates a random instance from the set of valid permutations.">tgen::permutation::gen</a></span>.</td></tr>
+    <tr><td class="paramname">predicate</td><td>Condition to be checked. Should be a function that takes in a <span class="tgen-code texttt"><a class="el" href="structtgen_1_1sequence_1_1instance.html" title="Sequence instance.">tgen::sequence::instance</a></span>, and returns a <span class="tgen-primitive texttt">bool</span>. </td></tr>
+    <tr><td class="paramname">max_tries</td><td>The maximum number of times the function will try to generate a valid instance satisfying <span class="paramname texttt">predicate</span>. </td></tr>
+    <tr><td class="paramname">args</td><td>Arguments for the the function <span class="tgen-code texttt"><a class="el" href="#gaeecbe05053f2e0f2ce306458ffd99983" title="Generates a random instance from the set of valid permutations.">tgen::permutation::gen</a></span>.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>An instance found by repeatedly choosing a uniformly random valid permutation and checking if it satisfies <span class="tt">predicate</span>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>An instance found by repeatedly choosing a uniformly random valid permutation and checking if it satisfies <span class="paramname texttt">predicate</span>.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md74"></a>
 Complexity</h4>
-<p><span class="tt">O((1/p) n log n)</span> expected, <span class="tt">O(max_tries * n log n)</span> worst case.</p>
+<p><span class="tgen-code texttt">O((1/p) n log n)</span> expected, <span class="tgen-code texttt">O(<span class="paramname texttt">max_tries</span> * n log n)</span> worst case.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md75"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints a random odd permutation of size 5.</span></div>
@@ -661,7 +664,7 @@ Examples</h4>
 <div class="ttc" id="agroup__permutation__gen_html_ga277a9c8f86271b395b76618a7e0dd0e6"><div class="ttname"><a href="#ga277a9c8f86271b395b76618a7e0dd0e6">tgen::permutation::gen_until</a></div><div class="ttdeci">instance gen_until(Pred predicate, int max_tries, Args &amp;&amp;... args)</div><div class="ttdoc">Generates a random instance from the set of valid permutations until a condition is met.</div></div>
 </div><!-- fragment --><dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td>if no valid instance satisfying <span class="tt">predicate</span> is found after <span class="tt">max_tries</span> tries. </td></tr>
+    <tr><td class="paramname">std::runtime_error</td><td>if no valid instance satisfying <span class="paramname texttt">predicate</span> is found after <span class="paramname texttt">max_tries</span> tries. </td></tr>
   </table>
   </dd>
 </dl>
@@ -734,7 +737,7 @@ Examples</h4>
 </table>
 </div><div class="memdoc">
 
-<p>Restricts generator s.t. value at index <span class="tt">idx</span> is <span class="tt">value</span>. </p>
+<p>Restricts generator s.t. value at index is fixed. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">idx</td><td>Index. </td></tr>
@@ -746,7 +749,7 @@ Examples</h4>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Permutations of size 10 that start with 1.</span></div>
 <div class="line"><span class="keyword">auto</span> perm_gen = <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(10).<a class="code hl_function" href="#ga93ed551342af2f51b5f04bba721b6c95">set</a>(0, 1);</div>
-<div class="ttc" id="agroup__permutation__gen_html_ga93ed551342af2f51b5f04bba721b6c95"><div class="ttname"><a href="#ga93ed551342af2f51b5f04bba721b6c95">tgen::permutation::set</a></div><div class="ttdeci">permutation &amp; set(int idx, int value)</div><div class="ttdoc">Restricts generator s.t. value at index idx is value.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01021">tgen.h:1021</a></div></div>
+<div class="ttc" id="agroup__permutation__gen_html_ga93ed551342af2f51b5f04bba721b6c95"><div class="ttname"><a href="#ga93ed551342af2f51b5f04bba721b6c95">tgen::permutation::set</a></div><div class="ttdeci">permutation &amp; set(int idx, int value)</div><div class="ttdoc">Restricts generator s.t. value at index is fixed.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01021">tgen.h:1021</a></div></div>
 </div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01021">1021</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 

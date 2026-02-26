@@ -327,6 +327,9 @@ document.addEventListener('DOMContentLoaded', function() {
 					return "paramdefval";       // numeric literal
 				return "paramdefval";           // anything in default expr
 			}
+			// namespace std.
+			if (tok === "std")
+				return "namespace";
 			// KEYWORDS
 			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
 				return "keyword";
@@ -488,7 +491,7 @@ Classes</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 id="header-define-members" class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
 <tr class="memitem:gabc423cf4476d436001120351be24e896" id="r_gabc423cf4476d436001120351be24e896"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(cond, ...)</td></tr>
-<tr class="memdesc:gabc423cf4476d436001120351be24e896"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ensures condition <span class="tt">cond</span> is true.  <br /></td></tr>
+<tr class="memdesc:gabc423cf4476d436001120351be24e896"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ensures condition is true.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -497,19 +500,19 @@ Functions</h2></td></tr>
 <tr class="memdesc:gaa007cf5e254380332a3548711d5f9b16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a random number in <span class="tgen-code texttt">[<span class="paramname texttt">l</span>, <span class="paramname texttt">r</span>]</span>.  <br /></td></tr>
 <tr class="memitem:ga5494e4e347f9d1dc5b88695e0777f65b" id="r_ga5494e4e347f9d1dc5b88695e0777f65b"><td class="memTemplParams" colspan="2">template&lt;typename It&gt; </td></tr>
 <tr class="memitem:ga5494e4e347f9d1dc5b88695e0777f65b template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a> (It first, It last)</td></tr>
-<tr class="memdesc:ga5494e4e347f9d1dc5b88695e0777f65b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles <span class="tt">[first, last)</span> inplace, for RandomAccessIterator.  <br /></td></tr>
+<tr class="memdesc:ga5494e4e347f9d1dc5b88695e0777f65b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles range inplace, for random_access_iterator.  <br /></td></tr>
 <tr class="memitem:ga440766a0d1b82b481e532cc2a8dbc717" id="r_ga440766a0d1b82b481e532cc2a8dbc717"><td class="memTemplParams" colspan="2">template&lt;typename C, std::enable_if_t&lt;!<a class="el" href="structtgen_1_1is__associative__container__internal.html">is_associative_container_internal</a>&lt; C &gt;::value, int &gt; = 0&gt; </td></tr>
 <tr class="memitem:ga440766a0d1b82b481e532cc2a8dbc717 template"><td class="memItemLeft" align="right" valign="top">C&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga440766a0d1b82b481e532cc2a8dbc717">tgen::shuffle</a> (const C &amp;container)</td></tr>
-<tr class="memdesc:ga440766a0d1b82b481e532cc2a8dbc717"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles <span class="tt">container</span>.  <br /></td></tr>
+<tr class="memdesc:ga440766a0d1b82b481e532cc2a8dbc717"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles a container.  <br /></td></tr>
 <tr class="memitem:ga9c1c0431948210b949f5d1500e7235ec" id="r_ga9c1c0431948210b949f5d1500e7235ec"><td class="memTemplParams" colspan="2">template&lt;typename It&gt; </td></tr>
 <tr class="memitem:ga9c1c0431948210b949f5d1500e7235ec template"><td class="memItemLeft" align="right" valign="top">It::value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a> (It first, It last)</td></tr>
-<tr class="memdesc:ga9c1c0431948210b949f5d1500e7235ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Choses a random element from <span class="tt">[first, last)</span>.  <br /></td></tr>
+<tr class="memdesc:ga9c1c0431948210b949f5d1500e7235ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Choses a random element from iterator range.  <br /></td></tr>
 <tr class="memitem:gac3b0462e9690fa58b370b24e687d6be0" id="r_gac3b0462e9690fa58b370b24e687d6be0"><td class="memTemplParams" colspan="2">template&lt;typename C&gt; </td></tr>
 <tr class="memitem:gac3b0462e9690fa58b370b24e687d6be0 template"><td class="memItemLeft" align="right" valign="top">C::value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gac3b0462e9690fa58b370b24e687d6be0">tgen::any</a> (const C &amp;container)</td></tr>
-<tr class="memdesc:gac3b0462e9690fa58b370b24e687d6be0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Choses a random element from <span class="tt">container</span>.  <br /></td></tr>
+<tr class="memdesc:gac3b0462e9690fa58b370b24e687d6be0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Choses a random element from container.  <br /></td></tr>
 <tr class="memitem:ga5deceed8488585530188dbd266739771" id="r_ga5deceed8488585530188dbd266739771"><td class="memTemplParams" colspan="2">template&lt;typename C&gt; </td></tr>
 <tr class="memitem:ga5deceed8488585530188dbd266739771 template"><td class="memItemLeft" align="right" valign="top">C&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga5deceed8488585530188dbd266739771">tgen::choose</a> (int k, const C &amp;container)</td></tr>
-<tr class="memdesc:ga5deceed8488585530188dbd266739771"><td class="mdescLeft">&#160;</td><td class="mdescRight">Chooses <span class="tt">k</span> values from the container, as in a subsequence of size <span class="tt">k</span>.  <br /></td></tr>
+<tr class="memdesc:ga5deceed8488585530188dbd266739771"><td class="mdescLeft">&#160;</td><td class="mdescRight">Chooses elements from container, as in a subsequence fixed length.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <p>Operations for basic number generation and basic random operations. </p>
@@ -528,11 +531,11 @@ Examples</h3>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Choses a subsequence of length 5.</span></div>
 <div class="line">v = <a class="code hl_function" href="#ga5deceed8488585530188dbd266739771">tgen::choose</a>(5, v);</div>
-<div class="ttc" id="agroup__general_html_ga5494e4e347f9d1dc5b88695e0777f65b"><div class="ttname"><a href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a></div><div class="ttdeci">void shuffle(It first, It last)</div><div class="ttdoc">Shuffles [first, last) inplace, for RandomAccessIterator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00205">tgen.h:205</a></div></div>
-<div class="ttc" id="agroup__general_html_ga5deceed8488585530188dbd266739771"><div class="ttname"><a href="#ga5deceed8488585530188dbd266739771">tgen::choose</a></div><div class="ttdeci">C choose(int k, const C &amp;container)</div><div class="ttdoc">Chooses k values from the container, as in a subsequence of size k.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00262">tgen.h:262</a></div></div>
-<div class="ttc" id="agroup__general_html_ga9c1c0431948210b949f5d1500e7235ec"><div class="ttname"><a href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a></div><div class="ttdeci">It::value_type any(It first, It last)</div><div class="ttdoc">Choses a random element from [first, last).</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00243">tgen.h:243</a></div></div>
+<div class="ttc" id="agroup__general_html_ga5494e4e347f9d1dc5b88695e0777f65b"><div class="ttname"><a href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a></div><div class="ttdeci">void shuffle(It first, It last)</div><div class="ttdoc">Shuffles range inplace, for random_access_iterator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00205">tgen.h:205</a></div></div>
+<div class="ttc" id="agroup__general_html_ga5deceed8488585530188dbd266739771"><div class="ttname"><a href="#ga5deceed8488585530188dbd266739771">tgen::choose</a></div><div class="ttdeci">C choose(int k, const C &amp;container)</div><div class="ttdoc">Chooses elements from container, as in a subsequence fixed length.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00262">tgen.h:262</a></div></div>
+<div class="ttc" id="agroup__general_html_ga9c1c0431948210b949f5d1500e7235ec"><div class="ttname"><a href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a></div><div class="ttdeci">It::value_type any(It first, It last)</div><div class="ttdoc">Choses a random element from iterator range.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00243">tgen.h:243</a></div></div>
 <div class="ttc" id="agroup__general_html_gaa007cf5e254380332a3548711d5f9b16"><div class="ttname"><a href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a></div><div class="ttdeci">T next(T l, T r)</div><div class="ttdoc">Returns a random number in [l, r].</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00192">tgen.h:192</a></div></div>
-<div class="ttc" id="agroup__general_html_gabc423cf4476d436001120351be24e896"><div class="ttname"><a href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a></div><div class="ttdeci">#define tgen_ensure(cond,...)</div><div class="ttdoc">Ensures condition cond is true.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00066">tgen.h:66</a></div></div>
+<div class="ttc" id="agroup__general_html_gabc423cf4476d436001120351be24e896"><div class="ttname"><a href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a></div><div class="ttdeci">#define tgen_ensure(cond,...)</div><div class="ttdoc">Ensures condition is true.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00066">tgen.h:66</a></div></div>
 </div><!-- fragment --> <a name="doc-define-members" id="doc-define-members"></a><h2 id="header-doc-define-members" class="groupheader">Macro Definition Documentation</h2>
 <a id="gabc423cf4476d436001120351be24e896" name="gabc423cf4476d436001120351be24e896"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gabc423cf4476d436001120351be24e896">&#9670;&#160;</a></span>tgen_ensure</h2>
@@ -553,7 +556,7 @@ Examples</h3>
       </table>
 </div><div class="memdoc">
 
-<p>Ensures condition <span class="tt">cond</span> is true. </p>
+<p>Ensures condition is true. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">cond</td><td>Condition to me ensured. </td></tr>
@@ -563,7 +566,7 @@ Examples</h3>
 </dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td>if <span class="tt">cond</span> is not true.</td></tr>
+    <tr><td class="paramname">std::runtime_error</td><td>if <span class="paramname texttt">cond</span> is not true.</td></tr>
   </table>
   </dd>
 </dl>
@@ -596,18 +599,18 @@ template&lt;typename C&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Choses a random element from <span class="tt">container</span>. </p>
-<p>Also works with <span class="tt">std::initializer_list</span>.</p>
+<p>Choses a random element from container. </p>
+<p>Also works with <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">container</td><td>Container to choose from.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A uniformly random element from <span class="tt">container</span>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A uniformly random element from <span class="paramname texttt">container</span>.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md17"></a>
 Complexity</h4>
-<p><span class="tt">O(1)</span> for random_access_iterator, <span class="tt">O(|container|)</span> otherwise.</p>
+<p><span class="tgen-code texttt">O(1)</span> for random_access_iterator, <span class="tgen-code texttt">O(|<span class="paramname texttt">container</span>|)</span> otherwise.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md18"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
@@ -638,7 +641,7 @@ template&lt;typename It&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Choses a random element from <span class="tt">[first, last)</span>. </p>
+<p>Choses a random element from iterator range. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">first</td><td>First iterator of range. </td></tr>
@@ -646,10 +649,10 @@ template&lt;typename It&gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A uniformly random element from the range <span class="tt">[first, last)</span>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A uniformly random element from the range <span class="tgen-code texttt">[<span class="paramname texttt">first</span>, <span class="paramname texttt">last</span>)</span>.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md15"></a>
 Complexity</h4>
-<p><span class="tt">O(1)</span> for random_access_iterator, <span class="tt">O(|last - first|)</span> otherwise.</p>
+<p><span class="tgen-code texttt">O(1)</span> for random_access_iterator, <span class="tgen-code texttt">O(|<span class="paramname texttt">last</span> - <span class="paramname texttt">first</span>|)</span> otherwise.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md16"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::set&lt;int&gt; st = {1, 2, 3, 4, 5};</div>
@@ -680,8 +683,8 @@ template&lt;typename C&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Chooses <span class="tt">k</span> values from the container, as in a subsequence of size <span class="tt">k</span>. </p>
-<p>Also works with <span class="tt">std::initializer_list</span>.</p>
+<p>Chooses elements from container, as in a subsequence fixed length. </p>
+<p>Also works with <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">k</td><td>Number of elements to be chosen. </td></tr>
@@ -689,10 +692,10 @@ template&lt;typename C&gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A uniformly random subsequence of length <span class="tt">k</span>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A uniformly random subsequence of length <span class="paramname texttt">k</span>.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md19"></a>
 Complexity</h4>
-<p><span class="tt">O(|container|)</span>.</p>
+<p><span class="tgen-code texttt">O(|<span class="paramname texttt">container</span>|)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md20"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
@@ -726,7 +729,7 @@ template&lt;typename T&gt; </div>
 <p>Returns a random number in <span class="tgen-code texttt">[<span class="paramname texttt">l</span>, <span class="paramname texttt">r</span>]</span>. </p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">T</td><td>type to be generated. Should be an arithmetic type: <span class="tt">int</span>, <span class="tt">long long</span>, <span class="tt">char</span>, etc.</td></tr>
+    <tr><td class="paramname">T</td><td>type to be generated. Should be an arithmetic type: <span class="tgen-primitive texttt">int</span>, <span class="tgen-primitive texttt">double</span>, <span class="tgen-primitive texttt">long long</span>, <span class="tgen-primitive texttt">char</span>, etc.</td></tr>
   </table>
   </dd>
 </dl>
@@ -737,11 +740,10 @@ template&lt;typename T&gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A random number in <span class="tt">[l, r]</span>, chosen uniformly.</dd></dl>
-<p><span class="tt">T</span> can be either an integral type (<span class="tt">int</span>, <span class="tt">long long</span>, ...) or floating point (<span class="tt">float</span>, <span class="tt">double</span>).</p>
+<dl class="section return"><dt>Returns</dt><dd>A random number in <span class="tgen-code texttt">[<span class="paramname texttt">l</span>, <span class="paramname texttt">r</span>]</span>, chosen uniformly.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md9"></a>
 Complexity</h4>
-<p><span class="tt">O(1)</span>.</p>
+<p><span class="tgen-code texttt">O(1)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md10"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Random value from 1 to 10.</span></div>
@@ -776,8 +778,8 @@ template&lt;typename C, std::enable_if_t&lt;!<a class="el" href="structtgen_1_1i
 </table>
 </div><div class="memdoc">
 
-<p>Shuffles <span class="tt">container</span>. </p>
-<p>Works for containers and <span class="tt">std::initializer_list</span>. If container is ordered (<span class="tt">std::set</span>, etc) or <span class="tt">std::initializer_list</span>, returns a <span class="tt">std::vector</span> (different function).</p>
+<p>Shuffles a container. </p>
+<p>Works for containers and <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>. If <span class="paramname texttt">container</span> is ordered (<span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>, etc) or <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>, returns a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span> (implemented in a different function).</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">container</td><td>Container to be shuffled.</td></tr>
@@ -787,7 +789,7 @@ template&lt;typename C, std::enable_if_t&lt;!<a class="el" href="structtgen_1_1i
 <dl class="section return"><dt>Returns</dt><dd>The shuffled container.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md13"></a>
 Complexity</h4>
-<p><span class="tt">O(|container|)</span>.</p>
+<p><span class="tgen-code texttt">O(|<span class="paramname texttt">container</span>|)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md14"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; st = {1, 2, 3, 4, 5};</div>
@@ -820,8 +822,8 @@ template&lt;typename It&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Shuffles <span class="tt">[first, last)</span> inplace, for RandomAccessIterator. </p>
-<p>Works for <span class="tt">std::vector</span>, <span class="tt">std::string</span>, etc, but not <span class="tt">std::set</span>. For those, use <span class="tt">tgen::shuffle(container)</span>.</p>
+<p>Shuffles range inplace, for random_access_iterator. </p>
+<p>Shuffles <span class="tgen-code texttt">[<span class="paramname texttt">first</span>, <span class="paramname texttt">last</span>)</span> uniformly inplace. Works for <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>, <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">string</span></span>, etc, but not <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>. For those, use <span class="tgen-code texttt"><a class="el" href="#ga5494e4e347f9d1dc5b88695e0777f65b" title="Shuffles range inplace, for random_access_iterator.">tgen::shuffle</a>(<span class="paramname texttt">container</span>)</span>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">first</td><td>First iterator of range. </td></tr>
@@ -831,7 +833,7 @@ template&lt;typename It&gt; </div>
 </dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md11"></a>
 Complexity</h4>
-<p><span class="tt">O(|last - first|)</span>.</p>
+<p><span class="tgen-code texttt">O(|<span class="paramname texttt">last</span> - <span class="paramname texttt">first</span>|)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md12"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>

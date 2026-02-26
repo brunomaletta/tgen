@@ -327,6 +327,9 @@ document.addEventListener('DOMContentLoaded', function() {
 					return "paramdefval";       // numeric literal
 				return "paramdefval";           // anything in default expr
 			}
+			// namespace std.
+			if (tok === "std")
+				return "namespace";
 			// KEYWORDS
 			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
 				return "keyword";
@@ -479,8 +482,8 @@ $(function(){initNavTree('structtgen_1_1print.html','','structtgen_1_1print-memb
  <a href="#details">More...</a></p>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Printer helper for standard types. </p>
-<p>Just call <span class="tt">std::cout &lt;&lt; print(x)</span> to print <span class="tt">x</span>, or <span class="tt">std::cout &lt;&lt; println(x)</span> to print <span class="tt">x</span> and <span class="tt">\n</span>. Works with <span class="tt">std::initializer_list</span>.</p>
-<p>Prints <span class="tt">std::pair</span>, <span class="tt">std::tuple</span> and containers nicely (separade by a space). Matrices (<span class="tt">container&lt;container&lt;T&gt;&gt;</span>) are also handleled nicely, printing one row per line.</p>
+<p>Just call <span class="tgen-code texttt">std::cout &lt;&lt; print(x)</span> to print <span class="tgen-code texttt">x</span>, or <span class="tgen-code texttt">std::cout &lt;&lt; println(x)</span> to print <span class="tgen-code texttt">x</span> and <span class="tgen-code texttt">\n</span>. Works with <span class="tgen-code texttt">std::initializer_list</span>.</p>
+<p>Prints <span class="tgen-code texttt">std::pair</span>, <span class="tgen-code texttt">std::tuple</span> and containers nicely (separade by a space). Matrices (<span class="tgen-code texttt">container&lt;container&lt;T&gt;&gt;</span>) are also handleled nicely, printing one row per line.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md8"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::tuple&lt;int, double, std::string&gt; tu = {5, 0.1, <span class="stringliteral">&quot;str&quot;</span>};</div>

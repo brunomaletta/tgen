@@ -40,7 +40,7 @@ tgen::sequence<int> seq_gen = tgen::sequence<int>(/*size=*/10, /*value_l=*/1, /*
 
 This will create a sequence generator representing the set of all sequences with 10 values from 1 to 100.
 
-Every generator of type `GEN` has a method `gen()`, that returns a `GEN::instance` representing an element chosen uniformly at random from the set of all valid elements from the current state of the generator. A `GEN::instance` can be fed to `std::cout` to be printed.
+Every generator of type `Gen` has a method `gen()`, that returns a `Gen::instance` representing an element chosen uniformly at random from the set of all valid elements from the current state of the generator. A `Gen::instance` can be fed to `std::cout` to be printed.
 
 In our example, we can call `gen()` to generate and print a random sequence of 10 elements from 1 to 100.
 

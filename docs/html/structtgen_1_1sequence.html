@@ -327,6 +327,9 @@ document.addEventListener('DOMContentLoaded', function() {
 					return "paramdefval";       // numeric literal
 				return "paramdefval";           // anything in default expr
 			}
+			// namespace std.
+			if (tok === "std")
+				return "namespace";
 			// KEYWORDS
 			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
 				return "keyword";
@@ -498,15 +501,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ga51679a609a8e93d8c061de7e6379d7fd" id="r_ga51679a609a8e93d8c061de7e6379d7fd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sequence__gen.html#ga51679a609a8e93d8c061de7e6379d7fd">sequence</a> (int size, std::set&lt; T &gt; values)</td></tr>
 <tr class="memdesc:ga51679a609a8e93d8c061de7e6379d7fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates sequence generator define by value set.  <br /></td></tr>
 <tr class="memitem:gaf4b015251066523c2b23cc4f3cda9919" id="r_gaf4b015251066523c2b23cc4f3cda9919"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sequence__gen.html#gaf4b015251066523c2b23cc4f3cda9919">set</a> (int idx, T value)</td></tr>
-<tr class="memdesc:gaf4b015251066523c2b23cc4f3cda9919"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. value at index <span class="tt">idx</span> is <span class="tt">value</span>.  <br /></td></tr>
+<tr class="memdesc:gaf4b015251066523c2b23cc4f3cda9919"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. value at index is fixed.  <br /></td></tr>
 <tr class="memitem:gad9c173d0b1ff829de543ef76692d4b38" id="r_gad9c173d0b1ff829de543ef76692d4b38"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sequence__gen.html#gad9c173d0b1ff829de543ef76692d4b38">equal</a> (int idx_1, int idx_2)</td></tr>
-<tr class="memdesc:gad9c173d0b1ff829de543ef76692d4b38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. value at index <span class="tt">idx_1</span> is the same as value at index <span class="tt">idx_2</span>.  <br /></td></tr>
+<tr class="memdesc:gad9c173d0b1ff829de543ef76692d4b38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. values at two indices are the same.  <br /></td></tr>
 <tr class="memitem:gac76ec822587cf23ea8aae3f8aaf35def" id="r_gac76ec822587cf23ea8aae3f8aaf35def"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sequence__gen.html#gac76ec822587cf23ea8aae3f8aaf35def">equal_range</a> (int left, int right)</td></tr>
-<tr class="memdesc:gac76ec822587cf23ea8aae3f8aaf35def"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. all values at indices in <span class="tt">[left, right]</span> are the same.  <br /></td></tr>
+<tr class="memdesc:gac76ec822587cf23ea8aae3f8aaf35def"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. all values at index range are the same.  <br /></td></tr>
 <tr class="memitem:ga716d751a780c06624b428c6b969fa398" id="r_ga716d751a780c06624b428c6b969fa398"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sequence__gen.html#ga716d751a780c06624b428c6b969fa398">distinct</a> (std::set&lt; int &gt; indices)</td></tr>
-<tr class="memdesc:ga716d751a780c06624b428c6b969fa398"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. all values at indices in <span class="tt">indices</span> are distinct.  <br /></td></tr>
+<tr class="memdesc:ga716d751a780c06624b428c6b969fa398"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. all values at index set are distinct.  <br /></td></tr>
 <tr class="memitem:ga72a3d74713ed00ffe9c2e0dc509db04c" id="r_ga72a3d74713ed00ffe9c2e0dc509db04c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sequence__gen.html#ga72a3d74713ed00ffe9c2e0dc509db04c">different</a> (int idx_1, int idx_2)</td></tr>
-<tr class="memdesc:ga72a3d74713ed00ffe9c2e0dc509db04c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. value at index <span class="tt">idx_1</span> is different from value at index <span class="tt">idx_2</span>.  <br /></td></tr>
+<tr class="memdesc:ga72a3d74713ed00ffe9c2e0dc509db04c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. values at two indices are different.  <br /></td></tr>
 <tr class="memitem:gaa0ae40d52de23eb632e9bc3bcd84111e" id="r_gaa0ae40d52de23eb632e9bc3bcd84111e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence.html">sequence</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sequence__gen.html#gaa0ae40d52de23eb632e9bc3bcd84111e">distinct</a> ()</td></tr>
 <tr class="memdesc:gaa0ae40d52de23eb632e9bc3bcd84111e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. all values are distinct.  <br /></td></tr>
 <tr class="memitem:ga9be29135e008e45b0c99580898f2d2e3" id="r_ga9be29135e008e45b0c99580898f2d2e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">gen</a> ()</td></tr>

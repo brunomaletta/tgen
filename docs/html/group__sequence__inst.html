@@ -327,6 +327,9 @@ document.addEventListener('DOMContentLoaded', function() {
 					return "paramdefval";       // numeric literal
 				return "paramdefval";           // anything in default expr
 			}
+			// namespace std.
+			if (tok === "std")
+				return "namespace";
 			// KEYWORDS
 			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
 				return "keyword";
@@ -488,7 +491,7 @@ Classes</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ga39249fd872f46b057ab7674883236dc1" id="r_ga39249fd872f46b057ab7674883236dc1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga39249fd872f46b057ab7674883236dc1">tgen::sequence&lt; T &gt;::instance::instance</a> (const std::vector&lt; T &gt; &amp;vec)</td></tr>
-<tr class="memdesc:ga39249fd872f46b057ab7674883236dc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a sequence instance from a <span class="tt">std::vector</span>.  <br /></td></tr>
+<tr class="memdesc:ga39249fd872f46b057ab7674883236dc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a sequence instance from a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>.  <br /></td></tr>
 <tr class="memitem:ga81b30da123bf6745caf7795dc8315131" id="r_ga81b30da123bf6745caf7795dc8315131"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga81b30da123bf6745caf7795dc8315131">tgen::sequence&lt; T &gt;::instance::size</a> () const</td></tr>
 <tr class="memdesc:ga81b30da123bf6745caf7795dc8315131"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of the sequence instance.  <br /></td></tr>
 <tr class="memitem:ga4041d7424166c97342bbeeb0412f4400" id="r_ga4041d7424166c97342bbeeb0412f4400"><td class="memItemLeft" align="right" valign="top">const T &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga4041d7424166c97342bbeeb0412f4400">tgen::sequence&lt; T &gt;::instance::operator[]</a> (int idx) const</td></tr>
@@ -500,12 +503,12 @@ Functions</h2></td></tr>
 <tr class="memitem:ga38f0671cac2012b9010553908409f475" id="r_ga38f0671cac2012b9010553908409f475"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga38f0671cac2012b9010553908409f475">tgen::sequence&lt; T &gt;::instance::operator+</a> (const <a class="el" href="structtgen_1_1sequence_1_1instance.html">instance</a> &amp;rhs)</td></tr>
 <tr class="memdesc:ga38f0671cac2012b9010553908409f475"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concatenates two instances.  <br /></td></tr>
 <tr class="memitem:gaad19beb57245e1e5ec4cc4ac5bd9030e" id="r_gaad19beb57245e1e5ec4cc4ac5bd9030e"><td class="memItemLeft" align="right" valign="top">std::vector&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaad19beb57245e1e5ec4cc4ac5bd9030e">tgen::sequence&lt; T &gt;::instance::to_std</a> () const</td></tr>
-<tr class="memdesc:gaad19beb57245e1e5ec4cc4ac5bd9030e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the instance to a <span class="tt">std::vector</span>.  <br /></td></tr>
+<tr class="memdesc:gaad19beb57245e1e5ec4cc4ac5bd9030e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the instance to a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-friend-members" class="groupheader"><a id="friend-members" name="friend-members"></a>
 Friends</h2></td></tr>
 <tr class="memitem:gac5aa4456b0e4503a152e2113a48d8465" id="r_gac5aa4456b0e4503a152e2113a48d8465"><td class="memItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gac5aa4456b0e4503a152e2113a48d8465">tgen::sequence&lt; T &gt;::instance::operator&lt;&lt;</a> (std::ostream &amp;out, const <a class="el" href="structtgen_1_1sequence_1_1instance.html">instance</a> &amp;inst)</td></tr>
-<tr class="memdesc:gac5aa4456b0e4503a152e2113a48d8465"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints the instance to a <span class="tt">std::ostream</span>.  <br /></td></tr>
+<tr class="memdesc:gac5aa4456b0e4503a152e2113a48d8465"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints the instance to a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">ostream</span></span>.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <p>Instance of a sequence. </p>
@@ -536,10 +539,10 @@ template&lt;typename T&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Creates a sequence instance from a <span class="tt">std::vector</span>. </p>
+<p>Creates a sequence instance from a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">vec</td><td>The <span class="tt">std::vector</span> representing the instance.</td></tr>
+    <tr><td class="paramname">vec</td><td>The <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span> representing the instance.</td></tr>
   </table>
   </dd>
 </dl>
@@ -593,7 +596,7 @@ Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Concatenates and prints two instances.</span></div>
 <div class="line"><a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a> s = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(5, 1, 5).<a class="code hl_function" href="group__sequence__gen.html#ga716d751a780c06624b428c6b969fa398">distinct</a>();</div>
 <div class="line">std::cout &lt;&lt; s.<a class="code hl_function" href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">gen</a>() + s.<a class="code hl_function" href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">gen</a>() &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__sequence__gen_html_ga716d751a780c06624b428c6b969fa398"><div class="ttname"><a href="group__sequence__gen.html#ga716d751a780c06624b428c6b969fa398">tgen::sequence::distinct</a></div><div class="ttdeci">sequence &amp; distinct(std::set&lt; int &gt; indices)</div><div class="ttdoc">Restricts generator s.t. all values at indices in indices are distinct.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00572">tgen.h:572</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_ga716d751a780c06624b428c6b969fa398"><div class="ttname"><a href="group__sequence__gen.html#ga716d751a780c06624b428c6b969fa398">tgen::sequence::distinct</a></div><div class="ttdeci">sequence &amp; distinct(std::set&lt; int &gt; indices)</div><div class="ttdoc">Restricts generator s.t. all values at index set are distinct.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00572">tgen.h:572</a></div></div>
 <div class="ttc" id="agroup__sequence__gen_html_ga9be29135e008e45b0c99580898f2d2e3"><div class="ttname"><a href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">tgen::sequence::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid sequences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00698">tgen.h:698</a></div></div>
 <div class="ttc" id="astructtgen_1_1sequence_html"><div class="ttname"><a href="structtgen_1_1sequence.html">tgen::sequence</a></div><div class="ttdoc">Sequence generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00487">tgen.h:487</a></div></div>
 </div><!-- fragment --> 
@@ -633,7 +636,7 @@ template&lt;typename T&gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The value at index <span class="tt">idx</span>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The value at index <span class="paramname texttt">idx</span>.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md105"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints a position of an instance.</span></div>
@@ -673,7 +676,7 @@ template&lt;typename T&gt; </div>
 <p>Reverses the instance. </p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md108"></a>
 Complexity</h4>
-<p><span class="tt">O(n)</span>.</p>
+<p><span class="tgen-code texttt">O(n)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md109"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Reverses and prints an instance.</span></div>
@@ -753,7 +756,7 @@ template&lt;typename T&gt; </div>
 <p>Sorts the instance in non-decreasing order. </p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md106"></a>
 Complexity</h4>
-<p><span class="tt">O(n log n)</span>.</p>
+<p><span class="tgen-code texttt">O(n log n)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md107"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sorts and prints an instance.</span></div>
@@ -791,8 +794,8 @@ template&lt;typename T&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Converts the instance to a <span class="tt">std::vector</span>. </p>
-<dl class="section return"><dt>Returns</dt><dd>A <span class="tt">std::vector</span> representing the instance.</dd></dl>
+<p>Converts the instance to a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>. </p>
+<dl class="section return"><dt>Returns</dt><dd>A <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span> representing the instance.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md113"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Convoluted way to reverse a vector.</span></div>
@@ -835,7 +838,7 @@ template&lt;typename T&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Prints the instance to a <span class="tt">std::ostream</span>. </p>
+<p>Prints the instance to a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">ostream</span></span>. </p>
 <p>The values are printed with one space as a separator, and with no end of line.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md112"></a>
 Examples</h4>
