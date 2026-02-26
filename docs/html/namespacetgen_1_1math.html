@@ -39,21 +39,204 @@
 </script>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-    // Find all member declaration tables
+    // --- keep your colgroup code ---
     var tables = document.querySelectorAll('table.memberdecls');
     tables.forEach(function(table) {
-        // Create colgroup
         var colgroup = document.createElement('colgroup');
         var col1 = document.createElement('col');
         var col2 = document.createElement('col');
-        // Set widths: first column 300px, second column takes rest
         col1.style.width = '300px';
         col2.style.width = 'auto';
         colgroup.appendChild(col1);
         colgroup.appendChild(col2);
-        // Insert colgroup as first child of table
         table.insertBefore(colgroup, table.firstChild);
     });
+	// split return type + function name ONLY on first signature row
+	document.querySelectorAll(".memproto table.memname > tbody > tr:first-child > td.memname")
+	.forEach(el => {
+		// already processed
+		if (el.querySelector(".tgen-return")) return;
+		const text = el.textContent.trim();
+		if (!text) return;
+		// find last space not inside <>
+		let depth = 0;
+		let split = 0;
+		for (let i = text.length - 1; i >= 0; --i) {
+			const c = text[i];
+			if (c === '>') depth++;
+			else if (c === '<') depth--;
+			if (depth === 0 && c === ' ') {
+				split = i;
+				break;
+			}
+		}
+		const ret  = text.slice(0, split).trim();
+		const name = text.slice(split + 1).trim();
+		console.log(ret, name);
+		// escape html
+		const esc = s => s.replace(/[&<>"']/g, m =>
+			({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
+		);
+		el.innerHTML =
+			`<span class="tgen-return">${esc(ret)}</span>` +
+			`<span class="tgen-name">${esc(name)}</span>`;
+	});
+	// ------------------------------------
+	// C++ type syntax highlighter
+	// ------------------------------------
+	const CPP_PRIMITIVES = new Set([
+	  "int","long","short","char","float","double","bool","void",
+	  "size_t","ptrdiff_t",
+	  "uint8_t","uint16_t","uint32_t","uint64_t",
+	  "int8_t","int16_t","int32_t","int64_t",
+	  "auto"
+	]);
+	const CPP_KEYWORDS = new Set([
+	  "const","constexpr","static","volatile","mutable",
+	  "typename","class","struct","signed","unsigned"
+	]);
+	function highlightType(node) {
+		const walker = document.createTreeWalker(
+			node,
+			NodeFilter.SHOW_TEXT,
+			null,
+			false
+		);
+		const textNodes = [];
+		while (walker.nextNode())
+			textNodes.push(walker.currentNode);
+		for (const textNode of textNodes)
+		{
+			const text = textNode.nodeValue;
+			// skip whitespace
+			if (!text.trim()) continue;
+			const frag = document.createDocumentFragment();
+			const tokens = text.split(/(\W+)/); // keep separators
+			for (const tok of tokens)
+			{
+				if (!tok) continue;
+				let span = null;
+				if (CPP_PRIMITIVES.has(tok))
+					span = "primitive";
+				else if (CPP_KEYWORDS.has(tok))
+					span = "keyword";
+				else if (tok === "std")
+					span = "namespace";
+				else if (/^[a-z_][a-z0-9_]*$/i.test(tok) && /[a-z]/.test(tok[0]))
+					span = "type";
+				if (span)
+				{
+					const s = document.createElement("span");
+					s.className = "tgen-hl " + span;
+					s.textContent = tok;
+					frag.appendChild(s);
+				}
+				else
+					frag.appendChild(document.createTextNode(tok));
+			}
+			textNode.replaceWith(frag);
+		}
+	}
+	// apply to return types
+	document.querySelectorAll(".tgen-return").forEach(highlightType);
+	// apply to parameters
+	document.querySelectorAll(".paramtype").forEach(highlightType);
+	// Highlight return type in funciton list.
+	function highlightReturnType(td) {
+		function tokenize(str) {
+			return str.split(/(\b|::|<|>|,|&|\*|\s+)/);
+		}
+		function classify(tok) {
+			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+				return "keywordtype";
+			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+				return "type";
+			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+				return "keyword";
+			if (tok === "std")
+				return "namespace";
+			return null;
+		}
+		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		let node;
+		while ((node = walker.nextNode())) {
+			// CRITICAL: skip if inside a link
+			if (node.parentElement.closest("a")) continue;
+			const tokens = tokenize(node.nodeValue);
+			if (tokens.length === 1) continue;
+			const frag = document.createDocumentFragment();
+			tokens.forEach(tok => {
+				const cls = classify(tok);
+				if (!cls) {
+					frag.appendChild(document.createTextNode(tok));
+				} else {
+					const span = document.createElement("span");
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+			node.replaceWith(frag);
+		}
+	}
+	document.querySelectorAll("td.memItemLeft").forEach(highlightReturnType);
+	// Highlight parameters in function list.
+	function highlightSignature(td) {
+		function tokenize(str) {
+			return str.split(/(\b|::|<|>|,|\(|\)|=|&|\*|\s+)/);
+		}
+		function classify(tok, state) {
+			// entering default value
+			if (tok === "=") {
+				state.inDefault = true;
+				return null;
+			}
+			// leaving default value
+			if (tok === "," || tok === ")") {
+				state.inDefault = false;
+				return null;
+			}
+			// DEFAULT VALUE TOKENS
+			if (state.inDefault) {
+				if (/^(true|false|nullptr)$/.test(tok))
+					return "paramdefval";       // bool literals
+				if (/^\d+(\.\d+)?$/.test(tok))
+					return "paramdefval";       // numeric literal
+				return "paramdefval";           // anything in default expr
+			}
+			// TYPES
+			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+				return "keywordtype";
+			// STL TYPES
+			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+				return "type";
+			// IDENTIFIER → parameter name
+			if (/^[a-zA-Z_]\w*$/.test(tok))
+				return "paramname";
+			return null;
+		}
+		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		let node;
+		while ((node = walker.nextNode())) {
+			if (!node.nodeValue.includes("(")) continue;
+			const tokens = tokenize(node.nodeValue);
+			const frag = document.createDocumentFragment();
+			const state = { inDefault: false };
+			tokens.forEach(tok => {
+				const cls = classify(tok, state);
+				if (!cls) {
+					frag.appendChild(document.createTextNode(tok));
+				} else {
+					const span = document.createElement("span");
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+			node.replaceWith(frag);
+		}
+	}
+	document.querySelectorAll("td.memItemRight").forEach(highlightSignature);
 });
 </script>
 </head>
@@ -175,8 +358,8 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga13460b7ed2494b9be9cb46052b30aac9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest prime gap up to given number.  <br /></td></tr>
 <tr class="memitem:gabf0a79bacc6946f032b58627baf9302d" id="r_gabf0a79bacc6946f032b58627baf9302d"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; uint64_t &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__math.html#gabf0a79bacc6946f032b58627baf9302d">highly_composites</a> ()</td></tr>
 <tr class="memdesc:gabf0a79bacc6946f032b58627baf9302d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fetches highly composite numbers.  <br /></td></tr>
-<tr class="memitem:gaa2ffbc7459ec7ad9cc68e63c0f1b4efe" id="r_gaa2ffbc7459ec7ad9cc68e63c0f1b4efe"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__math.html#gaa2ffbc7459ec7ad9cc68e63c0f1b4efe">highly_composite_upto</a> (uint64_t r)</td></tr>
-<tr class="memdesc:gaa2ffbc7459ec7ad9cc68e63c0f1b4efe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest highly composite number up to given number.  <br /></td></tr>
+<tr class="memitem:ga8e9f2826b60f9dbe87eaa12dcb3c762e" id="r_ga8e9f2826b60f9dbe87eaa12dcb3c762e"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__math.html#ga8e9f2826b60f9dbe87eaa12dcb3c762e">highly_composite_upto</a> (uint64_t r)</td></tr>
+<tr class="memdesc:ga8e9f2826b60f9dbe87eaa12dcb3c762e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest highly composite number up to given number.  <br /></td></tr>
 <tr class="memitem:a8be5d415d675552d9bb923bc2c145f5e" id="r_a8be5d415d675552d9bb923bc2c145f5e"><td class="memItemLeft" align="right" valign="top">__int128&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8be5d415d675552d9bb923bc2c145f5e">gcd128_internal</a> (__int128 a, __int128 b)</td></tr>
 <tr class="memitem:a9368fd09242b08a45f780cd6183065b6" id="r_a9368fd09242b08a45f780cd6183065b6"><td class="memItemLeft" align="right" valign="top">__int128&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9368fd09242b08a45f780cd6183065b6">mul_saturate_internal</a> (__int128 a, __int128 b)</td></tr>
 <tr class="memitem:ga881fc166dc15ffba9dfc35e83f60f8e3" id="r_ga881fc166dc15ffba9dfc35e83f60f8e3"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__math.html#ga881fc166dc15ffba9dfc35e83f60f8e3">gen_congruent</a> (uint64_t l, uint64_t r, std::vector&lt; uint64_t &gt; rems, std::vector&lt; uint64_t &gt; mods)</td></tr>
@@ -192,10 +375,10 @@ Functions</h2></td></tr>
 <tr class="memitem:a268fd18da5c253fed509c1a286afc599" id="r_a268fd18da5c253fed509c1a286afc599"><td class="memItemLeft" align="right" valign="top">long double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a268fd18da5c253fed509c1a286afc599">log_space_internal</a> (long double x)</td></tr>
 <tr class="memitem:afbbb9fdbdf99d2865e29fa115771e821" id="r_afbbb9fdbdf99d2865e29fa115771e821"><td class="memItemLeft" align="right" valign="top">long double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afbbb9fdbdf99d2865e29fa115771e821">add_log_space_internal</a> (long double a, long double b)</td></tr>
 <tr class="memitem:af4638ae862ab56c645ca7f0343063ece" id="r_af4638ae862ab56c645ca7f0343063ece"><td class="memItemLeft" align="right" valign="top">long double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af4638ae862ab56c645ca7f0343063ece">sub_log_space_internal</a> (long double a, long double b)</td></tr>
-<tr class="memitem:ga6a6295d94315ea828fc71a4085eeace2" id="r_ga6a6295d94315ea828fc71a4085eeace2"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__math.html#ga6a6295d94315ea828fc71a4085eeace2">gen_partition</a> (int n, int part_l=1, int part_r=-1)</td></tr>
-<tr class="memdesc:ga6a6295d94315ea828fc71a4085eeace2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random partition of a number.  <br /></td></tr>
-<tr class="memitem:ga9ed3d2520bc7848ceb82e54bef04083d" id="r_ga9ed3d2520bc7848ceb82e54bef04083d"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__math.html#ga9ed3d2520bc7848ceb82e54bef04083d">gen_partition_fixed_size</a> (int n, int k, int part_l=0, int part_r=-1)</td></tr>
-<tr class="memdesc:ga9ed3d2520bc7848ceb82e54bef04083d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random partition with fixed size of a number.  <br /></td></tr>
+<tr class="memitem:ga29d89bf566aa43d5006bff0d6ecd1a06" id="r_ga29d89bf566aa43d5006bff0d6ecd1a06"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__math.html#ga29d89bf566aa43d5006bff0d6ecd1a06">gen_partition</a> (int n, int part_l=1, int part_r=-1)</td></tr>
+<tr class="memdesc:ga29d89bf566aa43d5006bff0d6ecd1a06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random partition of a number.  <br /></td></tr>
+<tr class="memitem:ga43983ccf01f48570b2b986715412c5fe" id="r_ga43983ccf01f48570b2b986715412c5fe"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__math.html#ga43983ccf01f48570b2b986715412c5fe">gen_partition_fixed_size</a> (int n, int k, int part_l=0, int part_r=-1)</td></tr>
+<tr class="memdesc:ga43983ccf01f48570b2b986715412c5fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random partition with fixed size of a number.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>

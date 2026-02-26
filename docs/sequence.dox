@@ -1,3 +1,5 @@
+#include "../src/tgen.h"
+
 namespace tgen {
 
 /**
@@ -303,10 +305,10 @@ namespace tgen {
  *
  * @throws std::runtime_error if no valid instance satisfying `predicate` is found after `max_tries`
  *         tries.
- * @memberof tgen::sequence
  *
- * @fn instance sequence::gen_until(Pred predicate, int max_tries);
+ * @memberof tgen::sequence
  */
+ template <typename T, typename Pred> instance gen_until(Pred predicate, int max_tries);
 
 
 

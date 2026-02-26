@@ -15,10 +15,10 @@ var namespacetgen =
       [ "gen_divisor_count", "group__math.html#gab4ac6778da02f425d55f6c971db8d933", null ],
       [ "gen_even", "group__math.html#ga8bba2f77b31c71efb052b52fb3524dcf", null ],
       [ "gen_odd", "group__math.html#ga15e352dff6af8059d6c44d4bf02f944e", null ],
-      [ "gen_partition", "group__math.html#ga6a6295d94315ea828fc71a4085eeace2", null ],
-      [ "gen_partition_fixed_size", "group__math.html#ga9ed3d2520bc7848ceb82e54bef04083d", null ],
+      [ "gen_partition", "group__math.html#ga29d89bf566aa43d5006bff0d6ecd1a06", null ],
+      [ "gen_partition_fixed_size", "group__math.html#ga43983ccf01f48570b2b986715412c5fe", null ],
       [ "gen_prime", "group__math.html#ga27fcaa21afa26007d0b89599c9e8a4fc", null ],
-      [ "highly_composite_upto", "group__math.html#gaa2ffbc7459ec7ad9cc68e63c0f1b4efe", null ],
+      [ "highly_composite_upto", "group__math.html#ga8e9f2826b60f9dbe87eaa12dcb3c762e", null ],
       [ "highly_composites", "group__math.html#gabf0a79bacc6946f032b58627baf9302d", null ],
       [ "is_prime", "group__math.html#ga5ee9541bd1b0e242551eb4c626241f4d", null ],
       [ "kth_root_floor_internal", "namespacetgen_1_1math.html#a056113da5ec85aa69b9272f4d76ba308", null ],
@@ -41,9 +41,9 @@ var namespacetgen =
       [ "LOG_ZERO_INTERNAL", "namespacetgen_1_1math.html#ab04b47f06cecb6723c369e18eaa2c3f2", null ]
     ] ],
     [ "sequence_op", "namespacetgen_1_1sequence__op.html", [
-      [ "any", "group__sequence__op.html#ga2d3aae3685b2a2003d737cfa3221f367", null ],
-      [ "choose", "group__sequence__op.html#gae983696fba517df4aa22a44ffaa88ba2", null ],
-      [ "shuffle", "group__sequence__op.html#ga6dbb723e2e97121cfaa7a2d2d6e63e68", null ]
+      [ "any", "namespacetgen_1_1sequence__op.html#a05bfcdd3f115e3bcc7cea70a05861a84", null ],
+      [ "choose", "namespacetgen_1_1sequence__op.html#a75387d356c7bb80cae928398ff8ecd24", null ],
+      [ "shuffle", "namespacetgen_1_1sequence__op.html#a8421c93824a5940dac66038d54b5374d", null ]
     ] ],
     [ "is_associative_container_internal", "structtgen_1_1is__associative__container__internal.html", null ],
     [ "is_associative_container_internal< T, std::void_t< typename T::key_type, typename T::key_compare > >", "structtgen_1_1is__associative__container__internal_3_01T_00_01std_1_1void__t_3_01typename_01T_1_3d354157a02e12a2c41e4e560faa1698.html", null ],
@@ -62,8 +62,8 @@ var namespacetgen =
     [ "choose", "namespacetgen.html#a856753e4250482c7cefdb4db3f4bdf29", null ],
     [ "contradiction_error_internal", "namespacetgen.html#a388fc78e1323453e174fc175f095504a", null ],
     [ "error_internal", "namespacetgen.html#aee84bd14eb94e2e7974892476f6b2008", null ],
-    [ "gen_until", "group__permutation__gen.html#ga10b2233af3c58bc540b2bcfec51665f3", null ],
-    [ "gen_until", "group__sequence__gen.html#ga792dbeb2564a0e338acbf78bc47ac896", null ],
+    [ "gen_until", "group__permutation__gen.html#gaa105bce6c0b8f9a23f1affe9339fe3ab", null ],
+    [ "gen_until", "group__sequence__gen.html#ga980db29096532257488877b78fd8a45e", null ],
     [ "get_opt_internal", "namespacetgen.html#a7f63023c5f36f9897ca5e9fe2b1c8184", null ],
     [ "has_opt", "group__opts.html#ga87fb2f31789744477371960792b7540f", null ],
     [ "has_opt", "group__opts.html#ga7ffeca211fbda39e0fcdfad2383c43ba", null ],

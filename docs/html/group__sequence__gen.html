@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (!text) return;
 		// find last space not inside <>
 		let depth = 0;
-		let split = -1;
+		let split = 0;
 		for (let i = text.length - 1; i >= 0; --i) {
 			const c = text[i];
 			if (c === '>') depth++;
@@ -70,9 +70,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				break;
 			}
 		}
-		if (split === -1) return;
 		const ret  = text.slice(0, split).trim();
 		const name = text.slice(split + 1).trim();
+		console.log(ret, name);
 		// escape html
 		const esc = s => s.replace(/[&<>"']/g, m =>
 			({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
@@ -142,20 +142,44 @@ document.addEventListener('DOMContentLoaded', function() {
 	// apply to parameters
 	document.querySelectorAll(".paramtype").forEach(highlightType);
 	// Highlight return type in funciton list.
-	document.querySelectorAll("td.memItemLeft").forEach(td => {
-		const text = td.textContent.trim();
-		if (!text) return;
-		let html = text
-			.replace(/\b(const|volatile|constexpr|static|inline)\b/g,
-				'<span class="keyword">$1</span>')
-			.replace(/\b(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)\b/g,
-				'<span class="keywordtype">$1</span>')
-			.replace(/\b(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)\b/g,
-				'<span class="type">$1</span>')
-			.replace(/\b([a-zA-Z_]\w*)::/g,
-				'<span class="namespace">$1</span>::');
-		td.innerHTML = html;
-	});
+	function highlightReturnType(td) {
+		function tokenize(str) {
+			return str.split(/(\b|::|<|>|,|&|\*|\s+)/);
+		}
+		function classify(tok) {
+			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+				return "keywordtype";
+			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+				return "type";
+			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+				return "keyword";
+			if (tok === "std")
+				return "namespace";
+			return null;
+		}
+		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		let node;
+		while ((node = walker.nextNode())) {
+			// CRITICAL: skip if inside a link
+			if (node.parentElement.closest("a")) continue;
+			const tokens = tokenize(node.nodeValue);
+			if (tokens.length === 1) continue;
+			const frag = document.createDocumentFragment();
+			tokens.forEach(tok => {
+				const cls = classify(tok);
+				if (!cls) {
+					frag.appendChild(document.createTextNode(tok));
+				} else {
+					const span = document.createElement("span");
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+			node.replaceWith(frag);
+		}
+	}
+	document.querySelectorAll("td.memItemLeft").forEach(highlightReturnType);
 	// Highlight parameters in function list.
 	function highlightSignature(td) {
 		function tokenize(str) {
@@ -320,8 +344,9 @@ Functions</h2></td></tr>
 <tr class="memdesc:gaa0ae40d52de23eb632e9bc3bcd84111e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. all values are distinct.  <br /></td></tr>
 <tr class="memitem:ga9be29135e008e45b0c99580898f2d2e3" id="r_ga9be29135e008e45b0c99580898f2d2e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga9be29135e008e45b0c99580898f2d2e3">tgen::sequence&lt; T &gt;::gen</a> ()</td></tr>
 <tr class="memdesc:ga9be29135e008e45b0c99580898f2d2e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid sequences.  <br /></td></tr>
-<tr class="memitem:ga980db29096532257488877b78fd8a45e" id="r_ga980db29096532257488877b78fd8a45e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga980db29096532257488877b78fd8a45e">tgen::sequence&lt; T &gt;::gen_until</a> (Pred predicate, int max_tries)</td></tr>
-<tr class="memdesc:ga980db29096532257488877b78fd8a45e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid sequences until a condition is met.  <br /></td></tr>
+<tr class="memitem:gadbdf44b0d6cf19cb06d671c2a4c3dc6c" id="r_gadbdf44b0d6cf19cb06d671c2a4c3dc6c"><td class="memTemplParams" colspan="2">template&lt;typename T, typename Pred&gt; </td></tr>
+<tr class="memitem:gadbdf44b0d6cf19cb06d671c2a4c3dc6c template"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gadbdf44b0d6cf19cb06d671c2a4c3dc6c">tgen::sequence&lt; T &gt;::gen_until</a> (Pred predicate, int max_tries)</td></tr>
+<tr class="memdesc:gadbdf44b0d6cf19cb06d671c2a4c3dc6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid sequences until a condition is met.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <p>Defines a set of sequences, subject to restrictions. </p>
@@ -597,13 +622,13 @@ Examples</h4>
 
 </div>
 </div>
-<a id="ga980db29096532257488877b78fd8a45e" name="ga980db29096532257488877b78fd8a45e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga980db29096532257488877b78fd8a45e">&#9670;&#160;</a></span>gen_until()</h2>
+<a id="gadbdf44b0d6cf19cb06d671c2a4c3dc6c" name="gadbdf44b0d6cf19cb06d671c2a4c3dc6c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gadbdf44b0d6cf19cb06d671c2a4c3dc6c">&#9670;&#160;</a></span>gen_until()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T&gt; </div>
+template&lt;typename T, typename Pred&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="structtgen_1_1sequence_1_1instance.html">instance</a> gen_until </td>
@@ -643,9 +668,9 @@ Examples</h4>
 <div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 10)</div>
 <div class="line">        .<a class="code hl_function" href="#ga716d751a780c06624b428c6b969fa398">distinct</a>()</div>
-<div class="line">        .<a class="code hl_function" href="#ga980db29096532257488877b78fd8a45e">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;seq) { <span class="keywordflow">return</span> seq[0] &lt; seq[9]; }, 100)</div>
+<div class="line">        .<a class="code hl_function" href="#gadbdf44b0d6cf19cb06d671c2a4c3dc6c">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;seq) { <span class="keywordflow">return</span> seq[0] &lt; seq[9]; }, 100)</div>
 <div class="line">  &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__sequence__gen_html_ga980db29096532257488877b78fd8a45e"><div class="ttname"><a href="#ga980db29096532257488877b78fd8a45e">tgen::sequence::gen_until</a></div><div class="ttdeci">instance gen_until(Pred predicate, int max_tries)</div><div class="ttdoc">Generates a random instance from the set of valid sequences until a condition is met.</div></div>
+<div class="ttc" id="agroup__sequence__gen_html_gadbdf44b0d6cf19cb06d671c2a4c3dc6c"><div class="ttname"><a href="#gadbdf44b0d6cf19cb06d671c2a4c3dc6c">tgen::sequence::gen_until</a></div><div class="ttdeci">instance gen_until(Pred predicate, int max_tries)</div><div class="ttdoc">Generates a random instance from the set of valid sequences until a condition is met.</div></div>
 </div><!-- fragment --><dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
     <tr><td class="paramname">std::runtime_error</td><td>if no valid instance satisfying <span class="tt">predicate</span> is found after <span class="tt">max_tries</span> tries. </td></tr>

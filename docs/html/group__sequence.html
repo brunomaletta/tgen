@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (!text) return;
 		// find last space not inside <>
 		let depth = 0;
-		let split = -1;
+		let split = 0;
 		for (let i = text.length - 1; i >= 0; --i) {
 			const c = text[i];
 			if (c === '>') depth++;
@@ -70,9 +70,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				break;
 			}
 		}
-		if (split === -1) return;
 		const ret  = text.slice(0, split).trim();
 		const name = text.slice(split + 1).trim();
+		console.log(ret, name);
 		// escape html
 		const esc = s => s.replace(/[&<>"']/g, m =>
 			({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
@@ -142,20 +142,44 @@ document.addEventListener('DOMContentLoaded', function() {
 	// apply to parameters
 	document.querySelectorAll(".paramtype").forEach(highlightType);
 	// Highlight return type in funciton list.
-	document.querySelectorAll("td.memItemLeft").forEach(td => {
-		const text = td.textContent.trim();
-		if (!text) return;
-		let html = text
-			.replace(/\b(const|volatile|constexpr|static|inline)\b/g,
-				'<span class="keyword">$1</span>')
-			.replace(/\b(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)\b/g,
-				'<span class="keywordtype">$1</span>')
-			.replace(/\b(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)\b/g,
-				'<span class="type">$1</span>')
-			.replace(/\b([a-zA-Z_]\w*)::/g,
-				'<span class="namespace">$1</span>::');
-		td.innerHTML = html;
-	});
+	function highlightReturnType(td) {
+		function tokenize(str) {
+			return str.split(/(\b|::|<|>|,|&|\*|\s+)/);
+		}
+		function classify(tok) {
+			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+				return "keywordtype";
+			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+				return "type";
+			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+				return "keyword";
+			if (tok === "std")
+				return "namespace";
+			return null;
+		}
+		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		let node;
+		while ((node = walker.nextNode())) {
+			// CRITICAL: skip if inside a link
+			if (node.parentElement.closest("a")) continue;
+			const tokens = tokenize(node.nodeValue);
+			if (tokens.length === 1) continue;
+			const frag = document.createDocumentFragment();
+			tokens.forEach(tok => {
+				const cls = classify(tok);
+				if (!cls) {
+					frag.appendChild(document.createTextNode(tok));
+				} else {
+					const span = document.createElement("span");
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+			node.replaceWith(frag);
+		}
+	}
+	document.querySelectorAll("td.memItemLeft").forEach(highlightReturnType);
 	// Highlight parameters in function list.
 	function highlightSignature(td) {
 		function tokenize(str) {
@@ -336,12 +360,12 @@ Examples</h3>
 <div class="fragment"><div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 0, 1)</div>
 <div class="line">    .<a class="code hl_function" href="group__sequence__gen.html#gaf4b015251066523c2b23cc4f3cda9919">set</a>(0, 1)</div>
-<div class="line">    .<a class="code hl_function" href="group__sequence__gen.html#ga980db29096532257488877b78fd8a45e">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span>&amp; inst) {</div>
+<div class="line">    .<a class="code hl_function" href="group__sequence__gen.html#gadbdf44b0d6cf19cb06d671c2a4c3dc6c">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span>&amp; inst) {</div>
 <div class="line">        <span class="keyword">auto</span> vec = inst.to_std();</div>
 <div class="line">        <span class="keywordflow">return</span> accumulate(vec.begin(), vec.end(), 0) == 5;</div>
 <div class="line">    }, 100) &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// &quot;1 0 0 1 0 1 1 0 1 0&quot;</span></div>
-<div class="ttc" id="agroup__sequence__gen_html_ga980db29096532257488877b78fd8a45e"><div class="ttname"><a href="group__sequence__gen.html#ga980db29096532257488877b78fd8a45e">tgen::sequence::gen_until</a></div><div class="ttdeci">instance gen_until(Pred predicate, int max_tries)</div><div class="ttdoc">Generates a random instance from the set of valid sequences until a condition is met.</div></div>
+<div class="ttc" id="agroup__sequence__gen_html_gadbdf44b0d6cf19cb06d671c2a4c3dc6c"><div class="ttname"><a href="group__sequence__gen.html#gadbdf44b0d6cf19cb06d671c2a4c3dc6c">tgen::sequence::gen_until</a></div><div class="ttdeci">instance gen_until(Pred predicate, int max_tries)</div><div class="ttdoc">Generates a random instance from the set of valid sequences until a condition is met.</div></div>
 <div class="ttc" id="agroup__sequence__gen_html_gaf4b015251066523c2b23cc4f3cda9919"><div class="ttname"><a href="group__sequence__gen.html#gaf4b015251066523c2b23cc4f3cda9919">tgen::sequence::set</a></div><div class="ttdeci">sequence &amp; set(int idx, T value)</div><div class="ttdoc">Restricts generator s.t. value at index idx is value.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00523">tgen.h:523</a></div></div>
 </div><!-- fragment --> </div><!-- contents -->
 </div><!-- doc-content -->

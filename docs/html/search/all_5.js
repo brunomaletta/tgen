@@ -8,7 +8,7 @@ var searchData=
   ['gen_5fpartition_5',['gen_partition',['../group__math.html#ga29d89bf566aa43d5006bff0d6ecd1a06',1,'tgen::math']]],
   ['gen_5fpartition_5ffixed_5fsize_6',['gen_partition_fixed_size',['../group__math.html#ga43983ccf01f48570b2b986715412c5fe',1,'tgen::math']]],
   ['gen_5fprime_7',['gen_prime',['../group__math.html#ga27fcaa21afa26007d0b89599c9e8a4fc',1,'tgen::math']]],
-  ['gen_5funtil_8',['gen_until',['../group__permutation__gen.html#ga720f73923217570114611c367118be51',1,'tgen::permutation::gen_until()'],['../group__sequence__gen.html#ga980db29096532257488877b78fd8a45e',1,'tgen::sequence::gen_until()'],['../group__permutation__gen.html#ga720f73923217570114611c367118be51',1,'tgen::gen_until(Pred predicate, int max_tries, Args &amp;&amp;...args)'],['../group__sequence__gen.html#ga980db29096532257488877b78fd8a45e',1,'tgen::gen_until(Pred predicate, int max_tries)']]],
+  ['gen_5funtil_8',['gen_until',['../group__permutation__gen.html#gaa105bce6c0b8f9a23f1affe9339fe3ab',1,'tgen::permutation::gen_until()'],['../group__sequence__gen.html#gadbdf44b0d6cf19cb06d671c2a4c3dc6c',1,'tgen::sequence::gen_until()'],['../group__permutation__gen.html#gaa105bce6c0b8f9a23f1affe9339fe3ab',1,'tgen::gen_until(Pred predicate, int max_tries, Args &amp;&amp;... args)'],['../group__sequence__gen.html#gadbdf44b0d6cf19cb06d671c2a4c3dc6c',1,'tgen::gen_until(Pred predicate, int max_tries)']]],
   ['general_20operations_9',['General Operations',['../group__general.html',1,'']]],
   ['generation_10',['Generation',['../index.html#autotoc_md5',1,'']]],
   ['generators_11',['generators',['../group__permutation__gen.html',1,'Permutation generators'],['../group__sequence__gen.html',1,'Sequence generators']]],

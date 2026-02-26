@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		// find last space not inside <>
 		let depth = 0;
-		let split = -1;
+		let split = 0;
 
 		for (let i = text.length - 1; i >= 0; --i) {
 			const c = text[i];
@@ -81,10 +81,10 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		}
 
-		if (split === -1) return;
-
 		const ret  = text.slice(0, split).trim();
 		const name = text.slice(split + 1).trim();
+
+		console.log(ret, name);
 
 		// escape html
 		const esc = s => s.replace(/[&<>"']/g, m =>
@@ -176,23 +176,60 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 	// Highlight return type in funciton list.
-	document.querySelectorAll("td.memItemLeft").forEach(td => {
+	function highlightReturnType(td) {
 
-		const text = td.textContent.trim();
-		if (!text) return;
+		function tokenize(str) {
+			return str.split(/(\b|::|<|>|,|&|\*|\s+)/);
+		}
 
-		let html = text
-			.replace(/\b(const|volatile|constexpr|static|inline)\b/g,
-				'<span class="keyword">$1</span>')
-			.replace(/\b(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)\b/g,
-				'<span class="keywordtype">$1</span>')
-			.replace(/\b(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)\b/g,
-				'<span class="type">$1</span>')
-			.replace(/\b([a-zA-Z_]\w*)::/g,
-				'<span class="namespace">$1</span>::');
+		function classify(tok) {
 
-		td.innerHTML = html;
-	});
+			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+				return "keywordtype";
+
+			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+				return "type";
+
+			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+				return "keyword";
+
+			if (tok === "std")
+				return "namespace";
+
+			return null;
+		}
+
+		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		let node;
+
+		while ((node = walker.nextNode())) {
+
+			// CRITICAL: skip if inside a link
+			if (node.parentElement.closest("a")) continue;
+
+			const tokens = tokenize(node.nodeValue);
+			if (tokens.length === 1) continue;
+
+			const frag = document.createDocumentFragment();
+
+			tokens.forEach(tok => {
+
+				const cls = classify(tok);
+
+				if (!cls) {
+					frag.appendChild(document.createTextNode(tok));
+				} else {
+					const span = document.createElement("span");
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+
+			node.replaceWith(frag);
+		}
+	}
+	document.querySelectorAll("td.memItemLeft").forEach(highlightReturnType);
 
 	// Highlight parameters in function list.
 	function highlightSignature(td) {
@@ -269,7 +306,6 @@ document.addEventListener('DOMContentLoaded', function() {
 			node.replaceWith(frag);
 		}
 	}
-
 	document.querySelectorAll("td.memItemRight").forEach(highlightSignature);
 });
 

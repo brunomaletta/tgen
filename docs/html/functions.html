@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (!text) return;
 		// find last space not inside <>
 		let depth = 0;
-		let split = -1;
+		let split = 0;
 		for (let i = text.length - 1; i >= 0; --i) {
 			const c = text[i];
 			if (c === '>') depth++;
@@ -70,9 +70,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				break;
 			}
 		}
-		if (split === -1) return;
 		const ret  = text.slice(0, split).trim();
 		const name = text.slice(split + 1).trim();
+		console.log(ret, name);
 		// escape html
 		const esc = s => s.replace(/[&<>"']/g, m =>
 			({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
@@ -142,20 +142,44 @@ document.addEventListener('DOMContentLoaded', function() {
 	// apply to parameters
 	document.querySelectorAll(".paramtype").forEach(highlightType);
 	// Highlight return type in funciton list.
-	document.querySelectorAll("td.memItemLeft").forEach(td => {
-		const text = td.textContent.trim();
-		if (!text) return;
-		let html = text
-			.replace(/\b(const|volatile|constexpr|static|inline)\b/g,
-				'<span class="keyword">$1</span>')
-			.replace(/\b(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)\b/g,
-				'<span class="keywordtype">$1</span>')
-			.replace(/\b(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)\b/g,
-				'<span class="type">$1</span>')
-			.replace(/\b([a-zA-Z_]\w*)::/g,
-				'<span class="namespace">$1</span>::');
-		td.innerHTML = html;
-	});
+	function highlightReturnType(td) {
+		function tokenize(str) {
+			return str.split(/(\b|::|<|>|,|&|\*|\s+)/);
+		}
+		function classify(tok) {
+			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+				return "keywordtype";
+			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+				return "type";
+			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+				return "keyword";
+			if (tok === "std")
+				return "namespace";
+			return null;
+		}
+		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		let node;
+		while ((node = walker.nextNode())) {
+			// CRITICAL: skip if inside a link
+			if (node.parentElement.closest("a")) continue;
+			const tokens = tokenize(node.nodeValue);
+			if (tokens.length === 1) continue;
+			const frag = document.createDocumentFragment();
+			tokens.forEach(tok => {
+				const cls = classify(tok);
+				if (!cls) {
+					frag.appendChild(document.createTextNode(tok));
+				} else {
+					const span = document.createElement("span");
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+			node.replaceWith(frag);
+		}
+	}
+	document.querySelectorAll("td.memItemLeft").forEach(highlightReturnType);
 	// Highlight parameters in function list.
 	function highlightSignature(td) {
 		function tokenize(str) {
@@ -306,7 +330,7 @@ $(function(){initNavTree('functions.html','',''); });
 
 <h3 class="doxsection"><a id="index_g" name="index_g"></a>- g -</h3><ul>
 <li>gen()&#160;:&#160;<a class="el" href="group__permutation__gen.html#gaeecbe05053f2e0f2ce306458ffd99983">tgen::permutation</a>, <a class="el" href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">tgen::sequence&lt; T &gt;</a></li>
-<li>gen_until()&#160;:&#160;<a class="el" href="group__permutation__gen.html#ga720f73923217570114611c367118be51">tgen::permutation</a>, <a class="el" href="group__sequence__gen.html#ga980db29096532257488877b78fd8a45e">tgen::sequence&lt; T &gt;</a></li>
+<li>gen_until()&#160;:&#160;<a class="el" href="group__permutation__gen.html#gaa105bce6c0b8f9a23f1affe9339fe3ab">tgen::permutation</a>, <a class="el" href="group__sequence__gen.html#gadbdf44b0d6cf19cb06d671c2a4c3dc6c">tgen::sequence&lt; T &gt;</a></li>
 </ul>
 
 

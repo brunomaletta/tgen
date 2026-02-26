@@ -39,21 +39,204 @@
 </script>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-    // Find all member declaration tables
+    // --- keep your colgroup code ---
     var tables = document.querySelectorAll('table.memberdecls');
     tables.forEach(function(table) {
-        // Create colgroup
         var colgroup = document.createElement('colgroup');
         var col1 = document.createElement('col');
         var col2 = document.createElement('col');
-        // Set widths: first column 300px, second column takes rest
         col1.style.width = '300px';
         col2.style.width = 'auto';
         colgroup.appendChild(col1);
         colgroup.appendChild(col2);
-        // Insert colgroup as first child of table
         table.insertBefore(colgroup, table.firstChild);
     });
+	// split return type + function name ONLY on first signature row
+	document.querySelectorAll(".memproto table.memname > tbody > tr:first-child > td.memname")
+	.forEach(el => {
+		// already processed
+		if (el.querySelector(".tgen-return")) return;
+		const text = el.textContent.trim();
+		if (!text) return;
+		// find last space not inside <>
+		let depth = 0;
+		let split = 0;
+		for (let i = text.length - 1; i >= 0; --i) {
+			const c = text[i];
+			if (c === '>') depth++;
+			else if (c === '<') depth--;
+			if (depth === 0 && c === ' ') {
+				split = i;
+				break;
+			}
+		}
+		const ret  = text.slice(0, split).trim();
+		const name = text.slice(split + 1).trim();
+		console.log(ret, name);
+		// escape html
+		const esc = s => s.replace(/[&<>"']/g, m =>
+			({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
+		);
+		el.innerHTML =
+			`<span class="tgen-return">${esc(ret)}</span>` +
+			`<span class="tgen-name">${esc(name)}</span>`;
+	});
+	// ------------------------------------
+	// C++ type syntax highlighter
+	// ------------------------------------
+	const CPP_PRIMITIVES = new Set([
+	  "int","long","short","char","float","double","bool","void",
+	  "size_t","ptrdiff_t",
+	  "uint8_t","uint16_t","uint32_t","uint64_t",
+	  "int8_t","int16_t","int32_t","int64_t",
+	  "auto"
+	]);
+	const CPP_KEYWORDS = new Set([
+	  "const","constexpr","static","volatile","mutable",
+	  "typename","class","struct","signed","unsigned"
+	]);
+	function highlightType(node) {
+		const walker = document.createTreeWalker(
+			node,
+			NodeFilter.SHOW_TEXT,
+			null,
+			false
+		);
+		const textNodes = [];
+		while (walker.nextNode())
+			textNodes.push(walker.currentNode);
+		for (const textNode of textNodes)
+		{
+			const text = textNode.nodeValue;
+			// skip whitespace
+			if (!text.trim()) continue;
+			const frag = document.createDocumentFragment();
+			const tokens = text.split(/(\W+)/); // keep separators
+			for (const tok of tokens)
+			{
+				if (!tok) continue;
+				let span = null;
+				if (CPP_PRIMITIVES.has(tok))
+					span = "primitive";
+				else if (CPP_KEYWORDS.has(tok))
+					span = "keyword";
+				else if (tok === "std")
+					span = "namespace";
+				else if (/^[a-z_][a-z0-9_]*$/i.test(tok) && /[a-z]/.test(tok[0]))
+					span = "type";
+				if (span)
+				{
+					const s = document.createElement("span");
+					s.className = "tgen-hl " + span;
+					s.textContent = tok;
+					frag.appendChild(s);
+				}
+				else
+					frag.appendChild(document.createTextNode(tok));
+			}
+			textNode.replaceWith(frag);
+		}
+	}
+	// apply to return types
+	document.querySelectorAll(".tgen-return").forEach(highlightType);
+	// apply to parameters
+	document.querySelectorAll(".paramtype").forEach(highlightType);
+	// Highlight return type in funciton list.
+	function highlightReturnType(td) {
+		function tokenize(str) {
+			return str.split(/(\b|::|<|>|,|&|\*|\s+)/);
+		}
+		function classify(tok) {
+			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+				return "keywordtype";
+			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+				return "type";
+			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+				return "keyword";
+			if (tok === "std")
+				return "namespace";
+			return null;
+		}
+		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		let node;
+		while ((node = walker.nextNode())) {
+			// CRITICAL: skip if inside a link
+			if (node.parentElement.closest("a")) continue;
+			const tokens = tokenize(node.nodeValue);
+			if (tokens.length === 1) continue;
+			const frag = document.createDocumentFragment();
+			tokens.forEach(tok => {
+				const cls = classify(tok);
+				if (!cls) {
+					frag.appendChild(document.createTextNode(tok));
+				} else {
+					const span = document.createElement("span");
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+			node.replaceWith(frag);
+		}
+	}
+	document.querySelectorAll("td.memItemLeft").forEach(highlightReturnType);
+	// Highlight parameters in function list.
+	function highlightSignature(td) {
+		function tokenize(str) {
+			return str.split(/(\b|::|<|>|,|\(|\)|=|&|\*|\s+)/);
+		}
+		function classify(tok, state) {
+			// entering default value
+			if (tok === "=") {
+				state.inDefault = true;
+				return null;
+			}
+			// leaving default value
+			if (tok === "," || tok === ")") {
+				state.inDefault = false;
+				return null;
+			}
+			// DEFAULT VALUE TOKENS
+			if (state.inDefault) {
+				if (/^(true|false|nullptr)$/.test(tok))
+					return "paramdefval";       // bool literals
+				if (/^\d+(\.\d+)?$/.test(tok))
+					return "paramdefval";       // numeric literal
+				return "paramdefval";           // anything in default expr
+			}
+			// TYPES
+			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+				return "keywordtype";
+			// STL TYPES
+			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+				return "type";
+			// IDENTIFIER → parameter name
+			if (/^[a-zA-Z_]\w*$/.test(tok))
+				return "paramname";
+			return null;
+		}
+		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		let node;
+		while ((node = walker.nextNode())) {
+			if (!node.nodeValue.includes("(")) continue;
+			const tokens = tokenize(node.nodeValue);
+			const frag = document.createDocumentFragment();
+			const state = { inDefault: false };
+			tokens.forEach(tok => {
+				const cls = classify(tok, state);
+				if (!cls) {
+					frag.appendChild(document.createTextNode(tok));
+				} else {
+					const span = document.createElement("span");
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+			node.replaceWith(frag);
+		}
+	}
+	document.querySelectorAll("td.memItemRight").forEach(highlightSignature);
 });
 </script>
 </head>
@@ -130,12 +313,12 @@ $(function(){initNavTree('namespacemembers_func.html','',''); });
 
 <h3 class="doxsection"><a id="index_a" name="index_a"></a>- a -</h3><ul>
 <li>add_log_space_internal()&#160;:&#160;<a class="el" href="namespacetgen_1_1math.html#afbbb9fdbdf99d2865e29fa115771e821">tgen::math</a></li>
-<li>any()&#160;:&#160;<a class="el" href="group__general.html#ga9c1c0431948210b949f5d1500e7235ec">tgen</a>, <a class="el" href="group__sequence__op.html#ga2d3aae3685b2a2003d737cfa3221f367">tgen::sequence_op</a></li>
+<li>any()&#160;:&#160;<a class="el" href="group__general.html#ga9c1c0431948210b949f5d1500e7235ec">tgen</a>, <a class="el" href="namespacetgen_1_1sequence__op.html#a05bfcdd3f115e3bcc7cea70a05861a84">tgen::sequence_op</a></li>
 </ul>
 
 
 <h3 class="doxsection"><a id="index_c" name="index_c"></a>- c -</h3><ul>
-<li>choose()&#160;:&#160;<a class="el" href="group__general.html#ga5deceed8488585530188dbd266739771">tgen</a>, <a class="el" href="group__sequence__op.html#gae983696fba517df4aa22a44ffaa88ba2">tgen::sequence_op</a></li>
+<li>choose()&#160;:&#160;<a class="el" href="group__general.html#ga5deceed8488585530188dbd266739771">tgen</a>, <a class="el" href="namespacetgen_1_1sequence__op.html#a75387d356c7bb80cae928398ff8ecd24">tgen::sequence_op</a></li>
 <li>contradiction_error_internal()&#160;:&#160;<a class="el" href="namespacetgen.html#a388fc78e1323453e174fc175f095504a">tgen</a></li>
 <li>ctzll_internal()&#160;:&#160;<a class="el" href="namespacetgen_1_1math.html#aed1faab3783d567c3b13f0ce7b27f9e9">tgen::math</a></li>
 </ul>
@@ -162,8 +345,8 @@ $(function(){initNavTree('namespacemembers_func.html','',''); });
 <li>gen_divisor_count()&#160;:&#160;<a class="el" href="group__math.html#gab4ac6778da02f425d55f6c971db8d933">tgen::math</a></li>
 <li>gen_even()&#160;:&#160;<a class="el" href="group__math.html#ga8bba2f77b31c71efb052b52fb3524dcf">tgen::math</a></li>
 <li>gen_odd()&#160;:&#160;<a class="el" href="group__math.html#ga15e352dff6af8059d6c44d4bf02f944e">tgen::math</a></li>
-<li>gen_partition()&#160;:&#160;<a class="el" href="group__math.html#ga6a6295d94315ea828fc71a4085eeace2">tgen::math</a></li>
-<li>gen_partition_fixed_size()&#160;:&#160;<a class="el" href="group__math.html#ga9ed3d2520bc7848ceb82e54bef04083d">tgen::math</a></li>
+<li>gen_partition()&#160;:&#160;<a class="el" href="group__math.html#ga29d89bf566aa43d5006bff0d6ecd1a06">tgen::math</a></li>
+<li>gen_partition_fixed_size()&#160;:&#160;<a class="el" href="group__math.html#ga43983ccf01f48570b2b986715412c5fe">tgen::math</a></li>
 <li>gen_prime()&#160;:&#160;<a class="el" href="group__math.html#ga27fcaa21afa26007d0b89599c9e8a4fc">tgen::math</a></li>
 <li>get_opt_internal()&#160;:&#160;<a class="el" href="namespacetgen.html#a7f63023c5f36f9897ca5e9fe2b1c8184">tgen</a></li>
 </ul>
@@ -171,7 +354,7 @@ $(function(){initNavTree('namespacemembers_func.html','',''); });
 
 <h3 class="doxsection"><a id="index_h" name="index_h"></a>- h -</h3><ul>
 <li>has_opt()&#160;:&#160;<a class="el" href="group__opts.html#ga7ffeca211fbda39e0fcdfad2383c43ba">tgen</a></li>
-<li>highly_composite_upto()&#160;:&#160;<a class="el" href="group__math.html#gaa2ffbc7459ec7ad9cc68e63c0f1b4efe">tgen::math</a></li>
+<li>highly_composite_upto()&#160;:&#160;<a class="el" href="group__math.html#ga8e9f2826b60f9dbe87eaa12dcb3c762e">tgen::math</a></li>
 <li>highly_composites()&#160;:&#160;<a class="el" href="group__math.html#gabf0a79bacc6946f032b58627baf9302d">tgen::math</a></li>
 </ul>
 
@@ -229,7 +412,7 @@ $(function(){initNavTree('namespacemembers_func.html','',''); });
 
 <h3 class="doxsection"><a id="index_s" name="index_s"></a>- s -</h3><ul>
 <li>set_seed_internal()&#160;:&#160;<a class="el" href="namespacetgen.html#a6b41efa33ec9f4409045b8d097b88611">tgen</a></li>
-<li>shuffle()&#160;:&#160;<a class="el" href="group__sequence__op.html#ga6dbb723e2e97121cfaa7a2d2d6e63e68">tgen::sequence_op</a>, <a class="el" href="group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b">tgen</a></li>
+<li>shuffle()&#160;:&#160;<a class="el" href="namespacetgen_1_1sequence__op.html#a8421c93824a5940dac66038d54b5374d">tgen::sequence_op</a>, <a class="el" href="group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b">tgen</a></li>
 <li>sub_log_space_internal()&#160;:&#160;<a class="el" href="namespacetgen_1_1math.html#af4638ae862ab56c645ca7f0343063ece">tgen::math</a></li>
 </ul>
 

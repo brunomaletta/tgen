@@ -1,3 +1,5 @@
+#include "../src/tgen.h"
+
 namespace tgen {
 
 /**
@@ -179,10 +181,11 @@ namespace tgen {
  *
  * @throws std::runtime_error if no valid instance satisfying `predicate` is found after `max_tries`
  *         tries.
- * @memberof tgen::permutation
  *
- * @fn instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args &&...args);
+ * @memberof tgen::permutation
  */
+template<typename Pred, typename... Args>
+instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... args);
 
 
 

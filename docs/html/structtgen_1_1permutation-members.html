@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (!text) return;
 		// find last space not inside <>
 		let depth = 0;
-		let split = -1;
+		let split = 0;
 		for (let i = text.length - 1; i >= 0; --i) {
 			const c = text[i];
 			if (c === '>') depth++;
@@ -70,9 +70,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				break;
 			}
 		}
-		if (split === -1) return;
 		const ret  = text.slice(0, split).trim();
 		const name = text.slice(split + 1).trim();
+		console.log(ret, name);
 		// escape html
 		const esc = s => s.replace(/[&<>"']/g, m =>
 			({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
@@ -142,20 +142,44 @@ document.addEventListener('DOMContentLoaded', function() {
 	// apply to parameters
 	document.querySelectorAll(".paramtype").forEach(highlightType);
 	// Highlight return type in funciton list.
-	document.querySelectorAll("td.memItemLeft").forEach(td => {
-		const text = td.textContent.trim();
-		if (!text) return;
-		let html = text
-			.replace(/\b(const|volatile|constexpr|static|inline)\b/g,
-				'<span class="keyword">$1</span>')
-			.replace(/\b(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)\b/g,
-				'<span class="keywordtype">$1</span>')
-			.replace(/\b(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)\b/g,
-				'<span class="type">$1</span>')
-			.replace(/\b([a-zA-Z_]\w*)::/g,
-				'<span class="namespace">$1</span>::');
-		td.innerHTML = html;
-	});
+	function highlightReturnType(td) {
+		function tokenize(str) {
+			return str.split(/(\b|::|<|>|,|&|\*|\s+)/);
+		}
+		function classify(tok) {
+			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+				return "keywordtype";
+			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+				return "type";
+			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+				return "keyword";
+			if (tok === "std")
+				return "namespace";
+			return null;
+		}
+		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		let node;
+		while ((node = walker.nextNode())) {
+			// CRITICAL: skip if inside a link
+			if (node.parentElement.closest("a")) continue;
+			const tokens = tokenize(node.nodeValue);
+			if (tokens.length === 1) continue;
+			const frag = document.createDocumentFragment();
+			tokens.forEach(tok => {
+				const cls = classify(tok);
+				if (!cls) {
+					frag.appendChild(document.createTextNode(tok));
+				} else {
+					const span = document.createElement("span");
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+			node.replaceWith(frag);
+		}
+	}
+	document.querySelectorAll("td.memItemLeft").forEach(highlightReturnType);
 	// Highlight parameters in function list.
 	function highlightSignature(td) {
 		function tokenize(str) {
@@ -293,7 +317,7 @@ $(function(){initNavTree('structtgen_1_1permutation.html','',''); });
 <table class="directory">
   <tr class="even"><td class="entry"><a class="el" href="group__permutation__gen.html#gaeecbe05053f2e0f2ce306458ffd99983">gen</a>()</td><td class="entry"><a class="el" href="structtgen_1_1permutation.html">tgen::permutation</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="odd"><td class="entry"><a class="el" href="group__permutation__gen.html#gacf686b873af79b58f3ecae1c208cb022">gen</a>(std::vector&lt; int &gt; cycle_sizes)</td><td class="entry"><a class="el" href="structtgen_1_1permutation.html">tgen::permutation</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="group__permutation__gen.html#ga720f73923217570114611c367118be51">gen_until</a>(Pred predicate, int max_tries, Args &amp;&amp;...args)</td><td class="entry"><a class="el" href="structtgen_1_1permutation.html">tgen::permutation</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="group__permutation__gen.html#gaa105bce6c0b8f9a23f1affe9339fe3ab">gen_until</a>(Pred predicate, int max_tries, Args &amp;&amp;... args)</td><td class="entry"><a class="el" href="structtgen_1_1permutation.html">tgen::permutation</a></td><td class="entry"></td></tr>
   <tr class="odd"><td class="entry"><a class="el" href="group__permutation__gen.html#gaa6173196c6a1a88fa877426a3bfc5fa4">permutation</a>(int size)</td><td class="entry"><a class="el" href="structtgen_1_1permutation.html">tgen::permutation</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="group__permutation__gen.html#ga93ed551342af2f51b5f04bba721b6c95">set</a>(int idx, int value)</td><td class="entry"><a class="el" href="structtgen_1_1permutation.html">tgen::permutation</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
 </table></div><!-- contents -->
