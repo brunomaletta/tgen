@@ -56,44 +56,145 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 	// split return type + function name ONLY on first signature row
-	document.querySelectorAll(".memproto table.memname > tbody > tr:first-child > td.memname")
-	.forEach(el => {
+	// Split return type + function name in documentation header
+	// Robust splitter with operator fallback
+	document.querySelectorAll(
+			".memproto table.memname > tbody > tr:first-child > td.memname"
+			).forEach(el => {
 
-		// already processed
-		if (el.querySelector(".tgen-return")) return;
+				if (el.querySelector(".tgen-return")) return;
 
-		const text = el.textContent.trim();
-		if (!text) return;
+				// keep only text nodes and anchors (others unlikely here)
+				const nodes = Array.from(el.childNodes).filter(n =>
+						n.nodeType === Node.TEXT_NODE || (n.nodeType === Node.ELEMENT_NODE && n.tagName === "A")
+						);
+				if (!nodes.length) return;
 
-		// find last space not inside <>
-		let depth = 0;
-		let split = -1;
+				// heuristic that decides if RHS looks like a function name
+				function looksLikeFunctionName(str) {
+				str = str.trim();
+				if (!str) return false;
+				if (str.includes("::")) return true;                 // namespaced/method
+				if (/^operator[^\s]*$/.test(str)) return true;       // operator (maybe no paren)
+				if (/^[~A-Za-z_]\w*\s*\(/.test(str)) return true;    // free function with '('
+				return false;
+				}
 
-		for (let i = text.length - 1; i >= 0; --i) {
-			const c = text[i];
+				// primary pass: find last space outside templates where RHS looks like function name
+				let templateDepth = 0;
+				let splitNodeIndex = -1;
+				let splitOffset = -1; // only meaningful when splitting inside a text node
 
-			if (c === '>') depth++;
-			else if (c === '<') depth--;
+				for (let i = nodes.length - 1; i >= 0; --i) {
+					const n = nodes[i];
+					const text = n.textContent;
+					for (let j = text.length - 1; j >= 0; --j) {
+						const c = text[j];
+						if (c === '>') templateDepth++;
+						else if (c === '<') templateDepth--;
+						if (templateDepth === 0 && c === ' ') {
+							// build RHS candidate: remainder of this node plus all following nodes
+							let rhs = text.slice(j + 1);
+							for (let k = i + 1; k < nodes.length; ++k) rhs += nodes[k].textContent;
+							if (looksLikeFunctionName(rhs)) {
+								splitNodeIndex = i;
+								splitOffset = j;
+								break;
+							}
+						}
+					}
+					if (splitNodeIndex !== -1) break;
+				}
 
-			if (depth === 0 && c === ' ') {
-				split = i;
-				break;
-			}
-		}
+				// operator fallback: search across full concatenated text for last "operator..."
+				if (splitNodeIndex === -1) {
+					const full = nodes.map(n => n.textContent).join('');
+					const opPos = full.lastIndexOf('operator');
+					if (opPos !== -1) {
+						// ensure operator is a standalone token (preceded by whitespace or start)
+						const beforeChar = opPos > 0 ? full[opPos - 1] : ' ';
+						if (/\s/.test(beforeChar)) {
+							// find the last space before opPos (split should occur at that space)
+							let spacePos = full.lastIndexOf(' ', opPos - 1);
+							if (spacePos === -1) spacePos = 0; // fallback: split at start if weird layout
 
-		const ret  = split == -1 ? "" : text.slice(0, split).trim();
-		const name = split == -1 ? text : text.slice(split + 1).trim();
+							// map spacePos back to node index + offset
+							let cum = 0;
+							let foundNode = -1;
+							let foundOffset = -1;
+							for (let i = 0; i < nodes.length; ++i) {
+								const len = nodes[i].textContent.length;
+								if (spacePos < cum + len) {
+									foundNode = i;
+									foundOffset = spacePos - cum;
+									break;
+								}
+								cum += len;
+							}
 
-		console.log(ret, name);
+							if (foundNode === -1) {
+								// spacePos at end — put split before last node
+								splitNodeIndex = nodes.length - 2;
+								splitOffset = nodes[splitNodeIndex].textContent.length - 1;
+							} else {
+								// If split is at start of node (offset === 0) we treat as splitting between nodes:
+								if (foundOffset === 0) {
+									splitNodeIndex = foundNode - 1;
+									splitOffset = (splitNodeIndex >= 0) ? nodes[splitNodeIndex].textContent.length - 1 : -1;
+								} else {
+									splitNodeIndex = foundNode;
+									splitOffset = foundOffset; // index of the space within that node's text
+								}
+							}
+						}
+					}
+				}
 
-		// escape html
-		const esc = s => s.replace(/[&<>"']/g, m =>
-			({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
-		);
+				// If still no split found: constructor/unknown → treat whole thing as name
+				if (splitNodeIndex === -1) {
+					const nameSpan = document.createElement("span");
+					nameSpan.className = "tgen-name";
+					// append clones to avoid moving original nodes while iterating
+					nodes.forEach(n => nameSpan.appendChild(n.cloneNode(true)));
+					el.innerHTML = "";
+					el.appendChild(nameSpan);
+					return;
+				}
 
-		el.innerHTML =
-			`<span class="tgen-return">${esc(ret)}</span>` +
-			`<span class="tgen-name">${esc(name)}</span>`;
+				// Build ret/name spans safely (preserve anchors)
+				const retSpan = document.createElement("span");
+				retSpan.className = "tgen-return";
+				const nameSpan = document.createElement("span");
+				nameSpan.className = "tgen-name";
+
+				for (let idx = 0; idx < nodes.length; ++idx) {
+					const node = nodes[idx];
+					// clone to avoid side effects
+					const clone = node.cloneNode(true);
+
+					if (idx < splitNodeIndex) {
+						retSpan.appendChild(clone);
+					} else if (idx > splitNodeIndex) {
+						nameSpan.appendChild(clone);
+					} else {
+						// split inside this node (or between nodes if splitOffset == -1)
+						if (node.nodeType === Node.TEXT_NODE && splitOffset >= 0) {
+							const left = node.textContent.slice(0, splitOffset);
+							const right = node.textContent.slice(splitOffset + 1);
+							if (left) retSpan.appendChild(document.createTextNode(left));
+							if (right) nameSpan.appendChild(document.createTextNode(right));
+						} else {
+							// element (anchor) or odd case — put it into the name (operators or qualified names often appear here)
+							nameSpan.appendChild(clone);
+						}
+					}
+				}
+
+				// replace content preserving all other DOM nodes not in nodes array
+				// (we used el.childNodes filtered earlier; to be safe, replace entire content)
+				el.innerHTML = "";
+				el.appendChild(retSpan);
+				el.appendChild(nameSpan);
 	});
 
 	// ------------------------------------
@@ -115,52 +216,78 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	function highlightType(node) {
 		const walker = document.createTreeWalker(
-			node,
-			NodeFilter.SHOW_TEXT,
-			null,
-			false
-		);
+				node,
+				NodeFilter.SHOW_TEXT,
+				null,
+				false
+				);
 
+		// collect text nodes first to avoid mutation during traversal
 		const textNodes = [];
-		while (walker.nextNode())
-			textNodes.push(walker.currentNode);
+		while (walker.nextNode()) textNodes.push(walker.currentNode);
 
-		for (const textNode of textNodes)
-		{
+		// tokeniser: keep words, C++ separators and whitespace as separate tokens
+		const SPLIT_RE = /(\b|::|[:<>,()=*&]|\s+)/;
 
+		for (const textNode of textNodes) {
+
+			const parent = textNode.parentElement;
+			if (!parent) continue;
+
+			// CRITICAL FIX: DO NOT TOUCH DOXYGEN LINKS
+			if (parent.closest("a.el")) continue;
+
+			// skip empty / whitespace-only nodes
 			const text = textNode.nodeValue;
+			if (!text || !text.trim()) continue;
 
-			// skip whitespace
-			if (!text.trim()) continue;
+			// avoid re-processing nodes already tokenized
+			if (parent.closest && parent.closest('.tgen-hl')) continue;
 
 			const frag = document.createDocumentFragment();
+			const tokens = text.split(SPLIT_RE).filter(t => t !== undefined && t !== "");
 
-			const tokens = text.split(/(\W+)/); // keep separators
+			for (const tok of tokens) {
+				// keep whitespace/separators as plain text
+				if (/^\s+$/.test(tok) || /^[:<>,()=*&]$/.test(tok) || tok === '::') {
+					frag.appendChild(document.createTextNode(tok));
+					continue;
+				}
 
-			for (const tok of tokens)
-			{
-				if (!tok) continue;
+				let cls = null;
 
-				let span = null;
+				// primitives (set assumed to exist in scope)
+				if (typeof CPP_PRIMITIVES !== "undefined" && CPP_PRIMITIVES.has(tok)) {
+					cls = "primitive";
+				}
+				// keywords (set assumed to exist in scope)
+				else if (typeof CPP_KEYWORDS !== "undefined" && CPP_KEYWORDS.has(tok)) {
+					cls = "keyword";
+				}
+				else if (tok === "std") {
+					cls = "namespace";
+				}
+				// heuristic for types: start with uppercase OR common STL-like names
+				else if (/^[A-Z]\w*$/.test(tok)) {
+					cls = "type";
+				}
+				else if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set|unique_ptr|shared_ptr|deque|list)$/.test(tok)) {
+					cls = "type";
+				}
+				// simple fallback: identifiers that look like types (camelCase / internal capitals)
+				else if (/^[A-Za-z_]\w*$/.test(tok) && /[A-Z]/.test(tok.slice(1))) {
+					cls = "type";
+				}
 
-				if (CPP_PRIMITIVES.has(tok))
-					span = "primitive";
-				else if (CPP_KEYWORDS.has(tok))
-					span = "keyword";
-				else if (tok === "std")
-					span = "namespace";
-				else if (/^[a-z_][a-z0-9_]*$/i.test(tok) && /[a-z]/.test(tok[0]))
-					span = "type";
-
-				if (span)
-				{
+				if (cls) {
 					const s = document.createElement("span");
-					s.className = "tgen-hl " + span;
+					s.className = "tgen-hl " + cls;
 					s.textContent = tok;
 					frag.appendChild(s);
-				}
-				else
+				} else {
+					// leave as plain text (parameter names, numbers, etc.)
 					frag.appendChild(document.createTextNode(tok));
+				}
 			}
 
 			textNode.replaceWith(frag);
