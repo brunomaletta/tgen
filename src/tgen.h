@@ -67,6 +67,14 @@ inline void tgen_ensure_against_bug(bool cond) {
 	if (!(cond))                                                               \
 		tgen::throw_assertion_error_internal(#cond, ##__VA_ARGS__);
 
+// Registering checks.
+inline bool registered_internal = false;
+inline void ensure_registered_internal() {
+	tgen_ensure(registered_internal,
+				"tgen was not registered! You should call "
+				"tgen::register_gen(argc, argv) before running tgen functions");
+}
+
 /*
  * Easier printing.
  */
@@ -218,6 +226,7 @@ inline std::mt19937 rng_internal;
 // Returns a random number in [l, r].
 // O(1).
 template <typename T> T next(T l, T r) {
+	ensure_registered_internal();
 	tgen_ensure(l <= r, "range for `next` bust be valid");
 	if constexpr (std::is_integral_v<T>)
 		return std::uniform_int_distribution<T>(l, r)(rng_internal);
@@ -365,11 +374,13 @@ inline std::map<std::string, std::string>
 
 // Returns true if there is an opt at a given index.
 inline bool has_opt(std::size_t index) {
+	ensure_registered_internal();
 	return 0 <= index and index < pos_opts_internal.size();
 }
 
 // Returns true if there is an opt with a given key.
 inline bool has_opt(const std::string &key) {
+	ensure_registered_internal();
 	return named_opts_internal.count(key) != 0;
 }
 
@@ -400,6 +411,7 @@ template <typename T> T get_opt_internal(const std::string &value) {
 // found, returns the given default_value.
 template <typename T, typename Key>
 T opt(const Key &key, std::optional<T> default_value = std::nullopt) {
+	ensure_registered_internal();
 	if constexpr (std::is_same_v<Key, int>) {
 		if (!has_opt(key)) {
 			if (default_value)
@@ -500,6 +512,8 @@ inline void register_gen(int argc, char **argv) {
 	pos_opts_internal.clear();
 	named_opts_internal.clear();
 	parse_opts_internal(argc, argv);
+
+	registered_internal = true;
 }
 
 /****************

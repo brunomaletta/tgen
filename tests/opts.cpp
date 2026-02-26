@@ -32,6 +32,24 @@ inline std::vector<char *> get_argv(std::initializer_list<const char *> list) {
  * Tests.
  */
 
+TEST(opts_test, did_not_register_opt) {
+	// Fake reset registered status.
+	tgen::registered_internal = false;
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::has_opt(0),
+		"tgen was not registered! You should call tgen::register_gen(argc, "
+		"argv) before running tgen functions");
+}
+
+TEST(opts_test, did_not_register_next) {
+	// Fake reset registered status.
+	tgen::registered_internal = false;
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::next(0, 1),
+		"tgen was not registered! You should call tgen::register_gen(argc, "
+		"argv) before running tgen functions");
+}
+
 TEST(opts_test, invalid_opts_empty_name_1) {
 	auto argv = get_argv({"./executable", "-", "n", "10"});
 
