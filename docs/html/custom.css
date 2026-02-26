@@ -384,3 +384,55 @@ html.dark-mode .tgen-code {
 
     letter-spacing: 0.01em;
 }
+
+
+
+
+/* ===== GitHub corner ===== */
+
+/* Proper corner ribbon */
+
+.github-corner {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 95px;
+  height: 95px;
+  z-index: 10000;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.github-corner svg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* triangle */
+.github-corner .corner-bg {
+  fill: var(--primary-color);
+}
+
+/* octocat */
+.github-corner .octo-arm {
+  fill: #ffffff;
+  transform-origin: 130px 106px;
+}
+
+/* wave animation */
+.github-corner:hover .octo-arm {
+  animation: octo-wave 560ms ease-in-out;
+}
+
+@keyframes octo-wave {
+  0%,100% { transform: rotate(0); }
+  20%,60% { transform: rotate(-25deg); }
+  40%,80% { transform: rotate(10deg); }
+}
+
+@media (max-width: 768px) {
+  .github-corner { display: none; }
+}

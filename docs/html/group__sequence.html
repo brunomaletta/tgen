@@ -402,6 +402,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
+<!-- GitHub Corner -->
+<a href="https://github.com/brunomaletta/tgen" target="_blank" class="github-corner" aria-label="View on GitHub">
+<svg viewBox="0 0 250 250">
+  <path d="M0 0 L250 0 L250 250 Z" class="corner-bg"></path>
+  <path d="M128 109c-15-5-18-11-18-11
+           3-6 8-7 8-7
+           6-1 10 5 10 5
+           5 9 13 7 16 6
+           0-5 2-7 3-8
+           -12-1-25-6-25-28
+           0-6 2-11 5-15
+           -1-1-2-7 1-14
+           0 0 5-2 16 5
+           5-1 10-2 15-2
+           5 0 10 1 15 2
+           11-7 16-5 16-5
+           3 7 2 13 1 14
+           3 4 5 9 5 15
+           0 22-13 27-25 28
+           2 2 4 6 4 12
+           0 9 0 16 0 18"
+        class="octo-arm"></path>
+</svg>
+</a>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -498,9 +522,9 @@ Examples</h3>
 <div class="fragment"><div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(20, 1, 100).<a class="code hl_function" href="group__sequence__gen.html#ga716d751a780c06624b428c6b969fa398">distinct</a>().<a class="code hl_function" href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">gen</a>() &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// &quot;67 96 80 11 46 52 42 2 93 1 28 3 48 82 90 99 53 98 94 88&quot;</span></div>
-<div class="ttc" id="agroup__sequence__gen_html_ga716d751a780c06624b428c6b969fa398"><div class="ttname"><a href="group__sequence__gen.html#ga716d751a780c06624b428c6b969fa398">tgen::sequence::distinct</a></div><div class="ttdeci">sequence &amp; distinct(std::set&lt; int &gt; indices)</div><div class="ttdoc">Restricts generator s.t. all values at index set are distinct.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00572">tgen.h:572</a></div></div>
-<div class="ttc" id="agroup__sequence__gen_html_ga9be29135e008e45b0c99580898f2d2e3"><div class="ttname"><a href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">tgen::sequence::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid sequences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00698">tgen.h:698</a></div></div>
-<div class="ttc" id="astructtgen_1_1sequence_html"><div class="ttname"><a href="structtgen_1_1sequence.html">tgen::sequence</a></div><div class="ttdoc">Sequence generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00487">tgen.h:487</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_ga716d751a780c06624b428c6b969fa398"><div class="ttname"><a href="group__sequence__gen.html#ga716d751a780c06624b428c6b969fa398">tgen::sequence::distinct</a></div><div class="ttdeci">sequence &amp; distinct(std::set&lt; int &gt; indices)</div><div class="ttdoc">Restricts generator s.t. all values at index set are distinct.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00614">tgen.h:614</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_ga9be29135e008e45b0c99580898f2d2e3"><div class="ttname"><a href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">tgen::sequence::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid sequences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00740">tgen.h:740</a></div></div>
+<div class="ttc" id="astructtgen_1_1sequence_html"><div class="ttname"><a href="structtgen_1_1sequence.html">tgen::sequence</a></div><div class="ttdoc">Sequence generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00529">tgen.h:529</a></div></div>
 </div><!-- fragment --><p>Random Palindrome of length 7.</p>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> s = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(7, 0, 9);</div>
 <div class="line"><span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt;= 2; ++i) s.equal(i, 6-i);</div>
@@ -512,13 +536,13 @@ Examples</h3>
 <div class="line">    .<a class="code hl_function" href="group__sequence__gen.html#gac76ec822587cf23ea8aae3f8aaf35def">equal_range</a>(0, 3).<a class="code hl_function" href="group__sequence__gen.html#gac76ec822587cf23ea8aae3f8aaf35def">equal_range</a>(4, 7).<a class="code hl_function" href="group__sequence__gen.html#gac76ec822587cf23ea8aae3f8aaf35def">equal_range</a>(8, 11)</div>
 <div class="line">    .<a class="code hl_function" href="group__sequence__gen.html#ga716d751a780c06624b428c6b969fa398">distinct</a>({0, 4, 8}).gen() &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// &quot;3 3 3 3 2 2 2 2 9 9 9 9&quot;</span></div>
-<div class="ttc" id="agroup__sequence__gen_html_gac76ec822587cf23ea8aae3f8aaf35def"><div class="ttname"><a href="group__sequence__gen.html#gac76ec822587cf23ea8aae3f8aaf35def">tgen::sequence::equal_range</a></div><div class="ttdeci">sequence &amp; equal_range(int left, int right)</div><div class="ttdoc">Restricts generator s.t. all values at index range are the same.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00561">tgen.h:561</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_gac76ec822587cf23ea8aae3f8aaf35def"><div class="ttname"><a href="group__sequence__gen.html#gac76ec822587cf23ea8aae3f8aaf35def">tgen::sequence::equal_range</a></div><div class="ttdeci">sequence &amp; equal_range(int left, int right)</div><div class="ttdoc">Restricts generator s.t. all values at index range are the same.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00603">tgen.h:603</a></div></div>
 </div><!-- fragment --><p>Random DNA sequence of length 8 with no equal adjacent values.</p>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> s2 = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence</a>(8, {<span class="charliteral">&#39;A&#39;</span>,<span class="charliteral">&#39;C&#39;</span>,<span class="charliteral">&#39;G&#39;</span>,<span class="charliteral">&#39;T&#39;</span>});</div>
 <div class="line"><span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt; 8; i++) s2.<a class="code hl_function" href="group__sequence__gen.html#ga72a3d74713ed00ffe9c2e0dc509db04c">different</a>(i-1, i);</div>
 <div class="line">std::cout &lt;&lt; s2.<a class="code hl_function" href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">gen</a>() &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// &quot;T C T G T G A C&quot;</span></div>
-<div class="ttc" id="agroup__sequence__gen_html_ga72a3d74713ed00ffe9c2e0dc509db04c"><div class="ttname"><a href="group__sequence__gen.html#ga72a3d74713ed00ffe9c2e0dc509db04c">tgen::sequence::different</a></div><div class="ttdeci">sequence &amp; different(int idx_1, int idx_2)</div><div class="ttdoc">Restricts generator s.t. values at two indices are different.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00579">tgen.h:579</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_ga72a3d74713ed00ffe9c2e0dc509db04c"><div class="ttname"><a href="group__sequence__gen.html#ga72a3d74713ed00ffe9c2e0dc509db04c">tgen::sequence::different</a></div><div class="ttdeci">sequence &amp; different(int idx_1, int idx_2)</div><div class="ttdoc">Restricts generator s.t. values at two indices are different.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00621">tgen.h:621</a></div></div>
 </div><!-- fragment --><p>Random binary sequence of length 10 with 5 1's that start with 1.</p>
 <div class="fragment"><div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 0, 1)</div>
@@ -529,7 +553,7 @@ Examples</h3>
 <div class="line">    }, 100) &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// &quot;1 0 0 1 0 1 1 0 1 0&quot;</span></div>
 <div class="ttc" id="agroup__sequence__gen_html_ga04272cb7c72fba9fe0254f9754aa9e7f"><div class="ttname"><a href="group__sequence__gen.html#ga04272cb7c72fba9fe0254f9754aa9e7f">tgen::sequence::gen_until</a></div><div class="ttdeci">instance gen_until(Pred predicate, int max_tries)</div><div class="ttdoc">Generates a random instance from the set of valid sequences until a condition is met.</div></div>
-<div class="ttc" id="agroup__sequence__gen_html_gaf4b015251066523c2b23cc4f3cda9919"><div class="ttname"><a href="group__sequence__gen.html#gaf4b015251066523c2b23cc4f3cda9919">tgen::sequence::set</a></div><div class="ttdeci">sequence &amp; set(int idx, T value)</div><div class="ttdoc">Restricts generator s.t. value at index is fixed.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00523">tgen.h:523</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_gaf4b015251066523c2b23cc4f3cda9919"><div class="ttname"><a href="group__sequence__gen.html#gaf4b015251066523c2b23cc4f3cda9919">tgen::sequence::set</a></div><div class="ttdeci">sequence &amp; set(int idx, T value)</div><div class="ttdoc">Restricts generator s.t. value at index is fixed.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00565">tgen.h:565</a></div></div>
 </div><!-- fragment --> </div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->

@@ -402,6 +402,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
+<!-- GitHub Corner -->
+<a href="https://github.com/brunomaletta/tgen" target="_blank" class="github-corner" aria-label="View on GitHub">
+<svg viewBox="0 0 250 250">
+  <path d="M0 0 L250 0 L250 250 Z" class="corner-bg"></path>
+  <path d="M128 109c-15-5-18-11-18-11
+           3-6 8-7 8-7
+           6-1 10 5 10 5
+           5 9 13 7 16 6
+           0-5 2-7 3-8
+           -12-1-25-6-25-28
+           0-6 2-11 5-15
+           -1-1-2-7 1-14
+           0 0 5-2 16 5
+           5-1 10-2 15-2
+           5 0 10 1 15 2
+           11-7 16-5 16-5
+           3 7 2 13 1 14
+           3 4 5 9 5 15
+           0 22-13 27-25 28
+           2 2 4 6 4 12
+           0 9 0 16 0 18"
+        class="octo-arm"></path>
+</svg>
+</a>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -557,10 +581,10 @@ template&lt;typename T&gt; </div>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 with the first and last values different.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#ga72a3d74713ed00ffe9c2e0dc509db04c">different</a>(0, 9);</div>
-<div class="ttc" id="agroup__sequence__gen_html_ga72a3d74713ed00ffe9c2e0dc509db04c"><div class="ttname"><a href="#ga72a3d74713ed00ffe9c2e0dc509db04c">tgen::sequence::different</a></div><div class="ttdeci">sequence &amp; different(int idx_1, int idx_2)</div><div class="ttdoc">Restricts generator s.t. values at two indices are different.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00579">tgen.h:579</a></div></div>
-<div class="ttc" id="astructtgen_1_1sequence_html"><div class="ttname"><a href="structtgen_1_1sequence.html">tgen::sequence</a></div><div class="ttdoc">Sequence generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00487">tgen.h:487</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_ga72a3d74713ed00ffe9c2e0dc509db04c"><div class="ttname"><a href="#ga72a3d74713ed00ffe9c2e0dc509db04c">tgen::sequence::different</a></div><div class="ttdeci">sequence &amp; different(int idx_1, int idx_2)</div><div class="ttdoc">Restricts generator s.t. values at two indices are different.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00621">tgen.h:621</a></div></div>
+<div class="ttc" id="astructtgen_1_1sequence_html"><div class="ttname"><a href="structtgen_1_1sequence.html">tgen::sequence</a></div><div class="ttdoc">Sequence generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00529">tgen.h:529</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00579">579</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00621">621</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -596,9 +620,9 @@ template&lt;typename T&gt; </div>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 5 distinct ints from 1 to 5.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(5, 1, 5).<a class="code hl_function" href="#ga716d751a780c06624b428c6b969fa398">distinct</a>();</div>
-<div class="ttc" id="agroup__sequence__gen_html_ga716d751a780c06624b428c6b969fa398"><div class="ttname"><a href="#ga716d751a780c06624b428c6b969fa398">tgen::sequence::distinct</a></div><div class="ttdeci">sequence &amp; distinct(std::set&lt; int &gt; indices)</div><div class="ttdoc">Restricts generator s.t. all values at index set are distinct.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00572">tgen.h:572</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_ga716d751a780c06624b428c6b969fa398"><div class="ttname"><a href="#ga716d751a780c06624b428c6b969fa398">tgen::sequence::distinct</a></div><div class="ttdeci">sequence &amp; distinct(std::set&lt; int &gt; indices)</div><div class="ttdoc">Restricts generator s.t. all values at index set are distinct.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00614">tgen.h:614</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00585">585</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00627">627</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -640,7 +664,7 @@ Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 with the first half distinct.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#ga716d751a780c06624b428c6b969fa398">distinct</a>({0, 1, 2, 3, 4});</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00572">572</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00614">614</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -685,9 +709,9 @@ template&lt;typename T&gt; </div>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 that start and end with the same value.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#gad9c173d0b1ff829de543ef76692d4b38">equal</a>(0, 9);</div>
-<div class="ttc" id="agroup__sequence__gen_html_gad9c173d0b1ff829de543ef76692d4b38"><div class="ttname"><a href="#gad9c173d0b1ff829de543ef76692d4b38">tgen::sequence::equal</a></div><div class="ttdeci">sequence &amp; equal(int idx_1, int idx_2)</div><div class="ttdoc">Restricts generator s.t. values at two indices are the same.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00548">tgen.h:548</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_gad9c173d0b1ff829de543ef76692d4b38"><div class="ttname"><a href="#gad9c173d0b1ff829de543ef76692d4b38">tgen::sequence::equal</a></div><div class="ttdeci">sequence &amp; equal(int idx_1, int idx_2)</div><div class="ttdoc">Restricts generator s.t. values at two indices are the same.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00590">tgen.h:590</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00548">548</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00590">590</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -732,9 +756,9 @@ template&lt;typename T&gt; </div>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 with the first half all equal.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#gac76ec822587cf23ea8aae3f8aaf35def">equal_range</a>(0, 4);</div>
-<div class="ttc" id="agroup__sequence__gen_html_gac76ec822587cf23ea8aae3f8aaf35def"><div class="ttname"><a href="#gac76ec822587cf23ea8aae3f8aaf35def">tgen::sequence::equal_range</a></div><div class="ttdeci">sequence &amp; equal_range(int left, int right)</div><div class="ttdoc">Restricts generator s.t. all values at index range are the same.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00561">tgen.h:561</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_gac76ec822587cf23ea8aae3f8aaf35def"><div class="ttname"><a href="#gac76ec822587cf23ea8aae3f8aaf35def">tgen::sequence::equal_range</a></div><div class="ttdeci">sequence &amp; equal_range(int left, int right)</div><div class="ttdoc">Restricts generator s.t. all values at index range are the same.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00603">tgen.h:603</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00561">561</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00603">603</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -779,9 +803,9 @@ Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Generates and prints a random sequence of 5 ints from 1 to 5.</span></div>
 <div class="line"><span class="keyword">auto</span> inst = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(5, 1, 5).<a class="code hl_function" href="#ga9be29135e008e45b0c99580898f2d2e3">gen</a>();</div>
 <div class="line">std::cout &lt;&lt; inst &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__sequence__gen_html_ga9be29135e008e45b0c99580898f2d2e3"><div class="ttname"><a href="#ga9be29135e008e45b0c99580898f2d2e3">tgen::sequence::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid sequences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00698">tgen.h:698</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_ga9be29135e008e45b0c99580898f2d2e3"><div class="ttname"><a href="#ga9be29135e008e45b0c99580898f2d2e3">tgen::sequence::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid sequences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00740">tgen.h:740</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00698">698</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00740">740</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -887,7 +911,7 @@ Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints that are either 3, 6, or 9.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, std::set&lt;int&gt;({3, 6, 9}));</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00510">510</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00552">552</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -940,7 +964,7 @@ Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 100.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 100);</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00501">501</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00543">543</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -991,9 +1015,9 @@ template&lt;typename T&gt; </div>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sequences of 10 ints from 1 to 5 that start with 1.</span></div>
 <div class="line"><span class="keyword">auto</span> seq_gen = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 5).<a class="code hl_function" href="#gaf4b015251066523c2b23cc4f3cda9919">set</a>(0, 1);</div>
-<div class="ttc" id="agroup__sequence__gen_html_gaf4b015251066523c2b23cc4f3cda9919"><div class="ttname"><a href="#gaf4b015251066523c2b23cc4f3cda9919">tgen::sequence::set</a></div><div class="ttdeci">sequence &amp; set(int idx, T value)</div><div class="ttdoc">Restricts generator s.t. value at index is fixed.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00523">tgen.h:523</a></div></div>
+<div class="ttc" id="agroup__sequence__gen_html_gaf4b015251066523c2b23cc4f3cda9919"><div class="ttname"><a href="#gaf4b015251066523c2b23cc4f3cda9919">tgen::sequence::set</a></div><div class="ttdeci">sequence &amp; set(int idx, T value)</div><div class="ttdoc">Restricts generator s.t. value at index is fixed.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00565">tgen.h:565</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00523">523</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00565">565</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>

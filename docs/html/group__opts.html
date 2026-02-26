@@ -402,6 +402,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
+<!-- GitHub Corner -->
+<a href="https://github.com/brunomaletta/tgen" target="_blank" class="github-corner" aria-label="View on GitHub">
+<svg viewBox="0 0 250 250">
+  <path d="M0 0 L250 0 L250 250 Z" class="corner-bg"></path>
+  <path d="M128 109c-15-5-18-11-18-11
+           3-6 8-7 8-7
+           6-1 10 5 10 5
+           5 9 13 7 16 6
+           0-5 2-7 3-8
+           -12-1-25-6-25-28
+           0-6 2-11 5-15
+           -1-1-2-7 1-14
+           0 0 5-2 16 5
+           5-1 10-2 15-2
+           5 0 10 1 15 2
+           11-7 16-5 16-5
+           3 7 2 13 1 14
+           3 4 5 9 5 15
+           0 22-13 27-25 28
+           2 2 4 6 4 12
+           0 9 0 16 0 18"
+        class="octo-arm"></path>
+</svg>
+</a>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -505,7 +529,7 @@ Registering</h3>
 <div class="line">    </div>
 <div class="line">    <span class="comment">// Rest of the generator.</span></div>
 <div class="line">}</div>
-<div class="ttc" id="agroup__opts_html_gae8eca919976894c15b44713f00f33bd8"><div class="ttname"><a href="#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a></div><div class="ttdeci">void register_gen(int argc, char **argv)</div><div class="ttdoc">Sets up the generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00469">tgen.h:469</a></div></div>
+<div class="ttc" id="agroup__opts_html_gae8eca919976894c15b44713f00f33bd8"><div class="ttname"><a href="#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a></div><div class="ttdeci">void register_gen(int argc, char **argv)</div><div class="ttdoc">Sets up the generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00509">tgen.h:509</a></div></div>
 </div><!-- fragment --><p>This does two things:</p><ol type="1">
 <li>Sets up the seed for random generator based on the arguments (excluding the executable name). That is, <span class="tgen-code texttt">./a.out -n 10</span> and <span class="tgen-code texttt">./b.out -n 10</span> will use the same seed.</li>
 <li>Parses the opts (given in the arguments).</li>
@@ -535,7 +559,7 @@ Consuming opts</h4>
 <p>You can consume the opts by using <span class="tgen-code texttt">opt&lt;&gt;</span>:</p>
 <div class="fragment"><div class="line"><span class="keywordtype">int</span> n = <a class="code hl_function" href="#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt&lt;int&gt;</a>(<span class="stringliteral">&quot;n&quot;</span>);</div>
 <div class="line">std::string s = <a class="code hl_function" href="#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt&lt;std::string&gt;</a>(0, <span class="stringliteral">&quot;&quot;</span>); <span class="comment">// Default value, if opt is not found.</span></div>
-<div class="ttc" id="agroup__opts_html_ga3e56ac3ed9e70c13af95f590ee9ffd26"><div class="ttname"><a href="#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt</a></div><div class="ttdeci">T opt(const Key &amp;key, std::optional&lt; T &gt; default_value=std::nullopt)</div><div class="ttdoc">Gets opt by key.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00374">tgen.h:374</a></div></div>
+<div class="ttc" id="agroup__opts_html_ga3e56ac3ed9e70c13af95f590ee9ffd26"><div class="ttname"><a href="#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt</a></div><div class="ttdeci">T opt(const Key &amp;key, std::optional&lt; T &gt; default_value=std::nullopt)</div><div class="ttdoc">Gets opt by key.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00413">tgen.h:413</a></div></div>
 </div><!-- fragment --> <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
 <a id="ga87fb2f31789744477371960792b7540f" name="ga87fb2f31789744477371960792b7540f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga87fb2f31789744477371960792b7540f">&#9670;&#160;</a></span>has_opt() <span class="overload">[1/2]</span></h2>
@@ -572,9 +596,9 @@ Consuming opts</h4>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Checks if there is an opt with &quot;q&quot;.</span></div>
 <div class="line"><span class="keywordflow">if</span> (<a class="code hl_function" href="#ga7ffeca211fbda39e0fcdfad2383c43ba">tgen::has_opt</a>(<span class="stringliteral">&quot;q&quot;</span>)) std::cout &lt;&lt; <span class="stringliteral">&quot;q found!&quot;</span> &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__opts_html_ga7ffeca211fbda39e0fcdfad2383c43ba"><div class="ttname"><a href="#ga7ffeca211fbda39e0fcdfad2383c43ba">tgen::has_opt</a></div><div class="ttdeci">bool has_opt(std::size_t index)</div><div class="ttdoc">Checks if opt at some index exists.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00339">tgen.h:339</a></div></div>
+<div class="ttc" id="agroup__opts_html_ga7ffeca211fbda39e0fcdfad2383c43ba"><div class="ttname"><a href="#ga7ffeca211fbda39e0fcdfad2383c43ba">tgen::has_opt</a></div><div class="ttdeci">bool has_opt(std::size_t index)</div><div class="ttdoc">Checks if opt at some index exists.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00376">tgen.h:376</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00344">344</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00382">382</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -614,7 +638,7 @@ Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Checks if there is an opt at 0.</span></div>
 <div class="line"><span class="keywordflow">if</span> (<a class="code hl_function" href="#ga7ffeca211fbda39e0fcdfad2383c43ba">tgen::has_opt</a>(0)) std::cout &lt;&lt; <span class="stringliteral">&quot;opt found!&quot;</span> &lt;&lt; std::endl;</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00339">339</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00376">376</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -665,7 +689,7 @@ Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Consumes opt with &quot;q&quot;.</span></div>
 <div class="line"><span class="keywordtype">int</span> q = <a class="code hl_function" href="#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt&lt;int&gt;</a>(<span class="stringliteral">&quot;q&quot;</span>);</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00374">374</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00413">413</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -714,7 +738,7 @@ Examples</h4>
 <div class="line">    <a class="code hl_function" href="#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a>(argc, argv);</div>
 <div class="line">}</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00469">469</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00509">509</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>

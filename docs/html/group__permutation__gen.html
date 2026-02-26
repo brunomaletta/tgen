@@ -402,6 +402,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
+<!-- GitHub Corner -->
+<a href="https://github.com/brunomaletta/tgen" target="_blank" class="github-corner" aria-label="View on GitHub">
+<svg viewBox="0 0 250 250">
+  <path d="M0 0 L250 0 L250 250 Z" class="corner-bg"></path>
+  <path d="M128 109c-15-5-18-11-18-11
+           3-6 8-7 8-7
+           6-1 10 5 10 5
+           5 9 13 7 16 6
+           0-5 2-7 3-8
+           -12-1-25-6-25-28
+           0-6 2-11 5-15
+           -1-1-2-7 1-14
+           0 0 5-2 16 5
+           5-1 10-2 15-2
+           5 0 10 1 15 2
+           11-7 16-5 16-5
+           3 7 2 13 1 14
+           3 4 5 9 5 15
+           0 22-13 27-25 28
+           2 2 4 6 4 12
+           0 9 0 16 0 18"
+        class="octo-arm"></path>
+</svg>
+</a>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -543,10 +567,10 @@ Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Generates and prints a random permutation of size 5.</span></div>
 <div class="line"><span class="keyword">auto</span> inst = <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(5).<a class="code hl_function" href="#gaeecbe05053f2e0f2ce306458ffd99983">gen</a>();</div>
 <div class="line">std::cout &lt;&lt; inst &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__permutation__gen_html_gaeecbe05053f2e0f2ce306458ffd99983"><div class="ttname"><a href="#gaeecbe05053f2e0f2ce306458ffd99983">tgen::permutation::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid permutations.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01120">tgen.h:1120</a></div></div>
-<div class="ttc" id="astructtgen_1_1permutation_html"><div class="ttname"><a href="structtgen_1_1permutation.html">tgen::permutation</a></div><div class="ttdoc">Permutation generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01011">tgen.h:1011</a></div></div>
+<div class="ttc" id="agroup__permutation__gen_html_gaeecbe05053f2e0f2ce306458ffd99983"><div class="ttname"><a href="#gaeecbe05053f2e0f2ce306458ffd99983">tgen::permutation::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid permutations.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01162">tgen.h:1162</a></div></div>
+<div class="ttc" id="astructtgen_1_1permutation_html"><div class="ttname"><a href="structtgen_1_1permutation.html">tgen::permutation</a></div><div class="ttdoc">Permutation generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01053">tgen.h:1053</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01120">1120</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01162">1162</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -596,7 +620,7 @@ Examples</h4>
 <div class="line"><span class="keyword">auto</span> inst = <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(5).<a class="code hl_function" href="#gaeecbe05053f2e0f2ce306458ffd99983">gen</a>({5});</div>
 <div class="line">std::cout &lt;&lt; inst &lt;&lt; std::endl;</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01131">1131</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01173">1173</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -706,7 +730,7 @@ Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Permutations of size 10.</span></div>
 <div class="line"><span class="keyword">auto</span> perm_gen = <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(10);</div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01016">1016</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01058">1058</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
@@ -749,9 +773,9 @@ Examples</h4>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Permutations of size 10 that start with 1.</span></div>
 <div class="line"><span class="keyword">auto</span> perm_gen = <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(10).<a class="code hl_function" href="#ga93ed551342af2f51b5f04bba721b6c95">set</a>(0, 1);</div>
-<div class="ttc" id="agroup__permutation__gen_html_ga93ed551342af2f51b5f04bba721b6c95"><div class="ttname"><a href="#ga93ed551342af2f51b5f04bba721b6c95">tgen::permutation::set</a></div><div class="ttdeci">permutation &amp; set(int idx, int value)</div><div class="ttdoc">Restricts generator s.t. value at index is fixed.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01021">tgen.h:1021</a></div></div>
+<div class="ttc" id="agroup__permutation__gen_html_ga93ed551342af2f51b5f04bba721b6c95"><div class="ttname"><a href="#ga93ed551342af2f51b5f04bba721b6c95">tgen::permutation::set</a></div><div class="ttdeci">permutation &amp; set(int idx, int value)</div><div class="ttdoc">Restricts generator s.t. value at index is fixed.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01063">tgen.h:1063</a></div></div>
 </div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01021">1021</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01063">1063</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
