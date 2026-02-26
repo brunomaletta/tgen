@@ -156,94 +156,7 @@ td.memItemLeft {
 }
 
 
-
-/* =========================================================
-FUNCTION SIGNATURE COLORING (no code blocks / no hover)
-========================================================= */
-
-/* base signature text */
-.memproto {
-color: #D4D4D4;
-}
-
-/* punctuation (parentheses, commas) softer */
-.memproto td {
-color: #9AA7B5;
-}
-
-/* =========================================================
-RETURN TYPE + FUNCTION NAME
-========================================================= */
-
-/* return type — contextual info */
-.tgen-return {
-    color: var(--page-secondary-foreground-color);
-}
-
-/* add visual space between return and name */
-.tgen-return::after {
-content: "\00A0"; /* non-breaking space */
-}
-
-/* namespace scope (if JS splits it) */
-.tgen-scope {
-color: #7F8C9A;
-font-weight: 400;
-}
-
-/* function name — main focus */
-.tgen-name {
-font-weight: 700;
-color: #4FC1FF;
-}
-
-/* clickable symbol */
-.memproto .memname a.el {
-color: #4FC1FF !important;
-font-weight: 700;
-text-decoration: none;
-}
-
-.memproto .memname a.el:hover {
-color: #82DDFF !important;
-text-decoration: underline;
-}
-
-/* =========================================================
-PARAMETERS
-========================================================= */
-
-/* parameter types */
-.memproto .paramtype,
-.memproto .keywordtype {
-color: #C586C0;
-}
-
-/* parameter names softer than symbol */
-.memproto .paramname {
-color: #A8B3C2;
-}
-
-/* =========================================================
-TEMPLATE / TYPE READABILITY
-========================================================= */
-
-/* soften templates */
-.memproto .paramtype .template,
-.tgen-return .template {
-color: #808B96;
-}
-
-/* subtle spacing inside types */
-.memproto .paramtype,
-.tgen-return {
-letter-spacing: 0.02em;
-}
-
-
-
-
-
+/* Highlight function brief in function text */
 .memdoc > p:first-of-type {
     font-size: 1.06em;
     font-weight: 500;
@@ -251,3 +164,140 @@ letter-spacing: 0.02em;
 }
 
 
+
+
+/* =========================================================
+   TGEN SYNTAX COLOR THEME (matches doxygen-awesome)
+   ========================================================= */
+
+:root {
+    --tgen-primitive: #C586C0;   /* int, uint64_t */
+    --tgen-keyword:   #569CD6;   /* const, constexpr, inline */
+    --tgen-type:      #4EC9B0;   /* vector, map, user types */
+    --tgen-namespace: #9CDCFE;   /* std, tgen */
+    --tgen-function:  #4FC1FF;   /* function name */
+    --tgen-param:     #D4D4D4;   /* parameter identifiers */
+    --tgen-punct:     #9AA7B5;   /* commas, (), <> */
+}
+
+/* light theme tuned for doxygen-awesome */
+html[data-theme="light"] {
+    --tgen-primitive: #AF00DB;
+    --tgen-keyword:   #0000FF;
+    --tgen-type:      #267F99;
+    --tgen-namespace: #001080;
+    --tgen-function:  #795E26;
+    --tgen-param:     #000000;
+    --tgen-punct:     #555555;
+}
+
+
+/* =========================================================
+   Disable doxygen builtin coloring INSIDE signatures
+   ========================================================= */
+
+.memproto .keywordtype,
+.memproto .keyword,
+.memproto .stringliteral,
+.memproto .comment,
+.memItemLeft .keywordtype,
+.memItemRight .keywordtype,
+.memItemLeft .keyword,
+.memItemRight .keyword {
+    color: inherit;
+    font-weight: inherit;
+}
+
+
+/* =========================================================
+   Base signature layout
+   ========================================================= */
+
+.memproto,
+.memItemLeft,
+.memItemRight {
+    font-family: var(--font-family-monospace);
+}
+
+.memproto td {
+    color: var(--tgen-punct);
+}
+
+
+/* =========================================================
+   Function name + return
+   ========================================================= */
+
+.tgen-return {
+    color: var(--page-secondary-foreground-color);
+}
+
+.tgen-return::after {
+    content: "\00A0";
+}
+
+.tgen-name {
+    color: var(--tgen-function);
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   Parameter names
+   ========================================================= */
+
+.paramname {
+    color: var(--tgen-param);
+}
+
+
+/* =========================================================
+   Repaint DOXYGEN TOKENS using our palette
+   ========================================================= */
+
+/* primitives */
+.memproto .keywordtype,
+.memItemLeft .keywordtype,
+.memItemRight .keywordtype {
+    color: var(--tgen-primitive);
+}
+
+/* qualifiers */
+.memproto .keyword,
+.memItemLeft .keyword,
+.memItemRight .keyword {
+    color: var(--tgen-keyword);
+}
+
+/* types */
+.memproto .paramtype,
+.memItemLeft .paramtype,
+.memItemRight .paramtype {
+    color: var(--tgen-type);
+}
+
+
+/* =========================================================
+   Custom tokenizer (JS injected spans)
+   ========================================================= */
+
+.tgen-hl.primitive  { color: var(--tgen-primitive); }
+.tgen-hl.keyword    { color: var(--tgen-keyword); }
+.tgen-hl.type       { color: var(--tgen-type); }
+.tgen-hl.namespace  { color: var(--tgen-namespace); }
+
+
+/* templates readability */
+.tgen-hl.template {
+    color: var(--tgen-punct);
+}
+
+
+/* =========================================================
+   Namespace scope before function
+   ========================================================= */
+
+.tgen-scope {
+    color: var(--tgen-namespace);
+    font-weight: 400;
+}

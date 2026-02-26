@@ -51,19 +51,146 @@ document.addEventListener('DOMContentLoaded', function() {
         colgroup.appendChild(col2);
         table.insertBefore(colgroup, table.firstChild);
     });
-    // --- split signatures ---
-    document.querySelectorAll(".memproto .memname").forEach(el => {
+	// split return type + function name ONLY on first signature row
+	document.querySelectorAll(".memproto table.memname > tbody > tr:first-child > td.memname")
+	.forEach(el => {
+		// already processed
+		if (el.querySelector(".tgen-return")) return;
 		const text = el.textContent.trim();
 		if (!text) return;
-		// Match: (everything) (qualified function name at end)
-		const match = text.match(/^(.*)\s+([~\w:]+)$/);
-		if (!match) return;
-		const ret  = match[1].trim();
-		const name = match[2].trim();
+		// find last space not inside <>
+		let depth = 0;
+		let split = -1;
+		for (let i = text.length - 1; i >= 0; --i) {
+			const c = text[i];
+			if (c === '>') depth++;
+			else if (c === '<') depth--;
+			if (depth === 0 && c === ' ') {
+				split = i;
+				break;
+			}
+		}
+		if (split === -1) return;
+		const ret  = text.slice(0, split).trim();
+		const name = text.slice(split + 1).trim();
+		// escape html
+		const esc = s => s.replace(/[&<>"']/g, m =>
+			({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
+		);
 		el.innerHTML =
-			`<span class="tgen-return">${ret}</span>` +
-			`<span class="tgen-name">${name}</span>`;
+			`<span class="tgen-return">${esc(ret)}</span>` +
+			`<span class="tgen-name">${esc(name)}</span>`;
 	});
+	// ------------------------------------
+	// C++ type syntax highlighter
+	// ------------------------------------
+	const CPP_PRIMITIVES = new Set([
+	  "int","long","short","char","float","double","bool","void",
+	  "size_t","ptrdiff_t",
+	  "uint8_t","uint16_t","uint32_t","uint64_t",
+	  "int8_t","int16_t","int32_t","int64_t",
+	  "auto"
+	]);
+	const CPP_KEYWORDS = new Set([
+	  "const","constexpr","static","volatile","mutable",
+	  "typename","class","struct","signed","unsigned"
+	]);
+	function highlightType(node) {
+		const walker = document.createTreeWalker(
+			node,
+			NodeFilter.SHOW_TEXT,
+			null,
+			false
+		);
+		const textNodes = [];
+		while (walker.nextNode())
+			textNodes.push(walker.currentNode);
+		for (const textNode of textNodes)
+		{
+			const text = textNode.nodeValue;
+			// skip whitespace
+			if (!text.trim()) continue;
+			const frag = document.createDocumentFragment();
+			const tokens = text.split(/(\W+)/); // keep separators
+			for (const tok of tokens)
+			{
+				if (!tok) continue;
+				let span = null;
+				if (CPP_PRIMITIVES.has(tok))
+					span = "primitive";
+				else if (CPP_KEYWORDS.has(tok))
+					span = "keyword";
+				else if (tok === "std")
+					span = "namespace";
+				else if (/^[a-z_][a-z0-9_]*$/i.test(tok) && /[a-z]/.test(tok[0]))
+					span = "type";
+				if (span)
+				{
+					const s = document.createElement("span");
+					s.className = "tgen-hl " + span;
+					s.textContent = tok;
+					frag.appendChild(s);
+				}
+				else
+					frag.appendChild(document.createTextNode(tok));
+			}
+			textNode.replaceWith(frag);
+		}
+	}
+	// apply to return types
+	document.querySelectorAll(".tgen-return").forEach(highlightType);
+	// apply to parameters
+	document.querySelectorAll(".paramtype").forEach(highlightType);
+	// Highlight return type in funciton list.
+	document.querySelectorAll("td.memItemLeft").forEach(td => {
+		const text = td.textContent.trim();
+		if (!text) return;
+		let html = text
+			.replace(/\b(const|volatile|constexpr|static|inline)\b/g,
+				'<span class="keyword">$1</span>')
+			.replace(/\b(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)\b/g,
+				'<span class="keywordtype">$1</span>')
+			.replace(/\b(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)\b/g,
+				'<span class="type">$1</span>')
+			.replace(/\b([a-zA-Z_]\w*)::/g,
+				'<span class="namespace">$1</span>::');
+		td.innerHTML = html;
+	});
+	// Highlight parameters in function list.
+	function highlightSignature(td) {
+		function tokenize(str) {
+			return str.split(/(\b|::|<|>|,|\(|\)|=|&|\*|\s+)/);
+		}
+		function classify(tok) {
+			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+				return "keywordtype";
+			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+				return "type";
+			if (/^[a-zA-Z_]\w*$/.test(tok))
+				return "paramname";
+			return null;
+		}
+		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		let node;
+		while ((node = walker.nextNode())) {
+			if (!node.nodeValue.includes("(")) continue;
+			const tokens = tokenize(node.nodeValue);
+			const frag = document.createDocumentFragment();
+			tokens.forEach(tok => {
+				const cls = classify(tok);
+				if (!cls) {
+					frag.appendChild(document.createTextNode(tok));
+				} else {
+					const span = document.createElement("span");
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+			node.replaceWith(frag);
+		}
+	}
+	document.querySelectorAll("td.memItemRight").forEach(highlightSignature);
 });
 </script>
 </head>
