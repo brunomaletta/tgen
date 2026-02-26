@@ -224,7 +224,6 @@ html[data-theme="light"] {
 
 /* return type */
 .tgen-return {
-    color: var(--tgen-type);
     letter-spacing: 0.02em;
 }
 .tgen-return::after { content: "\00A0"; }
@@ -298,7 +297,6 @@ html[data-theme="light"] {
    MEMPROTO PARAMETER TABLE (multi-line parameter lists)
    ========================================================= */
 
-.memproto .paramtype { color: var(--tgen-type); }
 .memproto .paramname { color: var(--tgen-param); }
 
 /* templates softer */

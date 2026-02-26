@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (!text) return;
 		// find last space not inside <>
 		let depth = 0;
-		let split = 0;
+		let split = -1;
 		for (let i = text.length - 1; i >= 0; --i) {
 			const c = text[i];
 			if (c === '>') depth++;
@@ -70,8 +70,8 @@ document.addEventListener('DOMContentLoaded', function() {
 				break;
 			}
 		}
-		const ret  = text.slice(0, split).trim();
-		const name = text.slice(split + 1).trim();
+		const ret  = split == -1 ? "" : text.slice(0, split).trim();
+		const name = split == -1 ? text : text.slice(split + 1).trim();
 		console.log(ret, name);
 		// escape html
 		const esc = s => s.replace(/[&<>"']/g, m =>
