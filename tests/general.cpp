@@ -93,9 +93,9 @@ TEST(general_test, print_2d_container) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	testing::internal::CaptureStdout();
-	std::cout << tgen::print({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
+	std::cout << tgen::println({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
 	EXPECT_EQ(testing::internal::GetCapturedStdout(),
-			  std::string("1 2 3\n4 5 6\n7 8 9"));
+			  std::string("1 2 3\n4 5 6\n7 8 9\n"));
 
 	std::vector<int> r1 = {1, 2, 3}, r2 = {4, 5, 6}, r3 = {7, 8, 9};
 
@@ -104,10 +104,37 @@ TEST(general_test, print_2d_container) {
 	EXPECT_EQ(testing::internal::GetCapturedStdout(),
 			  std::string("1 2 3\n4 5 6\n7 8 9"));
 
+	// Complex container 1.
 	testing::internal::CaptureStdout();
 	std::cout << tgen::print(std::vector<std::vector<int>>({r1, r2, r3}));
 	EXPECT_EQ(testing::internal::GetCapturedStdout(),
 			  std::string("1 2 3\n4 5 6\n7 8 9"));
+
+	// Complex container 2.
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print(
+		std::vector<std::pair<int, int>>({{1, 2}, {3, 4}}));
+	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2\n3 4"));
+
+	// Complex container 3.
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print(std::vector<std::tuple<char, int, double>>(
+		{{'a', 1, 0.1}, {'b', 2, 0.2}}));
+	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+			  std::string("a 1 0.1\nb 2 0.2"));
+
+	// Complex tuple.
+	testing::internal::CaptureStdout();
+	std::cout << tgen::println(
+		std::tuple<int, std::pair<int, int>, double>({2, {3, 4}, 5.1}));
+	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+			  std::string("2\n3 4\n5.1\n"));
+
+	// Complex pair.
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print(
+		std::pair<std::pair<int, int>, std::pair<int, int>>({{1, 2}, {3, 4}}));
+	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2\n3 4"));
 }
 
 TEST(general_test, next_invalid_range) {

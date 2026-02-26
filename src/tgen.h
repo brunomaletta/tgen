@@ -71,19 +71,48 @@ inline void tgen_ensure_against_bug(bool cond) {
  * Easier printing.
  */
 
-// Template magic to detect containers != std::string.
+// Template magic to detect types in compile tiem.
+
+// Detects containers != std::string.
 template <typename T, typename = void>
 struct is_container_internal : std::false_type {};
 template <typename T>
 struct is_container_internal<
-	T, std::void_t<decltype(std::begin(std::declval<T>())),
-				   decltype(std::end(std::declval<T>()))>> : std::true_type {};
+	T,
+	std::void_t<typename T::value_type, decltype(std::begin(std::declval<T>())),
+				decltype(std::end(std::declval<T>()))>> : std::true_type {};
 template <> struct is_container_internal<std::string> : std::false_type {};
-
-// Detects tuple.
+// Detects std::pair.
+template <typename T> struct is_pair_internal : std::false_type {};
+template <typename A, typename B>
+struct is_pair_internal<std::pair<A, B>> : std::true_type {};
+// Detects std::tuple.
 template <typename T> struct is_tuple_internal : std::false_type {};
 template <typename... Ts>
 struct is_tuple_internal<std::tuple<Ts...>> : std::true_type {};
+// Detects scalar (printed atomically).
+template <typename T>
+struct is_scalar_internal
+	: std::bool_constant<!is_container_internal<T>::value and
+						 !is_tuple_internal<T>::value and
+						 !is_pair_internal<T>::value> {};
+// Detects complex container.
+template <typename T>
+struct is_container_multiline_internal
+	: std::bool_constant<is_container_internal<T>::value and
+						 !is_scalar_internal<typename T::value_type>::value> {};
+// Detects complex std::pair.
+template <typename T> struct is_pair_multiline_internal : std::false_type {};
+template <typename A, typename B>
+struct is_pair_multiline_internal<std::pair<A, B>>
+	: std::bool_constant<!is_scalar_internal<A>::value or
+						 !is_scalar_internal<B>::value> {};
+// Detects complex std::tuple.
+template <typename Tuple>
+struct is_tuple_multiline_internal : std::false_type {};
+template <typename... Ts>
+struct is_tuple_multiline_internal<std::tuple<Ts...>>
+	: std::bool_constant<(!is_scalar_internal<Ts>::value or ...)> {};
 
 // Struct to print standard types to std::ostream;
 struct print {
@@ -109,64 +138,51 @@ struct print {
 		s = oss.str();
 	}
 
-	// Scalar.
-	template <typename T>
-	std::enable_if_t<!is_container_internal<T>::value and
-					 !is_tuple_internal<T>::value>
-	write(std::ostream &os, const T &x) {
-		os << x;
+	template <typename T> void write(std::ostream &os, const T &x) {
+		if constexpr (is_pair_internal<T>::value) {
+			if constexpr (is_pair_multiline_internal<T>::value) {
+				write(os, x.first);
+				os << '\n';
+				write(os, x.second);
+			} else {
+				write(os, x.first);
+				os << ' ';
+				write(os, x.second);
+			}
+		} else if constexpr (is_tuple_internal<T>::value)
+			write_tuple(os, x);
+		else if constexpr (is_container_internal<T>::value)
+			write_container(os, x);
+		else
+			os << x;
 	}
 
-	// std::pair.
-	template <typename A, typename B>
-	void write(std::ostream &os, const std::pair<A, B> &p) {
-		write(os, p.first);
-		os << ' ';
-		write(os, p.second);
+	// Writes container, checking separator.
+	template <typename C> void write_container(std::ostream &os, const C &c) {
+		bool first = true;
+
+		for (const auto &e : c) {
+			if (!first)
+				os << (is_container_multiline_internal<C>::value ? '\n' : ' ');
+			first = false;
+			write(os, e);
+		}
 	}
 
-	// std::tuple.
-	template <typename Tuple, std::size_t... I>
+	// Writes tuple, checking separator.
+	template <typename Tuple, size_t... I>
 	void write_tuple_impl(std::ostream &os, const Tuple &tp,
 						  std::index_sequence<I...>) {
 		bool first = true;
-		((os << (first ? (first = false, "") : " "),
+		((os << (first ? (first = false, "")
+					   : (is_tuple_multiline_internal<Tuple>::value ? "\n"
+																	: " ")),
 		  write(os, std::get<I>(tp))),
 		 ...);
 	}
-	template <typename T>
-	std::enable_if_t<is_tuple_internal<T>::value> write(std::ostream &os,
-														const T &tp) {
+	template <typename T> void write_tuple(std::ostream &os, const T &tp) {
 		write_tuple_impl(os, tp,
 						 std::make_index_sequence<std::tuple_size<T>::value>{});
-	}
-
-	// 1D container.
-	template <typename C>
-	std::enable_if_t<is_container_internal<C>::value and
-					 !is_container_internal<typename C::value_type>::value>
-	write(std::ostream &os, const C &container) {
-		bool first = true;
-		for (const auto &i : container) {
-			if (!first)
-				os << ' ';
-			first = false;
-			write(os, i);
-		}
-	}
-
-	// 2D contianer.
-	template <typename C>
-	std::enable_if_t<is_container_internal<C>::value and
-					 is_container_internal<typename C::value_type>::value>
-	write(std::ostream &os, const C &matrix) {
-		bool first = true;
-		for (const auto &row : matrix) {
-			if (!first)
-				os << '\n';
-			first = false;
-			write(os, row);
-		}
 	}
 
 	friend std::ostream &operator<<(std::ostream &out, const print &pr) {
@@ -177,6 +193,18 @@ struct print {
 // Prints in a new line.
 template <typename T> inline print println(const T &x) {
 	print p(x);
+	p.s += '\n';
+	return p;
+}
+template <typename T> inline print println(const std::initializer_list<T> &il) {
+	print p(il);
+	p.s += '\n';
+	return p;
+}
+template <typename T>
+inline print
+println(const std::initializer_list<std::initializer_list<T>> &il) {
+	print p(il);
 	p.s += '\n';
 	return p;
 }
