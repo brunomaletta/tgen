@@ -292,12 +292,17 @@ html[data-theme="light"] {
 .memItemRight .paramname {
     color: var(--tgen-param);
 }
+.memItemRight .paramdefval {
+    font-weight: 600;
+}
 
 /* =========================================================
    MEMPROTO PARAMETER TABLE (multi-line parameter lists)
    ========================================================= */
 
-.memproto .paramname { color: var(--tgen-param); }
+.memproto .paramname .paramname { color: var(--tgen-param); }
+.memproto .paramname { font-weight: 400; }
+.memproto .paramname .paramdefval { font-weight: 600; }
 
 /* templates softer */
 .memproto .template { opacity: 0.85; }
