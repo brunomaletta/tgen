@@ -526,10 +526,10 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Generates a random instance from the set of valid permutations. </p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md66"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md70"></a>
 Complexity</h4>
 <p><span class="tt">O(n log n)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md67"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md71"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Generates and prints a random permutation of size 5.</span></div>
 <div class="line"><span class="keyword">auto</span> inst = <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(5).<a class="code hl_function" href="#gaeecbe05053f2e0f2ce306458ffd99983">gen</a>();</div>
@@ -578,10 +578,10 @@ Examples</h4>
   </dd>
 </dl>
 <p>The sizes of cycles of the generated permuttion will be <span class="tt">cycle_sizes</span>. The permutation is generated uniformly at random among all permutations with these cycle sizes.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md68"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md72"></a>
 Complexity</h4>
 <p><span class="tt">O(n)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md69"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md73"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Generates and prints a random permutation of size 5 with only one cycle.</span></div>
 <div class="line"><span class="keyword">auto</span> inst = <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(5).<a class="code hl_function" href="#gaeecbe05053f2e0f2ce306458ffd99983">gen</a>({5});</div>
@@ -629,7 +629,7 @@ template&lt;typename Gen, typename Pred, typename... Args&gt; </div>
   <table class="tparams">
     <tr><td class="paramname">Gen</td><td>Automatically set to <span class="tt"><a class="el" href="structtgen_1_1permutation.html" title="Permutation generator.">tgen::permutation</a></span>. </td></tr>
     <tr><td class="paramname">Pred</td><td>Type of <span class="tt">predicate</span>, deduced automatically. </td></tr>
-    <tr><td class="paramname">Args</td><td>Arguments: empty or <span class="tt">std::vector&lt;int&gt;</span> with cycle sizes.</td></tr>
+    <tr><td class="paramname">Args</td><td>Empty or <span class="tt">std::vector&lt;int&gt;</span> with cycle sizes, deduced automatically.</td></tr>
   </table>
   </dd>
 </dl>
@@ -642,10 +642,10 @@ template&lt;typename Gen, typename Pred, typename... Args&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>An instance found by repeatedly choosing a uniformly random valid permutation and checking if it satisfies <span class="tt">predicate</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md70"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md74"></a>
 Complexity</h4>
 <p><span class="tt">O((1/p) n log n)</span> expected, <span class="tt">O(max_tries * n log n)</span> worst case.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md71"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md75"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints a random odd permutation of size 5.</span></div>
 <div class="line">std::cout &lt;&lt;</div>
@@ -698,7 +698,7 @@ Examples</h4>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md64"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md68"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Permutations of size 10.</span></div>
 <div class="line"><span class="keyword">auto</span> perm_gen = <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(10);</div>
@@ -742,7 +742,7 @@ Examples</h4>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md65"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md69"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Permutations of size 10 that start with 1.</span></div>
 <div class="line"><span class="keyword">auto</span> perm_gen = <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(10).<a class="code hl_function" href="#ga93ed551342af2f51b5f04bba721b6c95">set</a>(0, 1);</div>

@@ -2997,3 +2997,8 @@ CLANG_ASSISTED_PARSING = YES
 CLANG_OPTIONS          = -std=c++17
 
 
+ALIASES += pname{1}="<span class=\"paramname texttt\">\1</span>"
+ALIASES += type{1}="<span class=\"tgen-type texttt\">\1</span>"
+ALIASES += func{1}="<span class=\"tgen-func texttt\">\1</span>"
+ALIASES += tt{1}="<span class=\"tgen-code texttt\">\1</span>"
+ALIASES += primitive{1}="<span class=\"tgen-primitive texttt\">\1</span>"

@@ -494,7 +494,7 @@ Macros</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:gaa007cf5e254380332a3548711d5f9b16" id="r_gaa007cf5e254380332a3548711d5f9b16"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:gaa007cf5e254380332a3548711d5f9b16 template"><td class="memItemLeft" align="right" valign="top">T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a> (T l, T r)</td></tr>
-<tr class="memdesc:gaa007cf5e254380332a3548711d5f9b16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a random number in <span class="tt">[l, r]</span>.  <br /></td></tr>
+<tr class="memdesc:gaa007cf5e254380332a3548711d5f9b16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a random number in <span class="tgen-code texttt">[<span class="paramname texttt">l</span>, <span class="paramname texttt">r</span>]</span>.  <br /></td></tr>
 <tr class="memitem:ga5494e4e347f9d1dc5b88695e0777f65b" id="r_ga5494e4e347f9d1dc5b88695e0777f65b"><td class="memTemplParams" colspan="2">template&lt;typename It&gt; </td></tr>
 <tr class="memitem:ga5494e4e347f9d1dc5b88695e0777f65b template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a> (It first, It last)</td></tr>
 <tr class="memdesc:ga5494e4e347f9d1dc5b88695e0777f65b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles <span class="tt">[first, last)</span> inplace, for RandomAccessIterator.  <br /></td></tr>
@@ -723,7 +723,13 @@ template&lt;typename T&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Returns a random number in <span class="tt">[l, r]</span>. </p>
+<p>Returns a random number in <span class="tgen-code texttt">[<span class="paramname texttt">l</span>, <span class="paramname texttt">r</span>]</span>. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>type to be generated. Should be an arithmetic type: <span class="tt">int</span>, <span class="tt">long long</span>, <span class="tt">char</span>, etc.</td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">l</td><td>Left endpoint of the range. </td></tr>

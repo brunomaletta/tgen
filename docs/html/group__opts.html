@@ -484,9 +484,9 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga7ffeca211fbda39e0fcdfad2383c43ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if opt with at <span class="tt">index</span> exists.  <br /></td></tr>
 <tr class="memitem:ga87fb2f31789744477371960792b7540f" id="r_ga87fb2f31789744477371960792b7540f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga87fb2f31789744477371960792b7540f">tgen::has_opt</a> (const std::string &amp;key)</td></tr>
 <tr class="memdesc:ga87fb2f31789744477371960792b7540f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if opt with with <span class="tt">key</span> exists.  <br /></td></tr>
-<tr class="memitem:ga9f0e855b0b1931d436369a57e8d52730" id="r_ga9f0e855b0b1931d436369a57e8d52730"><td class="memTemplParams" colspan="2">template&lt;typename T, typename KEY&gt; </td></tr>
-<tr class="memitem:ga9f0e855b0b1931d436369a57e8d52730 template"><td class="memItemLeft" align="right" valign="top">T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga9f0e855b0b1931d436369a57e8d52730">tgen::opt</a> (const KEY &amp;key, std::optional&lt; T &gt; default_value=std::nullopt)</td></tr>
-<tr class="memdesc:ga9f0e855b0b1931d436369a57e8d52730"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets opt by key.  <br /></td></tr>
+<tr class="memitem:ga3e56ac3ed9e70c13af95f590ee9ffd26" id="r_ga3e56ac3ed9e70c13af95f590ee9ffd26"><td class="memTemplParams" colspan="2">template&lt;typename T, typename Key&gt; </td></tr>
+<tr class="memitem:ga3e56ac3ed9e70c13af95f590ee9ffd26 template"><td class="memItemLeft" align="right" valign="top">T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt</a> (const Key &amp;key, std::optional&lt; T &gt; default_value=std::nullopt)</td></tr>
+<tr class="memdesc:ga3e56ac3ed9e70c13af95f590ee9ffd26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets opt by key.  <br /></td></tr>
 <tr class="memitem:gae8eca919976894c15b44713f00f33bd8" id="r_gae8eca919976894c15b44713f00f33bd8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a> (int argc, char **argv)</td></tr>
 <tr class="memdesc:gae8eca919976894c15b44713f00f33bd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up the generator.  <br /></td></tr>
 </table>
@@ -530,9 +530,9 @@ Opts</h3>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md62"></a>
 Consuming opts</h4>
 <p>You can consume the opts by using <span class="tt">opt&lt;&gt;</span>:</p>
-<div class="fragment"><div class="line"><span class="keywordtype">int</span> n = <a class="code hl_function" href="#ga9f0e855b0b1931d436369a57e8d52730">tgen::opt&lt;int&gt;</a>(<span class="stringliteral">&quot;n&quot;</span>);</div>
-<div class="line">std::string s = <a class="code hl_function" href="#ga9f0e855b0b1931d436369a57e8d52730">tgen::opt&lt;std::string&gt;</a>(0, <span class="stringliteral">&quot;&quot;</span>); <span class="comment">// Default value, if opt is not found.</span></div>
-<div class="ttc" id="agroup__opts_html_ga9f0e855b0b1931d436369a57e8d52730"><div class="ttname"><a href="#ga9f0e855b0b1931d436369a57e8d52730">tgen::opt</a></div><div class="ttdeci">T opt(const KEY &amp;key, std::optional&lt; T &gt; default_value=std::nullopt)</div><div class="ttdoc">Gets opt by key.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00374">tgen.h:374</a></div></div>
+<div class="fragment"><div class="line"><span class="keywordtype">int</span> n = <a class="code hl_function" href="#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt&lt;int&gt;</a>(<span class="stringliteral">&quot;n&quot;</span>);</div>
+<div class="line">std::string s = <a class="code hl_function" href="#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt&lt;std::string&gt;</a>(0, <span class="stringliteral">&quot;&quot;</span>); <span class="comment">// Default value, if opt is not found.</span></div>
+<div class="ttc" id="agroup__opts_html_ga3e56ac3ed9e70c13af95f590ee9ffd26"><div class="ttname"><a href="#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt</a></div><div class="ttdeci">T opt(const Key &amp;key, std::optional&lt; T &gt; default_value=std::nullopt)</div><div class="ttdoc">Gets opt by key.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00374">tgen.h:374</a></div></div>
 </div><!-- fragment --> <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
 <a id="ga87fb2f31789744477371960792b7540f" name="ga87fb2f31789744477371960792b7540f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga87fb2f31789744477371960792b7540f">&#9670;&#160;</a></span>has_opt() <span class="overload">[1/2]</span></h2>
@@ -564,8 +564,13 @@ Consuming opts</h4>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>If there is named opt with <span class="tt">key</span>. </dd></dl>
-
+<dl class="section return"><dt>Returns</dt><dd>If there is named opt with <span class="tt">key</span>.</dd></dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md64"></a>
+Examples</h4>
+<div class="fragment"><div class="line"><span class="comment">// Checks if there is an opt with &quot;q&quot;.</span></div>
+<div class="line"><span class="keywordflow">if</span> (<a class="code hl_function" href="#ga7ffeca211fbda39e0fcdfad2383c43ba">tgen::has_opt</a>(<span class="stringliteral">&quot;q&quot;</span>)) std::cout &lt;&lt; <span class="stringliteral">&quot;q found!&quot;</span> &lt;&lt; std::endl;</div>
+<div class="ttc" id="agroup__opts_html_ga7ffeca211fbda39e0fcdfad2383c43ba"><div class="ttname"><a href="#ga7ffeca211fbda39e0fcdfad2383c43ba">tgen::has_opt</a></div><div class="ttdeci">bool has_opt(std::size_t index)</div><div class="ttdoc">Checks if opt with at index exists.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00339">tgen.h:339</a></div></div>
+</div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00344">344</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
@@ -600,24 +605,28 @@ Consuming opts</h4>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>If there is positional opt at <span class="tt">index</span>. </dd></dl>
-
+<dl class="section return"><dt>Returns</dt><dd>If there is positional opt at <span class="tt">index</span>.</dd></dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md63"></a>
+Examples</h4>
+<div class="fragment"><div class="line"><span class="comment">// Checks if there is an opt at 0.</span></div>
+<div class="line"><span class="keywordflow">if</span> (<a class="code hl_function" href="#ga7ffeca211fbda39e0fcdfad2383c43ba">tgen::has_opt</a>(0)) std::cout &lt;&lt; <span class="stringliteral">&quot;opt found!&quot;</span> &lt;&lt; std::endl;</div>
+</div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00339">339</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>
-<a id="ga9f0e855b0b1931d436369a57e8d52730" name="ga9f0e855b0b1931d436369a57e8d52730"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga9f0e855b0b1931d436369a57e8d52730">&#9670;&#160;</a></span>opt()</h2>
+<a id="ga3e56ac3ed9e70c13af95f590ee9ffd26" name="ga3e56ac3ed9e70c13af95f590ee9ffd26"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3e56ac3ed9e70c13af95f590ee9ffd26">&#9670;&#160;</a></span>opt()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename KEY&gt; </div>
+template&lt;typename T, typename Key&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">T tgen::opt </td>
           <td>(</td>
-          <td class="paramtype">const KEY &amp;</td>          <td class="paramname"><span class="paramname"><em>key</em></span>, </td>
+          <td class="paramtype">const Key &amp;</td>          <td class="paramname"><span class="paramname"><em>key</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -628,6 +637,12 @@ template&lt;typename T, typename KEY&gt; </div>
 </div><div class="memdoc">
 
 <p>Gets opt by key. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>Type of the opt.</td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">key</td><td>Key to fetch. If it is of type <span class="tt">int</span>, considered to be an index. Otherwise, considered to be a <span class="tt">std::string</span> named opt key. </td></tr>
@@ -638,11 +653,15 @@ template&lt;typename T, typename KEY&gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>The value of opt at <span class="tt">key</span> (index or name). If not found, returns <span class="tt">default_value</span>.</dd></dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td>if opt is not found and <span class="tt">default_value</span> is not given. </td></tr>
+    <tr><td class="paramname">std::runtime_error</td><td>if opt is not found and <span class="tt">default_value</span> is not given.</td></tr>
   </table>
   </dd>
 </dl>
-
+<h4 class="doxsection"><a class="anchor" id="autotoc_md65"></a>
+Examples</h4>
+<div class="fragment"><div class="line"><span class="comment">// Consumes opt with &quot;q&quot;.</span></div>
+<div class="line"><span class="keywordtype">int</span> q = <a class="code hl_function" href="#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt&lt;int&gt;</a>(<span class="stringliteral">&quot;q&quot;</span>);</div>
+</div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00374">374</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
@@ -682,8 +701,16 @@ template&lt;typename T, typename KEY&gt; </div>
   </table>
   </dd>
 </dl>
-<p>Sets up the opts, and the seed of the random number generator. The seed is dependent on the arguments (excluding the executable name). </p>
-
+<p>Sets up the opts, and the seed of the random number generator. The seed is dependent on the arguments (excluding the executable name).</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md66"></a>
+Examples</h4>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;tgen.h&quot;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>** argv) {</div>
+<div class="line">    <span class="comment">// Register generator.</span></div>
+<div class="line">    <a class="code hl_function" href="#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a>(argc, argv);</div>
+<div class="line">}</div>
+</div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00469">469</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>

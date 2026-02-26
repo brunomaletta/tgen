@@ -511,9 +511,10 @@ Type generators and instances</h3>
 <div class="ttc" id="agroup__sequence__inst_html_ga2fef50f7e022b0432142fd19ef2f6bad"><div class="ttname"><a href="group__sequence__inst.html#ga2fef50f7e022b0432142fd19ef2f6bad">tgen::sequence::instance::reverse</a></div><div class="ttdeci">instance &amp; reverse()</div><div class="ttdoc">Reverses the instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00617">tgen.h:617</a></div></div>
 </div><!-- fragment --><p>Finally, there can be random operations defined for the type instance.</p>
 <div class="fragment"><div class="line">std::cout &lt;&lt;</div>
-<div class="line">    tgen::sequence_op::any(inst) &lt;&lt; std::endl;</div>
+<div class="line">    <a class="code hl_function" href="group__sequence__op.html#ga05bfcdd3f115e3bcc7cea70a05861a84">tgen::sequence_op::any</a>(inst) &lt;&lt; std::endl;</div>
+<div class="ttc" id="agroup__sequence__op_html_ga05bfcdd3f115e3bcc7cea70a05861a84"><div class="ttname"><a href="group__sequence__op.html#ga05bfcdd3f115e3bcc7cea70a05861a84">tgen::sequence_op::any</a></div><div class="ttdeci">Inst::value_type any(const Inst &amp;inst)</div><div class="ttdoc">Choses a random element from the sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00976">tgen.h:976</a></div></div>
 </div><!-- fragment --><p>Combining everything into one line:</p>
-<div class="fragment"><div class="line">std::cout &lt;&lt; tgen::sequence_op::any(</div>
+<div class="fragment"><div class="line">std::cout &lt;&lt; <a class="code hl_function" href="group__sequence__op.html#ga05bfcdd3f115e3bcc7cea70a05861a84">tgen::sequence_op::any</a>(</div>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 1, 100).equal(0, 1).gen()</div>
 <div class="line">    .reverse()</div>
 <div class="line">) &lt;&lt; std::endl;</div>
@@ -528,12 +529,12 @@ Opts configuration</h3>
 <div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>** argv) {</div>
 <div class="line">    <a class="code hl_function" href="group__opts.html#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a>(argc, argv);</div>
 <div class="line"> </div>
-<div class="line">    <span class="keywordtype">int</span> n_max = <a class="code hl_function" href="group__opts.html#ga9f0e855b0b1931d436369a57e8d52730">tgen::opt&lt;int&gt;</a>(<span class="stringliteral">&quot;n&quot;</span>);</div>
+<div class="line">    <span class="keywordtype">int</span> n_max = <a class="code hl_function" href="group__opts.html#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt&lt;int&gt;</a>(<span class="stringliteral">&quot;n&quot;</span>);</div>
 <div class="line"> </div>
 <div class="line">    std::cout &lt;&lt; <a class="code hl_function" href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a>(1, n) &lt;&lt; std::endl;</div>
 <div class="line">}</div>
 <div class="ttc" id="agroup__general_html_gaa007cf5e254380332a3548711d5f9b16"><div class="ttname"><a href="group__general.html#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a></div><div class="ttdeci">T next(T l, T r)</div><div class="ttdoc">Returns a random number in [l, r].</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00192">tgen.h:192</a></div></div>
-<div class="ttc" id="agroup__opts_html_ga9f0e855b0b1931d436369a57e8d52730"><div class="ttname"><a href="group__opts.html#ga9f0e855b0b1931d436369a57e8d52730">tgen::opt</a></div><div class="ttdeci">T opt(const KEY &amp;key, std::optional&lt; T &gt; default_value=std::nullopt)</div><div class="ttdoc">Gets opt by key.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00374">tgen.h:374</a></div></div>
+<div class="ttc" id="agroup__opts_html_ga3e56ac3ed9e70c13af95f590ee9ffd26"><div class="ttname"><a href="group__opts.html#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt</a></div><div class="ttdeci">T opt(const Key &amp;key, std::optional&lt; T &gt; default_value=std::nullopt)</div><div class="ttdoc">Gets opt by key.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00374">tgen.h:374</a></div></div>
 <div class="ttc" id="agroup__opts_html_gae8eca919976894c15b44713f00f33bd8"><div class="ttname"><a href="group__opts.html#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a></div><div class="ttdeci">void register_gen(int argc, char **argv)</div><div class="ttdoc">Sets up the generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00469">tgen.h:469</a></div></div>
 </div><!-- fragment --><p>Calling this code with <span class="tt">./a.out -n 100</span> will generate a random number from 1 to 100.</p>
 <h3 class="doxsection"><a class="anchor" id="autotoc_md5"></a>

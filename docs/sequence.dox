@@ -534,7 +534,7 @@ namespace sequence_op {
  *     tgen::sequence_op::shuffle(inst) << std::endl;
  * ```
  *
- * @fn shuffle(const INST &inst);
+ * @fn shuffle(const Inst &inst);
  */
 
 
@@ -561,7 +561,7 @@ namespace sequence_op {
  *     tgen::sequence_op::any(inst) << std::endl;
  * ```
  *
- * @fn any(const INST &inst);
+ * @fn any(const Inst &inst);
  */
 
 
@@ -589,7 +589,7 @@ namespace sequence_op {
  *     tgen::sequence_op::choose(2, inst) << std::endl;
  * ```
  *
- * @fn choose(int k, const INST &inst);
+ * @fn choose(int k, const Inst &inst);
  */
 
 };

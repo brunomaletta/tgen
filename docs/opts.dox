@@ -63,6 +63,13 @@ namespace tgen {
  *
  * @return If there is positional opt at `index`.
  *
+ * #### Examples
+ *
+ * ```cpp
+ * // Checks if there is an opt at 0.
+ * if (tgen::has_opt(0)) std::cout << "opt found!" << std::endl;
+ * ```
+ *
  * @fn has_opt(std::size_t index);
  */
 
@@ -75,6 +82,13 @@ namespace tgen {
  *
  * @return If there is named opt with `key`.
  *
+ * #### Examples
+ *
+ * ```cpp
+ * // Checks if there is an opt with "q".
+ * if (tgen::has_opt("q")) std::cout << "q found!" << std::endl;
+ * ```
+ *
  * @fn has_opt(const std::string &key);
  */
 
@@ -82,6 +96,8 @@ namespace tgen {
 /**
  * @ingroup opts
  * @brief Gets opt by key.
+ *
+ * @tparam T Type of the opt.
  *
  * @param key Key to fetch. If it is of type `int`, considered to be an index.
  * Otherwise, considered to be a `std::string` named opt key.
@@ -91,7 +107,14 @@ namespace tgen {
  *
  * @throws std::runtime_error if opt is not found and `default_value` is not given.
  *
- * @fn opt(const KEY &key, std::optional<T> default_value = std::nullopt);
+ * #### Examples
+ *
+ * ```cpp
+ * // Consumes opt with "q".
+ * int q = tgen::opt<int>("q");
+ * ```
+ *
+ * @fn opt(const Key &key, std::optional<T> default_value = std::nullopt);
  */
 
 
@@ -104,6 +127,17 @@ namespace tgen {
  *
  * Sets up the opts, and the seed of the random number generator.
  * The seed is dependent on the arguments (excluding the executable name).
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * #include "tgen.h"
+ *
+ * int main(int argc, char** argv) {
+ *     // Register generator.
+ *     tgen::register_gen(argc, argv);
+ * }
+ * ```
  *
  * @fn register_gen(int argc, char **argv);
  */

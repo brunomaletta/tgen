@@ -74,7 +74,9 @@ namespace tgen {
 
 /**
  * @ingroup general
- * @brief Returns a random number in `[l, r]`.
+ * @brief Returns a random number in @tt{[@pname{l}, @pname{r}]}.
+ *
+ * @tparam T type to be generated. Should be an arithmetic type: `int`, `long long`, `char`, etc.
  *
  * @param l Left endpoint of the range.
  * @param r Light endpoint of the range.

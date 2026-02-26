@@ -370,9 +370,9 @@ template <typename T> T get_opt_internal(const std::string &value) {
 
 // Returns the parsed opt by a given key. If no opts with the given key are
 // found, returns the given default_value.
-template <typename T, typename KEY>
-T opt(const KEY &key, std::optional<T> default_value = std::nullopt) {
-	if constexpr (std::is_same_v<KEY, int>) {
+template <typename T, typename Key>
+T opt(const Key &key, std::optional<T> default_value = std::nullopt) {
+	if constexpr (std::is_same_v<Key, int>) {
 		if (!has_opt(key)) {
 			if (default_value)
 				return *default_value;
