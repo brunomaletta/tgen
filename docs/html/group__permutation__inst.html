@@ -319,6 +319,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				state.inDefault = false;
 				return null;
 			}
+			// namespace std.
+			if (tok === "std")
+				return "namespace";
 			// DEFAULT VALUE TOKENS
 			if (state.inDefault) {
 				if (/^(true|false|nullptr)$/.test(tok))
@@ -327,9 +330,6 @@ document.addEventListener('DOMContentLoaded', function() {
 					return "paramdefval";       // numeric literal
 				return "paramdefval";           // anything in default expr
 			}
-			// namespace std.
-			if (tok === "std")
-				return "namespace";
 			// KEYWORDS
 			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
 				return "keyword";
@@ -674,7 +674,7 @@ Examples</h4>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The value at index <span class="tt">idx</span>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The value at index <span class="paramname texttt">idx</span>.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md78"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints a position of an instance.</span></div>
@@ -710,7 +710,7 @@ Examples</h4>
 </div><div class="memdoc">
 
 <p>Parity of the permutation. </p>
-<dl class="section return"><dt>Returns</dt><dd><span class="tt">+1</span> if the permutation is even, or <span class="tt">-1</span> if the permutation is odd.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><span class="tgen-code texttt">+1</span> if the permutation is even, or <span class="tgen-code texttt">-1</span> if the permutation is odd.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md79"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints parity of permutation.</span></div>
@@ -749,7 +749,7 @@ Examples</h4>
 <p>Reverses the instance. </p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md82"></a>
 Complexity</h4>
-<p><span class="tt">O(n)</span>.</p>
+<p><span class="tgen-code texttt">O(n)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md83"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Reverses and prints an instance.</span></div>
@@ -825,7 +825,7 @@ Examples</h4>
 <p>Sorts the instance in non-decreasing order. </p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md80"></a>
 Complexity</h4>
-<p><span class="tt">O(n)</span>.</p>
+<p><span class="tgen-code texttt">O(n)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md81"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Sorts and prints an instance.</span></div>

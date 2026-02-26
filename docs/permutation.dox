@@ -93,6 +93,8 @@ namespace tgen {
  * @ingroup permutation_gen
  * @brief Generates a random instance from the set of valid permutations.
  *
+ * @throws std::runtime_error if there is no valid permutation satisfying all added constraints.
+ *
  * #### Complexity
  *
  * @tt{O(n log n)}.
@@ -104,8 +106,6 @@ namespace tgen {
  * auto inst = tgen::permutation(5).gen();
  * std::cout << inst << std::endl;
  * ```
- *
- * @throws std::runtime_error if there is no valid permutation satisfying all added constraints.
  *
  * @fn permutation::gen();
  */
@@ -121,6 +121,8 @@ namespace tgen {
  * The sizes of cycles of the generated permuttion will be @pname{cycle_sizes}. The permutation is generated
  * uniformly at random among all permutations with these cycle sizes.
  *
+ * @throws std::runtime_error if there is no valid permutation satisfying all added constraints.
+ *
  * #### Complexity
  *
  * @tt{O(n)}.
@@ -133,8 +135,6 @@ namespace tgen {
  * std::cout << inst << std::endl;
  * ```
  *
- * @throws std::runtime_error if there is no valid permutation satisfying all added constraints.
- *
  * @fn permutation::gen(std::vector<int> cycle_sizes);
  */
 
@@ -142,10 +142,6 @@ namespace tgen {
 /**
  * @ingroup permutation_gen
  * @brief Generates a random instance from the set of valid permutations until a condition is met.
- *
- * Calls @tt{tgen::permutation::gen(args...)} until @pname{predicate} is true, at most @pname{max_tries} times.
- * If @pname{predicate} has probabiliyy @tt{p} of returning @tt{true}, then the @tt{tgen::sequence::instance}
- * will be found with probability @tt{1 - (1-p)^@pname{max_tries}}.
  *
  * @tparam Gen Automatically set to @tt{tgen::permutation}.
  * @tparam Pred Type of @pname{predicate}, deduced automatically.
@@ -158,8 +154,15 @@ namespace tgen {
  *        satisfying @pname{predicate}.
  * @param args Arguments for the the function @tt{tgen::permutation::gen}.
  *
+ * Calls @tt{tgen::permutation::gen(args...)} until @pname{predicate} is true, at most @pname{max_tries} times.
+ * If @pname{predicate} has probabiliyy @tt{p} of returning @tt{true}, then the @tt{tgen::sequence::instance}
+ * will be found with probability @tt{1 - (1-p)^@pname{max_tries}}.
+ *
  * @return An instance found by repeatedly choosing a uniformly random valid permutation and checking
  * if it satisfies @pname{predicate}.
+ *
+ * @throws std::runtime_error if no valid instance satisfying @pname{predicate} is found after @pname{max_tries}
+ *         tries.
  *
  * #### Complexity
  *
@@ -180,9 +183,6 @@ namespace tgen {
  *         .gen_until([](const auto &perm) { return perm.parity() == -1; }, 100, {5})
  * 	 << std::endl;
  * ```
- *
- * @throws std::runtime_error if no valid instance satisfying @pname{predicate} is found after @pname{max_tries}
- *         tries.
  *
  * @memberof tgen::permutation
  */
@@ -260,7 +260,7 @@ instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... a
  *
  * @param idx The index to be accessed.
  *
- * @return The value at index `idx`.
+ * @return The value at index @pname{idx}.
  *
  * #### Examples
  *
@@ -279,7 +279,7 @@ instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... a
  * @ingroup permutation_inst
  * @brief Parity of the permutation.
  *
- * @return `+1` if the permutation is even, or `-1` if the permutation is odd.
+ * @return @tt{+1} if the permutation is even, or @tt{-1} if the permutation is odd.
  *
  * #### Examples
  *
@@ -300,7 +300,7 @@ instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... a
  *
  * #### Complexity
  *
- * `O(n)`.
+ * @tt{O(n)}.
  *
  * #### Examples
  *
@@ -321,7 +321,7 @@ instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... a
  *
  * #### Complexity
  *
- * `O(n)`.
+ * @tt{O(n)}.
  *
  * #### Examples
  *

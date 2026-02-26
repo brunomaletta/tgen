@@ -252,6 +252,9 @@ namespace tgen {
  *
  * @return A uniformly random instance from the set of valid sequences, given the added constraints.
  *
+ * @throws std::runtime_error if there is no valid sequence satisfying all added constraints,
+ *         or if the added constraints are considered to be too complex (see @tt{tgen::sequence::distinct}).
+ *
  * #### Complexity
  *
  * @tt{O(n log n)}.
@@ -264,9 +267,6 @@ namespace tgen {
  * std::cout << inst << std::endl;
  * ```
  *
- * @throws std::runtime_error if there is no valid sequence satisfying all added constraints,
- *         or if the added constraints are considered to be too complex (see @tt{tgen::sequence::distinct}).
- *
  * @fn sequence::gen();
  */
 
@@ -274,9 +274,6 @@ namespace tgen {
 /**
  * @ingroup sequence_gen
  * @brief Generates a random instance from the set of valid sequences until a condition is met.
- *
- * If @pname{predicate} has probabiliyy @tt{p} of returning @tt{true}, then the @tt{::tgen::sequence::instance}
- * will be found with probability @tt{1 - (1-p)^@pname{max_tries}}.
  *
  * @tparam Gen Automatically set to @tt{tgen::sequence<T>}.
  * @tparam Pred Type of predicate, deduced automatically.
@@ -286,8 +283,14 @@ namespace tgen {
  * @param max_tries The maximum number of times the function will try to generate a valid instance
  *        satisfying @pname{predicate}.
  *
+ * If @pname{predicate} has probabiliyy @tt{p} of returning @tt{true}, then the @tt{::tgen::sequence::instance}
+ * will be found with probability @tt{1 - (1-p)^@pname{max_tries}}.
+ *
  * @return An instance found by repeatedly choosing a uniformly random valid sequence and checking
  * if it satisfies @pname{predicate}.
+ *
+ * @throws std::runtime_error if no valid instance satisfying @pname{predicate} is found after @pname{max_tries}
+ *         tries.
  *
  * #### Complexity
  *
@@ -303,9 +306,6 @@ namespace tgen {
  *         .gen_until([](const auto &seq) { return seq[0] < seq[9]; }, 100)
  * 	 << std::endl;
  * ```
- *
- * @throws std::runtime_error if no valid instance satisfying @pname{predicate} is found after @pname{max_tries}
- *         tries.
  *
  * @memberof tgen::sequence
  */

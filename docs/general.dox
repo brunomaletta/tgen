@@ -102,12 +102,12 @@ namespace tgen {
  * @ingroup general
  * @brief Shuffles range inplace, for random_access_iterator.
  *
+ * @param first First iterator of range.
+ * @param last First iterator outside of range.
+ *
  * Shuffles @tt{[@pname{first}, @pname{last})} uniformly inplace. Works for
  * @texttt{@namespace{std}::@type{vector}}, @texttt{@namespace{std}::@type{string}}, etc, but not
  * @texttt{@namespace{std}::@type{set}}. For those, use @tt{tgen::shuffle(@pname{container})}.
- *
- * @param first First iterator of range.
- * @param last First iterator outside of range.
  *
  * #### Complexity
  *
@@ -128,11 +128,11 @@ namespace tgen {
  * @ingroup general
  * @brief Shuffles a container.
  *
+ * @param container Container to be shuffled.
+ *
  * Works for containers and @texttt{@namespace{std}::@type{initializer_list}}. If @pname{container} is ordered
  * (@texttt{@namespace{std}::@type{set}}, etc) or @texttt{@namespace{std}::@type{initializer_list}}, returns a
  * @texttt{@namespace{std}::@type{vector}} (implemented in a different function).
- *
- * @param container Container to be shuffled.
  *
  * @return The shuffled container.
  *
@@ -181,9 +181,9 @@ namespace tgen {
  * @ingroup general
  * @brief Choses a random element from container.
  *
- * Also works with @texttt{@namespace{std}::@type{initializer_list}}.
- *
  * @param container Container to choose from.
+ *
+ * Also works with @texttt{@namespace{std}::@type{initializer_list}}.
  *
  * @return A uniformly random element from @pname{container}.
  *
@@ -206,10 +206,10 @@ namespace tgen {
  * @ingroup general
  * @brief Chooses elements from container, as in a subsequence fixed length.
  *
- * Also works with @texttt{@namespace{std}::@type{initializer_list}}.
- *
  * @param k Number of elements to be chosen.
  * @param container Container to choose from.
+ *
+ * Also works with @texttt{@namespace{std}::@type{initializer_list}}.
  *
  * @return A uniformly random subsequence of length @pname{k}.
  *

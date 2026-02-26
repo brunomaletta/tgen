@@ -319,6 +319,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				state.inDefault = false;
 				return null;
 			}
+			// namespace std.
+			if (tok === "std")
+				return "namespace";
 			// DEFAULT VALUE TOKENS
 			if (state.inDefault) {
 				if (/^(true|false|nullptr)$/.test(tok))
@@ -327,9 +330,6 @@ document.addEventListener('DOMContentLoaded', function() {
 					return "paramdefval";       // numeric literal
 				return "paramdefval";           // anything in default expr
 			}
-			// namespace std.
-			if (tok === "std")
-				return "namespace";
 			// KEYWORDS
 			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
 				return "keyword";

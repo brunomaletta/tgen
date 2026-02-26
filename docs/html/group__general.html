@@ -319,6 +319,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				state.inDefault = false;
 				return null;
 			}
+			// namespace std.
+			if (tok === "std")
+				return "namespace";
 			// DEFAULT VALUE TOKENS
 			if (state.inDefault) {
 				if (/^(true|false|nullptr)$/.test(tok))
@@ -327,9 +330,6 @@ document.addEventListener('DOMContentLoaded', function() {
 					return "paramdefval";       // numeric literal
 				return "paramdefval";           // anything in default expr
 			}
-			// namespace std.
-			if (tok === "std")
-				return "namespace";
 			// KEYWORDS
 			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
 				return "keyword";
@@ -600,13 +600,13 @@ template&lt;typename C&gt; </div>
 </div><div class="memdoc">
 
 <p>Choses a random element from container. </p>
-<p>Also works with <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">container</td><td>Container to choose from.</td></tr>
   </table>
   </dd>
 </dl>
+<p>Also works with <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>.</p>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random element from <span class="paramname texttt">container</span>.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md17"></a>
 Complexity</h4>
@@ -684,7 +684,6 @@ template&lt;typename C&gt; </div>
 </div><div class="memdoc">
 
 <p>Chooses elements from container, as in a subsequence fixed length. </p>
-<p>Also works with <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">k</td><td>Number of elements to be chosen. </td></tr>
@@ -692,6 +691,7 @@ template&lt;typename C&gt; </div>
   </table>
   </dd>
 </dl>
+<p>Also works with <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>.</p>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random subsequence of length <span class="paramname texttt">k</span>.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md19"></a>
 Complexity</h4>
@@ -779,13 +779,13 @@ template&lt;typename C, std::enable_if_t&lt;!<a class="el" href="structtgen_1_1i
 </div><div class="memdoc">
 
 <p>Shuffles a container. </p>
-<p>Works for containers and <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>. If <span class="paramname texttt">container</span> is ordered (<span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>, etc) or <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>, returns a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span> (implemented in a different function).</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">container</td><td>Container to be shuffled.</td></tr>
   </table>
   </dd>
 </dl>
+<p>Works for containers and <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>. If <span class="paramname texttt">container</span> is ordered (<span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>, etc) or <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>, returns a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span> (implemented in a different function).</p>
 <dl class="section return"><dt>Returns</dt><dd>The shuffled container.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md13"></a>
 Complexity</h4>
@@ -823,7 +823,6 @@ template&lt;typename It&gt; </div>
 </div><div class="memdoc">
 
 <p>Shuffles range inplace, for random_access_iterator. </p>
-<p>Shuffles <span class="tgen-code texttt">[<span class="paramname texttt">first</span>, <span class="paramname texttt">last</span>)</span> uniformly inplace. Works for <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>, <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">string</span></span>, etc, but not <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>. For those, use <span class="tgen-code texttt"><a class="el" href="#ga5494e4e347f9d1dc5b88695e0777f65b" title="Shuffles range inplace, for random_access_iterator.">tgen::shuffle</a>(<span class="paramname texttt">container</span>)</span>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">first</td><td>First iterator of range. </td></tr>
@@ -831,6 +830,7 @@ template&lt;typename It&gt; </div>
   </table>
   </dd>
 </dl>
+<p>Shuffles <span class="tgen-code texttt">[<span class="paramname texttt">first</span>, <span class="paramname texttt">last</span>)</span> uniformly inplace. Works for <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>, <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">string</span></span>, etc, but not <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>. For those, use <span class="tgen-code texttt"><a class="el" href="#ga5494e4e347f9d1dc5b88695e0777f65b" title="Shuffles range inplace, for random_access_iterator.">tgen::shuffle</a>(<span class="paramname texttt">container</span>)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md11"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(|<span class="paramname texttt">last</span> - <span class="paramname texttt">first</span>|)</span>.</p>

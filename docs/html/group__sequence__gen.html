@@ -319,6 +319,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				state.inDefault = false;
 				return null;
 			}
+			// namespace std.
+			if (tok === "std")
+				return "namespace";
 			// DEFAULT VALUE TOKENS
 			if (state.inDefault) {
 				if (/^(true|false|nullptr)$/.test(tok))
@@ -327,9 +330,6 @@ document.addEventListener('DOMContentLoaded', function() {
 					return "paramdefval";       // numeric literal
 				return "paramdefval";           // anything in default expr
 			}
-			// namespace std.
-			if (tok === "std")
-				return "namespace";
 			// KEYWORDS
 			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
 				return "keyword";
@@ -765,6 +765,12 @@ template&lt;typename T&gt; </div>
 
 <p>Generates a random instance from the set of valid sequences. </p>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random instance from the set of valid sequences, given the added constraints.</dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>if there is no valid sequence satisfying all added constraints, or if the added constraints are considered to be too complex (see <span class="tgen-code texttt"><a class="el" href="#ga716d751a780c06624b428c6b969fa398" title="Restricts generator s.t. all values at index set are distinct.">tgen::sequence::distinct</a></span>).</td></tr>
+  </table>
+  </dd>
+</dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md99"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(n log n)</span>.</p>
@@ -774,13 +780,7 @@ Examples</h4>
 <div class="line"><span class="keyword">auto</span> inst = <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(5, 1, 5).<a class="code hl_function" href="#ga9be29135e008e45b0c99580898f2d2e3">gen</a>();</div>
 <div class="line">std::cout &lt;&lt; inst &lt;&lt; std::endl;</div>
 <div class="ttc" id="agroup__sequence__gen_html_ga9be29135e008e45b0c99580898f2d2e3"><div class="ttname"><a href="#ga9be29135e008e45b0c99580898f2d2e3">tgen::sequence::gen</a></div><div class="ttdeci">instance gen()</div><div class="ttdoc">Generates a random instance from the set of valid sequences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00698">tgen.h:698</a></div></div>
-</div><!-- fragment --><dl class="exception"><dt>Exceptions</dt><dd>
-  <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td>if there is no valid sequence satisfying all added constraints, or if the added constraints are considered to be too complex (see <span class="tgen-code texttt"><a class="el" href="#ga716d751a780c06624b428c6b969fa398" title="Restricts generator s.t. all values at index set are distinct.">tgen::sequence::distinct</a></span>). </td></tr>
-  </table>
-  </dd>
-</dl>
-
+</div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00698">698</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
@@ -807,7 +807,6 @@ template&lt;typename T, typename Gen, typename Pred&gt; </div>
 </div><div class="memdoc">
 
 <p>Generates a random instance from the set of valid sequences until a condition is met. </p>
-<p>If <span class="paramname texttt">predicate</span> has probabiliyy <span class="tgen-code texttt">p</span> of returning <span class="tgen-code texttt">true</span>, then the <span class="tgen-code texttt"><a class="el" href="structtgen_1_1sequence_1_1instance.html" title="Sequence instance.">tgen::sequence::instance</a></span> will be found with probability <span class="tgen-code texttt">1 - (1-p)^<span class="paramname texttt">max_tries</span></span>.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">Gen</td><td>Automatically set to <span class="tgen-code texttt"><a class="el" href="structtgen_1_1sequence.html" title="Sequence generator.">tgen::sequence&lt;T&gt;</a></span>. </td></tr>
@@ -822,7 +821,14 @@ template&lt;typename T, typename Gen, typename Pred&gt; </div>
   </table>
   </dd>
 </dl>
+<p>If <span class="paramname texttt">predicate</span> has probabiliyy <span class="tgen-code texttt">p</span> of returning <span class="tgen-code texttt">true</span>, then the <span class="tgen-code texttt"><a class="el" href="structtgen_1_1sequence_1_1instance.html" title="Sequence instance.">tgen::sequence::instance</a></span> will be found with probability <span class="tgen-code texttt">1 - (1-p)^<span class="paramname texttt">max_tries</span></span>.</p>
 <dl class="section return"><dt>Returns</dt><dd>An instance found by repeatedly choosing a uniformly random valid sequence and checking if it satisfies <span class="paramname texttt">predicate</span>.</dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>if no valid instance satisfying <span class="paramname texttt">predicate</span> is found after <span class="paramname texttt">max_tries</span> tries.</td></tr>
+  </table>
+  </dd>
+</dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md101"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O((1/p) n log n)</span> expected, <span class="tgen-code texttt">O(<span class="paramname texttt">max_tries</span> * n log n)</span> worst case.</p>
@@ -835,13 +841,7 @@ Examples</h4>
 <div class="line">        .<a class="code hl_function" href="#ga04272cb7c72fba9fe0254f9754aa9e7f">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;seq) { <span class="keywordflow">return</span> seq[0] &lt; seq[9]; }, 100)</div>
 <div class="line">  &lt;&lt; std::endl;</div>
 <div class="ttc" id="agroup__sequence__gen_html_ga04272cb7c72fba9fe0254f9754aa9e7f"><div class="ttname"><a href="#ga04272cb7c72fba9fe0254f9754aa9e7f">tgen::sequence::gen_until</a></div><div class="ttdeci">instance gen_until(Pred predicate, int max_tries)</div><div class="ttdoc">Generates a random instance from the set of valid sequences until a condition is met.</div></div>
-</div><!-- fragment --><dl class="exception"><dt>Exceptions</dt><dd>
-  <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td>if no valid instance satisfying <span class="paramname texttt">predicate</span> is found after <span class="paramname texttt">max_tries</span> tries. </td></tr>
-  </table>
-  </dd>
-</dl>
-
+</div><!-- fragment --> 
 </div>
 </div>
 <a id="ga51679a609a8e93d8c061de7e6379d7fd" name="ga51679a609a8e93d8c061de7e6379d7fd"></a>
