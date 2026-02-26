@@ -161,11 +161,32 @@ document.addEventListener('DOMContentLoaded', function() {
 		function tokenize(str) {
 			return str.split(/(\b|::|<|>|,|\(|\)|=|&|\*|\s+)/);
 		}
-		function classify(tok) {
+		function classify(tok, state) {
+			// entering default value
+			if (tok === "=") {
+				state.inDefault = true;
+				return null;
+			}
+			// leaving default value
+			if (tok === "," || tok === ")") {
+				state.inDefault = false;
+				return null;
+			}
+			// DEFAULT VALUE TOKENS
+			if (state.inDefault) {
+				if (/^(true|false|nullptr)$/.test(tok))
+					return "paramdefval";       // bool literals
+				if (/^\d+(\.\d+)?$/.test(tok))
+					return "paramdefval";       // numeric literal
+				return "paramdefval";           // anything in default expr
+			}
+			// TYPES
 			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 				return "keywordtype";
+			// STL TYPES
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
+			// IDENTIFIER → parameter name
 			if (/^[a-zA-Z_]\w*$/.test(tok))
 				return "paramname";
 			return null;
@@ -176,8 +197,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (!node.nodeValue.includes("(")) continue;
 			const tokens = tokenize(node.nodeValue);
 			const frag = document.createDocumentFragment();
+			const state = { inDefault: false };
 			tokens.forEach(tok => {
-				const cls = classify(tok);
+				const cls = classify(tok, state);
 				if (!cls) {
 					frag.appendChild(document.createTextNode(tok));
 				} else {
@@ -275,7 +297,7 @@ $(function(){initNavTree('structtgen_1_1sequence.html','',''); });
   <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#gad9c173d0b1ff829de543ef76692d4b38">equal</a>(int idx_1, int idx_2)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#gac76ec822587cf23ea8aae3f8aaf35def">equal_range</a>(int left, int right)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">gen</a>()</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#ga0bae18156d0b6c97aecec180bc4f5559">gen_until</a>(PRED predicate, int max_tries)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#ga980db29096532257488877b78fd8a45e">gen_until</a>(Pred predicate, int max_tries)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"></td></tr>
   <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#gafa5a380cac4944722440f0d6ae1e8f78">sequence</a>(int size, T value_l, T value_r)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#ga51679a609a8e93d8c061de7e6379d7fd">sequence</a>(int size, std::set&lt; T &gt; values)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#gaf4b015251066523c2b23cc4f3cda9919">set</a>(int idx, T value)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>

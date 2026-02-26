@@ -46,7 +46,7 @@ namespace tgen::math {
  *
  * #### Complexity
  *
- * ` O(n^(1/4) log n)` expected.
+ * `O(n^(1/4) log n)` expected.
  *
  * #### Examples
  *
@@ -183,7 +183,7 @@ namespace tgen::math {
  *
  * #### Complexity
  *
- * `O(log l)` expected.
+ * `O(log^3 l)` expected.
  *
  * #### Examples
  *
@@ -208,7 +208,7 @@ namespace tgen::math {
  *
  * #### Complexity
  *
- * `O(log r)` expected.
+ * `O(log^3 r)` expected.
  *
  * #### Examples
  *

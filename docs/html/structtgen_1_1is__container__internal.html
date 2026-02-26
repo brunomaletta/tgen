@@ -161,11 +161,32 @@ document.addEventListener('DOMContentLoaded', function() {
 		function tokenize(str) {
 			return str.split(/(\b|::|<|>|,|\(|\)|=|&|\*|\s+)/);
 		}
-		function classify(tok) {
+		function classify(tok, state) {
+			// entering default value
+			if (tok === "=") {
+				state.inDefault = true;
+				return null;
+			}
+			// leaving default value
+			if (tok === "," || tok === ")") {
+				state.inDefault = false;
+				return null;
+			}
+			// DEFAULT VALUE TOKENS
+			if (state.inDefault) {
+				if (/^(true|false|nullptr)$/.test(tok))
+					return "paramdefval";       // bool literals
+				if (/^\d+(\.\d+)?$/.test(tok))
+					return "paramdefval";       // numeric literal
+				return "paramdefval";           // anything in default expr
+			}
+			// TYPES
 			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 				return "keywordtype";
+			// STL TYPES
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
+			// IDENTIFIER → parameter name
 			if (/^[a-zA-Z_]\w*$/.test(tok))
 				return "paramname";
 			return null;
@@ -176,8 +197,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (!node.nodeValue.includes("(")) continue;
 			const tokens = tokenize(node.nodeValue);
 			const frag = document.createDocumentFragment();
+			const state = { inDefault: false };
 			tokens.forEach(tok => {
-				const cls = classify(tok);
+				const cls = classify(tok, state);
 				if (!cls) {
 					frag.appendChild(document.createTextNode(tok));
 				} else {

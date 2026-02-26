@@ -276,6 +276,8 @@ namespace tgen {
  * If `predicate` has probabiliyy `p` of returning `true`, then the `::tgen::sequence::instance`
  * will be found with probability `1 - (1-p)^max_tries`.
  *
+ * @tparam Pred Type of predicate, deduced automatically.
+ *
  * @param predicate Condition to be checked. Should be a function that takes in a
  *        `tgen::sequence::instance`, and returns a `bool`.
  * @param max_tries The maximum number of times the function will try to generate a valid instance
@@ -303,7 +305,7 @@ namespace tgen {
  *         tries.
  * @memberof tgen::sequence
  *
- * @fn template <typename PRED> sequence::gen_until(PRED predicate, int max_tries);
+ * @fn instance sequence::gen_until(Pred predicate, int max_tries);
  */
 
 

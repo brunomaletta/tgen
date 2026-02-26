@@ -89,17 +89,17 @@ struct is_tuple_internal<std::tuple<Ts...>> : std::true_type {};
 struct print {
 	std::string s;
 
-	template <class T> print(const T &x) {
+	template <typename T> print(const T &x) {
 		std::ostringstream oss;
 		write(oss, x);
 		s = oss.str();
 	}
-	template <class T> print(const std::initializer_list<T> &il) {
+	template <typename T> print(const std::initializer_list<T> &il) {
 		std::ostringstream oss;
 		write(oss, std::vector<T>(il.begin(), il.end()));
 		s = oss.str();
 	}
-	template <class T>
+	template <typename T>
 	print(const std::initializer_list<std::initializer_list<T>> &il) {
 		std::ostringstream oss;
 		std::vector<std::vector<T>> mat;
@@ -110,7 +110,7 @@ struct print {
 	}
 
 	// Scalar.
-	template <class T>
+	template <typename T>
 	std::enable_if_t<!is_container_internal<T>::value and
 					 !is_tuple_internal<T>::value>
 	write(std::ostream &os, const T &x) {
@@ -118,7 +118,7 @@ struct print {
 	}
 
 	// std::pair.
-	template <class A, class B>
+	template <typename A, typename B>
 	void write(std::ostream &os, const std::pair<A, B> &p) {
 		write(os, p.first);
 		os << ' ';
@@ -134,7 +134,7 @@ struct print {
 		  write(os, std::get<I>(tp))),
 		 ...);
 	}
-	template <class T>
+	template <typename T>
 	std::enable_if_t<is_tuple_internal<T>::value> write(std::ostream &os,
 														const T &tp) {
 		write_tuple_impl(os, tp,
@@ -142,7 +142,7 @@ struct print {
 	}
 
 	// 1D container.
-	template <class C>
+	template <typename C>
 	std::enable_if_t<is_container_internal<C>::value and
 					 !is_container_internal<typename C::value_type>::value>
 	write(std::ostream &os, const C &container) {
@@ -156,7 +156,7 @@ struct print {
 	}
 
 	// 2D contianer.
-	template <class C>
+	template <typename C>
 	std::enable_if_t<is_container_internal<C>::value and
 					 is_container_internal<typename C::value_type>::value>
 	write(std::ostream &os, const C &matrix) {
@@ -279,13 +279,13 @@ std::vector<T> choose(int k, const std::initializer_list<T> &il) {
 }
 
 // Base struct for generators.
-template <typename GEN> struct gen_base {
+template <typename Gen> struct gen_base {
 	// Calls the generator until predicate is true.
-	template <typename PRED, typename... Args>
-	auto gen_until(PRED predicate, int max_tries, Args &&...args) {
+	template <typename Pred, typename... Args>
+	auto gen_until(Pred predicate, int max_tries, Args &&...args) {
 		for (int i = 0; i < max_tries; ++i) {
 			auto inst =
-				static_cast<GEN *>(this)->gen(std::forward<Args>(args)...);
+				static_cast<Gen *>(this)->gen(std::forward<Args>(args)...);
 
 			if (predicate(inst))
 				return inst;
@@ -293,8 +293,8 @@ template <typename GEN> struct gen_base {
 
 		throw error_internal("could not generate instance matching predicate");
 	}
-	template <typename PRED, typename T, typename... Args>
-	auto gen_until(PRED predicate, int max_tries, std::initializer_list<T> il,
+	template <typename Pred, typename T, typename... Args>
+	auto gen_until(Pred predicate, int max_tries, std::initializer_list<T> il,
 				   Args &&...args) {
 		return gen_until(predicate, max_tries, std::vector<T>(il),
 						 std::forward<Args>(args)...);
@@ -965,24 +965,24 @@ namespace sequence_op {
 
 // Shuffles a sequence.
 // O(n).
-template <typename INST> INST shuffle(const INST &inst) {
-	INST new_inst = inst;
+template <typename Inst> Inst shuffle(const Inst &inst) {
+	Inst new_inst = inst;
 	tgen::shuffle(new_inst.vec_);
 	return new_inst;
 }
 
 // Choses any value in the sequence.
 // O(1).
-template <typename INST> typename INST::value_type any(const INST &inst) {
+template <typename Inst> typename Inst::value_type any(const Inst &inst) {
 	return inst.vec_[next<int>(0, inst.vec_.size() - 1)];
 }
 
 // Chooses k values from the sequence, as in a subsequence of size k.
 // O(n).
-template <typename INST> INST choose(int k, const INST &inst) {
+template <typename Inst> Inst choose(int k, const Inst &inst) {
 	tgen_ensure(0 < k and k <= static_cast<int>(inst.vec_.size()),
 				"number of elements to choose must be valid");
-	std::vector<typename INST::value_type> new_vec;
+	std::vector<typename Inst::value_type> new_vec;
 	int need = k;
 	for (int i = 0; need > 0; ++i) {
 		int left = inst.vec_.size() - i;
@@ -991,7 +991,7 @@ template <typename INST> INST choose(int k, const INST &inst) {
 			need--;
 		}
 	}
-	return INST(new_vec);
+	return Inst(new_vec);
 }
 
 }; // namespace sequence_op
@@ -1347,7 +1347,7 @@ inline uint64_t gen_prime(uint64_t l, uint64_t r,
 	}
 }
 
-// O(log l) expected.
+// O(log^3 l) expected.
 // l < 2^64 - 59.
 inline uint64_t next_prime(uint64_t l) {
 	tgen_ensure(l < std::numeric_limits<uint64_t>::max() - 58, "invalid bound");
@@ -1356,7 +1356,7 @@ inline uint64_t next_prime(uint64_t l) {
 			return i;
 }
 
-// O(log r) expected.
+// O(log^3 r) expected.
 inline uint64_t prev_prime(uint64_t r) {
 	if (r >= 3)
 		for (uint64_t i = r - 1; i >= 2; --i)
@@ -1672,15 +1672,15 @@ inline uint64_t gen_odd(uint64_t l, uint64_t r) {
 inline constexpr int FFT_MOD = 998244353;
 
 // Fibonacci sequence up to 2^64.
-inline const std::vector<uint64_t>& fibonacci() {
-    static const std::vector<uint64_t> fib = []{
-        std::vector<uint64_t> v = {0, 1};
-        while (v.back() <=
-               std::numeric_limits<uint64_t>::max() - v[v.size() - 2])
-            v.push_back(v.back() + v[v.size() - 2]);
-        return v;
-    }();
-    return fib;
+inline const std::vector<uint64_t> &fibonacci() {
+	static const std::vector<uint64_t> fib = [] {
+		std::vector<uint64_t> v = {0, 1};
+		while (v.back() <=
+			   std::numeric_limits<uint64_t>::max() - v[v.size() - 2])
+			v.push_back(v.back() + v[v.size() - 2]);
+		return v;
+	}();
+	return fib;
 }
 
 inline constexpr long double LOG_ZERO_INTERNAL = -INFINITY;

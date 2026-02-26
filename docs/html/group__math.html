@@ -161,11 +161,32 @@ document.addEventListener('DOMContentLoaded', function() {
 		function tokenize(str) {
 			return str.split(/(\b|::|<|>|,|\(|\)|=|&|\*|\s+)/);
 		}
-		function classify(tok) {
+		function classify(tok, state) {
+			// entering default value
+			if (tok === "=") {
+				state.inDefault = true;
+				return null;
+			}
+			// leaving default value
+			if (tok === "," || tok === ")") {
+				state.inDefault = false;
+				return null;
+			}
+			// DEFAULT VALUE TOKENS
+			if (state.inDefault) {
+				if (/^(true|false|nullptr)$/.test(tok))
+					return "paramdefval";       // bool literals
+				if (/^\d+(\.\d+)?$/.test(tok))
+					return "paramdefval";       // numeric literal
+				return "paramdefval";           // anything in default expr
+			}
+			// TYPES
 			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 				return "keywordtype";
+			// STL TYPES
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
+			// IDENTIFIER → parameter name
 			if (/^[a-zA-Z_]\w*$/.test(tok))
 				return "paramname";
 			return null;
@@ -176,8 +197,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (!node.nodeValue.includes("(")) continue;
 			const tokens = tokenize(node.nodeValue);
 			const frag = document.createDocumentFragment();
+			const state = { inDefault: false };
 			tokens.forEach(tok => {
-				const cls = classify(tok);
+				const cls = classify(tok, state);
 				if (!cls) {
 					frag.appendChild(document.createTextNode(tok));
 				} else {
@@ -362,7 +384,7 @@ Examples</h3>
 <dl class="section pre"><dt>Precondition</dt><dd><span class="tt">n &gt; 0</span>.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md24"></a>
 Complexity</h4>
-<p><span class="tt"> O(n^(1/4) log n)</span> expected.</p>
+<p><span class="tt">O(n^(1/4) log n)</span> expected.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md25"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> fact = <a class="code hl_function" href="#ga5c371d66540b387fb992a49b799c40fa">tgen::math::factor</a>(24);</div>
@@ -1157,7 +1179,7 @@ Examples</h4>
 <dl class="section pre"><dt>Precondition</dt><dd><span class="tt">l &lt; 2^64 - 59</span>.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md34"></a>
 Complexity</h4>
-<p><span class="tt">O(log l)</span> expected.</p>
+<p><span class="tt">O(log^3 l)</span> expected.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md35"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints primes between 100 and 200.</span></div>
@@ -1247,7 +1269,7 @@ Examples</h4>
 <dl class="section return"><dt>Returns</dt><dd>Largest prime smaller than <span class="tt">r</span>.</dd></dl>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md36"></a>
 Complexity</h4>
-<p><span class="tt">O(log r)</span> expected.</p>
+<p><span class="tt">O(log^3 r)</span> expected.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md37"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints primes between 100 and 200 in reverse.</span></div>

@@ -161,11 +161,32 @@ document.addEventListener('DOMContentLoaded', function() {
 		function tokenize(str) {
 			return str.split(/(\b|::|<|>|,|\(|\)|=|&|\*|\s+)/);
 		}
-		function classify(tok) {
+		function classify(tok, state) {
+			// entering default value
+			if (tok === "=") {
+				state.inDefault = true;
+				return null;
+			}
+			// leaving default value
+			if (tok === "," || tok === ")") {
+				state.inDefault = false;
+				return null;
+			}
+			// DEFAULT VALUE TOKENS
+			if (state.inDefault) {
+				if (/^(true|false|nullptr)$/.test(tok))
+					return "paramdefval";       // bool literals
+				if (/^\d+(\.\d+)?$/.test(tok))
+					return "paramdefval";       // numeric literal
+				return "paramdefval";           // anything in default expr
+			}
+			// TYPES
 			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 				return "keywordtype";
+			// STL TYPES
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
+			// IDENTIFIER → parameter name
 			if (/^[a-zA-Z_]\w*$/.test(tok))
 				return "paramname";
 			return null;
@@ -176,8 +197,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (!node.nodeValue.includes("(")) continue;
 			const tokens = tokenize(node.nodeValue);
 			const frag = document.createDocumentFragment();
+			const state = { inDefault: false };
 			tokens.forEach(tok => {
-				const cls = classify(tok);
+				const cls = classify(tok, state);
 				if (!cls) {
 					frag.appendChild(document.createTextNode(tok));
 				} else {
@@ -305,8 +327,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:gaa0ae40d52de23eb632e9bc3bcd84111e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restricts generator s.t. all values are distinct.  <br /></td></tr>
 <tr class="memitem:ga9be29135e008e45b0c99580898f2d2e3" id="r_ga9be29135e008e45b0c99580898f2d2e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">gen</a> ()</td></tr>
 <tr class="memdesc:ga9be29135e008e45b0c99580898f2d2e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid sequences.  <br /></td></tr>
-<tr class="memitem:ga0bae18156d0b6c97aecec180bc4f5559" id="r_ga0bae18156d0b6c97aecec180bc4f5559"><td class="memItemLeft" align="right" valign="top">template&lt; typename PRED &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sequence__gen.html#ga0bae18156d0b6c97aecec180bc4f5559">gen_until</a> (PRED predicate, int max_tries)</td></tr>
-<tr class="memdesc:ga0bae18156d0b6c97aecec180bc4f5559"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid sequences until a condition is met.  <br /></td></tr>
+<tr class="memitem:ga980db29096532257488877b78fd8a45e" id="r_ga980db29096532257488877b78fd8a45e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1sequence_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sequence__gen.html#ga980db29096532257488877b78fd8a45e">gen_until</a> (Pred predicate, int max_tries)</td></tr>
+<tr class="memdesc:ga980db29096532257488877b78fd8a45e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid sequences until a condition is met.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename T&gt;<br />

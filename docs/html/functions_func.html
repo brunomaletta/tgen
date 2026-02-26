@@ -161,11 +161,32 @@ document.addEventListener('DOMContentLoaded', function() {
 		function tokenize(str) {
 			return str.split(/(\b|::|<|>|,|\(|\)|=|&|\*|\s+)/);
 		}
-		function classify(tok) {
+		function classify(tok, state) {
+			// entering default value
+			if (tok === "=") {
+				state.inDefault = true;
+				return null;
+			}
+			// leaving default value
+			if (tok === "," || tok === ")") {
+				state.inDefault = false;
+				return null;
+			}
+			// DEFAULT VALUE TOKENS
+			if (state.inDefault) {
+				if (/^(true|false|nullptr)$/.test(tok))
+					return "paramdefval";       // bool literals
+				if (/^\d+(\.\d+)?$/.test(tok))
+					return "paramdefval";       // numeric literal
+				return "paramdefval";           // anything in default expr
+			}
+			// TYPES
 			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 				return "keywordtype";
+			// STL TYPES
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
+			// IDENTIFIER → parameter name
 			if (/^[a-zA-Z_]\w*$/.test(tok))
 				return "paramname";
 			return null;
@@ -176,8 +197,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (!node.nodeValue.includes("(")) continue;
 			const tokens = tokenize(node.nodeValue);
 			const frag = document.createDocumentFragment();
+			const state = { inDefault: false };
 			tokens.forEach(tok => {
-				const cls = classify(tok);
+				const cls = classify(tok, state);
 				if (!cls) {
 					frag.appendChild(document.createTextNode(tok));
 				} else {
@@ -284,7 +306,7 @@ $(function(){initNavTree('functions_func.html','',''); });
 
 <h3 class="doxsection"><a id="index_g" name="index_g"></a>- g -</h3><ul>
 <li>gen()&#160;:&#160;<a class="el" href="group__permutation__gen.html#gaeecbe05053f2e0f2ce306458ffd99983">tgen::permutation</a>, <a class="el" href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">tgen::sequence&lt; T &gt;</a></li>
-<li>gen_until()&#160;:&#160;<a class="el" href="group__permutation__gen.html#ga02efc1c1bf9fa3a011bd856dad943093">tgen::permutation</a>, <a class="el" href="group__sequence__gen.html#ga0bae18156d0b6c97aecec180bc4f5559">tgen::sequence&lt; T &gt;</a></li>
+<li>gen_until()&#160;:&#160;<a class="el" href="group__permutation__gen.html#ga720f73923217570114611c367118be51">tgen::permutation</a>, <a class="el" href="group__sequence__gen.html#ga980db29096532257488877b78fd8a45e">tgen::sequence&lt; T &gt;</a></li>
 </ul>
 
 

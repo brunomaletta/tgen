@@ -161,11 +161,32 @@ document.addEventListener('DOMContentLoaded', function() {
 		function tokenize(str) {
 			return str.split(/(\b|::|<|>|,|\(|\)|=|&|\*|\s+)/);
 		}
-		function classify(tok) {
+		function classify(tok, state) {
+			// entering default value
+			if (tok === "=") {
+				state.inDefault = true;
+				return null;
+			}
+			// leaving default value
+			if (tok === "," || tok === ")") {
+				state.inDefault = false;
+				return null;
+			}
+			// DEFAULT VALUE TOKENS
+			if (state.inDefault) {
+				if (/^(true|false|nullptr)$/.test(tok))
+					return "paramdefval";       // bool literals
+				if (/^\d+(\.\d+)?$/.test(tok))
+					return "paramdefval";       // numeric literal
+				return "paramdefval";           // anything in default expr
+			}
+			// TYPES
 			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 				return "keywordtype";
+			// STL TYPES
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
+			// IDENTIFIER → parameter name
 			if (/^[a-zA-Z_]\w*$/.test(tok))
 				return "paramname";
 			return null;
@@ -176,8 +197,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (!node.nodeValue.includes("(")) continue;
 			const tokens = tokenize(node.nodeValue);
 			const frag = document.createDocumentFragment();
+			const state = { inDefault: false };
 			tokens.forEach(tok => {
-				const cls = classify(tok);
+				const cls = classify(tok, state);
 				if (!cls) {
 					frag.appendChild(document.createTextNode(tok));
 				} else {
@@ -362,17 +384,17 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno"><a class="line" href="structtgen_1_1print.html">   89</a></span><span class="keyword">struct</span> <a class="code hl_struct" href="structtgen_1_1print.html">print</a> {</div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    std::string s;</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt; print(<span class="keyword">const</span> T &amp;x) {</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; print(<span class="keyword">const</span> T &amp;x) {</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>        std::ostringstream oss;</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>        write(oss, x);</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        s = oss.str();</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    }</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt; print(<span class="keyword">const</span> std::initializer_list&lt;T&gt; &amp;il) {</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; print(<span class="keyword">const</span> std::initializer_list&lt;T&gt; &amp;il) {</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        std::ostringstream oss;</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>        write(oss, std::vector&lt;T&gt;(il.begin(), il.end()));</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        s = oss.str();</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    }</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    print(<span class="keyword">const</span> std::initializer_list&lt;std::initializer_list&lt;T&gt;&gt; &amp;il) {</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        std::ostringstream oss;</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>        std::vector&lt;std::vector&lt;T&gt;&gt; mat;</div>
@@ -383,7 +405,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    }</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="comment">// Scalar.</span></div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    std::enable_if_t&lt;!<a class="code hl_struct" href="structtgen_1_1is__container__internal.html">is_container_internal</a>&lt;T&gt;::value <span class="keyword">and</span></div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>                     !<a class="code hl_struct" href="structtgen_1_1is__tuple__internal.html">is_tuple_internal</a>&lt;T&gt;::value&gt;</div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    write(std::ostream &amp;os, <span class="keyword">const</span> T &amp;x) {</div>
@@ -391,7 +413,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    }</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="comment">// std::pair.</span></div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <span class="keyword">template</span> &lt;<span class="keyword">class</span> A, <span class="keyword">class</span> B&gt;</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> A, <span class="keyword">typename</span> B&gt;</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    <span class="keywordtype">void</span> write(std::ostream &amp;os, <span class="keyword">const</span> std::pair&lt;A, B&gt; &amp;p) {</div>
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>        write(os, p.first);</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>        os &lt;&lt; <span class="stringliteral">&#39; &#39;</span>;</div>
@@ -407,7 +429,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>          write(os, std::get&lt;I&gt;(tp))),</div>
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>         ...);</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    }</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>    <span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
 <div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>    std::enable_if_t&lt;<a class="code hl_struct" href="structtgen_1_1is__tuple__internal.html">is_tuple_internal</a>&lt;T&gt;::value&gt; write(std::ostream &amp;os,</div>
 <div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>                                                        <span class="keyword">const</span> T &amp;tp) {</div>
 <div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>        write_tuple_impl(os, tp,</div>
@@ -415,7 +437,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    }</div>
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span> </div>
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>    <span class="comment">// 1D container.</span></div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    <span class="keyword">template</span> &lt;<span class="keyword">class</span> C&gt;</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> C&gt;</div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    std::enable_if_t&lt;<a class="code hl_struct" href="structtgen_1_1is__container__internal.html">is_container_internal</a>&lt;C&gt;::value <span class="keyword">and</span></div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>                     !<a class="code hl_struct" href="structtgen_1_1is__container__internal.html">is_container_internal</a>&lt;<span class="keyword">typename</span> C::value_type&gt;::value&gt;</div>
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    write(std::ostream &amp;os, <span class="keyword">const</span> C &amp;container) {</div>
@@ -429,7 +451,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>    }</div>
 <div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span> </div>
 <div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    <span class="comment">// 2D contianer.</span></div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <span class="keyword">template</span> &lt;<span class="keyword">class</span> C&gt;</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> C&gt;</div>
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    std::enable_if_t&lt;<a class="code hl_struct" href="structtgen_1_1is__container__internal.html">is_container_internal</a>&lt;C&gt;::value <span class="keyword">and</span></div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>                     <a class="code hl_struct" href="structtgen_1_1is__container__internal.html">is_container_internal</a>&lt;<span class="keyword">typename</span> C::value_type&gt;::value&gt;</div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    write(std::ostream &amp;os, <span class="keyword">const</span> C &amp;matrix) {</div>
@@ -567,13 +589,13 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>}</div>
 <div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span> </div>
 <div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span><span class="comment">// Base struct for generators.</span></div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> GEN&gt; <span class="keyword">struct</span> gen_base {</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Gen&gt; <span class="keyword">struct</span> gen_base {</div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>    <span class="comment">// Calls the generator until predicate is true.</span></div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PRED, <span class="keyword">typename</span>... Args&gt;</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    <span class="keyword">auto</span> gen_until(PRED predicate, <span class="keywordtype">int</span> max_tries, Args &amp;&amp;...args) {</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Pred, <span class="keyword">typename</span>... Args&gt;</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    <span class="keyword">auto</span> gen_until(Pred predicate, <span class="keywordtype">int</span> max_tries, Args &amp;&amp;...args) {</div>
 <div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; max_tries; ++i) {</div>
 <div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>            <span class="keyword">auto</span> inst =</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>                <span class="keyword">static_cast</span>&lt;GEN *&gt;(<span class="keyword">this</span>)-&gt;gen(std::forward&lt;Args&gt;(args)...);</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>                <span class="keyword">static_cast</span>&lt;Gen *&gt;(<span class="keyword">this</span>)-&gt;gen(std::forward&lt;Args&gt;(args)...);</div>
 <div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
 <div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>            <span class="keywordflow">if</span> (predicate(inst))</div>
 <div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>                <span class="keywordflow">return</span> inst;</div>
@@ -581,8 +603,8 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span> </div>
 <div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>        <span class="keywordflow">throw</span> error_internal(<span class="stringliteral">&quot;could not generate instance matching predicate&quot;</span>);</div>
 <div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>    }</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PRED, <span class="keyword">typename</span> T, <span class="keyword">typename</span>... Args&gt;</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="keyword">auto</span> gen_until(PRED predicate, <span class="keywordtype">int</span> max_tries, std::initializer_list&lt;T&gt; il,</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Pred, <span class="keyword">typename</span> T, <span class="keyword">typename</span>... Args&gt;</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="keyword">auto</span> gen_until(Pred predicate, <span class="keywordtype">int</span> max_tries, std::initializer_list&lt;T&gt; il,</div>
 <div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>                   Args &amp;&amp;...args) {</div>
 <div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>        <span class="keywordflow">return</span> gen_until(predicate, max_tries, std::vector&lt;T&gt;(il),</div>
 <div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>                         std::forward&lt;Args&gt;(args)...);</div>
@@ -1291,29 +1313,24 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00965" name="l00965"></a><span class="lineno">  965</span> </div>
 <div class="line"><a id="l00966" name="l00966"></a><span class="lineno">  966</span><span class="comment">// Shuffles a sequence.</span></div>
 <div class="line"><a id="l00967" name="l00967"></a><span class="lineno">  967</span><span class="comment">// O(n).</span></div>
-<div class="foldopen" id="foldopen00968" data-start="{" data-end="}">
-<div class="line"><a id="l00968" name="l00968"></a><span class="lineno"><a class="line" href="group__sequence__op.html#ga6dbb723e2e97121cfaa7a2d2d6e63e68">  968</a></span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> INST&gt; INST <a class="code hl_function" href="group__sequence__op.html#ga6dbb723e2e97121cfaa7a2d2d6e63e68">shuffle</a>(<span class="keyword">const</span> INST &amp;inst) {</div>
-<div class="line"><a id="l00969" name="l00969"></a><span class="lineno">  969</span>    INST new_inst = inst;</div>
+<div class="line"><a id="l00968" name="l00968"></a><span class="lineno">  968</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Inst&gt; Inst shuffle(<span class="keyword">const</span> Inst &amp;inst) {</div>
+<div class="line"><a id="l00969" name="l00969"></a><span class="lineno">  969</span>    Inst new_inst = inst;</div>
 <div class="line"><a id="l00970" name="l00970"></a><span class="lineno">  970</span>    tgen::shuffle(new_inst.vec_);</div>
 <div class="line"><a id="l00971" name="l00971"></a><span class="lineno">  971</span>    <span class="keywordflow">return</span> new_inst;</div>
 <div class="line"><a id="l00972" name="l00972"></a><span class="lineno">  972</span>}</div>
-</div>
 <div class="line"><a id="l00973" name="l00973"></a><span class="lineno">  973</span> </div>
 <div class="line"><a id="l00974" name="l00974"></a><span class="lineno">  974</span><span class="comment">// Choses any value in the sequence.</span></div>
 <div class="line"><a id="l00975" name="l00975"></a><span class="lineno">  975</span><span class="comment">// O(1).</span></div>
-<div class="foldopen" id="foldopen00976" data-start="{" data-end="}">
-<div class="line"><a id="l00976" name="l00976"></a><span class="lineno"><a class="line" href="group__sequence__op.html#ga2d3aae3685b2a2003d737cfa3221f367">  976</a></span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> INST&gt; <span class="keyword">typename</span> INST::<a class="code hl_function" href="group__sequence__op.html#ga2d3aae3685b2a2003d737cfa3221f367">value_type</a> <a class="code hl_function" href="group__sequence__op.html#ga2d3aae3685b2a2003d737cfa3221f367">any</a>(<span class="keyword">const</span> INST &amp;inst) {</div>
+<div class="line"><a id="l00976" name="l00976"></a><span class="lineno">  976</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Inst&gt; <span class="keyword">typename</span> Inst::value_type any(<span class="keyword">const</span> Inst &amp;inst) {</div>
 <div class="line"><a id="l00977" name="l00977"></a><span class="lineno">  977</span>    <span class="keywordflow">return</span> inst.vec_[next&lt;<span class="keywordtype">int</span>&gt;(0, inst.vec_.size() - 1)];</div>
 <div class="line"><a id="l00978" name="l00978"></a><span class="lineno">  978</span>}</div>
-</div>
 <div class="line"><a id="l00979" name="l00979"></a><span class="lineno">  979</span> </div>
 <div class="line"><a id="l00980" name="l00980"></a><span class="lineno">  980</span><span class="comment">// Chooses k values from the sequence, as in a subsequence of size k.</span></div>
 <div class="line"><a id="l00981" name="l00981"></a><span class="lineno">  981</span><span class="comment">// O(n).</span></div>
-<div class="foldopen" id="foldopen00982" data-start="{" data-end="}">
-<div class="line"><a id="l00982" name="l00982"></a><span class="lineno"><a class="line" href="group__sequence__op.html#gae983696fba517df4aa22a44ffaa88ba2">  982</a></span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> INST&gt; INST <a class="code hl_function" href="group__sequence__op.html#gae983696fba517df4aa22a44ffaa88ba2">choose</a>(<span class="keywordtype">int</span> k, <span class="keyword">const</span> INST &amp;inst) {</div>
+<div class="line"><a id="l00982" name="l00982"></a><span class="lineno">  982</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Inst&gt; Inst choose(<span class="keywordtype">int</span> k, <span class="keyword">const</span> Inst &amp;inst) {</div>
 <div class="line"><a id="l00983" name="l00983"></a><span class="lineno">  983</span>    <a class="code hl_define" href="group__general.html#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(0 &lt; k <span class="keyword">and</span> k &lt;= <span class="keyword">static_cast</span>&lt;<span class="keywordtype">int</span>&gt;(inst.vec_.size()),</div>
 <div class="line"><a id="l00984" name="l00984"></a><span class="lineno">  984</span>                <span class="stringliteral">&quot;number of elements to choose must be valid&quot;</span>);</div>
-<div class="line"><a id="l00985" name="l00985"></a><span class="lineno">  985</span>    std::vector&lt;<span class="keyword">typename</span> INST::value_type&gt; new_vec;</div>
+<div class="line"><a id="l00985" name="l00985"></a><span class="lineno">  985</span>    std::vector&lt;<span class="keyword">typename</span> Inst::value_type&gt; new_vec;</div>
 <div class="line"><a id="l00986" name="l00986"></a><span class="lineno">  986</span>    <span class="keywordtype">int</span> need = k;</div>
 <div class="line"><a id="l00987" name="l00987"></a><span class="lineno">  987</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; need &gt; 0; ++i) {</div>
 <div class="line"><a id="l00988" name="l00988"></a><span class="lineno">  988</span>        <span class="keywordtype">int</span> left = inst.vec_.size() - i;</div>
@@ -1322,9 +1339,8 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l00991" name="l00991"></a><span class="lineno">  991</span>            need--;</div>
 <div class="line"><a id="l00992" name="l00992"></a><span class="lineno">  992</span>        }</div>
 <div class="line"><a id="l00993" name="l00993"></a><span class="lineno">  993</span>    }</div>
-<div class="line"><a id="l00994" name="l00994"></a><span class="lineno">  994</span>    <span class="keywordflow">return</span> INST(new_vec);</div>
+<div class="line"><a id="l00994" name="l00994"></a><span class="lineno">  994</span>    <span class="keywordflow">return</span> Inst(new_vec);</div>
 <div class="line"><a id="l00995" name="l00995"></a><span class="lineno">  995</span>}</div>
-</div>
 <div class="line"><a id="l00996" name="l00996"></a><span class="lineno">  996</span> </div>
 <div class="line"><a id="l00997" name="l00997"></a><span class="lineno">  997</span>}; <span class="comment">// namespace sequence_op</span></div>
 <div class="line"><a id="l00998" name="l00998"></a><span class="lineno">  998</span> </div>
@@ -1717,7 +1733,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l01348" name="l01348"></a><span class="lineno"> 1348</span>}</div>
 </div>
 <div class="line"><a id="l01349" name="l01349"></a><span class="lineno"> 1349</span> </div>
-<div class="line"><a id="l01350" name="l01350"></a><span class="lineno"> 1350</span><span class="comment">// O(log l) expected.</span></div>
+<div class="line"><a id="l01350" name="l01350"></a><span class="lineno"> 1350</span><span class="comment">// O(log^3 l) expected.</span></div>
 <div class="line"><a id="l01351" name="l01351"></a><span class="lineno"> 1351</span><span class="comment">// l &lt; 2^64 - 59.</span></div>
 <div class="foldopen" id="foldopen01352" data-start="{" data-end="}">
 <div class="line"><a id="l01352" name="l01352"></a><span class="lineno"><a class="line" href="group__math.html#ga6ddd2290db1853f260b39d3cbe22337d"> 1352</a></span><span class="keyword">inline</span> uint64_t <a class="code hl_function" href="group__math.html#ga6ddd2290db1853f260b39d3cbe22337d">next_prime</a>(uint64_t l) {</div>
@@ -1728,7 +1744,7 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l01357" name="l01357"></a><span class="lineno"> 1357</span>}</div>
 </div>
 <div class="line"><a id="l01358" name="l01358"></a><span class="lineno"> 1358</span> </div>
-<div class="line"><a id="l01359" name="l01359"></a><span class="lineno"> 1359</span><span class="comment">// O(log r) expected.</span></div>
+<div class="line"><a id="l01359" name="l01359"></a><span class="lineno"> 1359</span><span class="comment">// O(log^3 r) expected.</span></div>
 <div class="foldopen" id="foldopen01360" data-start="{" data-end="}">
 <div class="line"><a id="l01360" name="l01360"></a><span class="lineno"><a class="line" href="group__math.html#gac5ff6eed324cb720e4d93f3f9f203aa3"> 1360</a></span><span class="keyword">inline</span> uint64_t <a class="code hl_function" href="group__math.html#gac5ff6eed324cb720e4d93f3f9f203aa3">prev_prime</a>(uint64_t r) {</div>
 <div class="line"><a id="l01361" name="l01361"></a><span class="lineno"> 1361</span>    <span class="keywordflow">if</span> (r &gt;= 3)</div>
@@ -2067,8 +2083,8 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="line"><a id="l01673" name="l01673"></a><span class="lineno"> 1673</span> </div>
 <div class="line"><a id="l01674" name="l01674"></a><span class="lineno"> 1674</span><span class="comment">// Fibonacci sequence up to 2^64.</span></div>
 <div class="foldopen" id="foldopen01675" data-start="{" data-end="}">
-<div class="line"><a id="l01675" name="l01675"></a><span class="lineno"><a class="line" href="group__math.html#gaa0d2967e4dd57d03f455d5380d1a848d"> 1675</a></span><span class="keyword">inline</span> <span class="keyword">const</span> std::vector&lt;uint64_t&gt;&amp; <a class="code hl_function" href="group__math.html#gaa0d2967e4dd57d03f455d5380d1a848d">fibonacci</a>() {</div>
-<div class="line"><a id="l01676" name="l01676"></a><span class="lineno"> 1676</span>    <span class="keyword">static</span> <span class="keyword">const</span> std::vector&lt;uint64_t&gt; fib = []{</div>
+<div class="line"><a id="l01675" name="l01675"></a><span class="lineno"><a class="line" href="group__math.html#gaa0d2967e4dd57d03f455d5380d1a848d"> 1675</a></span><span class="keyword">inline</span> <span class="keyword">const</span> std::vector&lt;uint64_t&gt; &amp;<a class="code hl_function" href="group__math.html#gaa0d2967e4dd57d03f455d5380d1a848d">fibonacci</a>() {</div>
+<div class="line"><a id="l01676" name="l01676"></a><span class="lineno"> 1676</span>    <span class="keyword">static</span> <span class="keyword">const</span> std::vector&lt;uint64_t&gt; fib = [] {</div>
 <div class="line"><a id="l01677" name="l01677"></a><span class="lineno"> 1677</span>        std::vector&lt;uint64_t&gt; v = {0, 1};</div>
 <div class="line"><a id="l01678" name="l01678"></a><span class="lineno"> 1678</span>        <span class="keywordflow">while</span> (v.back() &lt;=</div>
 <div class="line"><a id="l01679" name="l01679"></a><span class="lineno"> 1679</span>               std::numeric_limits&lt;uint64_t&gt;::max() - v[v.size() - 2])</div>
@@ -2335,9 +2351,6 @@ $(function(){initNavTree('tgen_8h_source.html','',''); });
 <div class="ttc" id="agroup__sequence__inst_html_ga81b30da123bf6745caf7795dc8315131"><div class="ttname"><a href="group__sequence__inst.html#ga81b30da123bf6745caf7795dc8315131">tgen::sequence::instance::size</a></div><div class="ttdeci">int size() const</div><div class="ttdoc">Returns the size of the sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="#l00602">tgen.h:602</a></div></div>
 <div class="ttc" id="agroup__sequence__inst_html_gaabbbd20653bd6b4149aea1914267db56"><div class="ttname"><a href="group__sequence__inst.html#gaabbbd20653bd6b4149aea1914267db56">tgen::sequence::instance::sort</a></div><div class="ttdeci">instance &amp; sort()</div><div class="ttdoc">Sorts the instance in non-decreasing order.</div><div class="ttdef"><b>Definition</b> <a href="#l00610">tgen.h:610</a></div></div>
 <div class="ttc" id="agroup__sequence__inst_html_gaad19beb57245e1e5ec4cc4ac5bd9030e"><div class="ttname"><a href="group__sequence__inst.html#gaad19beb57245e1e5ec4cc4ac5bd9030e">tgen::sequence::instance::to_std</a></div><div class="ttdeci">std::vector&lt; T &gt; to_std() const</div><div class="ttdoc">Converts the instance to a std::vector.</div><div class="ttdef"><b>Definition</b> <a href="#l00643">tgen.h:643</a></div></div>
-<div class="ttc" id="agroup__sequence__op_html_ga2d3aae3685b2a2003d737cfa3221f367"><div class="ttname"><a href="group__sequence__op.html#ga2d3aae3685b2a2003d737cfa3221f367">tgen::sequence_op::any</a></div><div class="ttdeci">INST::value_type any(const INST &amp;inst)</div><div class="ttdoc">Choses a random element from the sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="#l00976">tgen.h:976</a></div></div>
-<div class="ttc" id="agroup__sequence__op_html_ga6dbb723e2e97121cfaa7a2d2d6e63e68"><div class="ttname"><a href="group__sequence__op.html#ga6dbb723e2e97121cfaa7a2d2d6e63e68">tgen::sequence_op::shuffle</a></div><div class="ttdeci">INST shuffle(const INST &amp;inst)</div><div class="ttdoc">Shuffles a sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="#l00968">tgen.h:968</a></div></div>
-<div class="ttc" id="agroup__sequence__op_html_gae983696fba517df4aa22a44ffaa88ba2"><div class="ttname"><a href="group__sequence__op.html#gae983696fba517df4aa22a44ffaa88ba2">tgen::sequence_op::choose</a></div><div class="ttdeci">INST choose(int k, const INST &amp;inst)</div><div class="ttdoc">Chooses k values from the sequence instance, as in a subsequence of size k.</div><div class="ttdef"><b>Definition</b> <a href="#l00982">tgen.h:982</a></div></div>
 <div class="ttc" id="astructtgen_1_1is__associative__container__internal_3_01T_00_01std_1_1void__t_3_01typename_01T_1_3d354157a02e12a2c41e4e560faa1698_html"><div class="ttname"><a href="structtgen_1_1is__associative__container__internal_3_01T_00_01std_1_1void__t_3_01typename_01T_1_3d354157a02e12a2c41e4e560faa1698.html">tgen::is_associative_container_internal&lt; T, std::void_t&lt; typename T::key_type, typename T::key_compare &gt; &gt;</a></div><div class="ttdef"><b>Definition</b> <a href="#l00216">tgen.h:218</a></div></div>
 <div class="ttc" id="astructtgen_1_1is__associative__container__internal_html"><div class="ttname"><a href="structtgen_1_1is__associative__container__internal.html">tgen::is_associative_container_internal</a></div><div class="ttdef"><b>Definition</b> <a href="#l00214">tgen.h:214</a></div></div>
 <div class="ttc" id="astructtgen_1_1is__container__internal_3_01T_00_01std_1_1void__t_3_01decltype_07std_1_1begin_07stb858632f6bed9ee6114ba97895af7b49_html"><div class="ttname"><a href="structtgen_1_1is__container__internal_3_01T_00_01std_1_1void__t_3_01decltype_07std_1_1begin_07stb858632f6bed9ee6114ba97895af7b49.html">tgen::is_container_internal&lt; T, std::void_t&lt; decltype(std::begin(std::declval&lt; T &gt;())), decltype(std::end(std::declval&lt; T &gt;()))&gt; &gt;</a></div><div class="ttdef"><b>Definition</b> <a href="#l00078">tgen.h:80</a></div></div>

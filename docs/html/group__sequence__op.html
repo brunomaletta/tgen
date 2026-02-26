@@ -161,11 +161,32 @@ document.addEventListener('DOMContentLoaded', function() {
 		function tokenize(str) {
 			return str.split(/(\b|::|<|>|,|\(|\)|=|&|\*|\s+)/);
 		}
-		function classify(tok) {
+		function classify(tok, state) {
+			// entering default value
+			if (tok === "=") {
+				state.inDefault = true;
+				return null;
+			}
+			// leaving default value
+			if (tok === "," || tok === ")") {
+				state.inDefault = false;
+				return null;
+			}
+			// DEFAULT VALUE TOKENS
+			if (state.inDefault) {
+				if (/^(true|false|nullptr)$/.test(tok))
+					return "paramdefval";       // bool literals
+				if (/^\d+(\.\d+)?$/.test(tok))
+					return "paramdefval";       // numeric literal
+				return "paramdefval";           // anything in default expr
+			}
+			// TYPES
 			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 				return "keywordtype";
+			// STL TYPES
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
+			// IDENTIFIER → parameter name
 			if (/^[a-zA-Z_]\w*$/.test(tok))
 				return "paramname";
 			return null;
@@ -176,8 +197,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (!node.nodeValue.includes("(")) continue;
 			const tokens = tokenize(node.nodeValue);
 			const frag = document.createDocumentFragment();
+			const state = { inDefault: false };
 			tokens.forEach(tok => {
-				const cls = classify(tok);
+				const cls = classify(tok, state);
 				if (!cls) {
 					frag.appendChild(document.createTextNode(tok));
 				} else {
@@ -263,160 +285,14 @@ $(function(){initNavTree('group__sequence__op.html','',''); });
 </div>
 
 <div class="header">
-  <div class="summary">
-<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">Sequence operations <div class="ingroups"><a class="el" href="group__sequence.html">Sequences</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
 <p>Random operations on sequence instances.  
-<a href="#details">More...</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:ga6dbb723e2e97121cfaa7a2d2d6e63e68" id="r_ga6dbb723e2e97121cfaa7a2d2d6e63e68"><td class="memTemplParams" colspan="2">template&lt;typename INST&gt; </td></tr>
-<tr class="memitem:ga6dbb723e2e97121cfaa7a2d2d6e63e68 template"><td class="memItemLeft" align="right" valign="top">INST&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga6dbb723e2e97121cfaa7a2d2d6e63e68">tgen::sequence_op::shuffle</a> (const INST &amp;inst)</td></tr>
-<tr class="memdesc:ga6dbb723e2e97121cfaa7a2d2d6e63e68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles a sequence instance.  <br /></td></tr>
-<tr class="memitem:ga2d3aae3685b2a2003d737cfa3221f367" id="r_ga2d3aae3685b2a2003d737cfa3221f367"><td class="memTemplParams" colspan="2">template&lt;typename INST&gt; </td></tr>
-<tr class="memitem:ga2d3aae3685b2a2003d737cfa3221f367 template"><td class="memItemLeft" align="right" valign="top">INST::value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga2d3aae3685b2a2003d737cfa3221f367">tgen::sequence_op::any</a> (const INST &amp;inst)</td></tr>
-<tr class="memdesc:ga2d3aae3685b2a2003d737cfa3221f367"><td class="mdescLeft">&#160;</td><td class="mdescRight">Choses a random element from the sequence instance.  <br /></td></tr>
-<tr class="memitem:gae983696fba517df4aa22a44ffaa88ba2" id="r_gae983696fba517df4aa22a44ffaa88ba2"><td class="memTemplParams" colspan="2">template&lt;typename INST&gt; </td></tr>
-<tr class="memitem:gae983696fba517df4aa22a44ffaa88ba2 template"><td class="memItemLeft" align="right" valign="top">INST&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gae983696fba517df4aa22a44ffaa88ba2">tgen::sequence_op::choose</a> (int k, const INST &amp;inst)</td></tr>
-<tr class="memdesc:gae983696fba517df4aa22a44ffaa88ba2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Chooses <span class="tt">k</span> values from the sequence instance, as in a subsequence of size <span class="tt">k</span>.  <br /></td></tr>
-</table>
-<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
+</p>
 <p>Random operations on sequence instances. </p>
 <p>These operations make random decisions. </p>
-<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="ga2d3aae3685b2a2003d737cfa3221f367" name="ga2d3aae3685b2a2003d737cfa3221f367"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga2d3aae3685b2a2003d737cfa3221f367">&#9670;&#160;</a></span>any()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename INST&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">INST::value_type tgen::sequence_op::any </td>
-          <td>(</td>
-          <td class="paramtype">const INST &amp;</td>          <td class="paramname"><span class="paramname"><em>inst</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Choses a random element from the sequence instance. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">inst</td><td>the original instance.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A uniformly random element from the instance.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd><span class="tt">INST</span> must be a <span class="tt"><a class="el" href="structtgen_1_1sequence_1_1instance.html" title="Sequence instance.">tgen::sequence::instance</a></span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md112"></a>
-Complexity</h4>
-<p><span class="tt">O(1)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md113"></a>
-Examples</h4>
-<div class="fragment"><div class="line"><span class="comment">// Prints a random element from v.</span></div>
-<div class="line"><a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt;int&gt;::instance</a> inst = {3, 1, 2};</div>
-<div class="line">std::cout &lt;&lt;</div>
-<div class="line">    <a class="code hl_function" href="#ga2d3aae3685b2a2003d737cfa3221f367">tgen::sequence_op::any</a>(inst) &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__sequence__op_html_ga2d3aae3685b2a2003d737cfa3221f367"><div class="ttname"><a href="#ga2d3aae3685b2a2003d737cfa3221f367">tgen::sequence_op::any</a></div><div class="ttdeci">INST::value_type any(const INST &amp;inst)</div><div class="ttdoc">Choses a random element from the sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00976">tgen.h:976</a></div></div>
-<div class="ttc" id="astructtgen_1_1sequence_1_1instance_html"><div class="ttname"><a href="structtgen_1_1sequence_1_1instance.html">tgen::sequence::instance</a></div><div class="ttdoc">Sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00593">tgen.h:593</a></div></div>
-</div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00976">976</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
-
-</div>
-</div>
-<a id="gae983696fba517df4aa22a44ffaa88ba2" name="gae983696fba517df4aa22a44ffaa88ba2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gae983696fba517df4aa22a44ffaa88ba2">&#9670;&#160;</a></span>choose()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename INST&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">INST tgen::sequence_op::choose </td>
-          <td>(</td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>k</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const INST &amp;</td>          <td class="paramname"><span class="paramname"><em>inst</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Chooses <span class="tt">k</span> values from the sequence instance, as in a subsequence of size <span class="tt">k</span>. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">k</td><td>The size of the subsequence. </td></tr>
-    <tr><td class="paramname">inst</td><td>the original instance.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A uniformly random subsequence of length k.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd><span class="tt">INST</span> must be a <span class="tt"><a class="el" href="structtgen_1_1sequence_1_1instance.html" title="Sequence instance.">tgen::sequence::instance</a></span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md114"></a>
-Complexity</h4>
-<p><span class="tt">O(n)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md115"></a>
-Examples</h4>
-<div class="fragment"><div class="line"><span class="comment">// Prints a subsequenec of length 2 from v.</span></div>
-<div class="line"><a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt;int&gt;::instance</a> inst = {3, 1, 2};</div>
-<div class="line">std::cout &lt;&lt;</div>
-<div class="line">    <a class="code hl_function" href="#gae983696fba517df4aa22a44ffaa88ba2">tgen::sequence_op::choose</a>(2, inst) &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__sequence__op_html_gae983696fba517df4aa22a44ffaa88ba2"><div class="ttname"><a href="#gae983696fba517df4aa22a44ffaa88ba2">tgen::sequence_op::choose</a></div><div class="ttdeci">INST choose(int k, const INST &amp;inst)</div><div class="ttdoc">Chooses k values from the sequence instance, as in a subsequence of size k.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00982">tgen.h:982</a></div></div>
-</div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00982">982</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
-
-</div>
-</div>
-<a id="ga6dbb723e2e97121cfaa7a2d2d6e63e68" name="ga6dbb723e2e97121cfaa7a2d2d6e63e68"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga6dbb723e2e97121cfaa7a2d2d6e63e68">&#9670;&#160;</a></span>shuffle()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename INST&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">INST tgen::sequence_op::shuffle </td>
-          <td>(</td>
-          <td class="paramtype">const INST &amp;</td>          <td class="paramname"><span class="paramname"><em>inst</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Shuffles a sequence instance. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">inst</td><td>the original instance.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>The shuffled instance.</dd></dl>
-<p><span class="tt">INST</span> must be a <span class="tt"><a class="el" href="structtgen_1_1sequence_1_1instance.html" title="Sequence instance.">tgen::sequence::instance</a></span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md110"></a>
-Complexity</h4>
-<p><span class="tt">O(n)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md111"></a>
-Examples</h4>
-<div class="fragment"><div class="line"><span class="comment">// Shuffles and prints an instance.</span></div>
-<div class="line"><a class="code hl_struct" href="structtgen_1_1sequence_1_1instance.html">tgen::sequence&lt;int&gt;::instance</a> inst = {3, 1, 2};</div>
-<div class="line">std::cout &lt;&lt;</div>
-<div class="line">    <a class="code hl_function" href="#ga6dbb723e2e97121cfaa7a2d2d6e63e68">tgen::sequence_op::shuffle</a>(inst) &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__sequence__op_html_ga6dbb723e2e97121cfaa7a2d2d6e63e68"><div class="ttname"><a href="#ga6dbb723e2e97121cfaa7a2d2d6e63e68">tgen::sequence_op::shuffle</a></div><div class="ttdeci">INST shuffle(const INST &amp;inst)</div><div class="ttdoc">Shuffles a sequence instance.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00968">tgen.h:968</a></div></div>
-</div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00968">968</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
-
-</div>
-</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->
