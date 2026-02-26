@@ -52,8 +52,6 @@ document.addEventListener('DOMContentLoaded', function() {
         table.insertBefore(colgroup, table.firstChild);
     });
 	// split return type + function name ONLY on first signature row
-	// Split return type + function name in documentation header
-	// Robust splitter with operator fallback
 	document.querySelectorAll(
 			".memproto table.memname > tbody > tr:first-child > td.memname"
 			).forEach(el => {
@@ -271,6 +269,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		function classify(tok) {
 			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 				return "keywordtype";
+			// heuristic for types: start with uppercase OR common STL-like names
+			if (/^[A-Z]\w*$/.test(tok))
+				return "type";
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
 			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
@@ -326,9 +327,15 @@ document.addEventListener('DOMContentLoaded', function() {
 					return "paramdefval";       // numeric literal
 				return "paramdefval";           // anything in default expr
 			}
+			// KEYWORDS
+			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+				return "keyword";
 			// TYPES
 			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 				return "keywordtype";
+			// heuristic for types: start with uppercase OR common STL-like names
+			if (/^[A-Z]\w*$/.test(tok))
+				return "type";
 			// STL TYPES
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
@@ -359,6 +366,17 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	}
 	document.querySelectorAll("td.memItemRight").forEach(highlightSignature);
+	// Hardcoded fix for tgen::Gen::gen_until.
+	document.querySelectorAll(".tgen-name").forEach(span => {
+		span.childNodes.forEach(node => {
+			if (
+				node.nodeType === Node.TEXT_NODE &&
+				node.nodeValue.trim() === "gen_until"
+			) {
+				node.nodeValue = " Gen::gen_until ";
+			}
+		});
+	});
 });
 document.addEventListener("DOMContentLoaded", () => {
     // mapping: original doxygen page -> new destination
@@ -547,12 +565,12 @@ Generation</h3>
 <div class="fragment"><div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1sequence.html">tgen::sequence&lt;int&gt;</a>(10, 0, 1)</div>
 <div class="line">    .<a class="code hl_function" href="group__sequence__gen.html#gaf4b015251066523c2b23cc4f3cda9919">set</a>(0, 1)</div>
-<div class="line">    .<a class="code hl_function" href="group__sequence__gen.html#gadbdf44b0d6cf19cb06d671c2a4c3dc6c">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span>&amp; inst) {</div>
+<div class="line">    .<a class="code hl_function" href="group__sequence__gen.html#ga04272cb7c72fba9fe0254f9754aa9e7f">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span>&amp; inst) {</div>
 <div class="line">        <span class="keyword">auto</span> vec = inst.<a class="code hl_function" href="group__sequence__inst.html#gaad19beb57245e1e5ec4cc4ac5bd9030e">to_std</a>();</div>
 <div class="line">        <span class="keywordflow">return</span> std::accumulate(vec.begin(), vec.end(), 0) == 5;</div>
 <div class="line">    }, 100) &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// &quot;1 0 0 1 0 1 1 0 1 0&quot;</span></div>
-<div class="ttc" id="agroup__sequence__gen_html_gadbdf44b0d6cf19cb06d671c2a4c3dc6c"><div class="ttname"><a href="group__sequence__gen.html#gadbdf44b0d6cf19cb06d671c2a4c3dc6c">tgen::sequence::gen_until</a></div><div class="ttdeci">instance gen_until(Pred predicate, int max_tries)</div><div class="ttdoc">Generates a random instance from the set of valid sequences until a condition is met.</div></div>
+<div class="ttc" id="agroup__sequence__gen_html_ga04272cb7c72fba9fe0254f9754aa9e7f"><div class="ttname"><a href="group__sequence__gen.html#ga04272cb7c72fba9fe0254f9754aa9e7f">tgen::sequence::gen_until</a></div><div class="ttdeci">instance gen_until(Pred predicate, int max_tries)</div><div class="ttdoc">Generates a random instance from the set of valid sequences until a condition is met.</div></div>
 <div class="ttc" id="agroup__sequence__gen_html_gaf4b015251066523c2b23cc4f3cda9919"><div class="ttname"><a href="group__sequence__gen.html#gaf4b015251066523c2b23cc4f3cda9919">tgen::sequence::set</a></div><div class="ttdeci">sequence &amp; set(int idx, T value)</div><div class="ttdoc">Restricts generator s.t. value at index idx is value.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00523">tgen.h:523</a></div></div>
 <div class="ttc" id="agroup__sequence__inst_html_gaad19beb57245e1e5ec4cc4ac5bd9030e"><div class="ttname"><a href="group__sequence__inst.html#gaad19beb57245e1e5ec4cc4ac5bd9030e">tgen::sequence::instance::to_std</a></div><div class="ttdeci">std::vector&lt; T &gt; to_std() const</div><div class="ttdoc">Converts the instance to a std::vector.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00643">tgen.h:643</a></div></div>
 </div><!-- fragment --><p>Random 1-based permutation of size 5 with only one cycle.</p>
@@ -564,11 +582,11 @@ Generation</h3>
 </div><!-- fragment --><p>Inverse of a random odd permutation of size 5.</p>
 <div class="fragment"><div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(5)</div>
-<div class="line">        .<a class="code hl_function" href="group__permutation__gen.html#gaa105bce6c0b8f9a23f1affe9339fe3ab">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;perm) { <span class="keywordflow">return</span> perm.parity() == -1; }, 100)</div>
+<div class="line">        .<a class="code hl_function" href="group__permutation__gen.html#ga277a9c8f86271b395b76618a7e0dd0e6">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;perm) { <span class="keywordflow">return</span> perm.parity() == -1; }, 100)</div>
 <div class="line">    .inverse()</div>
 <div class="line">  &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// &quot;4 2 3 1 0&quot;</span></div>
-<div class="ttc" id="agroup__permutation__gen_html_gaa105bce6c0b8f9a23f1affe9339fe3ab"><div class="ttname"><a href="group__permutation__gen.html#gaa105bce6c0b8f9a23f1affe9339fe3ab">tgen::permutation::gen_until</a></div><div class="ttdeci">instance gen_until(Pred predicate, int max_tries, Args &amp;&amp;... args)</div><div class="ttdoc">Generates a random instance from the set of valid permutations until a condition is met.</div></div>
+<div class="ttc" id="agroup__permutation__gen_html_ga277a9c8f86271b395b76618a7e0dd0e6"><div class="ttname"><a href="group__permutation__gen.html#ga277a9c8f86271b395b76618a7e0dd0e6">tgen::permutation::gen_until</a></div><div class="ttdeci">instance gen_until(Pred predicate, int max_tries, Args &amp;&amp;... args)</div><div class="ttdoc">Generates a random instance from the set of valid permutations until a condition is met.</div></div>
 </div><!-- fragment --> </div></div><!-- PageDoc -->
 <a href="doxygen_crawl.html"></a>
 </div><!-- contents -->

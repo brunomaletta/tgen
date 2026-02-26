@@ -147,6 +147,7 @@ namespace tgen {
  * If `predicate` has probabiliyy `p` of returning `true`, then the `::tgen::sequence::instance`
  * will be found with probability `1 - (1-p)^max_tries`.
  *
+ * @tparam Gen Automatically set to `tgen::permutation`.
  * @tparam Pred Type of `predicate`, deduced automatically.
  * @tparam Args Arguments: empty or `std::vector<int>` with cycle sizes.
  *
@@ -184,7 +185,7 @@ namespace tgen {
  *
  * @memberof tgen::permutation
  */
-template<typename Pred, typename... Args>
+template<typename Gen, typename Pred, typename... Args>
 instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... args);
 
 

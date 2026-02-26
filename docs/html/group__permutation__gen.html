@@ -52,8 +52,6 @@ document.addEventListener('DOMContentLoaded', function() {
         table.insertBefore(colgroup, table.firstChild);
     });
 	// split return type + function name ONLY on first signature row
-	// Split return type + function name in documentation header
-	// Robust splitter with operator fallback
 	document.querySelectorAll(
 			".memproto table.memname > tbody > tr:first-child > td.memname"
 			).forEach(el => {
@@ -271,6 +269,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		function classify(tok) {
 			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 				return "keywordtype";
+			// heuristic for types: start with uppercase OR common STL-like names
+			if (/^[A-Z]\w*$/.test(tok))
+				return "type";
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
 			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
@@ -326,9 +327,15 @@ document.addEventListener('DOMContentLoaded', function() {
 					return "paramdefval";       // numeric literal
 				return "paramdefval";           // anything in default expr
 			}
+			// KEYWORDS
+			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+				return "keyword";
 			// TYPES
 			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 				return "keywordtype";
+			// heuristic for types: start with uppercase OR common STL-like names
+			if (/^[A-Z]\w*$/.test(tok))
+				return "type";
 			// STL TYPES
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
@@ -359,6 +366,17 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	}
 	document.querySelectorAll("td.memItemRight").forEach(highlightSignature);
+	// Hardcoded fix for tgen::Gen::gen_until.
+	document.querySelectorAll(".tgen-name").forEach(span => {
+		span.childNodes.forEach(node => {
+			if (
+				node.nodeType === Node.TEXT_NODE &&
+				node.nodeValue.trim() === "gen_until"
+			) {
+				node.nodeValue = " Gen::gen_until ";
+			}
+		});
+	});
 });
 document.addEventListener("DOMContentLoaded", () => {
     // mapping: original doxygen page -> new destination
@@ -476,9 +494,9 @@ Functions</h2></td></tr>
 <tr class="memdesc:gaeecbe05053f2e0f2ce306458ffd99983"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid permutations.  <br /></td></tr>
 <tr class="memitem:gacf686b873af79b58f3ecae1c208cb022" id="r_gacf686b873af79b58f3ecae1c208cb022"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gacf686b873af79b58f3ecae1c208cb022">tgen::permutation::gen</a> (std::vector&lt; int &gt; cycle_sizes)</td></tr>
 <tr class="memdesc:gacf686b873af79b58f3ecae1c208cb022"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid permutations, given a list of cycle sizes.  <br /></td></tr>
-<tr class="memitem:gaa105bce6c0b8f9a23f1affe9339fe3ab" id="r_gaa105bce6c0b8f9a23f1affe9339fe3ab"><td class="memTemplParams" colspan="2">template&lt;typename Pred, typename... Args&gt; </td></tr>
-<tr class="memitem:gaa105bce6c0b8f9a23f1affe9339fe3ab template"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaa105bce6c0b8f9a23f1affe9339fe3ab">tgen::permutation::gen_until</a> (Pred predicate, int max_tries, Args &amp;&amp;... args)</td></tr>
-<tr class="memdesc:gaa105bce6c0b8f9a23f1affe9339fe3ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid permutations until a condition is met.  <br /></td></tr>
+<tr class="memitem:ga277a9c8f86271b395b76618a7e0dd0e6" id="r_ga277a9c8f86271b395b76618a7e0dd0e6"><td class="memTemplParams" colspan="2">template&lt;typename Gen, typename Pred, typename... Args&gt; </td></tr>
+<tr class="memitem:ga277a9c8f86271b395b76618a7e0dd0e6 template"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga277a9c8f86271b395b76618a7e0dd0e6">tgen::permutation::gen_until</a> (Pred predicate, int max_tries, Args &amp;&amp;... args)</td></tr>
+<tr class="memdesc:ga277a9c8f86271b395b76618a7e0dd0e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a random instance from the set of valid permutations until a condition is met.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <p>Defines a set of permutations, subject to restrictions. </p>
@@ -579,13 +597,13 @@ Examples</h4>
 
 </div>
 </div>
-<a id="gaa105bce6c0b8f9a23f1affe9339fe3ab" name="gaa105bce6c0b8f9a23f1affe9339fe3ab"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaa105bce6c0b8f9a23f1affe9339fe3ab">&#9670;&#160;</a></span>gen_until()</h2>
+<a id="ga277a9c8f86271b395b76618a7e0dd0e6" name="ga277a9c8f86271b395b76618a7e0dd0e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga277a9c8f86271b395b76618a7e0dd0e6">&#9670;&#160;</a></span>gen_until()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename Pred, typename... Args&gt; </div>
+template&lt;typename Gen, typename Pred, typename... Args&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="structtgen_1_1permutation_1_1instance.html">instance</a> gen_until </td>
@@ -609,6 +627,7 @@ template&lt;typename Pred, typename... Args&gt; </div>
 <p>Calls <span class="tt">tgen::permutation::gen(args...)</span> until <span class="tt">predicate</span> is true, at most <span class="tt">max_tries</span> times. If <span class="tt">predicate</span> has probabiliyy <span class="tt">p</span> of returning <span class="tt">true</span>, then the <span class="tt"><a class="el" href="structtgen_1_1sequence_1_1instance.html" title="Sequence instance.">tgen::sequence::instance</a></span> will be found with probability <span class="tt">1 - (1-p)^max_tries</span>.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
+    <tr><td class="paramname">Gen</td><td>Automatically set to <span class="tt"><a class="el" href="structtgen_1_1permutation.html" title="Permutation generator.">tgen::permutation</a></span>. </td></tr>
     <tr><td class="paramname">Pred</td><td>Type of <span class="tt">predicate</span>, deduced automatically. </td></tr>
     <tr><td class="paramname">Args</td><td>Arguments: empty or <span class="tt">std::vector&lt;int&gt;</span> with cycle sizes.</td></tr>
   </table>
@@ -631,15 +650,15 @@ Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints a random odd permutation of size 5.</span></div>
 <div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(5)</div>
-<div class="line">        .<a class="code hl_function" href="#gaa105bce6c0b8f9a23f1affe9339fe3ab">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;perm) { <span class="keywordflow">return</span> perm.parity() == -1; }, 100)</div>
+<div class="line">        .<a class="code hl_function" href="#ga277a9c8f86271b395b76618a7e0dd0e6">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;perm) { <span class="keywordflow">return</span> perm.parity() == -1; }, 100)</div>
 <div class="line">  &lt;&lt; std::endl;</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Prints a random odd permutation of size 5 with one cycle.</span></div>
 <div class="line">std::cout &lt;&lt;</div>
 <div class="line">    <a class="code hl_struct" href="structtgen_1_1permutation.html">tgen::permutation</a>(5)</div>
-<div class="line">        .<a class="code hl_function" href="#gaa105bce6c0b8f9a23f1affe9339fe3ab">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;perm) { <span class="keywordflow">return</span> perm.parity() == -1; }, 100, {5})</div>
+<div class="line">        .<a class="code hl_function" href="#ga277a9c8f86271b395b76618a7e0dd0e6">gen_until</a>([](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;perm) { <span class="keywordflow">return</span> perm.parity() == -1; }, 100, {5})</div>
 <div class="line">  &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__permutation__gen_html_gaa105bce6c0b8f9a23f1affe9339fe3ab"><div class="ttname"><a href="#gaa105bce6c0b8f9a23f1affe9339fe3ab">tgen::permutation::gen_until</a></div><div class="ttdeci">instance gen_until(Pred predicate, int max_tries, Args &amp;&amp;... args)</div><div class="ttdoc">Generates a random instance from the set of valid permutations until a condition is met.</div></div>
+<div class="ttc" id="agroup__permutation__gen_html_ga277a9c8f86271b395b76618a7e0dd0e6"><div class="ttname"><a href="#ga277a9c8f86271b395b76618a7e0dd0e6">tgen::permutation::gen_until</a></div><div class="ttdeci">instance gen_until(Pred predicate, int max_tries, Args &amp;&amp;... args)</div><div class="ttdoc">Generates a random instance from the set of valid permutations until a condition is met.</div></div>
 </div><!-- fragment --><dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
     <tr><td class="paramname">std::runtime_error</td><td>if no valid instance satisfying <span class="tt">predicate</span> is found after <span class="tt">max_tries</span> tries. </td></tr>

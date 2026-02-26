@@ -52,8 +52,6 @@ document.addEventListener('DOMContentLoaded', function() {
         table.insertBefore(colgroup, table.firstChild);
     });
 	// split return type + function name ONLY on first signature row
-	// Split return type + function name in documentation header
-	// Robust splitter with operator fallback
 	document.querySelectorAll(
 			".memproto table.memname > tbody > tr:first-child > td.memname"
 			).forEach(el => {
@@ -271,6 +269,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		function classify(tok) {
 			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 				return "keywordtype";
+			// heuristic for types: start with uppercase OR common STL-like names
+			if (/^[A-Z]\w*$/.test(tok))
+				return "type";
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
 			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
@@ -326,9 +327,15 @@ document.addEventListener('DOMContentLoaded', function() {
 					return "paramdefval";       // numeric literal
 				return "paramdefval";           // anything in default expr
 			}
+			// KEYWORDS
+			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+				return "keyword";
 			// TYPES
 			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 				return "keywordtype";
+			// heuristic for types: start with uppercase OR common STL-like names
+			if (/^[A-Z]\w*$/.test(tok))
+				return "type";
 			// STL TYPES
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
@@ -359,6 +366,17 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	}
 	document.querySelectorAll("td.memItemRight").forEach(highlightSignature);
+	// Hardcoded fix for tgen::Gen::gen_until.
+	document.querySelectorAll(".tgen-name").forEach(span => {
+		span.childNodes.forEach(node => {
+			if (
+				node.nodeType === Node.TEXT_NODE &&
+				node.nodeValue.trim() === "gen_until"
+			) {
+				node.nodeValue = " Gen::gen_until ";
+			}
+		});
+	});
 });
 document.addEventListener("DOMContentLoaded", () => {
     // mapping: original doxygen page -> new destination
@@ -463,7 +481,7 @@ $(function(){initNavTree('structtgen_1_1sequence.html','',''); });
   <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#gad9c173d0b1ff829de543ef76692d4b38">equal</a>(int idx_1, int idx_2)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#gac76ec822587cf23ea8aae3f8aaf35def">equal_range</a>(int left, int right)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#ga9be29135e008e45b0c99580898f2d2e3">gen</a>()</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#gadbdf44b0d6cf19cb06d671c2a4c3dc6c">gen_until</a>(Pred predicate, int max_tries)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#ga04272cb7c72fba9fe0254f9754aa9e7f">gen_until</a>(Pred predicate, int max_tries)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"></td></tr>
   <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#gafa5a380cac4944722440f0d6ae1e8f78">sequence</a>(int size, T value_l, T value_r)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="group__sequence__gen.html#ga51679a609a8e93d8c061de7e6379d7fd">sequence</a>(int size, std::set&lt; T &gt; values)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="odd"><td class="entry"><a class="el" href="group__sequence__gen.html#gaf4b015251066523c2b23cc4f3cda9919">set</a>(int idx, T value)</td><td class="entry"><a class="el" href="structtgen_1_1sequence.html">tgen::sequence&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
