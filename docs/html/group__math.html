@@ -514,8 +514,8 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga5c371d66540b387fb992a49b799c40fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factors a number into primes.  <br /></td></tr>
 <tr class="memitem:ga95c2e941edd52005c8f2285d1faab432" id="r_ga95c2e941edd52005c8f2285d1faab432"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::pair&lt; uint64_t, int &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga95c2e941edd52005c8f2285d1faab432">tgen::math::factor_by_prime</a> (uint64_t n)</td></tr>
 <tr class="memdesc:ga95c2e941edd52005c8f2285d1faab432"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factors a number into primes and its powers.  <br /></td></tr>
-<tr class="memitem:ga5d09e223c69f14056fb9dafcbdfd3122" id="r_ga5d09e223c69f14056fb9dafcbdfd3122"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga5d09e223c69f14056fb9dafcbdfd3122">tgen::math::modular_inverse</a> (uint64_t a, uint64_t m)</td></tr>
-<tr class="memdesc:ga5d09e223c69f14056fb9dafcbdfd3122"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes modular inverse.  <br /></td></tr>
+<tr class="memitem:gab284e400f26a5ac07f455e04f32a3dcd" id="r_gab284e400f26a5ac07f455e04f32a3dcd"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gab284e400f26a5ac07f455e04f32a3dcd">tgen::math::modular_inverse</a> (uint64_t a, uint64_t mod)</td></tr>
+<tr class="memdesc:gab284e400f26a5ac07f455e04f32a3dcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes modular inverse.  <br /></td></tr>
 <tr class="memitem:ga4849c3f95638a417f58d164d753c69a1" id="r_ga4849c3f95638a417f58d164d753c69a1"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga4849c3f95638a417f58d164d753c69a1">tgen::math::totient</a> (uint64_t n)</td></tr>
 <tr class="memdesc:ga4849c3f95638a417f58d164d753c69a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Euler's totient function.  <br /></td></tr>
 <tr class="memitem:ga27fcaa21afa26007d0b89599c9e8a4fc" id="r_ga27fcaa21afa26007d0b89599c9e8a4fc"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga27fcaa21afa26007d0b89599c9e8a4fc">tgen::math::gen_prime</a> (uint64_t l, uint64_t r, bool adjust_distribution=true)</td></tr>
@@ -1322,8 +1322,8 @@ Examples</h4>
 
 </div>
 </div>
-<a id="ga5d09e223c69f14056fb9dafcbdfd3122" name="ga5d09e223c69f14056fb9dafcbdfd3122"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga5d09e223c69f14056fb9dafcbdfd3122">&#9670;&#160;</a></span>modular_inverse()</h2>
+<a id="gab284e400f26a5ac07f455e04f32a3dcd" name="gab284e400f26a5ac07f455e04f32a3dcd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab284e400f26a5ac07f455e04f32a3dcd">&#9670;&#160;</a></span>modular_inverse()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1365,10 +1365,10 @@ Complexity</h4>
 <p><span class="tgen-code texttt">O(log <span class="paramname texttt">mod</span>)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md29"></a>
 Examples</h4>
-<div class="fragment"><div class="line"><span class="keyword">auto</span> inv = <a class="code hl_function" href="#ga5d09e223c69f14056fb9dafcbdfd3122">tgen::math::modular_inverse</a>(3, 10);</div>
+<div class="fragment"><div class="line"><span class="keyword">auto</span> inv = <a class="code hl_function" href="#gab284e400f26a5ac07f455e04f32a3dcd">tgen::math::modular_inverse</a>(3, 10);</div>
 <div class="line">std::cout &lt;&lt; 3 * inv % 10 &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// &quot;1&quot;</span></div>
-<div class="ttc" id="agroup__math_html_ga5d09e223c69f14056fb9dafcbdfd3122"><div class="ttname"><a href="#ga5d09e223c69f14056fb9dafcbdfd3122">tgen::math::modular_inverse</a></div><div class="ttdeci">uint64_t modular_inverse(uint64_t a, uint64_t m)</div><div class="ttdoc">Computes modular inverse.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01346">tgen.h:1346</a></div></div>
+<div class="ttc" id="agroup__math_html_gab284e400f26a5ac07f455e04f32a3dcd"><div class="ttname"><a href="#gab284e400f26a5ac07f455e04f32a3dcd">tgen::math::modular_inverse</a></div><div class="ttdeci">uint64_t modular_inverse(uint64_t a, uint64_t mod)</div><div class="ttdoc">Computes modular inverse.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01346">tgen.h:1346</a></div></div>
 </div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01346">1346</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 

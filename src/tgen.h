@@ -1340,11 +1340,11 @@ inline __int128 modular_inverse_128_internal(__int128 a, __int128 mod) {
 	return t;
 }
 
-// O(log m).
-// 0 < a < m.
-// gcd(a,m) = 1.
-inline uint64_t modular_inverse(uint64_t a, uint64_t m) {
-	return modular_inverse_128_internal(a, m);
+// O(log mod).
+// 0 < a < mod.
+// gcd(a, mod) = 1.
+inline uint64_t modular_inverse(uint64_t a, uint64_t mod) {
+	return modular_inverse_128_internal(a, mod);
 }
 
 // O(n^(1/4) log n) expected.

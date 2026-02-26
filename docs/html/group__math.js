@@ -14,7 +14,7 @@ var group__math =
     [ "tgen::math::highly_composite_upto", "group__math.html#ga8e9f2826b60f9dbe87eaa12dcb3c762e", null ],
     [ "tgen::math::highly_composites", "group__math.html#gabf0a79bacc6946f032b58627baf9302d", null ],
     [ "tgen::math::is_prime", "group__math.html#ga5ee9541bd1b0e242551eb4c626241f4d", null ],
-    [ "tgen::math::modular_inverse", "group__math.html#ga5d09e223c69f14056fb9dafcbdfd3122", null ],
+    [ "tgen::math::modular_inverse", "group__math.html#gab284e400f26a5ac07f455e04f32a3dcd", null ],
     [ "tgen::math::next_prime", "group__math.html#ga6ddd2290db1853f260b39d3cbe22337d", null ],
     [ "tgen::math::num_divisors", "group__math.html#ga5d5dda7616f5db664b050a75e9ce1aa1", null ],
     [ "tgen::math::prev_prime", "group__math.html#gac5ff6eed324cb720e4d93f3f9f203aa3", null ],
