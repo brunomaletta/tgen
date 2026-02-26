@@ -7,6 +7,22 @@ namespace tgen::math {
  * ### Examples
  *
  * ```cpp
+ * // Generates a random prime from 1 to 1e18.
+ * auto p = tgen::math::gen_prime(1, 1e18);
+ *
+ * // Prints primes between 100 and 200.
+ * for (int p = tgen::math::next_prime(100); p < 200; p = tgen::math::next_prime(p)) {
+ *     std::cout << p << std::endl;
+ * }
+ * 
+ * // Computes largest prime gap up to 1e12.
+ * auto [l, r] = tgen::math::prime_gap_upto(1e12);
+ * 
+ * // Prints random two-digit number that is even and congruent to 1 mod 3.
+ * std::cout << tgen::math::gen_congruent(10, 99, {0, 1}, {2, 3}) << std::endl;
+ * 
+ * // Random partition of 10 into 4 parts in [2, 3].
+ * auto part = tgen::math::partition_fixed_size(10, 4, 2, 3);
  * ```
  */
 

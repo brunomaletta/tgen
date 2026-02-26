@@ -536,7 +536,27 @@ Variables</h2></td></tr>
 <p>Operations regarding number theory and related topics. </p>
 <h3 class="doxsection"><a class="anchor" id="autotoc_md21"></a>
 Examples</h3>
-<div class="fragment"></div><!-- fragment --> <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<div class="fragment"><div class="line"><span class="comment">// Generates a random prime from 1 to 1e18.</span></div>
+<div class="line"><span class="keyword">auto</span> p = <a class="code hl_function" href="#ga27fcaa21afa26007d0b89599c9e8a4fc">tgen::math::gen_prime</a>(1, 1e18);</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Prints primes between 100 and 200.</span></div>
+<div class="line"><span class="keywordflow">for</span> (<span class="keywordtype">int</span> p = <a class="code hl_function" href="#ga6ddd2290db1853f260b39d3cbe22337d">tgen::math::next_prime</a>(100); p &lt; 200; p = <a class="code hl_function" href="#ga6ddd2290db1853f260b39d3cbe22337d">tgen::math::next_prime</a>(p)) {</div>
+<div class="line">    std::cout &lt;&lt; p &lt;&lt; std::endl;</div>
+<div class="line">}</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Computes largest prime gap up to 1e12.</span></div>
+<div class="line"><span class="keyword">auto</span> [l, r] = <a class="code hl_function" href="#ga13460b7ed2494b9be9cb46052b30aac9">tgen::math::prime_gap_upto</a>(1e12);</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Prints random two-digit number that is even and congruent to 1 mod 3.</span></div>
+<div class="line">std::cout &lt;&lt; <a class="code hl_function" href="#ga881fc166dc15ffba9dfc35e83f60f8e3">tgen::math::gen_congruent</a>(10, 99, {0, 1}, {2, 3}) &lt;&lt; std::endl;</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Random partition of 10 into 4 parts in [2, 3].</span></div>
+<div class="line"><span class="keyword">auto</span> part = tgen::math::partition_fixed_size(10, 4, 2, 3);</div>
+<div class="ttc" id="agroup__math_html_ga13460b7ed2494b9be9cb46052b30aac9"><div class="ttname"><a href="#ga13460b7ed2494b9be9cb46052b30aac9">tgen::math::prime_gap_upto</a></div><div class="ttdeci">std::pair&lt; uint64_t, uint64_t &gt; prime_gap_upto(uint64_t r)</div><div class="ttdoc">Largest prime gap up to given number.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01477">tgen.h:1477</a></div></div>
+<div class="ttc" id="agroup__math_html_ga27fcaa21afa26007d0b89599c9e8a4fc"><div class="ttname"><a href="#ga27fcaa21afa26007d0b89599c9e8a4fc">tgen::math::gen_prime</a></div><div class="ttdeci">uint64_t gen_prime(uint64_t l, uint64_t r, bool adjust_distribution=true)</div><div class="ttdoc">Generates a random prime in given range.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01323">tgen.h:1323</a></div></div>
+<div class="ttc" id="agroup__math_html_ga6ddd2290db1853f260b39d3cbe22337d"><div class="ttname"><a href="#ga6ddd2290db1853f260b39d3cbe22337d">tgen::math::next_prime</a></div><div class="ttdeci">uint64_t next_prime(uint64_t l)</div><div class="ttdoc">Computes smallest prime larger than given value.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01352">tgen.h:1352</a></div></div>
+<div class="ttc" id="agroup__math_html_ga881fc166dc15ffba9dfc35e83f60f8e3"><div class="ttname"><a href="#ga881fc166dc15ffba9dfc35e83f60f8e3">tgen::math::gen_congruent</a></div><div class="ttdeci">uint64_t gen_congruent(uint64_t l, uint64_t r, std::vector&lt; uint64_t &gt; rems, std::vector&lt; uint64_t &gt; mods)</div><div class="ttdoc">Generates random number in range given modular congruences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01615">tgen.h:1615</a></div></div>
+</div><!-- fragment --> <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
 <a id="ga5c371d66540b387fb992a49b799c40fa" name="ga5c371d66540b387fb992a49b799c40fa"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga5c371d66540b387fb992a49b799c40fa">&#9670;&#160;</a></span>factor()</h2>
 
@@ -725,7 +745,6 @@ Complexity</h4>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints random two-digit number that is even and congruent to 1 mod 3.</span></div>
 <div class="line">std::cout &lt;&lt; <a class="code hl_function" href="#ga881fc166dc15ffba9dfc35e83f60f8e3">tgen::math::gen_congruent</a>(10, 99, {0, 1}, {2, 3}) &lt;&lt; std::endl;</div>
-<div class="ttc" id="agroup__math_html_ga881fc166dc15ffba9dfc35e83f60f8e3"><div class="ttname"><a href="#ga881fc166dc15ffba9dfc35e83f60f8e3">tgen::math::gen_congruent</a></div><div class="ttdeci">uint64_t gen_congruent(uint64_t l, uint64_t r, std::vector&lt; uint64_t &gt; rems, std::vector&lt; uint64_t &gt; mods)</div><div class="ttdoc">Generates random number in range given modular congruences.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01615">tgen.h:1615</a></div></div>
 </div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01615">1615</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
@@ -1153,7 +1172,6 @@ Complexity</h4>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Generates a random prime from 1 to 1e18.</span></div>
 <div class="line"><span class="keyword">auto</span> p = <a class="code hl_function" href="#ga27fcaa21afa26007d0b89599c9e8a4fc">tgen::math::gen_prime</a>(1, 1e18);</div>
-<div class="ttc" id="agroup__math_html_ga27fcaa21afa26007d0b89599c9e8a4fc"><div class="ttname"><a href="#ga27fcaa21afa26007d0b89599c9e8a4fc">tgen::math::gen_prime</a></div><div class="ttdeci">uint64_t gen_prime(uint64_t l, uint64_t r, bool adjust_distribution=true)</div><div class="ttdoc">Generates a random prime in given range.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01323">tgen.h:1323</a></div></div>
 </div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01323">1323</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
@@ -1373,7 +1391,6 @@ Examples</h4>
 <div class="line"><span class="keywordflow">for</span> (<span class="keywordtype">int</span> p = <a class="code hl_function" href="#ga6ddd2290db1853f260b39d3cbe22337d">tgen::math::next_prime</a>(100); p &lt; 200; p = <a class="code hl_function" href="#ga6ddd2290db1853f260b39d3cbe22337d">tgen::math::next_prime</a>(p)) {</div>
 <div class="line">    std::cout &lt;&lt; p &lt;&lt; std::endl;</div>
 <div class="line">}</div>
-<div class="ttc" id="agroup__math_html_ga6ddd2290db1853f260b39d3cbe22337d"><div class="ttname"><a href="#ga6ddd2290db1853f260b39d3cbe22337d">tgen::math::next_prime</a></div><div class="ttdeci">uint64_t next_prime(uint64_t l)</div><div class="ttdoc">Computes smallest prime larger than given value.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01352">tgen.h:1352</a></div></div>
 </div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01352">1352</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
@@ -1504,7 +1521,6 @@ Examples</h4>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Computes largest prime gap up to 1e12.</span></div>
 <div class="line"><span class="keyword">auto</span> [l, r] = <a class="code hl_function" href="#ga13460b7ed2494b9be9cb46052b30aac9">tgen::math::prime_gap_upto</a>(1e12);</div>
-<div class="ttc" id="agroup__math_html_ga13460b7ed2494b9be9cb46052b30aac9"><div class="ttname"><a href="#ga13460b7ed2494b9be9cb46052b30aac9">tgen::math::prime_gap_upto</a></div><div class="ttdeci">std::pair&lt; uint64_t, uint64_t &gt; prime_gap_upto(uint64_t r)</div><div class="ttdoc">Largest prime gap up to given number.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01477">tgen.h:1477</a></div></div>
 </div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l01477">1477</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
