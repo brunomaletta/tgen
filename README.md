@@ -8,8 +8,8 @@
 
 <p align="center">
 	<a href="https://opensource.org/license/mit" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License" style="max-width: 100%;"></a>
-	<a href="https://github.com/brunomaletta/tgen/actions/workflows/static.yml" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest" alt="Tests" style="max-width: 100%;"></a>
 	<a href="https://github.com/brunomaletta/tgen/blob/main/src/tgen.h" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/badge/C%2B%2B-17-blue" alt="C++17" style="max-width: 100%;"></a>
+	<a href="https://github.com/brunomaletta/tgen/actions/workflows/static.yml" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest" alt="Tests" style="max-width: 100%;"></a>
 	<a href="https://brunomaletta.github.io/tgen/index.html" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/badge/doxygen-2C4AA8?style=default&logo=doxygen&logoColor=white" alt="Documentation" style="max-width: 100%;"></a>
 </p>
 
