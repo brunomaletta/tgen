@@ -1,6 +1,18 @@
-![gtest](https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest)
-<img src="https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white" height="20">
-<img src="https://img.shields.io/badge/doxygen-2C4AA8?style=for-the-badge&logo=doxygen&logoColor=white" height="20">
+<p align="center">
+	<img src="docs/tgen_white.png" alt="tgen" width="200">
+</p>
+
+<p align="center">
+    <em>Testcase generation for algorithmic .</em>
+</p>
+<p align="center">
+	<!-- loscal repository, no metadata badges. -->
+<p>
+<p align="center">
+	<img src="https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest" height="20">
+	<img src="https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white" height="20">
+	<img src="https://img.shields.io/badge/doxygen-2C4AA8?style=for-the-badge&logo=doxygen&logoColor=white" height="20">
+</p>
 
 # Documentation
 
