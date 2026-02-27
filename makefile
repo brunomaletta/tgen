@@ -12,7 +12,7 @@ doc:
 	doxygen docs/Doxyfile
 
 opendoc:
-	open docs/html/index.html > /dev/null 2>&1 &
+	google-chrome docs/html/index.html > /dev/null 2>&1 &
 
 dropdoc:
 	git checkout -- docs

@@ -1,13 +1,7 @@
 var searchData=
 [
-  ['operations_0',['Operations',['../group__general.html',1,'General Operations'],['../group__math.html',1,'Math Operations']]],
-  ['operations_1',['Sequence operations',['../group__sequence__op.html',1,'']]],
-  ['operator_2b_2',['operator+',['../group__sequence__inst.html#ga38f0671cac2012b9010553908409f475',1,'tgen::sequence::instance']]],
-  ['operator_3c_3c_3',['operator&lt;&lt;',['../group__sequence__inst.html#gac5aa4456b0e4503a152e2113a48d8465',1,'tgen::sequence::instance::operator&lt;&lt;()'],['../group__permutation__inst.html#gac5aa4456b0e4503a152e2113a48d8465',1,'tgen::permutation::instance::operator&lt;&lt;()']]],
-  ['operator_5b_5d_4',['operator[]',['../group__sequence__inst.html#ga4041d7424166c97342bbeeb0412f4400',1,'tgen::sequence::instance::operator[]()'],['../group__permutation__inst.html#ga18be60008a91144647cd8fcd35fd2ce7',1,'tgen::permutation::instance::operator[]()']]],
-  ['opt_5',['opt',['../group__opts.html#ga3e56ac3ed9e70c13af95f590ee9ffd26',1,'tgen']]],
-  ['opts_6',['Opts',['../group__opts.html#autotoc_md61',1,'Opts'],['../group__opts.html',1,'Registering and Opts']]],
-  ['opts_7',['Consuming opts',['../group__opts.html#autotoc_md62',1,'']]],
-  ['opts_20configuration_8',['Opts configuration',['../index.html#autotoc_md4',1,'']]],
-  ['overview_9',['Overview',['../index.html#autotoc_md1',1,'']]]
+  ['next_0',['next',['../group__general.html#gaa007cf5e254380332a3548711d5f9b16',1,'tgen']]],
+  ['next_5fprime_1',['next_prime',['../group__math.html#ga6ddd2290db1853f260b39d3cbe22337d',1,'tgen::math']]],
+  ['not_20testlib_20jngen_2',['Why not &lt;a href=&quot;https://github.com/MikeMirzayanov/testlib&quot;&gt;testlib&lt;/a&gt; / &lt;a href=&quot;https://github.com/ifsmirnov/jngen&quot;&gt;jngen&lt;/a&gt;?',['../index.html#autotoc_md2',1,'']]],
+  ['num_5fdivisors_3',['num_divisors',['../group__math.html#ga5d5dda7616f5db664b050a75e9ce1aa1',1,'tgen::math']]]
 ];

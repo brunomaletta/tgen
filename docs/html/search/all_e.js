@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['tgen_0',['tgen',['../index.html',1,'']]],
-  ['tgen_5fensure_1',['tgen_ensure',['../group__general.html#gabc423cf4476d436001120351be24e896',1,'tgen.h']]],
-  ['to_5fstd_2',['to_std',['../group__sequence__inst.html#gaad19beb57245e1e5ec4cc4ac5bd9030e',1,'tgen::sequence::instance::to_std()'],['../group__permutation__inst.html#ga1e6f34f948818cccea36f53ef728fb00',1,'tgen::permutation::instance::to_std()']]],
-  ['totient_3',['totient',['../group__math.html#ga4849c3f95638a417f58d164d753c69a1',1,'tgen::math']]],
-  ['type_20generators_20and_20instances_4',['Type generators and instances',['../index.html#autotoc_md2',1,'']]]
+  ['register_5fgen_0',['register_gen',['../group__opts.html#gae8eca919976894c15b44713f00f33bd8',1,'tgen']]],
+  ['registering_1',['Registering',['../group__opts.html#autotoc_md60',1,'']]],
+  ['registering_20and_20opts_2',['Registering and Opts',['../group__opts.html',1,'']]],
+  ['reverse_3',['reverse',['../group__sequence__inst.html#ga2fef50f7e022b0432142fd19ef2f6bad',1,'tgen::sequence::instance::reverse()'],['../group__permutation__inst.html#ga394a7eabd584374ed258c45aca307076',1,'tgen::permutation::instance::reverse()']]],
+  ['running_4',['Running',['../index.html#autotoc_md4',1,'']]]
 ];

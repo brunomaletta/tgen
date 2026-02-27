@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['generation_0',['Generation',['../index.html#autotoc_md5',1,'']]],
-  ['generators_20and_20instances_1',['Type generators and instances',['../index.html#autotoc_md2',1,'']]]
+  ['jngen_0',['Why not &lt;a href=&quot;https://github.com/MikeMirzayanov/testlib&quot;&gt;testlib&lt;/a&gt; / &lt;a href=&quot;https://github.com/ifsmirnov/jngen&quot;&gt;jngen&lt;/a&gt;?',['../index.html#autotoc_md2',1,'']]]
 ];

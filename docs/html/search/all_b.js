@@ -1,12 +1,12 @@
 var searchData=
 [
-  ['parity_0',['parity',['../group__permutation__inst.html#gafcc9d919a2a9fa56ef25fa596a119deb',1,'tgen::permutation::instance']]],
-  ['permutation_1',['permutation',['../structtgen_1_1permutation.html',1,'tgen::permutation'],['../group__permutation__gen.html#gaa6173196c6a1a88fa877426a3bfc5fa4',1,'tgen::permutation::permutation()']]],
-  ['permutation_20generators_2',['Permutation generators',['../group__permutation__gen.html',1,'']]],
-  ['permutation_20instances_3',['Permutation instances',['../group__permutation__inst.html',1,'']]],
-  ['permutations_4',['Permutations',['../group__permutation.html',1,'']]],
-  ['prev_5fprime_5',['prev_prime',['../group__math.html#gac5ff6eed324cb720e4d93f3f9f203aa3',1,'tgen::math']]],
-  ['prime_5fgap_5fupto_6',['prime_gap_upto',['../group__math.html#ga13460b7ed2494b9be9cb46052b30aac9',1,'tgen::math']]],
-  ['prime_5fgaps_7',['prime_gaps',['../group__math.html#ga087cc8f45a697f44dc8370c3f025fd58',1,'tgen::math']]],
-  ['print_8',['print',['../structtgen_1_1print.html',1,'tgen']]]
+  ['operations_0',['Operations',['../group__general.html',1,'General Operations'],['../group__math.html',1,'Math Operations']]],
+  ['operations_1',['Sequence operations',['../group__sequence__op.html',1,'']]],
+  ['operator_2b_2',['operator+',['../group__sequence__inst.html#ga38f0671cac2012b9010553908409f475',1,'tgen::sequence::instance']]],
+  ['operator_3c_3c_3',['operator&lt;&lt;',['../group__sequence__inst.html#gac5aa4456b0e4503a152e2113a48d8465',1,'tgen::sequence::instance::operator&lt;&lt;()'],['../group__permutation__inst.html#gac5aa4456b0e4503a152e2113a48d8465',1,'tgen::permutation::instance::operator&lt;&lt;()']]],
+  ['operator_5b_5d_4',['operator[]',['../group__sequence__inst.html#ga4041d7424166c97342bbeeb0412f4400',1,'tgen::sequence::instance::operator[]()'],['../group__permutation__inst.html#ga18be60008a91144647cd8fcd35fd2ce7',1,'tgen::permutation::instance::operator[]()']]],
+  ['opt_5',['opt',['../group__opts.html#ga3e56ac3ed9e70c13af95f590ee9ffd26',1,'tgen']]],
+  ['opts_6',['Opts',['../group__opts.html#autotoc_md61',1,'Opts'],['../group__opts.html',1,'Registering and Opts']]],
+  ['opts_7',['Consuming opts',['../group__opts.html#autotoc_md62',1,'']]],
+  ['overview_8',['Overview',['../index.html#autotoc_md0',1,'']]]
 ];

@@ -1,7 +1,12 @@
 var searchData=
 [
-  ['register_5fgen_0',['register_gen',['../group__opts.html#gae8eca919976894c15b44713f00f33bd8',1,'tgen']]],
-  ['registering_1',['Registering',['../group__opts.html#autotoc_md60',1,'']]],
-  ['registering_20and_20opts_2',['Registering and Opts',['../group__opts.html',1,'']]],
-  ['reverse_3',['reverse',['../group__sequence__inst.html#ga2fef50f7e022b0432142fd19ef2f6bad',1,'tgen::sequence::instance::reverse()'],['../group__permutation__inst.html#ga394a7eabd584374ed258c45aca307076',1,'tgen::permutation::instance::reverse()']]]
+  ['parity_0',['parity',['../group__permutation__inst.html#gafcc9d919a2a9fa56ef25fa596a119deb',1,'tgen::permutation::instance']]],
+  ['permutation_1',['permutation',['../structtgen_1_1permutation.html',1,'tgen::permutation'],['../group__permutation__gen.html#gaa6173196c6a1a88fa877426a3bfc5fa4',1,'tgen::permutation::permutation()']]],
+  ['permutation_20generators_2',['Permutation generators',['../group__permutation__gen.html',1,'']]],
+  ['permutation_20instances_3',['Permutation instances',['../group__permutation__inst.html',1,'']]],
+  ['permutations_4',['Permutations',['../group__permutation.html',1,'']]],
+  ['prev_5fprime_5',['prev_prime',['../group__math.html#gac5ff6eed324cb720e4d93f3f9f203aa3',1,'tgen::math']]],
+  ['prime_5fgap_5fupto_6',['prime_gap_upto',['../group__math.html#ga13460b7ed2494b9be9cb46052b30aac9',1,'tgen::math']]],
+  ['prime_5fgaps_7',['prime_gaps',['../group__math.html#ga087cc8f45a697f44dc8370c3f025fd58',1,'tgen::math']]],
+  ['print_8',['print',['../structtgen_1_1print.html',1,'tgen']]]
 ];

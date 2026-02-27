@@ -25,14 +25,6 @@
 var NAVTREE =
 [
   [ "tgen", "index.html", [
-    [ "Documentation", "index.html#autotoc_md0", null ],
-    [ "Overview", "index.html#autotoc_md1", [
-      [ "Examples", "index.html#autotoc_md3", [
-        [ "Type generators and instances", "index.html#autotoc_md2", null ],
-        [ "Opts configuration", "index.html#autotoc_md4", null ],
-        [ "Generation", "index.html#autotoc_md5", null ]
-      ] ]
-    ] ],
     [ "Topics", "topics.html", "topics" ]
   ] ]
 ];
