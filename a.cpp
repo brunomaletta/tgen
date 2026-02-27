@@ -82,5 +82,5 @@ int main(int argc, char **argv) {
 	std::vector<std::vector<int>> mat = {{1, 2}, {3, 4}};
 	std::cout << tgen::println(mat);
 
-	std::cout << tgen::println(tgen::shuffle(std::set<int>({1, 2, 3})));
+	std::cout << tgen::println(tgen::shuffled(std::set<int>({1, 2, 3})));
 }

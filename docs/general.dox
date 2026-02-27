@@ -107,7 +107,7 @@ namespace tgen {
  *
  * Shuffles @tt{[@pname{first}, @pname{last})} uniformly inplace. Works for
  * @texttt{@namespace{std}::@type{vector}}, @texttt{@namespace{std}::@type{string}}, etc, but not
- * @texttt{@namespace{std}::@type{set}}. For those, use @tt{tgen::shuffle(@pname{container})}.
+ * @texttt{@namespace{std}::@type{set}}. For those, use @tt{tgen::shuffled(@pname{container})}.
  *
  * #### Complexity
  *
@@ -144,12 +144,12 @@ namespace tgen {
  *
  * ```cpp
  * std::vector<int> st = {1, 2, 3, 4, 5};
- * st = tgen::shuffle(st);
- * st = tgen::shuffle({1, 2, 3});
- * st = tgen::shuffle(std::set<int>({1, 2, 3}));
+ * st = tgen::shuffled(st);
+ * st = tgen::shuffled({1, 2, 3});
+ * st = tgen::shuffled(std::set<int>({1, 2, 3}));
  * ```
  *
- * @fn shuffle(const C &container);
+ * @fn shuffled(const C &container);
  */
 
 

@@ -3,7 +3,7 @@
 #include "tgen.h"
 
 #include <algorithm>
-#include <vector>
+#include <list>
 
 #define EXPECT_THROW_TGEN_PREFIX(stmt, prefix)                                 \
 	EXPECT_THROW(                                                              \
@@ -145,7 +145,15 @@ TEST(general_test, next_invalid_range) {
 							 "range for `next` bust be valid");
 }
 
-TEST(general_test, shuffle_check_values) {
+TEST(general_test, next) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	auto n = tgen::next(10, 20);
+	EXPECT_TRUE(10 <= n and n <= 20);
+}
+
+TEST(general_test, shuffle) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -162,7 +170,17 @@ TEST(general_test, shuffle_check_values) {
 	}
 }
 
-TEST(general_test, any_check_value) {
+TEST(general_test, shuffled) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	std::vector<int> a = tgen::shuffled(std::vector<int>({1, 2, 3}));
+	std::string b = tgen::shuffled(std::string("str"));
+	std::vector<int> c = tgen::shuffled(std::set<int>({1, 2, 3}));
+	std::vector<int> d = tgen::shuffled({1, 2, 3});
+}
+
+TEST(general_test, any) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -188,7 +206,7 @@ TEST(general_test, choose_invalid_ammount) {
 							 "number of elements to choose must be valid");
 }
 
-TEST(general_test, choose_check_subsequence) {
+TEST(general_test, choose) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 

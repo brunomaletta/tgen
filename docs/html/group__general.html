@@ -560,9 +560,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga5494e4e347f9d1dc5b88695e0777f65b" id="r_ga5494e4e347f9d1dc5b88695e0777f65b"><td class="memTemplParams" colspan="2">template&lt;typename It&gt; </td></tr>
 <tr class="memitem:ga5494e4e347f9d1dc5b88695e0777f65b template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a> (It first, It last)</td></tr>
 <tr class="memdesc:ga5494e4e347f9d1dc5b88695e0777f65b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles range inplace, for random_access_iterator.  <br /></td></tr>
-<tr class="memitem:ga440766a0d1b82b481e532cc2a8dbc717" id="r_ga440766a0d1b82b481e532cc2a8dbc717"><td class="memTemplParams" colspan="2">template&lt;typename C, std::enable_if_t&lt;!<a class="el" href="structtgen_1_1is__associative__container__internal.html">is_associative_container_internal</a>&lt; C &gt;::value, int &gt; = 0&gt; </td></tr>
-<tr class="memitem:ga440766a0d1b82b481e532cc2a8dbc717 template"><td class="memItemLeft" align="right" valign="top">C&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga440766a0d1b82b481e532cc2a8dbc717">tgen::shuffle</a> (const C &amp;container)</td></tr>
-<tr class="memdesc:ga440766a0d1b82b481e532cc2a8dbc717"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles a container.  <br /></td></tr>
+<tr class="memitem:ga3927dd50975e25d1671287df5301a316" id="r_ga3927dd50975e25d1671287df5301a316"><td class="memTemplParams" colspan="2">template&lt;typename C, std::enable_if_t&lt;!<a class="el" href="structtgen_1_1is__associative__container__internal.html">is_associative_container_internal</a>&lt; C &gt;::value, int &gt; = 0&gt; </td></tr>
+<tr class="memitem:ga3927dd50975e25d1671287df5301a316 template"><td class="memItemLeft" align="right" valign="top">C&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga3927dd50975e25d1671287df5301a316">tgen::shuffled</a> (const C &amp;container)</td></tr>
+<tr class="memdesc:ga3927dd50975e25d1671287df5301a316"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles a container.  <br /></td></tr>
 <tr class="memitem:ga9c1c0431948210b949f5d1500e7235ec" id="r_ga9c1c0431948210b949f5d1500e7235ec"><td class="memTemplParams" colspan="2">template&lt;typename It&gt; </td></tr>
 <tr class="memitem:ga9c1c0431948210b949f5d1500e7235ec template"><td class="memItemLeft" align="right" valign="top">It::value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a> (It first, It last)</td></tr>
 <tr class="memdesc:ga9c1c0431948210b949f5d1500e7235ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Choses a random element from iterator range.  <br /></td></tr>
@@ -812,56 +812,8 @@ Examples</h4>
 
 </div>
 </div>
-<a id="ga440766a0d1b82b481e532cc2a8dbc717" name="ga440766a0d1b82b481e532cc2a8dbc717"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga440766a0d1b82b481e532cc2a8dbc717">&#9670;&#160;</a></span>shuffle() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename C, std::enable_if_t&lt;!<a class="el" href="structtgen_1_1is__associative__container__internal.html">is_associative_container_internal</a>&lt; C &gt;::value, int &gt; = 0&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">C tgen::shuffle </td>
-          <td>(</td>
-          <td class="paramtype">const C &amp;</td>          <td class="paramname"><span class="paramname"><em>container</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Shuffles a container. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">container</td><td>Container to be shuffled.</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Works for containers and <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>. If <span class="paramname texttt">container</span> is ordered (<span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>, etc) or <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>, returns a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span> (implemented in a different function).</p>
-<dl class="section return"><dt>Returns</dt><dd>The shuffled container.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md18"></a>
-Complexity</h4>
-<p><span class="tgen-code texttt">O(|<span class="paramname texttt">container</span>|)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md19"></a>
-Examples</h4>
-<div class="fragment"><div class="line">std::vector&lt;int&gt; st = {1, 2, 3, 4, 5};</div>
-<div class="line">st = <a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(st);</div>
-<div class="line">st = <a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>({1, 2, 3});</div>
-<div class="line">st = <a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(std::set&lt;int&gt;({1, 2, 3}));</div>
-</div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00262">262</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
-
-</div>
-</div>
 <a id="ga5494e4e347f9d1dc5b88695e0777f65b" name="ga5494e4e347f9d1dc5b88695e0777f65b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga5494e4e347f9d1dc5b88695e0777f65b">&#9670;&#160;</a></span>shuffle() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5494e4e347f9d1dc5b88695e0777f65b">&#9670;&#160;</a></span>shuffle()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -889,7 +841,7 @@ template&lt;typename It&gt; </div>
   </table>
   </dd>
 </dl>
-<p>Shuffles <span class="tgen-code texttt">[<span class="paramname texttt">first</span>, <span class="paramname texttt">last</span>)</span> uniformly inplace. Works for <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>, <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">string</span></span>, etc, but not <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>. For those, use <span class="tgen-code texttt"><a class="el" href="#ga5494e4e347f9d1dc5b88695e0777f65b" title="Shuffles range inplace, for random_access_iterator.">tgen::shuffle</a>(<span class="paramname texttt">container</span>)</span>.</p>
+<p>Shuffles <span class="tgen-code texttt">[<span class="paramname texttt">first</span>, <span class="paramname texttt">last</span>)</span> uniformly inplace. Works for <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>, <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">string</span></span>, etc, but not <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>. For those, use <span class="tgen-code texttt"><a class="el" href="#ga3927dd50975e25d1671287df5301a316" title="Shuffles a container.">tgen::shuffled</a>(<span class="paramname texttt">container</span>)</span>.</p>
 <h4 class="doxsection"><a class="anchor" id="autotoc_md16"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(|<span class="paramname texttt">last</span> - <span class="paramname texttt">first</span>|)</span>.</p>
@@ -899,6 +851,55 @@ Examples</h4>
 <div class="line"><a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(v.begin(), v.end());</div>
 </div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00242">242</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+
+</div>
+</div>
+<a id="ga3927dd50975e25d1671287df5301a316" name="ga3927dd50975e25d1671287df5301a316"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3927dd50975e25d1671287df5301a316">&#9670;&#160;</a></span>shuffled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename C, std::enable_if_t&lt;!<a class="el" href="structtgen_1_1is__associative__container__internal.html">is_associative_container_internal</a>&lt; C &gt;::value, int &gt; = 0&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">C tgen::shuffled </td>
+          <td>(</td>
+          <td class="paramtype">const C &amp;</td>          <td class="paramname"><span class="paramname"><em>container</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Shuffles a container. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">container</td><td>Container to be shuffled.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Works for containers and <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>. If <span class="paramname texttt">container</span> is ordered (<span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>, etc) or <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>, returns a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span> (implemented in a different function).</p>
+<dl class="section return"><dt>Returns</dt><dd>The shuffled container.</dd></dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md18"></a>
+Complexity</h4>
+<p><span class="tgen-code texttt">O(|<span class="paramname texttt">container</span>|)</span>.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md19"></a>
+Examples</h4>
+<div class="fragment"><div class="line">std::vector&lt;int&gt; st = {1, 2, 3, 4, 5};</div>
+<div class="line">st = <a class="code hl_function" href="#ga3927dd50975e25d1671287df5301a316">tgen::shuffled</a>(st);</div>
+<div class="line">st = <a class="code hl_function" href="#ga3927dd50975e25d1671287df5301a316">tgen::shuffled</a>({1, 2, 3});</div>
+<div class="line">st = <a class="code hl_function" href="#ga3927dd50975e25d1671287df5301a316">tgen::shuffled</a>(std::set&lt;int&gt;({1, 2, 3}));</div>
+<div class="ttc" id="agroup__general_html_ga3927dd50975e25d1671287df5301a316"><div class="ttname"><a href="#ga3927dd50975e25d1671287df5301a316">tgen::shuffled</a></div><div class="ttdeci">C shuffled(const C &amp;container)</div><div class="ttdoc">Shuffles a container.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00262">tgen.h:262</a></div></div>
+</div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00262">262</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
 
 </div>
 </div>

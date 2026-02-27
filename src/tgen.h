@@ -259,20 +259,20 @@ struct is_associative_container_internal<
 template <
 	typename C,
 	std::enable_if_t<!is_associative_container_internal<C>::value, int> = 0>
-[[nodiscard]] C shuffle(const C &container) {
+[[nodiscard]] C shuffled(const C &container) {
 	auto new_container = container;
 	shuffle(new_container.begin(), new_container.end());
 	return new_container;
 }
 template <typename C, std::enable_if_t<
 						  is_associative_container_internal<C>::value, int> = 0>
-[[nodiscard]] std::vector<typename C::value_type> shuffle(const C &container) {
-	return shuffle(std::vector<typename C::value_type>(container.begin(),
-													   container.end()));
+[[nodiscard]] std::vector<typename C::value_type> shuffled(const C &container) {
+	return shuffled(std::vector<typename C::value_type>(container.begin(),
+														container.end()));
 }
 template <typename T>
-[[nodiscard]] std::vector<T> shuffle(const std::initializer_list<T> &il) {
-	return shuffle(std::vector<T>(il.begin(), il.end()));
+[[nodiscard]] std::vector<T> shuffled(const std::initializer_list<T> &il) {
+	return shuffled(std::vector<T>(il.begin(), il.end()));
 }
 
 // Returns a random element from [first, last).

@@ -6,6 +6,6 @@ var group__general =
     [ "tgen::any", "group__general.html#ga9c1c0431948210b949f5d1500e7235ec", null ],
     [ "tgen::choose", "group__general.html#ga5deceed8488585530188dbd266739771", null ],
     [ "tgen::next", "group__general.html#gaa007cf5e254380332a3548711d5f9b16", null ],
-    [ "tgen::shuffle", "group__general.html#ga440766a0d1b82b481e532cc2a8dbc717", null ],
-    [ "tgen::shuffle", "group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b", null ]
+    [ "tgen::shuffle", "group__general.html#ga5494e4e347f9d1dc5b88695e0777f65b", null ],
+    [ "tgen::shuffled", "group__general.html#ga3927dd50975e25d1671287df5301a316", null ]
 ];
