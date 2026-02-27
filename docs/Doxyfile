@@ -3004,3 +3004,6 @@ ALIASES += tt{1}="<span class=\"tgen-code texttt\">\1</span>"
 ALIASES += texttt{1}="<span class=\"texttt\">\1</span>"
 ALIASES += primitive{1}="<span class=\"tgen-primitive texttt\">\1</span>"
 ALIASES += namespace{1}="<span class=\"tgen-ns\">\1</span>"
+
+
+HTML_EXTRA_FILES += docs/tgen_white.png

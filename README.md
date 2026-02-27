@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="docs/tgen_white.png" alt="tgen" width="300">
+	<img src="tgen_white.png" alt="tgen" width="300" onerror="this.onerror=null;this.src='./tgen_white.png';">
 </p>
 
 <p align="center">
