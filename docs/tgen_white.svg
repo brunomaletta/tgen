@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120">
+
+  <style>
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 700;
+      font-size: 72px;
+      letter-spacing: -2px;
+    }
+  </style>
+
+  <!-- t -->
+  <text x="20" y="82" class="mono" fill="#ffffff">t</text>
+
+  <!-- period -->
+  <circle cx="78" cy="75" r="7" fill="#ffffff"/>
+
+  <!-- moved closer -->
+  <text x="90" y="82" class="mono" fill="#3fb4ff">gen()</text>
+
+</svg>
