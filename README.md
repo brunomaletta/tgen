@@ -16,7 +16,7 @@
 ## 🎯 Overview
 
 <img src="docs/tgen_white.svg" alt="tgen" height="24"
- style="vertical-align:-0.15em; margin-right:0.35em;" onerror="this.onerror=null;this.src='./tgen_white.svg';">
+ style="vertical-align:-0.45em; margin-right:0.35em;" onerror="this.onerror=null;this.src='./tgen_white.svg';">
 is a C++ header for writing random testcase generators quickly and safely.
 
 Instead of manually coding ad-hoc generators, use powerful algorithmic machinery to guarantee simple, correct and uniform generation.
