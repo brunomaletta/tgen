@@ -8,5 +8,5 @@ var searchData=
   ['opt_5',['opt',['../group__opts.html#ga3e56ac3ed9e70c13af95f590ee9ffd26',1,'tgen']]],
   ['opts_6',['Opts',['../group__opts.html#autotoc_md61',1,'Opts'],['../group__opts.html',1,'Registering and Opts']]],
   ['opts_7',['Consuming opts',['../group__opts.html#autotoc_md62',1,'']]],
-  ['overview_8',['Overview',['../index.html#autotoc_md0',1,'']]]
+  ['overview_8',['🎯 Overview',['../index.html#autotoc_md0',1,'']]]
 ];

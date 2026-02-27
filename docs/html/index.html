@@ -539,14 +539,14 @@ $(function(){initNavTree('index.html','',''); });
 <p align="center"></p>
 <p><em>Testcase generation for random inputs.</em> </p>
 <p align="center"></p>
-<p><a href="https://opensource.org/license/mit" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License" style="max-width: 100%; pointer-events: none;" class="inline"/> </a> <a href="https://github.com/brunomaletta/tgen/actions/workflows/static.yml" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest" alt="Tests" style="max-width: 100%;" class="inline"/> </a> <a href="https://github.com/brunomaletta/tgen/blob/main/src/tgen.h" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/badge/C%2B%2B-17-blue" alt="C++17" style="max-width: 100%;" class="inline"/> </a> <a href="https://brunomaletta.github.io/tgen/index.html" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/badge/doxygen-2C4AA8?style=default&amp;logo=doxygen&amp;logoColor=white" alt="Documentation" style="max-width: 100%;" class="inline"/> </a> </p>
+<p><a href="https://opensource.org/license/mit" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License" style="max-width: 100%; pointer-events: none;" class="inline"/></a> <a href="https://github.com/brunomaletta/tgen/actions/workflows/static.yml" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest" alt="Tests" style="max-width: 100%;" class="inline"/></a> <a href="https://github.com/brunomaletta/tgen/blob/main/src/tgen.h" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/badge/C%2B%2B-17-blue" alt="C++17" style="max-width: 100%;" class="inline"/></a> <a href="https://brunomaletta.github.io/tgen/index.html" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/badge/doxygen-2C4AA8?style=default&amp;logo=doxygen&amp;logoColor=white" alt="Documentation" style="max-width: 100%;" class="inline"/></a> </p>
 <h2 class="doxsection"><a class="anchor" id="autotoc_md0"></a>
-Overview</h2>
+🎯 Overview</h2>
 <p><span class="tt">tgen</span> is a C++ header for writing random testcase generators quickly and safely.</p>
 <p>Instead of manually coding ad-hoc generators, use powerful algorithmic machinery to guarantee simple, correct and uniform generation.</p>
 <p>There is support for arrays, permutations, maths, and more.</p>
 <h2 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
-Quick examples</h2>
+⚡ Quick examples</h2>
 <p><span class="tt">tgen</span> provides two complementary styles:</p>
 <ul>
 <li><b>Operations</b>: sample and operate on data directly.</li>
@@ -561,16 +561,16 @@ Quick examples</h2>
 <div class="line">std::cout &lt;&lt; tgen::sequence&lt;int&gt;(20, 10, 99).distinct().gen() &lt;&lt; std::endl;</div>
 </div><!-- fragment --><p>No loops. No backtracking. No custom generator code.</p>
 <h2 class="doxsection"><a class="anchor" id="autotoc_md2"></a>
-Why not <a href="https://github.com/MikeMirzayanov/testlib">testlib</a> / <a href="https://github.com/ifsmirnov/jngen">jngen</a>?</h2>
+⚖️ Why not <a href="https://github.com/MikeMirzayanov/testlib">testlib</a> / <a href="https://github.com/ifsmirnov/jngen">jngen</a>?</h2>
 <p><span class="tt">tgen</span> works in a similar way as traditional generators, but has support for declarative generation, worst-case sampling, and many useful and powerful helpers.</p>
 <h2 class="doxsection"><a class="anchor" id="autotoc_md3"></a>
-Instalation</h2>
+📦 Instalation</h2>
 <p>Header-only. Download</p>
 <div class="fragment"><div class="line">wget https://raw.githubusercontent.com/brunomaletta/tgen/main/src/tgen.h</div>
 </div><!-- fragment --><p>and include</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;tgen.h&quot;</span></div>
 </div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md4"></a>
-Running</h2>
+▶️ Running</h2>
 <p>Similar to traditional generators, there is registration and opts (arguments).</p>
 <div class="fragment"><div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>** argv) {</div>
 <div class="line">    <a class="code hl_function" href="group__opts.html#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a>(argc, argv);</div>
@@ -585,7 +585,7 @@ Running</h2>
 <div class="ttc" id="astructtgen_1_1permutation_html"><div class="ttname"><a href="structtgen_1_1permutation.html">tgen::permutation</a></div><div class="ttdoc">Permutation generator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01053">tgen.h:1053</a></div></div>
 </div><!-- fragment --><p>We can run with <span class="tt">n=100</span> by calling <span class="tt">./gen -n 100</span>.</p>
 <h2 class="doxsection"><a class="anchor" id="autotoc_md5"></a>
-Documentation</h2>
+📚 Documentation</h2>
 <p><a href="https://brunomaletta.github.io/tgen/index.html"><img src="https://img.shields.io/badge/📚%20Documentation-Read%20here-informational?style=for-the-badge" alt="" class="inline"/> </a> </p>
 </div></div><!-- PageDoc -->
 <a href="doxygen_crawl.html"></a>

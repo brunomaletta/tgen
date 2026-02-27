@@ -4,5 +4,5 @@ var searchData=
   ['registering_1',['Registering',['../group__opts.html#autotoc_md60',1,'']]],
   ['registering_20and_20opts_2',['Registering and Opts',['../group__opts.html',1,'']]],
   ['reverse_3',['reverse',['../group__sequence__inst.html#ga2fef50f7e022b0432142fd19ef2f6bad',1,'tgen::sequence::instance::reverse()'],['../group__permutation__inst.html#ga394a7eabd584374ed258c45aca307076',1,'tgen::permutation::instance::reverse()']]],
-  ['running_4',['Running',['../index.html#autotoc_md4',1,'']]]
+  ['running_4',['▶️ Running',['../index.html#autotoc_md4',1,'']]]
 ];
