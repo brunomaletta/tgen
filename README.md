@@ -15,7 +15,7 @@
 
 ## 🎯 Overview
 
-<img src="docs/tgen_white_small.svg" onerror="this.onerror=null;this.src='./tgen_white_small.png';" height="42" style="vertical-align:-16px;">is a C++ header for writing random testcase generators quickly and safely.
+<img src="docs/tgen_white_small.png" onerror="this.onerror=null;this.src='./tgen_white_small.png';" height="42" style="vertical-align:-16px;">is a C++ header for writing random testcase generators quickly and safely.
 
 Instead of manually coding ad-hoc generators, use powerful algorithmic machinery to guarantee simple, correct and uniform generation.
 
@@ -23,7 +23,7 @@ There is support for arrays, permutations, maths, and more.
 
 ## ⚡ Quick examples
 
-<img src="docs/tgen_white_small.svg" onerror="this.onerror=null;this.src='./tgen_white_small.png';" height="42" style="vertical-align:-16px;">provides two complementary styles:
+<img src="docs/tgen_white_small.png" onerror="this.onerror=null;this.src='./tgen_white_small.png';" height="42" style="vertical-align:-16px;">provides two complementary styles:
 
 - **Operations**: sample and operate on data directly.
 
@@ -43,7 +43,7 @@ No loops. No backtracking. No custom generator code.
 
 ## ⚖️ Why not [testlib](https://github.com/MikeMirzayanov/testlib) / [jngen](https://github.com/ifsmirnov/jngen)?
 
-<img src="docs/tgen_white_small.svg" onerror="this.onerror=null;this.src='./tgen_white_small.png';" height="42" style="vertical-align:-16px;">works in a similar way as traditional generators, but has support for declarative generation, worst-case sampling, and many useful and powerful helpers.
+<img src="docs/tgen_white_small.png" onerror="this.onerror=null;this.src='./tgen_white_small.png';" height="42" style="vertical-align:-16px;">works in a similar way as traditional generators, but has support for declarative generation, worst-case sampling, and many useful and powerful helpers.
 
 ## 📦 Instalation
 
