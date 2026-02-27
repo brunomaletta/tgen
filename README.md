@@ -15,7 +15,7 @@
 
 ## 🎯 Overview
 
-<img src="docs/tgen_white.svg" alt="tgen" height="24" onerror="this.onerror=null;this.src='./tgen_white.svg';"> is a C++ header for writing random testcase generators quickly and safely.
+`tgen` is a C++ header for writing random testcase generators quickly and safely.
 
 Instead of manually coding ad-hoc generators, use powerful algorithmic machinery to guarantee simple, correct and uniform generation.
 
@@ -23,7 +23,7 @@ There is support for arrays, permutations, maths, and more.
 
 ## ⚡ Quick examples
 
-<img src="docs/tgen_white.svg" alt="tgen" height="24" onerror="this.onerror=null;this.src='./tgen_white.svg';"> provides two complementary styles:
+`tgen` provides two complementary styles:
 
 - **Operations**: sample and operate on data directly.
 
@@ -43,7 +43,7 @@ No loops. No backtracking. No custom generator code.
 
 ## ⚖️ Why not [testlib](https://github.com/MikeMirzayanov/testlib) / [jngen](https://github.com/ifsmirnov/jngen)?
 
-<img src="docs/tgen_white.svg" alt="tgen" height="24" onerror="this.onerror=null;this.src='./tgen_white.svg';"> works in a similar way as traditional generators, but has support for declarative generation, worst-case sampling, and many useful and powerful helpers.
+`tgen` works in a similar way as traditional generators, but has support for declarative generation, worst-case sampling, and many useful and powerful helpers.
 
 ## 📦 Instalation
 
