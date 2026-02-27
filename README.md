@@ -1,13 +1,10 @@
 <p align="center">
-	<img src="docs/tgen_white.png" alt="tgen" width="200">
+	<img src="docs/tgen_white.png" alt="tgen" width="300">
 </p>
 
 <p align="center">
-    <em>Testcase generation for algorithmic .</em>
+    <em>Testcase generation for random inputs.</em>
 </p>
-<p align="center">
-	<!-- loscal repository, no metadata badges. -->
-<p>
 <p align="center">
 	<img src="https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest" height="20">
 	<img src="https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white" height="20">
