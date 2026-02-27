@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['opts_0',['Opts',['../group__opts.html#autotoc_md61',1,'']]],
-  ['opts_1',['Consuming opts',['../group__opts.html#autotoc_md62',1,'']]],
-  ['overview_2',['🎯 Overview',['../index.html#autotoc_md0',1,'']]]
+  ['not_20testlib_20jngen_0',['⚖️ Why not &lt;a href=&quot;https://github.com/MikeMirzayanov/testlib&quot;&gt;testlib&lt;/a&gt; / &lt;a href=&quot;https://github.com/ifsmirnov/jngen&quot;&gt;jngen&lt;/a&gt;?',['../index.html#autotoc_md2',1,'']]]
 ];

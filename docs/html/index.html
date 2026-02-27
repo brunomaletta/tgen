@@ -542,12 +542,12 @@ $(function(){initNavTree('index.html','',''); });
 <p><a href="https://opensource.org/license/mit" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License" style="max-width: 100%; pointer-events: none;" class="inline"/></a> <a href="https://github.com/brunomaletta/tgen/actions/workflows/static.yml" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest" alt="Tests" style="max-width: 100%;" class="inline"/></a> <a href="https://github.com/brunomaletta/tgen/blob/main/src/tgen.h" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/badge/C%2B%2B-17-blue" alt="C++17" style="max-width: 100%;" class="inline"/></a> <a href="https://brunomaletta.github.io/tgen/index.html" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/badge/doxygen-2C4AA8?style=default&amp;logo=doxygen&amp;logoColor=white" alt="Documentation" style="max-width: 100%;" class="inline"/></a> </p>
 <h2 class="doxsection"><a class="anchor" id="autotoc_md0"></a>
 🎯 Overview</h2>
-<p><span class="tt">tgen</span> is a C++ header for writing random testcase generators quickly and safely.</p>
+<p><span style="font-family:&apos;JetBrains Mono&apos;,monospace;font-weight:600;"> <span style="color:#e6edf3">t.</span><span style="color:#3fb4ff">gen()</span></span> is a C++ header for writing random testcase generators quickly and safely.</p>
 <p>Instead of manually coding ad-hoc generators, use powerful algorithmic machinery to guarantee simple, correct and uniform generation.</p>
 <p>There is support for arrays, permutations, maths, and more.</p>
 <h2 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
 ⚡ Quick examples</h2>
-<p><span class="tt">tgen</span> provides two complementary styles:</p>
+<p><span style="font-family:&apos;JetBrains Mono&apos;,monospace;font-weight:600;"> <span style="color:#e6edf3">t.</span><span style="color:#3fb4ff">gen()</span></span> provides two complementary styles:</p>
 <ul>
 <li><b>Operations</b>: sample and operate on data directly.</li>
 </ul>
@@ -562,7 +562,7 @@ $(function(){initNavTree('index.html','',''); });
 </div><!-- fragment --><p>No loops. No backtracking. No custom generator code.</p>
 <h2 class="doxsection"><a class="anchor" id="autotoc_md2"></a>
 ⚖️ Why not <a href="https://github.com/MikeMirzayanov/testlib">testlib</a> / <a href="https://github.com/ifsmirnov/jngen">jngen</a>?</h2>
-<p><span class="tt">tgen</span> works in a similar way as traditional generators, but has support for declarative generation, worst-case sampling, and many useful and powerful helpers.</p>
+<p><span style="font-family:&apos;JetBrains Mono&apos;,monospace;font-weight:600;"> <span style="color:#e6edf3">t.</span><span style="color:#3fb4ff">gen()</span></span> works in a similar way as traditional generators, but has support for declarative generation, worst-case sampling, and many useful and powerful helpers.</p>
 <h2 class="doxsection"><a class="anchor" id="autotoc_md3"></a>
 📦 Instalation</h2>
 <p>Header-only. Download</p>
@@ -570,7 +570,7 @@ $(function(){initNavTree('index.html','',''); });
 </div><!-- fragment --><p>and include</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;tgen.h&quot;</span></div>
 </div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md4"></a>
-▶️ Running</h2>
+🎲 Generation</h2>
 <p>Similar to traditional generators, there is registration and opts (arguments).</p>
 <div class="fragment"><div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>** argv) {</div>
 <div class="line">    <a class="code hl_function" href="group__opts.html#gae8eca919976894c15b44713f00f33bd8">tgen::register_gen</a>(argc, argv);</div>

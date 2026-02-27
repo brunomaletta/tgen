@@ -10,5 +10,6 @@ var searchData=
   ['gen_5fprime_7',['gen_prime',['../group__math.html#ga27fcaa21afa26007d0b89599c9e8a4fc',1,'tgen::math']]],
   ['gen_5funtil_8',['gen_until',['../group__permutation__gen.html#ga277a9c8f86271b395b76618a7e0dd0e6',1,'tgen::permutation::gen_until()'],['../group__sequence__gen.html#ga04272cb7c72fba9fe0254f9754aa9e7f',1,'tgen::sequence::gen_until()'],['../group__permutation__gen.html#ga277a9c8f86271b395b76618a7e0dd0e6',1,'tgen::gen_until(Pred predicate, int max_tries, Args &amp;&amp;... args)'],['../group__sequence__gen.html#ga04272cb7c72fba9fe0254f9754aa9e7f',1,'tgen::gen_until(Pred predicate, int max_tries)']]],
   ['general_20operations_9',['General Operations',['../group__general.html',1,'']]],
-  ['generators_10',['generators',['../group__permutation__gen.html',1,'Permutation generators'],['../group__sequence__gen.html',1,'Sequence generators']]]
+  ['generation_10',['🎲 Generation',['../index.html#autotoc_md4',1,'']]],
+  ['generators_11',['generators',['../group__permutation__gen.html',1,'Permutation generators'],['../group__sequence__gen.html',1,'Sequence generators']]]
 ];
