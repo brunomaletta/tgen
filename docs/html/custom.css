@@ -447,6 +447,7 @@ html.dark-mode .tgen-code {
     align-items: center;
     gap: 20px;
     margin-left: auto;   /* pushes to right side of navbar */
+	margin-top: 8px;
 }
 
 /* prevent shield from baseline misalignment */
@@ -454,9 +455,24 @@ html.dark-mode .tgen-code {
     display: block;
 }
 
+.top-buttons img,
+#github-button a,
+#projectlogo img {
+  display: block;
+}
+
 /* remove previous margin hacks */
 #github-button {
     margin: 0;
 	position: relative;
-    top: 3px; 
+    top: 2px; 
+}
+
+
+
+#projectlogo img {
+  max-height: 55px;
+  height: 40px;
+  width: auto;
+  vertical-align: middle;
 }
