@@ -61,7 +61,7 @@ PROJECT_BRIEF          =
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           =
+PROJECT_LOGO           = docs/tgen_white_small.png
 
 # With the PROJECT_ICON tag one can specify an icon that is included in the tabs
 # when the HTML document is shown. Doxygen will copy the logo to the output
@@ -3007,3 +3007,4 @@ ALIASES += namespace{1}="<span class=\"tgen-ns\">\1</span>"
 
 
 HTML_EXTRA_FILES += docs/tgen_white.png
+

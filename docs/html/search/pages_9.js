@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['sequence_0',['sequence',['../md_docs_2sequence.html',1,'']]]
+  ['registering_0',['Registering',['../group__opts.html#autotoc_md60',1,'']]]
 ];

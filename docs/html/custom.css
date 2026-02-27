@@ -436,3 +436,27 @@ html.dark-mode .tgen-code {
 @media (max-width: 768px) {
   .github-corner { display: none; }
 }
+
+
+
+
+
+/* horizontal layout */
+.top-buttons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-left: auto;   /* pushes to right side of navbar */
+}
+
+/* prevent shield from baseline misalignment */
+.top-buttons img {
+    display: block;
+}
+
+/* remove previous margin hacks */
+#github-button {
+    margin: 0;
+	position: relative;
+    top: 3px; 
+}
