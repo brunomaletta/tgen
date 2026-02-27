@@ -15,7 +15,7 @@
 
 ## 🎯 Overview
 
-<span style="font-family:'JetBrains Mono',monospace;font-weight:600;">
+<span style="font-family:'JetBrains Mono','Fira Code',Consolas,monospace;font-weight:600;">
 <span style="color:#e6edf3">t.</span><span style="color:#3fb4ff">gen()</span></span>
 is a C++ header for writing random testcase generators quickly and safely.
 
@@ -25,7 +25,7 @@ There is support for arrays, permutations, maths, and more.
 
 ## ⚡ Quick examples
 
-<span style="font-family:'JetBrains Mono',monospace;font-weight:600;">
+<span style="font-family:'JetBrains Mono','Fira Code',Consolas,monospace;font-weight:600;">
 <span style="color:#e6edf3">t.</span><span style="color:#3fb4ff">gen()</span></span>
 provides two complementary styles:
 
@@ -47,7 +47,7 @@ No loops. No backtracking. No custom generator code.
 
 ## ⚖️ Why not [testlib](https://github.com/MikeMirzayanov/testlib) / [jngen](https://github.com/ifsmirnov/jngen)?
 
-<span style="font-family:'JetBrains Mono',monospace;font-weight:600;">
+<span style="font-family:'JetBrains Mono','Fira Code',Consolas,monospace;font-weight:600;">
 <span style="color:#e6edf3">t.</span><span style="color:#3fb4ff">gen()</span></span>
 works in a similar way as traditional generators, but has support for declarative generation, worst-case sampling, and many useful and powerful helpers.
 
