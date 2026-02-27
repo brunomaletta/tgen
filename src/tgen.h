@@ -1692,7 +1692,7 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 	return crt.a + next(k_min, k_max) * crt.m;
 }
 
-// O(log r).
+// O(1).
 // rem < mod.
 inline uint64_t gen_congruent(uint64_t l, uint64_t r, uint64_t rem,
 							  uint64_t mod) {

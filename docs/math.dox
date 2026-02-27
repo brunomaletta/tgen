@@ -424,7 +424,7 @@ namespace tgen::math {
  *
  * #### Complexity
  *
- * @tt{O(log @pname{r})}.
+ * @tt{O(1)}.
  *
  * #### Examples
  *
