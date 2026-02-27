@@ -6,10 +6,18 @@
     <em>Testcase generation for random inputs.</em>
 </p>
 <p align="center">
-	<img src="https://img.shields.io/badge/License-MIT-yellow.svg" height="20">
-	<img src="https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest" height="20">
-	<img src="https://img.shields.io/badge/C%2B%2B-17-blue" height="20">
-	<img src="https://img.shields.io/badge/doxygen-2C4AA8?style=for-the-badge&logo=doxygen&logoColor=white" height="20">
+	<a href="https://opensource.org/license/mit" target="_blank">
+		<img src="https://img.shields.io/badge/License-MIT-yellow.svg" height="20">
+	</a>
+	<a href="https://github.com/brunomaletta/tgen/tree/main/tests" target="_blank">
+		<img src="https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest" height="20">
+	</a>
+	<a href="https://github.com/brunomaletta/tgen/blob/main/src/tgen.h" target="_blank">
+		<img src="https://img.shields.io/badge/C%2B%2B-17-blue" height="20">
+	</a>
+	<a href="https://brunomaletta.github.io/tgen/index.html" target="_blank">
+		<img src="https://img.shields.io/badge/doxygen-2C4AA8?style=for-the-badge&logo=doxygen&logoColor=white" height="20">
+	</a>
 </p>
 
 ## Overview
@@ -70,7 +78,7 @@ int main(int argc, char** argv) {
 }
 ``` 
 
-Set `n` with `./gen -n 100`
+We can run with `n=100` by calling `./gen -n 100`.
 
 ## Documentation
 
