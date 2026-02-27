@@ -554,7 +554,7 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <p>Registering and opts parsing. </p>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md60"></a>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md65"></a>
 Registering</h3>
 <p>The first line of your generator should be:</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;tgen.h&quot;</span></div>
@@ -569,7 +569,7 @@ Registering</h3>
 <li>Sets up the seed for random generator based on the arguments (excluding the executable name). That is, <span class="tgen-code texttt">./a.out -n 10</span> and <span class="tgen-code texttt">./b.out -n 10</span> will use the same seed.</li>
 <li>Parses the opts (given in the arguments).</li>
 </ol>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md61"></a>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md66"></a>
 Opts</h3>
 <p>Opts are a list of either named or positional options.</p>
 <p>Named options is given in one of the following formats:</p><ol type="1">
@@ -589,7 +589,7 @@ Opts</h3>
 </ul>
 </li>
 </ul>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md62"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md67"></a>
 Consuming opts</h4>
 <p>You can consume the opts by using <span class="tgen-code texttt">opt&lt;&gt;</span>:</p>
 <div class="fragment"><div class="line"><span class="keywordtype">int</span> n = <a class="code hl_function" href="#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt&lt;int&gt;</a>(<span class="stringliteral">&quot;n&quot;</span>);</div>
@@ -627,7 +627,7 @@ Consuming opts</h4>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>If there is named opt with <span class="paramname texttt">key</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md64"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md69"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Checks if there is an opt with &quot;q&quot;.</span></div>
 <div class="line"><span class="keywordflow">if</span> (<a class="code hl_function" href="#ga7ffeca211fbda39e0fcdfad2383c43ba">tgen::has_opt</a>(<span class="stringliteral">&quot;q&quot;</span>)) std::cout &lt;&lt; <span class="stringliteral">&quot;q found!&quot;</span> &lt;&lt; std::endl;</div>
@@ -668,7 +668,7 @@ Examples</h4>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>If there is positional opt at <span class="paramname texttt">index</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md63"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md68"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Checks if there is an opt at 0.</span></div>
 <div class="line"><span class="keywordflow">if</span> (<a class="code hl_function" href="#ga7ffeca211fbda39e0fcdfad2383c43ba">tgen::has_opt</a>(0)) std::cout &lt;&lt; <span class="stringliteral">&quot;opt found!&quot;</span> &lt;&lt; std::endl;</div>
@@ -719,7 +719,7 @@ template&lt;typename T, typename Key&gt; </div>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md65"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md70"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Consumes opt with &quot;q&quot;.</span></div>
 <div class="line"><span class="keywordtype">int</span> q = <a class="code hl_function" href="#ga3e56ac3ed9e70c13af95f590ee9ffd26">tgen::opt&lt;int&gt;</a>(<span class="stringliteral">&quot;q&quot;</span>);</div>
@@ -764,7 +764,7 @@ Examples</h4>
   </dd>
 </dl>
 <p>Sets up the opts, and the seed of the random number generator. The seed is dependent on the arguments (excluding the executable name).</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md66"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md71"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;tgen.h&quot;</span></div>
 <div class="line"> </div>

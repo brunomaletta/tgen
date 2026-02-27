@@ -593,7 +593,7 @@ Variables</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <p>Operations regarding number theory and related topics. </p>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md21"></a>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md26"></a>
 Examples</h3>
 <div class="fragment"><div class="line"><span class="comment">// Generates a random prime from 1 to 1e18.</span></div>
 <div class="line"><span class="keyword">auto</span> p = <a class="code hl_function" href="#ga27fcaa21afa26007d0b89599c9e8a4fc">tgen::math::gen_prime</a>(1, 1e18);</div>
@@ -648,10 +648,10 @@ Examples</h3>
 </dl>
 <dl class="section pre"><dt>Precondition</dt><dd><span class="tgen-code texttt"><span class="paramname texttt">n</span> &gt; 0</span>.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>List of prime factors of <span class="paramname texttt">n</span>, in non-decreasing order.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md24"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md29"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(<span class="paramname texttt">n</span>^(1/4) log <span class="paramname texttt">n</span>)</span> expected.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md25"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md30"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> fact = <a class="code hl_function" href="#ga5c371d66540b387fb992a49b799c40fa">tgen::math::factor</a>(24);</div>
 <div class="line"><span class="comment">// {2, 2, 2, 3}</span></div>
@@ -693,10 +693,10 @@ Examples</h4>
 </dl>
 <dl class="section pre"><dt>Precondition</dt><dd><span class="tgen-code texttt"><span class="paramname texttt">n</span> &gt; 0</span>.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>List of prime factors of <span class="paramname texttt">n</span>, in increasing order, with its respective powers.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md26"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md31"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(<span class="paramname texttt">n</span>^(1/4) log <span class="paramname texttt">n</span>)</span> expected.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md27"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md32"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> fact = <a class="code hl_function" href="#ga95c2e941edd52005c8f2285d1faab432">tgen::math::factor_by_prime</a>(24);</div>
 <div class="line"><span class="comment">// {{2, 3}, {3, 1}}</span></div>
@@ -731,7 +731,7 @@ Examples</h4>
 
 <p>Fetches Fibonacci numbers. </p>
 <p>Fetches Fibonacci numbers that fit in <span class="tgen-primitive texttt">uint64_t</span> (less than <span class="tgen-code texttt">2^64</span>).</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md55"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md60"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints largest fibonacci number that fits in 64 bits.</span></div>
 <div class="line">std::cout &lt;&lt; <a class="code hl_function" href="#gaa0d2967e4dd57d03f455d5380d1a848d">tgen::math::fibonacci</a>().back() &lt;&lt; std::endl;</div>
@@ -797,10 +797,10 @@ Examples</h4>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md46"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md51"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(|<span class="paramname texttt">mods</span>| + log <span class="paramname texttt">r</span>)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md47"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md52"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints random two-digit number that is even and congruent to 1 mod 3.</span></div>
 <div class="line">std::cout &lt;&lt; <a class="code hl_function" href="#ga881fc166dc15ffba9dfc35e83f60f8e3">tgen::math::gen_congruent</a>(10, 99, {0, 1}, {2, 3}) &lt;&lt; std::endl;</div>
@@ -865,10 +865,10 @@ Examples</h4>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md48"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md53"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(log <span class="paramname texttt">r</span>)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md49"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md54"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints random two-digit number that is congruent to 1 mod 3.</span></div>
 <div class="line">std::cout &lt;&lt; <a class="code hl_function" href="#ga881fc166dc15ffba9dfc35e83f60f8e3">tgen::math::gen_congruent</a>(10, 99, 1, 3) &lt;&lt; std::endl;</div>
@@ -920,10 +920,10 @@ Examples</h4>
 </dl>
 <dl class="section pre"><dt>Precondition</dt><dd><span class="paramname texttt">divisor_count</span> is prime.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>Uniformly random number with given prime number of divisors.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md40"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md45"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(log(<span class="paramname texttt">r</span>) log(<span class="paramname texttt">divisor_count</span>))</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md41"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md46"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Generates a random number from 100 to 200 with 3 divisors (p^2).</span></div>
 <div class="line"><span class="keyword">auto</span> n = <a class="code hl_function" href="#ga5d5dda7616f5db664b050a75e9ce1aa1">tgen::math::num_divisors</a>(100, 200, 3);</div>
@@ -976,10 +976,10 @@ Examples</h4>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md50"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md55"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(log <span class="paramname texttt">r</span>)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md51"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md56"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints random two-digit even number.</span></div>
 <div class="line">std::cout &lt;&lt; <a class="code hl_function" href="#ga8bba2f77b31c71efb052b52fb3524dcf">tgen::math::gen_even</a>(10, 99) &lt;&lt; std::endl;</div>
@@ -1032,10 +1032,10 @@ Examples</h4>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md52"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md57"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(log <span class="paramname texttt">r</span>)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md53"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md58"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints random two-digit odd number.</span></div>
 <div class="line">std::cout &lt;&lt; <a class="code hl_function" href="#ga15e352dff6af8059d6c44d4bf02f944e">tgen::math::gen_odd</a>(10, 99) &lt;&lt; std::endl;</div>
@@ -1097,10 +1097,10 @@ Examples</h4>
   </dd>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>Distribution might be slighly biased because of floating point arithmetic.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md56"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md61"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(<span class="paramname texttt">n</span>)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md57"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md62"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Random partition of 10 into parts in [2, 3].</span></div>
 <div class="line"><span class="keyword">auto</span> part = tgen::math::partition(10, 2, 3);</div>
@@ -1167,11 +1167,11 @@ Examples</h4>
   </dd>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>Distribution might be slighly biased because of floating point arithmetic.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md58"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md63"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(<span class="paramname texttt">n</span>)</span> time/memory if <span class="tgen-code texttt"><span class="paramname texttt">part_r</span> = -1</span>; <br  />
  <span class="tgen-code texttt">O(<span class="paramname texttt">n</span> * <span class="paramname texttt">k</span>)</span> time/memory otherwise.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md59"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md64"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Random partition of 10 into 4 parts in [2, 3].</span></div>
 <div class="line"><span class="keyword">auto</span> part = tgen::math::partition_fixed_size(10, 4, 2, 3);</div>
@@ -1224,10 +1224,10 @@ Examples</h4>
 <dl class="section pre"><dt>Precondition</dt><dd><span class="tgen-code texttt"><span class="paramname texttt">n</span> &gt; 0</span>.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random prime in <span class="tgen-code texttt">[<span class="paramname texttt">l</span>, <span class="paramname texttt">r</span>]</span>.</dd></dl>
 <p>If <span class="tgen-code texttt"><span class="paramname texttt">adjust_distribution</span> = true</span>, then generates uniformly over value ranges. Otherwise, uniform over primes, so smaller primes are generated more often.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md32"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md37"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(log <span class="paramname texttt">r</span>)</span> expected.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md33"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md38"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Generates a random prime from 1 to 1e18.</span></div>
 <div class="line"><span class="keyword">auto</span> p = <a class="code hl_function" href="#ga27fcaa21afa26007d0b89599c9e8a4fc">tgen::math::gen_prime</a>(1, 1e18);</div>
@@ -1267,7 +1267,7 @@ Examples</h4>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Largest highly composite number no larger than <span class="paramname texttt">r</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md45"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md50"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints largest highly composite number up to 1e12.</span></div>
 <div class="line">std::cout &lt;&lt; <a class="code hl_function" href="#ga8e9f2826b60f9dbe87eaa12dcb3c762e">tgen::math::highly_composite_upto</a>(1e12) &lt;&lt; std::endl;</div>
@@ -1303,7 +1303,7 @@ Examples</h4>
 <p>Fetches highly composite numbers. </p>
 <p>Fetches highly composite numbers that fit in <span class="tgen-primitive texttt">uint64_t</span> (less than <span class="tgen-code texttt">2^64</span>).</p>
 <dl class="section return"><dt>Returns</dt><dd>Highly composite numbers from <a href="https://oeis.org/A002182/b002182.txt" target="_blank">wikipedia</a>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md44"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md49"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints largest highly composite number that fits in 64 bits.</span></div>
 <div class="line">std::cout &lt;&lt; <a class="code hl_function" href="#gabf0a79bacc6946f032b58627baf9302d">tgen::math::highly_composites</a>().back() &lt;&lt; std::endl;</div>
@@ -1344,10 +1344,10 @@ Examples</h4>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>If the number is prime.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md22"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md27"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(log^2 <span class="paramname texttt">n</span>)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md23"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md28"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="keywordtype">bool</span> <a class="code hl_function" href="#ga5ee9541bd1b0e242551eb4c626241f4d">is_prime</a> = <a class="code hl_function" href="#ga5ee9541bd1b0e242551eb4c626241f4d">tgen::math::is_prime</a>(17);</div>
 <div class="line"><span class="comment">// true</span></div>
@@ -1395,10 +1395,10 @@ Examples</h4>
 <dl class="section pre"><dt>Precondition</dt><dd><span class="tgen-code texttt"><span class="paramname texttt">mod</span> &gt; <span class="paramname texttt">a</span> &gt;= 0</span>. <br  />
  <span class="tgen-code texttt">gcd(<span class="paramname texttt">a</span>, <span class="paramname texttt">mod</span>) = 1</span>.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>Inverse of <span class="paramname texttt">a</span> mod <span class="paramname texttt">mod</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md28"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md33"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(log <span class="paramname texttt">mod</span>)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md29"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md34"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> inv = <a class="code hl_function" href="#gab284e400f26a5ac07f455e04f32a3dcd">tgen::math::modular_inverse</a>(3, 10);</div>
 <div class="line">std::cout &lt;&lt; 3 * inv % 10 &lt;&lt; std::endl;</div>
@@ -1441,10 +1441,10 @@ Examples</h4>
 </dl>
 <dl class="section pre"><dt>Precondition</dt><dd><span class="tgen-code texttt"><span class="paramname texttt">l</span> &lt; 2^64 - 59</span>.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>Smallest prime larger than <span class="paramname texttt">l</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md34"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md39"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(log^3 <span class="paramname texttt">l</span>)</span> expected.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md35"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md40"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints primes between 100 and 200.</span></div>
 <div class="line"><span class="keywordflow">for</span> (<span class="keywordtype">int</span> p = <a class="code hl_function" href="#ga6ddd2290db1853f260b39d3cbe22337d">tgen::math::next_prime</a>(100); p &lt; 200; p = <a class="code hl_function" href="#ga6ddd2290db1853f260b39d3cbe22337d">tgen::math::next_prime</a>(p)) {</div>
@@ -1487,10 +1487,10 @@ Examples</h4>
 </dl>
 <dl class="section pre"><dt>Precondition</dt><dd><span class="tgen-code texttt"><span class="paramname texttt">n</span> &gt; 0</span>.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>Number of divisors of <span class="paramname texttt">n</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md38"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md43"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(<span class="paramname texttt">n</span>^(1/4) log <span class="paramname texttt">n</span>)</span> expected.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md39"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md44"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::cout &lt;&lt; <a class="code hl_function" href="#ga5d5dda7616f5db664b050a75e9ce1aa1">tgen::math::num_divisors</a>(12) &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// &quot;6&quot;</span></div>
@@ -1530,10 +1530,10 @@ Examples</h4>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Largest prime smaller than <span class="paramname texttt">r</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md36"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md41"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(log^3 <span class="paramname texttt">r</span>)</span> expected.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md37"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md42"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Prints primes between 100 and 200 in reverse.</span></div>
 <div class="line"><span class="keywordflow">for</span> (<span class="keywordtype">int</span> p = <a class="code hl_function" href="#gac5ff6eed324cb720e4d93f3f9f203aa3">tgen::math::prev_prime</a>(200); p &gt; 100; p = <a class="code hl_function" href="#gac5ff6eed324cb720e4d93f3f9f203aa3">tgen::math::prev_prime</a>(p)) {</div>
@@ -1576,7 +1576,7 @@ Examples</h4>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Largest prime gap no larger than <span class="paramname texttt">r</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md43"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md48"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Computes largest prime gap up to 1e12.</span></div>
 <div class="line"><span class="keyword">auto</span> [l, r] = <a class="code hl_function" href="#ga13460b7ed2494b9be9cb46052b30aac9">tgen::math::prime_gap_upto</a>(1e12);</div>
@@ -1611,7 +1611,7 @@ Examples</h4>
 <p>Fetches prime gaps. </p>
 <p>Fetches maximal prime gaps for numbers that fit in <span class="tgen-primitive texttt">uint64_t</span> (less than <span class="tgen-code texttt">2^64</span>).</p>
 <dl class="section return"><dt>Returns</dt><dd>Columns <span class="tgen-code texttt">p_n</span> and <span class="tgen-code texttt">g_n</span> from <a href="https://en.wikipedia.org/wiki/Prime_gap#Numerical_results" target="_blank">wikipedia</a>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md42"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md47"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> &amp;[p, g] = <a class="code hl_function" href="#ga087cc8f45a697f44dc8370c3f025fd58">tgen::math::prime_gaps</a>();</div>
 <div class="ttc" id="agroup__math_html_ga087cc8f45a697f44dc8370c3f025fd58"><div class="ttname"><a href="#ga087cc8f45a697f44dc8370c3f025fd58">tgen::math::prime_gaps</a></div><div class="ttdeci">const std::pair&lt; std::vector&lt; uint64_t &gt;, std::vector&lt; uint64_t &gt; &gt; &amp; prime_gaps()</div><div class="ttdoc">Fetches prime gaps.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01485">tgen.h:1485</a></div></div>
@@ -1652,10 +1652,10 @@ Examples</h4>
 </dl>
 <dl class="section pre"><dt>Precondition</dt><dd><span class="tgen-code texttt"><span class="paramname texttt">n</span> &gt; 0</span>.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>Totient of <span class="paramname texttt">n</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md30"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md35"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(<span class="paramname texttt">n</span>^(1/4) log <span class="paramname texttt">n</span>)</span> expected.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md31"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md36"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::cout &lt;&lt; <a class="code hl_function" href="#ga4849c3f95638a417f58d164d753c69a1">tgen::math::totient</a>(10) &lt;&lt; std::endl;</div>
 <div class="line"><span class="comment">// &quot;4&quot;</span></div>
@@ -1687,7 +1687,7 @@ Examples</h4>
 </div><div class="memdoc">
 
 <p>FFT/NTT mod. </p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md54"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md59"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="keywordtype">int</span> fft_mod = <a class="code hl_variable" href="#ga70a5af9e73c354e43e12535aaa846e2c">tgen::math::FFT_MOD</a>;</div>
 <div class="ttc" id="agroup__math_html_ga70a5af9e73c354e43e12535aaa846e2c"><div class="ttname"><a href="#ga70a5af9e73c354e43e12535aaa846e2c">tgen::math::FFT_MOD</a></div><div class="ttdeci">constexpr int FFT_MOD</div><div class="ttdoc">FFT/NTT mod.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l01714">tgen.h:1714</a></div></div>

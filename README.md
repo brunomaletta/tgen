@@ -13,6 +13,8 @@
 	<a href="https://brunomaletta.github.io/tgen/index.html" target="_blank" rel="noopener noreferrer nofollow" style="display:inline-block"><img src="https://img.shields.io/badge/doxygen-2C4AA8?style=default&logo=doxygen&logoColor=white" alt="Documentation" style="max-width: 100%;"></a>
 </p>
 
+---
+
 ## 🎯 Overview
 
 `tgen` is a C++ header for writing random testcase generators quickly and safely.
@@ -20,6 +22,8 @@
 Instead of manually coding ad-hoc generators, use powerful algorithmic machinery to guarantee simple, correct and uniform generation.
 
 There is support for arrays, permutations, maths, and more.
+
+---
 
 ## ⚡ Quick examples
 
@@ -41,6 +45,8 @@ std::cout << tgen::sequence<int>(20, 10, 99).distinct().gen() << std::endl;
 
 No loops. No backtracking. No custom generator code.
 
+---
+
 ## ⚖️ Why not [testlib](https://github.com/MikeMirzayanov/testlib) / [jngen](https://github.com/ifsmirnov/jngen)?
 
 `tgen` works in a similar way as traditional generators, but has support for declarative generation, worst-case sampling, and many useful and powerful helpers.
@@ -59,6 +65,8 @@ and include
 #include "tgen.h"
 ```
 
+---
+
 ## 🎲 Generation
 
 Similar to traditional generators, there is registration and opts (arguments).
@@ -72,6 +80,8 @@ int main(int argc, char** argv) {
 ``` 
 
 We can run with `n=100` by calling `./gen -n 100`.
+
+---
 
 ## 📚 Documentation
 

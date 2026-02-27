@@ -575,7 +575,7 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <p>Operations for basic number generation and basic random operations. </p>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md6"></a>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md11"></a>
 Examples</h3>
 <div class="fragment"><div class="line"><span class="comment">// Random number from 10 to 20.</span></div>
 <div class="line"><span class="keywordtype">int</span> size = <a class="code hl_function" href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a>(10, 20);</div>
@@ -629,7 +629,7 @@ Examples</h3>
   </table>
   </dd>
 </dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md7"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md12"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Without error message:</span></div>
 <div class="line"><a class="code hl_define" href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(a == b);</div>
@@ -667,10 +667,10 @@ template&lt;typename C&gt; </div>
 </dl>
 <p>Also works with <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>.</p>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random element from <span class="paramname texttt">container</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md17"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md22"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(1)</span> for random_access_iterator, <span class="tgen-code texttt">O(|<span class="paramname texttt">container</span>|)</span> otherwise.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md18"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md23"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
 <div class="line"><span class="keywordtype">int</span> value = <a class="code hl_function" href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a>(v);</div>
@@ -709,10 +709,10 @@ template&lt;typename It&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random element from the range <span class="tgen-code texttt">[<span class="paramname texttt">first</span>, <span class="paramname texttt">last</span>)</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md15"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md20"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(1)</span> for random_access_iterator, <span class="tgen-code texttt">O(|<span class="paramname texttt">last</span> - <span class="paramname texttt">first</span>|)</span> otherwise.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md16"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md21"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::set&lt;int&gt; st = {1, 2, 3, 4, 5};</div>
 <div class="line"><span class="keywordtype">int</span> value = <a class="code hl_function" href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a>(st.begin(), st.end());</div>
@@ -752,10 +752,10 @@ template&lt;typename C&gt; </div>
 </dl>
 <p>Also works with <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>.</p>
 <dl class="section return"><dt>Returns</dt><dd>A uniformly random subsequence of length <span class="paramname texttt">k</span>.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md19"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md24"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(|<span class="paramname texttt">container</span>|)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md20"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md25"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
 <div class="line">v = <a class="code hl_function" href="#ga5deceed8488585530188dbd266739771">tgen::choose</a>(3, v); <span class="comment">// Chooses 3 elements from v.</span></div>
@@ -800,10 +800,10 @@ template&lt;typename T&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A random number in <span class="tgen-code texttt">[<span class="paramname texttt">l</span>, <span class="paramname texttt">r</span>]</span>, chosen uniformly.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md9"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md14"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(1)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md10"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md15"></a>
 Examples</h4>
 <div class="fragment"><div class="line"><span class="comment">// Random value from 1 to 10.</span></div>
 <div class="line"><span class="keywordtype">int</span> value = <a class="code hl_function" href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a>(1, 10);</div>
@@ -846,10 +846,10 @@ template&lt;typename C, std::enable_if_t&lt;!<a class="el" href="structtgen_1_1i
 </dl>
 <p>Works for containers and <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>. If <span class="paramname texttt">container</span> is ordered (<span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>, etc) or <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>, returns a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span> (implemented in a different function).</p>
 <dl class="section return"><dt>Returns</dt><dd>The shuffled container.</dd></dl>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md13"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md18"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(|<span class="paramname texttt">container</span>|)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md14"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md19"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; st = {1, 2, 3, 4, 5};</div>
 <div class="line">st = <a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(st);</div>
@@ -890,10 +890,10 @@ template&lt;typename It&gt; </div>
   </dd>
 </dl>
 <p>Shuffles <span class="tgen-code texttt">[<span class="paramname texttt">first</span>, <span class="paramname texttt">last</span>)</span> uniformly inplace. Works for <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>, <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">string</span></span>, etc, but not <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>. For those, use <span class="tgen-code texttt"><a class="el" href="#ga5494e4e347f9d1dc5b88695e0777f65b" title="Shuffles range inplace, for random_access_iterator.">tgen::shuffle</a>(<span class="paramname texttt">container</span>)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md11"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md16"></a>
 Complexity</h4>
 <p><span class="tgen-code texttt">O(|<span class="paramname texttt">last</span> - <span class="paramname texttt">first</span>|)</span>.</p>
-<h4 class="doxsection"><a class="anchor" id="autotoc_md12"></a>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md17"></a>
 Examples</h4>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
 <div class="line"><a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(v.begin(), v.end());</div>

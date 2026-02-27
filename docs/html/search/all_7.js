@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['instalation_0',['📦 Instalation',['../index.html#autotoc_md3',1,'']]],
+  ['instalation_0',['📦 Instalation',['../index.html#autotoc_md6',1,'']]],
   ['instance_1',['instance',['../structtgen_1_1permutation_1_1instance.html',1,'tgen::permutation::instance'],['../structtgen_1_1sequence_1_1instance.html',1,'tgen::sequence&lt; T &gt;::instance'],['../group__sequence__inst.html#ga39249fd872f46b057ab7674883236dc1',1,'tgen::sequence::instance::instance()'],['../group__permutation__inst.html#ga022bd193f265bdddb5e88563bf539bdc',1,'tgen::permutation::instance::instance()']]],
   ['instances_2',['instances',['../group__permutation__inst.html',1,'Permutation instances'],['../group__sequence__inst.html',1,'Sequence instances']]],
   ['inverse_3',['inverse',['../group__permutation__inst.html#gaeb967ffde958a906c4f41a47fe382a07',1,'tgen::permutation::instance']]],
