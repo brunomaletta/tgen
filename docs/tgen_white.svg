@@ -1,5 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 120">
-
   <style>
     .mono {
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -9,11 +8,10 @@
     }
   </style>
 
-  <!-- vertical optical baseline correction -->
-  <g transform="translate(10,-8)">
+  <!-- optical horizontal offset only -->
+  <g transform="translate(10,0)">
     <text x="20" y="82" class="mono" fill="#ffffff">t</text>
     <circle cx="78" cy="75" r="7" fill="#ffffff"/>
     <text x="90" y="82" class="mono" fill="#3fb4ff">gen()</text>
   </g>
-
 </svg>
