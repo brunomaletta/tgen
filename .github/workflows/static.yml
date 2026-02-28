@@ -1,88 +1,75 @@
-name: Docs
+name: Tests + Docs + Deploy
 
 on:
   push:
-    branches: ["main"]
-  workflow_dispatch:
+    branches: [ main ]
+  pull_request:
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
 
-  # ---------------- TESTS ----------------
-  gtest:
+  # -------------------- TESTS --------------------
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
+      - name: Install compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ make
+
+      - name: Run tests (same as local)
+        run: make test
+
+
+  # -------------------- DOCS --------------------
+  build-docs:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # clang parser dependencies
       - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install -y g++ libgtest-dev cmake
+          sudo apt-get update
+          sudo apt-get install -y clang libclang-dev graphviz wget
 
-      - name: Build gtest (Ubuntu requirement)
+      # exact doxygen version (matches local)
+      - name: Install Doxygen 1.14.0
         run: |
-          cd /usr/src/googletest
-          sudo cmake .
-          sudo make
-          sudo cp lib/libgtest*.a /usr/lib/
+          DOXYGEN_VERSION=1.14.0
+          wget -q https://github.com/doxygen/doxygen/releases/download/Release_${DOXYGEN_VERSION}/doxygen-${DOXYGEN_VERSION}.linux.x86_64.bin.tar.gz
+          tar -xf doxygen-${DOXYGEN_VERSION}.linux.x86_64.bin.tar.gz
+          sudo mv doxygen-${DOXYGEN_VERSION}/bin/doxygen /usr/local/bin/
+          doxygen --version
 
-      - name: Compile tests
-        run: |
-          g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I src -o tests_runner
+      - name: Build documentation
+        run: make doc
 
-      - name: Run tests
-        run: ./tests_runner
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/build
 
 
-  # ---------------- DOCS + DEPLOY ----------------
+  # -------------------- DEPLOY --------------------
   deploy:
-    needs: gtest
+    needs: build-docs
     runs-on: ubuntu-latest
-
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Checkout (with submodules)
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      # Required for CLANG_ASSISTED_PARSING
-      - name: Install toolchain
-        run: |
-          sudo apt update
-          sudo apt install -y \
-            doxygen \
-            graphviz \
-            make \
-            clang \
-            libc++-dev \
-            libc++abi-dev
-
-      - name: Build documentation
-        run: make doc
-
-      # Required by GitHub Pages
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs/build
-
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
