@@ -53,13 +53,14 @@ jobs:
         run: |
           set -e
           DOXYGEN_VERSION=1.14.0
-          FILE=doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz
-          URL=https://github.com/doxygen/doxygen/releases/download/Release_${DOXYGEN_VERSION}/${FILE}
-
+          URL=https://github.com/doxygen/doxygen/releases/download/Release_1_14_0/doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz
+       
           echo "Downloading $URL"
-          curl -fL -o $FILE $URL
-          tar -xf $FILE
+          curl -L $URL -o doxygen.tar.gz
+       
+          tar -xf doxygen.tar.gz
           sudo mv doxygen-${DOXYGEN_VERSION}/bin/doxygen /usr/local/bin/
+       
           doxygen --version
 
       - name: Build documentation
