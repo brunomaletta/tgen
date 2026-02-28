@@ -8,8 +8,35 @@ a:
 debug:
 	g++ -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow -std=c++17 a.cpp -I src -o a
 
-doc:
-	doxygen docs/Doxyfile
+DOC_BUILD_DIR := build
+DOC_HTML_DIR  := $(DOC_BUILD_DIR)/html
+DOC_SRC_DIR   := docs
+THEME_DIR     := docs/doxygen-awesome-css
+
+.PHONY: doc clean-doc
+
+doc: clean-doc
+	doxygen $(DOC_SRC_DIR)/Doxyfile
+
+	@# ensure directory exists even if doxygen changes settings
+	mkdir -p $(DOC_HTML_DIR)
+
+	# copy theme assets into html root
+	cp $(THEME_DIR)/*.css $(DOC_HTML_DIR)/
+	cp $(THEME_DIR)/*.js  $(DOC_HTML_DIR)/
+
+	# project assets
+	cp $(DOC_SRC_DIR)/custom.css $(DOC_HTML_DIR)/
+	cp $(DOC_SRC_DIR)/header.html $(DOC_HTML_DIR)/
+	cp $(DOC_SRC_DIR)/layout.xml $(DOC_HTML_DIR)/
+	cp $(DOC_SRC_DIR)/tgen_white.svg $(DOC_HTML_DIR)/
+	cp $(DOC_SRC_DIR)/tgen_white_small.svg $(DOC_HTML_DIR)/
+
+	# GitHub Pages safety
+	touch $(DOC_HTML_DIR)/.nojekyll
+
+clean-doc:
+	rm -rf $(DOC_BUILD_DIR)
 
 opendoc:
 	google-chrome docs/html/index.html > /dev/null 2>&1 &

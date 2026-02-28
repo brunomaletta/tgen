@@ -3008,5 +3008,3 @@ ALIASES += namespace{1}="<span class=\"tgen-ns\">\1</span>"
 
 HTML_EXTRA_FILES += docs/tgen_white.svg
 
-
-HTML_BASEURL = /tgen/

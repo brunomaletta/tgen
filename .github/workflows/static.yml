@@ -45,50 +45,40 @@ jobs:
 
   deploy:
     needs: gtest
+    runs-on: ubuntu-latest
+  
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+  
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-
+  
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # Install clang 20 (same as your PC)
-      - name: Install LLVM/Clang 20
+        with:
+          submodules: recursive   # IMPORTANT (you use doxygen-awesome as submodule)
+  
+      - name: Install doxygen
         run: |
           sudo apt update
-          sudo apt install -y wget software-properties-common gnupg
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 20
-
-          echo "CC=clang-20" >> $GITHUB_ENV
-          echo "CXX=clang++-20" >> $GITHUB_ENV
-
-      # Required for doxygen
-      - name: Install documentation tools
-        run: |
           sudo apt install -y doxygen graphviz make
-
-      # Clean previous HTML (CRITICAL)
-      - name: Clean old docs
-        run: rm -rf docs/html
-
-      # Generate documentation
-      - name: Build docs
+  
+      - name: Build documentation
         run: make doc
-
+  
+      # Pages requires this file to exist
       - name: Setup Pages
         uses: actions/configure-pages@v5
-
-      - name: Upload artifact
+  
+      - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'docs'
-
-      - name: Deploy to GitHub Pages
+          path: build/html
+  
+      - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          path: docs
