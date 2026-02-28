@@ -18,9 +18,6 @@ THEME_DIR     := docs/doxygen-awesome-css
 doc: clean-doc
 	cd $(DOC_SRC_DIR) && doxygen Doxyfile
 
-	@# ensure directory exists even if doxygen changes settings
-	mkdir -p $(DOC_HTML_DIR)
-
 	# copy theme assets into html root
 	cp $(THEME_DIR)/*.css $(DOC_HTML_DIR)/
 	cp $(THEME_DIR)/*.js  $(DOC_HTML_DIR)/
