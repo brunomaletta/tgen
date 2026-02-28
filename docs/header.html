@@ -68,6 +68,31 @@ document.addEventListener('DOMContentLoaded', function() {
 						);
 				if (!nodes.length) return;
 
+				const raw = nodes.map(n => n.textContent).join('').trimStart();
+
+				if (raw.startsWith("#define")) {
+					const retSpan = document.createElement("span");
+					retSpan.className = "tgen-return";
+					retSpan.textContent = "#define";
+
+					const nameSpan = document.createElement("span");
+					nameSpan.className = "tgen-name";
+
+					// Everything after "#define"
+					const after = raw.slice(7).trimStart();
+
+					// extract macro identifier only
+					const match = after.match(/^([A-Za-z_]\w*)/);
+					if (match) nameSpan.textContent = match[1];
+					else nameSpan.textContent = after; // fallback
+
+					el.innerHTML = "";
+					el.appendChild(retSpan);
+					el.appendChild(document.createTextNode(" "));
+					el.appendChild(nameSpan);
+					return;
+				}
+
 				// heuristic that decides if RHS looks like a function name
 				function looksLikeFunctionName(str) {
 				str = str.trim();
@@ -208,10 +233,12 @@ document.addEventListener('DOMContentLoaded', function() {
 	]);
 
 	const CPP_KEYWORDS = new Set([
+	  "#define",
 	  "const","constexpr","static","volatile","mutable",
 	  "typename","class","struct","signed","unsigned"
 	]);
 
+	// ACTUAL FUNCTION
 	function highlightType(node) {
 		const walker = document.createTreeWalker(
 				node,
@@ -225,7 +252,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		while (walker.nextNode()) textNodes.push(walker.currentNode);
 
 		// tokeniser: keep words, C++ separators and whitespace as separate tokens
-		const SPLIT_RE = /(\b|::|[:<>,()=*&]|\s+)/;
+		//const SPLIT_RE = /(\b|::|[:<>,()=*&]|\s+)/;
+		const SPLIT_RE = /(\s+|#[A-Za-z_]\w*|::|->\*|->|<=|>=|==|!=|&&|\|\||<<|>>|[()<>*&,:~#])/g;
 
 		for (const textNode of textNodes) {
 
@@ -300,11 +328,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-	// Highlight return type in funciton list.
+	// Highlight return type in FUNCTION LIST.
 	function highlightReturnType(td) {
 
 		function tokenize(str) {
-			return str.split(/(\b|::|<|>|,|&|\*|\s+)/);
+			//return str.split(/(\b|::|<|>|,|&|\*|\s+)/);
+			return str.split(/(#[A-Za-z_]\w*|::|<|>|,|&|\*|\s+|\b)/);
 		}
 
 		function classify(tok) {
@@ -319,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
 
-			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+			if (/^(#define|struct|const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
 				return "keyword";
 
 			if (tok === "std")
@@ -360,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 	document.querySelectorAll("td.memItemLeft").forEach(highlightReturnType);
 
-	// Highlight parameters in function list.
+	// Highlight parameters in FUNCTION LIST.
 	function highlightSignature(td) {
 
 		function tokenize(str) {
