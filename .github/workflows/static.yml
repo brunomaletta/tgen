@@ -1,4 +1,4 @@
-name: Tests + Docs + Deploy
+name: Lint + Tests + Docs + Deploy
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
 
-  # -------------------- TESTS --------------------
+  # -------------------- LINT + TESTS --------------------
   test:
     runs-on: ubuntu-latest
 
@@ -31,6 +31,9 @@ jobs:
           sudo cmake .
           sudo make
           sudo cp lib/*.a /usr/lib
+
+      - name: Check formatting
+        run: make lint-check
 
       - name: Run tests
         run: make test

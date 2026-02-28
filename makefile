@@ -41,15 +41,19 @@ clean-doc:
 opendoc:
 	google-chrome docs/build/index.html > /dev/null 2>&1 &
 
-dropdoc:
-	git checkout -- docs
-
 lint:
-	find a.cpp src/* tests/*.cpp -iname '*.h' -o -iname '*.cpp' | xargs clang-format -i
+	find a.cpp src tests \( -name '*.h' -o -name '*.cpp' \) -print0 | xargs -0 clang-format -i
+
+lint-check:
+	@echo "Checking formatting..."
+	@find a.cpp src tests \( -name '*.h' -o -name '*.cpp' \) -print0 | \
+	xargs -0 clang-format --dry-run --Werror || \
+	( echo ""; echo "Run 'make lint' to fix formatting"; exit 1 )
+	@echo "Formatting check passed"
 
 test:
 	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I src -o test
-	-./test
+	./test
 	rm -f test
 
 testas:
