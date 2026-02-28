@@ -19,10 +19,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install compiler
+      - name: Install compiler and gtest
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++ make
+          sudo apt-get install -y g++ make cmake libgtest-dev
+      
+          # Build gtest (Ubuntu provides sources only)
+          cd /usr/src/gtest
+          sudo cmake .
+          sudo make
+          sudo cp lib/*.a /usr/lib
 
       - name: Run tests (same as local)
         run: make test
@@ -45,9 +51,14 @@ jobs:
       # exact doxygen version (matches local)
       - name: Install Doxygen 1.14.0
         run: |
+          set -e
           DOXYGEN_VERSION=1.14.0
-          wget -q https://github.com/doxygen/doxygen/releases/download/Release_${DOXYGEN_VERSION}/doxygen-${DOXYGEN_VERSION}.linux.x86_64.bin.tar.gz
-          tar -xf doxygen-${DOXYGEN_VERSION}.linux.x86_64.bin.tar.gz
+          FILE=doxygen-${DOXYGEN_VERSION}.linux.x64.bin.tar.gz
+          URL=https://github.com/doxygen/doxygen/releases/download/Release_${DOXYGEN_VERSION}/${FILE}
+      
+          echo "Downloading $URL"
+          wget -q --show-progress $URL
+          tar -xf $FILE
           sudo mv doxygen-${DOXYGEN_VERSION}/bin/doxygen /usr/local/bin/
           doxygen --version
 
