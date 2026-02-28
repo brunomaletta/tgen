@@ -48,6 +48,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang libclang-dev graphviz wget
 
+      - name: Install C++ toolchain headers (required for clang parsing)
+        run: |
+          sudo apt install -y build-essential libc6-dev libstdc++-12-dev
+
       # exact doxygen version (matches local)
       - name: Install Doxygen 1.14.0
         run: |
