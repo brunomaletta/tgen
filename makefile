@@ -39,7 +39,7 @@ clean-doc:
 	rm -rf $(DOC_BUILD_DIR)
 
 opendoc:
-	google-chrome docs/html/index.html > /dev/null 2>&1 &
+	google-chrome docs/build/index.html > /dev/null 2>&1 &
 
 dropdoc:
 	git checkout -- docs
