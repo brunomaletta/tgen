@@ -11,8 +11,8 @@
 
   <!-- baseline compensation -->
   <g transform="translate(10,0)">
-    <text x="20" y="82" class="mono" fill="#000000">t</text>
-    <circle cx="78" cy="75.5" r="7" fill="#000000"/>
+    <text x="20" y="82" class="mono" fill="#24292f">t</text>
+    <circle cx="78" cy="75.5" r="7" fill="#24292f"/>
     <text x="90" y="82" class="mono" fill="#3fb4ff">gen()</text>
   </g>
 
