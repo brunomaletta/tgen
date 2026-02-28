@@ -8,15 +8,15 @@ a:
 debug:
 	g++ -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow -std=c++17 a.cpp -I src -o a
 
-DOC_BUILD_DIR := build
-DOC_HTML_DIR  := $(DOC_BUILD_DIR)/html
+DOC_BUILD_DIR := docs/build
+DOC_HTML_DIR  := $(DOC_BUILD_DIR)
 DOC_SRC_DIR   := docs
 THEME_DIR     := docs/doxygen-awesome-css
 
 .PHONY: doc clean-doc
 
 doc: clean-doc
-	doxygen $(DOC_SRC_DIR)/Doxyfile
+	cd $(DOC_SRC_DIR) && doxygen Doxyfile
 
 	@# ensure directory exists even if doxygen changes settings
 	mkdir -p $(DOC_HTML_DIR)

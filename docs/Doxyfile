@@ -61,7 +61,7 @@ PROJECT_BRIEF          =
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = docs/tgen_white_small.svg
+PROJECT_LOGO           = tgen_white_small.svg
 
 # With the PROJECT_ICON tag one can specify an icon that is included in the tabs
 # when the HTML document is shown. Doxygen will copy the logo to the output
@@ -2948,33 +2948,34 @@ MSCFILE_DIRS           =
 
 
 
-INPUT += README.md src docs
+INPUT += ../README.md ../src .
 
-USE_MDFILE_AS_MAINPAGE = README.md
+USE_MDFILE_AS_MAINPAGE = ../README.md
 
 PAGE_OUTLINE_PANEL = NO
 
-HTML_EXTRA_FILES       = docs/doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js \
-					docs/doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js \
-					docs/doxygen-awesome-css/doxygen-awesome-paragraph-link.js \
-					docs/doxygen-awesome-css/doxygen-awesome-interactive-toc.js \
-					docs/doxygen-awesome-css/doxygen-awesome-tabs.js \
+HTML_EXTRA_FILES       = doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js \
+					doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js \
+					doxygen-awesome-css/doxygen-awesome-paragraph-link.js \
+					doxygen-awesome-css/doxygen-awesome-interactive-toc.js \
+					doxygen-awesome-css/doxygen-awesome-tabs.js \
 
-HTML_EXTRA_STYLESHEET = docs/doxygen-awesome-css/doxygen-awesome.css \
-				docs/doxygen-awesome-css/doxygen-awesome-sidebar-only.css \
-				docs/doxygen-awesome-css/doxygen-awesome-sidebar-only-darkmode-toggle.css \
-				docs/custom.css \
+HTML_EXTRA_STYLESHEET = doxygen-awesome-css/doxygen-awesome.css \
+				doxygen-awesome-css/doxygen-awesome-sidebar-only.css \
+				doxygen-awesome-css/doxygen-awesome-sidebar-only-darkmode-toggle.css \
+				custom.css \
 
 GENERATE_TREEVIEW      = YES # required!
 DISABLE_INDEX          = NO
 FULL_SIDEBAR           = NO
 HTML_COLORSTYLE        = LIGHT # required with Doxygen >= 1.9.5
 
-HTML_HEADER            = docs/header.html
+HTML_HEADER            = header.html
 
 HTML_COPY_CLIPBOARD=NO
 
-OUTPUT_DIRECTORY = docs
+OUTPUT_DIRECTORY = build
+HTML_OUTPUT      = .
 
 SHOW_FILES = NO
 
@@ -2986,7 +2987,7 @@ EXPAND_ONLY_PREDEF = NO
 
 HIDE_UNDOC_MEMBERS = YES
 
-LAYOUT_FILE            = docs/layout.xml
+LAYOUT_FILE            = layout.xml
 
 GENERATE_LATEX = NO
 
@@ -3006,5 +3007,5 @@ ALIASES += primitive{1}="<span class=\"tgen-primitive texttt\">\1</span>"
 ALIASES += namespace{1}="<span class=\"tgen-ns\">\1</span>"
 
 
-HTML_EXTRA_FILES += docs/tgen_white.svg
+HTML_EXTRA_FILES += tgen_white.svg
 

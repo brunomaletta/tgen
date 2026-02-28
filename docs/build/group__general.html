@@ -1,0 +1,916 @@
+<!-- HTML header for doxygen 1.9.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.14.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>tgen: General Operations</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
+<link href="custom.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript">
+	DoxygenAwesomeDarkModeToggle.lightModeIcon = '🌞'
+	// icon from https://fonts.google.com/icons
+	DoxygenAwesomeDarkModeToggle.darkModeIcon = `<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#009793"><g><rect fill="none" height="24" width="24"/></g><g><g><path d="M8.1,14.15C9.77,14.63,11,16.17,11,18c0,0.68-0.19,1.31-0.48,1.87c0.48,0.09,0.97,0.14,1.48,0.14 c1.48,0,2.9-0.41,4.13-1.15c-2.62-0.92-5.23-2.82-6.8-5.86C7.74,9.94,7.78,7.09,8.29,4.9c-2.57,1.33-4.3,4.01-4.3,7.1c0,0,0,0,0,0 c0.01,0,0.01,0,0.02,0C5.66,12,7.18,12.83,8.1,14.15z" opacity=".3"/><path d="M19.78,17.51c-2.47,0-6.57-1.33-8.68-5.43C8.77,7.57,10.6,3.6,11.63,2.01C6.27,2.2,1.98,6.59,1.98,12 c0,0.14,0.02,0.28,0.02,0.42C2.61,12.16,3.28,12,3.98,12c0,0,0,0,0,0c0-3.09,1.73-5.77,4.3-7.1C7.78,7.09,7.74,9.94,9.32,13 c1.57,3.04,4.18,4.95,6.8,5.86c-1.23,0.74-2.65,1.15-4.13,1.15c-0.5,0-1-0.05-1.48-0.14c-0.37,0.7-0.94,1.27-1.64,1.64 c0.98,0.32,2.03,0.5,3.11,0.5c3.5,0,6.58-1.8,8.37-4.52C20.18,17.5,19.98,17.51,19.78,17.51z"/><path d="M7,16l-0.18,0C6.4,14.84,5.3,14,4,14c-1.66,0-3,1.34-3,3s1.34,3,3,3c0.62,0,2.49,0,3,0c1.1,0,2-0.9,2-2 C9,16.9,8.1,16,7,16z"/></g></g></svg>`
+	DoxygenAwesomeDarkModeToggle.init()
+</script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript">
+	DoxygenAwesomeFragmentCopyButton.init()
+</script>
+<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+<script type="text/javascript">
+	DoxygenAwesomeTabs.init()
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    // --- keep your colgroup code ---
+    var tables = document.querySelectorAll('table.memberdecls');
+    tables.forEach(function(table) {
+        var colgroup = document.createElement('colgroup');
+        var col1 = document.createElement('col');
+        var col2 = document.createElement('col');
+        col1.style.width = '300px';
+        col2.style.width = 'auto';
+        colgroup.appendChild(col1);
+        colgroup.appendChild(col2);
+        table.insertBefore(colgroup, table.firstChild);
+    });
+	// split return type + function name ONLY on first signature row
+	document.querySelectorAll(
+			".memproto table.memname > tbody > tr:first-child > td.memname"
+			).forEach(el => {
+				if (el.querySelector(".tgen-return")) return;
+				// keep only text nodes and anchors (others unlikely here)
+				const nodes = Array.from(el.childNodes).filter(n =>
+						n.nodeType === Node.TEXT_NODE || (n.nodeType === Node.ELEMENT_NODE && n.tagName === "A")
+						);
+				if (!nodes.length) return;
+				// heuristic that decides if RHS looks like a function name
+				function looksLikeFunctionName(str) {
+				str = str.trim();
+				if (!str) return false;
+				if (str.includes("::")) return true;                 // namespaced/method
+				if (/^operator[^\s]*$/.test(str)) return true;       // operator (maybe no paren)
+				if (/^[~A-Za-z_]\w*\s*\(/.test(str)) return true;    // free function with '('
+				return false;
+				}
+				// primary pass: find last space outside templates where RHS looks like function name
+				let templateDepth = 0;
+				let splitNodeIndex = -1;
+				let splitOffset = -1; // only meaningful when splitting inside a text node
+				for (let i = nodes.length - 1; i >= 0; --i) {
+					const n = nodes[i];
+					const text = n.textContent;
+					for (let j = text.length - 1; j >= 0; --j) {
+						const c = text[j];
+						if (c === '>') templateDepth++;
+						else if (c === '<') templateDepth--;
+						if (templateDepth === 0 && c === ' ') {
+							// build RHS candidate: remainder of this node plus all following nodes
+							let rhs = text.slice(j + 1);
+							for (let k = i + 1; k < nodes.length; ++k) rhs += nodes[k].textContent;
+							if (looksLikeFunctionName(rhs)) {
+								splitNodeIndex = i;
+								splitOffset = j;
+								break;
+							}
+						}
+					}
+					if (splitNodeIndex !== -1) break;
+				}
+				// operator fallback: search across full concatenated text for last "operator..."
+				if (splitNodeIndex === -1) {
+					const full = nodes.map(n => n.textContent).join('');
+					const opPos = full.lastIndexOf('operator');
+					if (opPos !== -1) {
+						// ensure operator is a standalone token (preceded by whitespace or start)
+						const beforeChar = opPos > 0 ? full[opPos - 1] : ' ';
+						if (/\s/.test(beforeChar)) {
+							// find the last space before opPos (split should occur at that space)
+							let spacePos = full.lastIndexOf(' ', opPos - 1);
+							if (spacePos === -1) spacePos = 0; // fallback: split at start if weird layout
+							// map spacePos back to node index + offset
+							let cum = 0;
+							let foundNode = -1;
+							let foundOffset = -1;
+							for (let i = 0; i < nodes.length; ++i) {
+								const len = nodes[i].textContent.length;
+								if (spacePos < cum + len) {
+									foundNode = i;
+									foundOffset = spacePos - cum;
+									break;
+								}
+								cum += len;
+							}
+							if (foundNode === -1) {
+								// spacePos at end — put split before last node
+								splitNodeIndex = nodes.length - 2;
+								splitOffset = nodes[splitNodeIndex].textContent.length - 1;
+							} else {
+								// If split is at start of node (offset === 0) we treat as splitting between nodes:
+								if (foundOffset === 0) {
+									splitNodeIndex = foundNode - 1;
+									splitOffset = (splitNodeIndex >= 0) ? nodes[splitNodeIndex].textContent.length - 1 : -1;
+								} else {
+									splitNodeIndex = foundNode;
+									splitOffset = foundOffset; // index of the space within that node's text
+								}
+							}
+						}
+					}
+				}
+				// If still no split found: constructor/unknown → treat whole thing as name
+				if (splitNodeIndex === -1) {
+					const nameSpan = document.createElement("span");
+					nameSpan.className = "tgen-name";
+					// append clones to avoid moving original nodes while iterating
+					nodes.forEach(n => nameSpan.appendChild(n.cloneNode(true)));
+					el.innerHTML = "";
+					el.appendChild(nameSpan);
+					return;
+				}
+				// Build ret/name spans safely (preserve anchors)
+				const retSpan = document.createElement("span");
+				retSpan.className = "tgen-return";
+				const nameSpan = document.createElement("span");
+				nameSpan.className = "tgen-name";
+				for (let idx = 0; idx < nodes.length; ++idx) {
+					const node = nodes[idx];
+					// clone to avoid side effects
+					const clone = node.cloneNode(true);
+					if (idx < splitNodeIndex) {
+						retSpan.appendChild(clone);
+					} else if (idx > splitNodeIndex) {
+						nameSpan.appendChild(clone);
+					} else {
+						// split inside this node (or between nodes if splitOffset == -1)
+						if (node.nodeType === Node.TEXT_NODE && splitOffset >= 0) {
+							const left = node.textContent.slice(0, splitOffset);
+							const right = node.textContent.slice(splitOffset + 1);
+							if (left) retSpan.appendChild(document.createTextNode(left));
+							if (right) nameSpan.appendChild(document.createTextNode(right));
+						} else {
+							// element (anchor) or odd case — put it into the name (operators or qualified names often appear here)
+							nameSpan.appendChild(clone);
+						}
+					}
+				}
+				// replace content preserving all other DOM nodes not in nodes array
+				// (we used el.childNodes filtered earlier; to be safe, replace entire content)
+				el.innerHTML = "";
+				el.appendChild(retSpan);
+				el.appendChild(nameSpan);
+	});
+	// ------------------------------------
+	// C++ type syntax highlighter
+	// ------------------------------------
+	const CPP_PRIMITIVES = new Set([
+	  "int","long","short","char","float","double","bool","void",
+	  "size_t","ptrdiff_t",
+	  "uint8_t","uint16_t","uint32_t","uint64_t",
+	  "int8_t","int16_t","int32_t","int64_t",
+	  "auto"
+	]);
+	const CPP_KEYWORDS = new Set([
+	  "const","constexpr","static","volatile","mutable",
+	  "typename","class","struct","signed","unsigned"
+	]);
+	function highlightType(node) {
+		const walker = document.createTreeWalker(
+				node,
+				NodeFilter.SHOW_TEXT,
+				null,
+				false
+				);
+		// collect text nodes first to avoid mutation during traversal
+		const textNodes = [];
+		while (walker.nextNode()) textNodes.push(walker.currentNode);
+		// tokeniser: keep words, C++ separators and whitespace as separate tokens
+		const SPLIT_RE = /(\b|::|[:<>,()=*&]|\s+)/;
+		for (const textNode of textNodes) {
+			const parent = textNode.parentElement;
+			if (!parent) continue;
+			// CRITICAL FIX: DO NOT TOUCH DOXYGEN LINKS
+			if (parent.closest("a.el")) continue;
+			// skip empty / whitespace-only nodes
+			const text = textNode.nodeValue;
+			if (!text || !text.trim()) continue;
+			// avoid re-processing nodes already tokenized
+			if (parent.closest && parent.closest('.tgen-hl')) continue;
+			const frag = document.createDocumentFragment();
+			const tokens = text.split(SPLIT_RE).filter(t => t !== undefined && t !== "");
+			for (const tok of tokens) {
+				// keep whitespace/separators as plain text
+				if (/^\s+$/.test(tok) || /^[:<>,()=*&]$/.test(tok) || tok === '::') {
+					frag.appendChild(document.createTextNode(tok));
+					continue;
+				}
+				let cls = null;
+				// primitives (set assumed to exist in scope)
+				if (typeof CPP_PRIMITIVES !== "undefined" && CPP_PRIMITIVES.has(tok)) {
+					cls = "primitive";
+				}
+				// keywords (set assumed to exist in scope)
+				else if (typeof CPP_KEYWORDS !== "undefined" && CPP_KEYWORDS.has(tok)) {
+					cls = "keyword";
+				}
+				else if (tok === "std") {
+					cls = "namespace";
+				}
+				// heuristic for types: start with uppercase OR common STL-like names
+				else if (/^[A-Z]\w*$/.test(tok)) {
+					cls = "type";
+				}
+				else if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set|unique_ptr|shared_ptr|deque|list)$/.test(tok)) {
+					cls = "type";
+				}
+				// simple fallback: identifiers that look like types (camelCase / internal capitals)
+				else if (/^[A-Za-z_]\w*$/.test(tok) && /[A-Z]/.test(tok.slice(1))) {
+					cls = "type";
+				}
+				if (cls) {
+					const s = document.createElement("span");
+					s.className = "tgen-hl " + cls;
+					s.textContent = tok;
+					frag.appendChild(s);
+				} else {
+					// leave as plain text (parameter names, numbers, etc.)
+					frag.appendChild(document.createTextNode(tok));
+				}
+			}
+			textNode.replaceWith(frag);
+		}
+	}
+	// apply to return types
+	document.querySelectorAll(".tgen-return").forEach(highlightType);
+	// apply to parameters
+	document.querySelectorAll(".paramtype").forEach(highlightType);
+	// Highlight return type in funciton list.
+	function highlightReturnType(td) {
+		function tokenize(str) {
+			return str.split(/(\b|::|<|>|,|&|\*|\s+)/);
+		}
+		function classify(tok) {
+			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+				return "keywordtype";
+			// heuristic for types: start with uppercase OR common STL-like names
+			if (/^[A-Z]\w*$/.test(tok))
+				return "type";
+			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+				return "type";
+			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+				return "keyword";
+			if (tok === "std")
+				return "namespace";
+			return null;
+		}
+		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		let node;
+		while ((node = walker.nextNode())) {
+			// CRITICAL: skip if inside a link
+			if (node.parentElement.closest("a")) continue;
+			const tokens = tokenize(node.nodeValue);
+			if (tokens.length === 1) continue;
+			const frag = document.createDocumentFragment();
+			tokens.forEach(tok => {
+				const cls = classify(tok);
+				if (!cls) {
+					frag.appendChild(document.createTextNode(tok));
+				} else {
+					const span = document.createElement("span");
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+			node.replaceWith(frag);
+		}
+	}
+	document.querySelectorAll("td.memItemLeft").forEach(highlightReturnType);
+	// Highlight parameters in function list.
+	function highlightSignature(td) {
+		function tokenize(str) {
+			return str.split(/(\b|::|<|>|,|\(|\)|=|&|\*|\s+)/);
+		}
+		function classify(tok, state) {
+			// entering default value
+			if (tok === "=") {
+				state.inDefault = true;
+				return null;
+			}
+			// leaving default value
+			if (tok === "," || tok === ")") {
+				state.inDefault = false;
+				return null;
+			}
+			// namespace std.
+			if (tok === "std")
+				return "namespace";
+			// DEFAULT VALUE TOKENS
+			if (state.inDefault) {
+				if (/^(true|false|nullptr)$/.test(tok))
+					return "paramdefval";       // bool literals
+				if (/^\d+(\.\d+)?$/.test(tok))
+					return "paramdefval";       // numeric literal
+				return "paramdefval";           // anything in default expr
+			}
+			// KEYWORDS
+			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+				return "keyword";
+			// TYPES
+			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+				return "keywordtype";
+			// heuristic for types: start with uppercase OR common STL-like names
+			if (/^[A-Z]\w*$/.test(tok))
+				return "type";
+			// STL TYPES
+			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+				return "type";
+			// IDENTIFIER → parameter name
+			if (/^[a-zA-Z_]\w*$/.test(tok))
+				return "paramname";
+			return null;
+		}
+		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		let node;
+		while ((node = walker.nextNode())) {
+			if (!node.nodeValue.includes("(")) continue;
+			const tokens = tokenize(node.nodeValue);
+			const frag = document.createDocumentFragment();
+			const state = { inDefault: false };
+			tokens.forEach(tok => {
+				const cls = classify(tok, state);
+				if (!cls) {
+					frag.appendChild(document.createTextNode(tok));
+				} else {
+					const span = document.createElement("span");
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+			node.replaceWith(frag);
+		}
+	}
+	document.querySelectorAll("td.memItemRight").forEach(highlightSignature);
+	// Hardcoded fix for tgen::Gen::gen_until.
+	document.querySelectorAll(".tgen-name").forEach(span => {
+		span.childNodes.forEach(node => {
+			if (
+				node.nodeType === Node.TEXT_NODE &&
+				node.nodeValue.trim() === "gen_until"
+			) {
+				node.nodeValue = " Gen::gen_until ";
+			}
+		});
+	});
+});
+document.addEventListener("DOMContentLoaded", () => {
+    // mapping: original doxygen page -> new destination
+    const redirects = {
+        "structtgen_1_1sequence.html": "group__sequence__gen.html",
+        "structtgen_1_1sequence_1_1instance.html": "group__sequence__inst.html",
+        "structtgen_1_1permutation.html": "group__permutation__gen.html",
+        "structtgen_1_1permutation_1_1instance.html": "group__permutation__inst.html",
+    };
+    document.querySelectorAll("a.el").forEach(a => {
+        const href = a.getAttribute("href");
+        if (!href) return;
+        // remove anchors (#...)
+        const page = href.split("#")[0];
+        if (!(page in redirects))
+            return;
+        // preserve anchor if exists
+        const anchor = href.includes("#") ? "#" + href.split("#")[1] : "";
+        a.href = redirects[page] + anchor;
+    });
+});
+</script>
+<!-- GitHub Corner -->
+<a href="https://github.com/brunomaletta/tgen" target="_blank" class="github-corner" aria-label="View on GitHub">
+<svg viewBox="0 0 250 250">
+  <path d="M0 0 L250 0 L250 250 Z" class="corner-bg"></path>
+  <path d="M128 109c-15-5-18-11-18-11
+           3-6 8-7 8-7
+           6-1 10 5 10 5
+           5 9 13 7 16 6
+           0-5 2-7 3-8
+           -12-1-25-6-25-28
+           0-6 2-11 5-15
+           -1-1-2-7 1-14
+           0 0 5-2 16 5
+           5-1 10-2 15-2
+           5 0 10 1 15 2
+           11-7 16-5 16-5
+           3 7 2 13 1 14
+           3 4 5 9 5 15
+           0 22-13 27-25 28
+           2 2 4 6 4 12
+           0 9 0 16 0 18"
+        class="octo-arm"></path>
+</svg>
+</a>
+<!-- Change name in top of the page -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const name = document.getElementById("projectname");
+  if (!name) return;
+  name.innerHTML = `
+	  <div class="top-buttons">
+		  <img src="https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/static.yml?label=gtest" height="20">
+		  <div id="github-button">
+			  <a href="https://github.com/brunomaletta/tgen" target="_blank" aria-label="GitHub repository">
+				<svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true">
+				  <path fill="currentColor"
+					d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38
+					0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94
+					-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01
+					1.08.58 1.23.82.72 1.21 1.87.87
+					2.33.66.07-.52.28-.87.51-1.07-1.78-.2
+					-3.64-.89-3.64-3.95
+					0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12
+					0 0 .67-.21 2.2.82a7.48 7.48 0 012-.27c.68 0 1.36.09 2 .27
+					1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12
+					.51.56.82 1.27.82 2.15
+					0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48
+					0 1.07-.01 1.93-.01 2.2
+					0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z">
+				  </path>
+				</svg>
+				<span>GitHub</span>
+			  </a>
+			</div>
+		</div>
+  `;
+});
+</script>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectlogo"><img alt="Logo" src="tgen_white_small.svg"/></td>
+  <td id="projectalign">
+   <div id="projectname">tgen
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Generated by Doxygen 1.14.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('group__general.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#define-members">Macros</a> &#124;
+<a href="#func-members">Functions</a>  </div>
+  <div class="headertitle"><div class="title">General Operations </div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Operations for basic number generation and basic random operations.  
+<a href="#details">More...</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:tgen_3A_3Aprint" id="r_tgen_3A_3Aprint"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtgen_1_1print.html">tgen::print</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Printer helper for standard types.  <a href="structtgen_1_1print.html#details">More...</a><br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-define-members" class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:gabc423cf4476d436001120351be24e896" id="r_gabc423cf4476d436001120351be24e896"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(cond, ...)</td></tr>
+<tr class="memdesc:gabc423cf4476d436001120351be24e896"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ensures condition is true.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:gaa007cf5e254380332a3548711d5f9b16" id="r_gaa007cf5e254380332a3548711d5f9b16"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:gaa007cf5e254380332a3548711d5f9b16 template"><td class="memItemLeft" align="right" valign="top">T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a> (T l, T r)</td></tr>
+<tr class="memdesc:gaa007cf5e254380332a3548711d5f9b16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a random number in <span class="tgen-code texttt">[<span class="paramname texttt">l</span>, <span class="paramname texttt">r</span>]</span>.  <br /></td></tr>
+<tr class="memitem:ga5494e4e347f9d1dc5b88695e0777f65b" id="r_ga5494e4e347f9d1dc5b88695e0777f65b"><td class="memTemplParams" colspan="2">template&lt;typename It&gt; </td></tr>
+<tr class="memitem:ga5494e4e347f9d1dc5b88695e0777f65b template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a> (It first, It last)</td></tr>
+<tr class="memdesc:ga5494e4e347f9d1dc5b88695e0777f65b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles range inplace, for random_access_iterator.  <br /></td></tr>
+<tr class="memitem:ga3927dd50975e25d1671287df5301a316" id="r_ga3927dd50975e25d1671287df5301a316"><td class="memTemplParams" colspan="2">template&lt;typename C, std::enable_if_t&lt;!<a class="el" href="structtgen_1_1is__associative__container__internal.html">is_associative_container_internal</a>&lt; C &gt;::value, int &gt; = 0&gt; </td></tr>
+<tr class="memitem:ga3927dd50975e25d1671287df5301a316 template"><td class="memItemLeft" align="right" valign="top">C&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga3927dd50975e25d1671287df5301a316">tgen::shuffled</a> (const C &amp;container)</td></tr>
+<tr class="memdesc:ga3927dd50975e25d1671287df5301a316"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shuffles a container.  <br /></td></tr>
+<tr class="memitem:ga9c1c0431948210b949f5d1500e7235ec" id="r_ga9c1c0431948210b949f5d1500e7235ec"><td class="memTemplParams" colspan="2">template&lt;typename It&gt; </td></tr>
+<tr class="memitem:ga9c1c0431948210b949f5d1500e7235ec template"><td class="memItemLeft" align="right" valign="top">It::value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a> (It first, It last)</td></tr>
+<tr class="memdesc:ga9c1c0431948210b949f5d1500e7235ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Choses a random element from iterator range.  <br /></td></tr>
+<tr class="memitem:gac3b0462e9690fa58b370b24e687d6be0" id="r_gac3b0462e9690fa58b370b24e687d6be0"><td class="memTemplParams" colspan="2">template&lt;typename C&gt; </td></tr>
+<tr class="memitem:gac3b0462e9690fa58b370b24e687d6be0 template"><td class="memItemLeft" align="right" valign="top">C::value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gac3b0462e9690fa58b370b24e687d6be0">tgen::any</a> (const C &amp;container)</td></tr>
+<tr class="memdesc:gac3b0462e9690fa58b370b24e687d6be0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Choses a random element from container.  <br /></td></tr>
+<tr class="memitem:ga5deceed8488585530188dbd266739771" id="r_ga5deceed8488585530188dbd266739771"><td class="memTemplParams" colspan="2">template&lt;typename C&gt; </td></tr>
+<tr class="memitem:ga5deceed8488585530188dbd266739771 template"><td class="memItemLeft" align="right" valign="top">C&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga5deceed8488585530188dbd266739771">tgen::choose</a> (int k, const C &amp;container)</td></tr>
+<tr class="memdesc:ga5deceed8488585530188dbd266739771"><td class="mdescLeft">&#160;</td><td class="mdescRight">Chooses elements from container, as in a subsequence fixed length.  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
+<p>Operations for basic number generation and basic random operations. </p>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md11"></a>
+Examples</h3>
+<div class="fragment"><div class="line"><span class="comment">// Random number from 10 to 20.</span></div>
+<div class="line"><span class="keywordtype">int</span> size = <a class="code hl_function" href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a>(10, 20);</div>
+<div class="line"><a class="code hl_define" href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(size &lt;= 20);</div>
+<div class="line"> </div>
+<div class="line">Several numbers in {5, 10, 15, 20}.</div>
+<div class="line">std::vector&lt;<span class="keywordtype">int</span>&gt; v(size);</div>
+<div class="line"><span class="keywordflow">for</span> (<span class="keywordtype">int</span>&amp; i : v) i = <a class="code hl_function" href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a>({5, 10, 15, 20});</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Shuffles the numbers.</span></div>
+<div class="line"><a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(v.begin(), v.end());</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Choses a subsequence of length 5.</span></div>
+<div class="line">v = <a class="code hl_function" href="#ga5deceed8488585530188dbd266739771">tgen::choose</a>(5, v);</div>
+<div class="ttc" id="agroup__general_html_ga5494e4e347f9d1dc5b88695e0777f65b"><div class="ttname"><a href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a></div><div class="ttdeci">void shuffle(It first, It last)</div><div class="ttdoc">Shuffles range inplace, for random_access_iterator.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00242">tgen.h:242</a></div></div>
+<div class="ttc" id="agroup__general_html_ga5deceed8488585530188dbd266739771"><div class="ttname"><a href="#ga5deceed8488585530188dbd266739771">tgen::choose</a></div><div class="ttdeci">C choose(int k, const C &amp;container)</div><div class="ttdoc">Chooses elements from container, as in a subsequence fixed length.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00299">tgen.h:299</a></div></div>
+<div class="ttc" id="agroup__general_html_ga9c1c0431948210b949f5d1500e7235ec"><div class="ttname"><a href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a></div><div class="ttdeci">It::value_type any(It first, It last)</div><div class="ttdoc">Choses a random element from iterator range.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00280">tgen.h:280</a></div></div>
+<div class="ttc" id="agroup__general_html_gaa007cf5e254380332a3548711d5f9b16"><div class="ttname"><a href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a></div><div class="ttdeci">T next(T l, T r)</div><div class="ttdoc">Returns a random number in [l, r].</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00228">tgen.h:228</a></div></div>
+<div class="ttc" id="agroup__general_html_gabc423cf4476d436001120351be24e896"><div class="ttname"><a href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a></div><div class="ttdeci">#define tgen_ensure(cond,...)</div><div class="ttdoc">Ensures condition is true.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00066">tgen.h:66</a></div></div>
+</div><!-- fragment --> <a name="doc-define-members" id="doc-define-members"></a><h2 id="header-doc-define-members" class="groupheader">Macro Definition Documentation</h2>
+<a id="gabc423cf4476d436001120351be24e896" name="gabc423cf4476d436001120351be24e896"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabc423cf4476d436001120351be24e896">&#9670;&#160;</a></span>tgen_ensure</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define tgen_ensure</td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>cond</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em></em></span>...&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ensures condition is true. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cond</td><td>Condition to me ensured. </td></tr>
+    <tr><td class="paramname">...</td><td>Empty or a string with an error message.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>if <span class="paramname texttt">cond</span> is not true.</td></tr>
+  </table>
+  </dd>
+</dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md12"></a>
+Examples</h4>
+<div class="fragment"><div class="line"><span class="comment">// Without error message:</span></div>
+<div class="line"><a class="code hl_define" href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(a == b);</div>
+<div class="line"><span class="comment">// With error message:</span></div>
+<div class="line"><a class="code hl_define" href="#gabc423cf4476d436001120351be24e896">tgen_ensure</a>(a == b, <span class="stringliteral">&quot;values must be the same&quot;</span>);</div>
+</div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00066">66</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<a id="gac3b0462e9690fa58b370b24e687d6be0" name="gac3b0462e9690fa58b370b24e687d6be0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac3b0462e9690fa58b370b24e687d6be0">&#9670;&#160;</a></span>any() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename C&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">C::value_type tgen::any </td>
+          <td>(</td>
+          <td class="paramtype">const C &amp;</td>          <td class="paramname"><span class="paramname"><em>container</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Choses a random element from container. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">container</td><td>Container to choose from.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Also works with <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>.</p>
+<dl class="section return"><dt>Returns</dt><dd>A uniformly random element from <span class="paramname texttt">container</span>.</dd></dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md22"></a>
+Complexity</h4>
+<p><span class="tgen-code texttt">O(1)</span> for random_access_iterator, <span class="tgen-code texttt">O(|<span class="paramname texttt">container</span>|)</span> otherwise.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md23"></a>
+Examples</h4>
+<div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
+<div class="line"><span class="keywordtype">int</span> value = <a class="code hl_function" href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a>(v);</div>
+</div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00289">289</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+
+</div>
+</div>
+<a id="ga9c1c0431948210b949f5d1500e7235ec" name="ga9c1c0431948210b949f5d1500e7235ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9c1c0431948210b949f5d1500e7235ec">&#9670;&#160;</a></span>any() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename It&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">It::value_type tgen::any </td>
+          <td>(</td>
+          <td class="paramtype">It</td>          <td class="paramname"><span class="paramname"><em>first</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">It</td>          <td class="paramname"><span class="paramname"><em>last</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Choses a random element from iterator range. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">first</td><td>First iterator of range. </td></tr>
+    <tr><td class="paramname">last</td><td>First iterator outside of range.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A uniformly random element from the range <span class="tgen-code texttt">[<span class="paramname texttt">first</span>, <span class="paramname texttt">last</span>)</span>.</dd></dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md20"></a>
+Complexity</h4>
+<p><span class="tgen-code texttt">O(1)</span> for random_access_iterator, <span class="tgen-code texttt">O(|<span class="paramname texttt">last</span> - <span class="paramname texttt">first</span>|)</span> otherwise.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md21"></a>
+Examples</h4>
+<div class="fragment"><div class="line">std::set&lt;int&gt; st = {1, 2, 3, 4, 5};</div>
+<div class="line"><span class="keywordtype">int</span> value = <a class="code hl_function" href="#ga9c1c0431948210b949f5d1500e7235ec">tgen::any</a>(st.begin(), st.end());</div>
+</div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00280">280</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+
+</div>
+</div>
+<a id="ga5deceed8488585530188dbd266739771" name="ga5deceed8488585530188dbd266739771"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5deceed8488585530188dbd266739771">&#9670;&#160;</a></span>choose()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename C&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">C tgen::choose </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>k</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const C &amp;</td>          <td class="paramname"><span class="paramname"><em>container</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Chooses elements from container, as in a subsequence fixed length. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">k</td><td>Number of elements to be chosen. </td></tr>
+    <tr><td class="paramname">container</td><td>Container to choose from.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Also works with <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>.</p>
+<dl class="section return"><dt>Returns</dt><dd>A uniformly random subsequence of length <span class="paramname texttt">k</span>.</dd></dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md24"></a>
+Complexity</h4>
+<p><span class="tgen-code texttt">O(|<span class="paramname texttt">container</span>|)</span>.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md25"></a>
+Examples</h4>
+<div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
+<div class="line">v = <a class="code hl_function" href="#ga5deceed8488585530188dbd266739771">tgen::choose</a>(3, v); <span class="comment">// Chooses 3 elements from v.</span></div>
+</div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00299">299</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+
+</div>
+</div>
+<a id="gaa007cf5e254380332a3548711d5f9b16" name="gaa007cf5e254380332a3548711d5f9b16"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa007cf5e254380332a3548711d5f9b16">&#9670;&#160;</a></span>next()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">T tgen::next </td>
+          <td>(</td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>l</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>r</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns a random number in <span class="tgen-code texttt">[<span class="paramname texttt">l</span>, <span class="paramname texttt">r</span>]</span>. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>type to be generated. Should be an arithmetic type: <span class="tgen-primitive texttt">int</span>, <span class="tgen-primitive texttt">double</span>, <span class="tgen-primitive texttt">long long</span>, <span class="tgen-primitive texttt">char</span>, etc.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">l</td><td>Left endpoint of the range. </td></tr>
+    <tr><td class="paramname">r</td><td>Light endpoint of the range.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A random number in <span class="tgen-code texttt">[<span class="paramname texttt">l</span>, <span class="paramname texttt">r</span>]</span>, chosen uniformly.</dd></dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md14"></a>
+Complexity</h4>
+<p><span class="tgen-code texttt">O(1)</span>.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md15"></a>
+Examples</h4>
+<div class="fragment"><div class="line"><span class="comment">// Random value from 1 to 10.</span></div>
+<div class="line"><span class="keywordtype">int</span> value = <a class="code hl_function" href="#gaa007cf5e254380332a3548711d5f9b16">tgen::next</a>(1, 10);</div>
+</div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00228">228</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+
+</div>
+</div>
+<a id="ga5494e4e347f9d1dc5b88695e0777f65b" name="ga5494e4e347f9d1dc5b88695e0777f65b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5494e4e347f9d1dc5b88695e0777f65b">&#9670;&#160;</a></span>shuffle()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename It&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void tgen::shuffle </td>
+          <td>(</td>
+          <td class="paramtype">It</td>          <td class="paramname"><span class="paramname"><em>first</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">It</td>          <td class="paramname"><span class="paramname"><em>last</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Shuffles range inplace, for random_access_iterator. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">first</td><td>First iterator of range. </td></tr>
+    <tr><td class="paramname">last</td><td>First iterator outside of range.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Shuffles <span class="tgen-code texttt">[<span class="paramname texttt">first</span>, <span class="paramname texttt">last</span>)</span> uniformly inplace. Works for <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span>, <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">string</span></span>, etc, but not <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>. For those, use <span class="tgen-code texttt"><a class="el" href="#ga3927dd50975e25d1671287df5301a316" title="Shuffles a container.">tgen::shuffled</a>(<span class="paramname texttt">container</span>)</span>.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md16"></a>
+Complexity</h4>
+<p><span class="tgen-code texttt">O(|<span class="paramname texttt">last</span> - <span class="paramname texttt">first</span>|)</span>.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md17"></a>
+Examples</h4>
+<div class="fragment"><div class="line">std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};</div>
+<div class="line"><a class="code hl_function" href="#ga5494e4e347f9d1dc5b88695e0777f65b">tgen::shuffle</a>(v.begin(), v.end());</div>
+</div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00242">242</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+
+</div>
+</div>
+<a id="ga3927dd50975e25d1671287df5301a316" name="ga3927dd50975e25d1671287df5301a316"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3927dd50975e25d1671287df5301a316">&#9670;&#160;</a></span>shuffled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename C, std::enable_if_t&lt;!<a class="el" href="structtgen_1_1is__associative__container__internal.html">is_associative_container_internal</a>&lt; C &gt;::value, int &gt; = 0&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">C tgen::shuffled </td>
+          <td>(</td>
+          <td class="paramtype">const C &amp;</td>          <td class="paramname"><span class="paramname"><em>container</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Shuffles a container. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">container</td><td>Container to be shuffled.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Works for containers and <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>. If <span class="paramname texttt">container</span> is ordered (<span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">set</span></span>, etc) or <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">initializer_list</span></span>, returns a <span class="texttt"><span class="tgen-ns">std</span>::<span class="tgen-type texttt">vector</span></span> (implemented in a different function).</p>
+<dl class="section return"><dt>Returns</dt><dd>The shuffled container.</dd></dl>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md18"></a>
+Complexity</h4>
+<p><span class="tgen-code texttt">O(|<span class="paramname texttt">container</span>|)</span>.</p>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md19"></a>
+Examples</h4>
+<div class="fragment"><div class="line">std::vector&lt;int&gt; st = {1, 2, 3, 4, 5};</div>
+<div class="line">st = <a class="code hl_function" href="#ga3927dd50975e25d1671287df5301a316">tgen::shuffled</a>(st);</div>
+<div class="line">st = <a class="code hl_function" href="#ga3927dd50975e25d1671287df5301a316">tgen::shuffled</a>({1, 2, 3});</div>
+<div class="line">st = <a class="code hl_function" href="#ga3927dd50975e25d1671287df5301a316">tgen::shuffled</a>(std::set&lt;int&gt;({1, 2, 3}));</div>
+<div class="ttc" id="agroup__general_html_ga3927dd50975e25d1671287df5301a316"><div class="ttname"><a href="#ga3927dd50975e25d1671287df5301a316">tgen::shuffled</a></div><div class="ttdeci">C shuffled(const C &amp;container)</div><div class="ttdoc">Shuffles a container.</div><div class="ttdef"><b>Definition</b> <a href="tgen_8h_source.html#l00262">tgen.h:262</a></div></div>
+</div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="tgen_8h_source.html#l00262">262</a> of file <a class="el" href="tgen_8h_source.html">tgen.h</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.14.0 </li>
+  </ul>
+</div>
+</body>
+</html>

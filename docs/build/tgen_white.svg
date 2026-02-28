@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 120">
+
+  <style>
+    .mono {
+      font-family: "DejaVu Sans Mono", "JetBrains Mono", "Liberation Mono", monospace;
+      font-weight: 700;
+      font-size: 72px;
+      letter-spacing: -2px;
+    }
+  </style>
+
+  <!-- baseline compensation -->
+  <g transform="translate(10,0)">
+    <text x="20" y="82" class="mono" fill="#ffffff">t</text>
+    <circle cx="78" cy="75.5" r="7" fill="#ffffff"/>
+    <text x="90" y="82" class="mono" fill="#3fb4ff">gen()</text>
+  </g>
+
+</svg>

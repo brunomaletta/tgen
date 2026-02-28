@@ -1,4 +1,4 @@
-name: tgen
+name: Docs
 
 on:
   push:
@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
 
+  # ---------------- TESTS ----------------
   gtest:
     runs-on: ubuntu-latest
 
@@ -28,7 +29,7 @@ jobs:
           sudo apt update
           sudo apt install -y g++ libgtest-dev cmake
 
-      - name: Build gtest (required on Ubuntu)
+      - name: Build gtest (Ubuntu requirement)
         run: |
           cd /usr/src/googletest
           sudo cmake .
@@ -40,45 +41,48 @@ jobs:
           g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I src -o tests_runner
 
       - name: Run tests
-        run: |
-          ./tests_runner
+        run: ./tests_runner
 
+
+  # ---------------- DOCS + DEPLOY ----------------
   deploy:
     needs: gtest
     runs-on: ubuntu-latest
-  
-    permissions:
-      pages: write
-      id-token: write
-      contents: read
-  
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-  
+
     steps:
-      - name: Checkout
+      - name: Checkout (with submodules)
         uses: actions/checkout@v4
         with:
-          submodules: recursive   # IMPORTANT (you use doxygen-awesome as submodule)
-  
-      - name: Install doxygen
+          submodules: recursive
+
+      # Required for CLANG_ASSISTED_PARSING
+      - name: Install toolchain
         run: |
           sudo apt update
-          sudo apt install -y doxygen graphviz make
-  
+          sudo apt install -y \
+            doxygen \
+            graphviz \
+            make \
+            clang \
+            libc++-dev \
+            libc++abi-dev
+
       - name: Build documentation
         run: make doc
-  
-      # Pages requires this file to exist
+
+      # Required by GitHub Pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
-  
-      - name: Upload site
+
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/html
-  
+          path: docs/build
+
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
