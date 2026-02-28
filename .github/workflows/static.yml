@@ -52,6 +52,17 @@ jobs:
         run: |
           sudo apt install -y build-essential libc6-dev libstdc++-12-dev
 
+
+      - name: Install toolchain
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            graphviz \
+            make \
+            clang \
+            libc++-dev \
+            libc++abi-dev
+
       # exact doxygen version (matches local)
       - name: Install Doxygen 1.14.0
         run: |
