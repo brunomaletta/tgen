@@ -1,6 +1,8 @@
-<p align="center">
-	<img src="docs/tgen_white.svg" alt="tgen" width="300" onerror="this.onerror=null;this.src='./tgen_white.svg';">
-</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/tgen_white.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/tgen_black.svg">
+  <img alt="tgen" src="docs/tgen_white.svg" onerror="this.onerror=null;this.src='./tgen_white.svg';">
+</picture>
 
 <p align="center">
     <em>Testcase generation for random inputs.</em>

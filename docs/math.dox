@@ -516,8 +516,8 @@ namespace tgen::math {
  * #### Examples
  *
  * ```cpp
- * // Prints largest fibonacci number that fits in 64 bits.
- * std::cout << tgen::math::fibonacci().back() << std::endl;
+ * // Prints 5th fibonacci number.
+ * std::cout << tgen::math::fibonacci()[5] << std::endl;
  * ```
  *
  * @fn fibonacci();
