@@ -12,8 +12,30 @@ permissions:
 
 jobs:
 
+  # -------------------- CHECKS CHANGES --------------------
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.filter.outputs.tests }}
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            tests:
+              - 'single_include/**'
+              - 'tests/**'
+              - 'examples/**'
+            docs:
+              - 'docs/**'
+
   # -------------------- LINT + TESTS --------------------
   test:
+    needs: changes
+    if: needs.changes.outputs.tests == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -41,8 +63,9 @@ jobs:
 
   # -------------------- DOCS --------------------
   build-docs:
+    needs: changes
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && needs.changes.outputs.docs == 'true'
 
     steps:
       - uses: actions/checkout@v4
