@@ -28,6 +28,7 @@ doc: clean-doc
 	cp $(DOC_SRC_DIR)/layout.xml $(DOC_HTML_DIR)/
 	cp $(DOC_SRC_DIR)/tgen_white.svg $(DOC_HTML_DIR)/
 	cp $(DOC_SRC_DIR)/tgen_white_small.svg $(DOC_HTML_DIR)/
+	cp $(DOC_SRC_DIR)/favicon.svg $(DOC_HTML_DIR)/
 
 	# GitHub Pages safety
 	touch $(DOC_HTML_DIR)/.nojekyll

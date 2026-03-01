@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+
+  <style>
+    /* DARK THEME (default) */
+    .bg { fill:#0f172a; }          /* deep dark background */
+    .t  { fill:#ffffff; }          /* white t */
+    .p  { fill:#3b82f6; }          /* blue () */
+
+    /* LIGHT THEME */
+    @media (prefers-color-scheme: light) {
+      .bg { fill:#ffffff; }        /* white tab background */
+      .t  { fill:#ffffff; }        /* still white t as requested */
+      .p  { fill:#2563eb; }        /* slightly darker blue for contrast */
+    }
+  </style>
+
+  <!-- rounded square -->
+  <rect class="bg" x="2" y="2" width="60" height="60" rx="14"/>
+
+  <!-- t -->
+  <text class="t"
+        x="4" y="44"
+        font-size="36"
+        font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+        font-weight="700">
+    t
+  </text>
+
+  <!-- parentheses -->
+  <text class="p"
+        x="22" y="44"
+        font-size="36"
+        font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+        font-weight="700">
+    ()
+  </text>
+
+</svg>
