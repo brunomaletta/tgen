@@ -477,3 +477,25 @@ html.dark-mode .tgen-code {
   vertical-align: middle;
 }
 
+
+
+
+/* LOGO - Light mode (default) */
+html.light-mode #logo {
+    content: url("tgen_logo_black.svg");
+}
+
+/* LOGO - Dark mode */
+html.dark-mode #logo {
+    content: url("tgen_logo_white.svg");
+}
+
+/* Light mode */
+html.light-mode #projectlogo img {
+    content: url("tgen_logo_black_small.svg");
+}
+
+/* Dark mode */
+html.dark-mode #projectlogo img {
+    content: url("tgen_logo_white_small.svg");
+}

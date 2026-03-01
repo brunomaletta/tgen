@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" width="300" srcset="docs/tgen_white.svg">
-    <source media="(prefers-color-scheme: light)" width="300" srcset="docs/tgen_black.svg">
-    <img alt="tgen" width="300" src="docs/tgen_white.svg">
+    <source media="(prefers-color-scheme: dark)" width="300" srcset="docs/tgen_logo_white.svg">
+    <source media="(prefers-color-scheme: light)" width="300" srcset="docs/tgen_logo_black.svg">
+    <img alt="tgen" width="300" src="docs/tgen_logo_white.svg">
   </picture>
 </p>
 

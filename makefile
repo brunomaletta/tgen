@@ -24,8 +24,10 @@ doc: clean-doc
 	cp $(DOC_SRC_DIR)/custom.css $(DOC_HTML_DIR)/
 	cp $(DOC_SRC_DIR)/header.html $(DOC_HTML_DIR)/
 	cp $(DOC_SRC_DIR)/layout.xml $(DOC_HTML_DIR)/
-	cp $(DOC_SRC_DIR)/tgen_white.svg $(DOC_HTML_DIR)/
-	cp $(DOC_SRC_DIR)/tgen_white_small.svg $(DOC_HTML_DIR)/
+	cp $(DOC_SRC_DIR)/tgen_logo_white.svg $(DOC_HTML_DIR)/
+	cp $(DOC_SRC_DIR)/tgen_logo_black.svg $(DOC_HTML_DIR)/
+	cp $(DOC_SRC_DIR)/tgen_logo_white_small.svg $(DOC_HTML_DIR)/
+	cp $(DOC_SRC_DIR)/tgen_logo_black_small.svg $(DOC_HTML_DIR)/
 	cp $(DOC_SRC_DIR)/favicon.svg $(DOC_HTML_DIR)/
 
 	# GitHub Pages safety

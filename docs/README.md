@@ -1,5 +1,5 @@
 <div style="text-align:center;">
-    <img src="tgen_white.svg" width="300"><br>
+    <img id="logo" src="tgen_logo_black.svg" width="300"><br>
     <em>Testcase generation for random inputs.</em>
 </div>
 
