@@ -1,12 +1,9 @@
 all: lint doc test
 
-a:
-	@g++ -std=c++17 a.cpp -I src -o a -O2
-	@-./a
-	@rm -f a
-
-debug:
-	g++ -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow -std=c++17 a.cpp -I src -o a
+sample:
+	@g++ -std=c++17 examples/all.cpp -I src -o sample
+	@-./sample
+	@rm -f sample
 
 DOC_BUILD_DIR := docs/build
 DOC_HTML_DIR  := $(DOC_BUILD_DIR)
@@ -40,11 +37,11 @@ opendoc:
 	google-chrome docs/build/index.html > /dev/null 2>&1 &
 
 lint:
-	find a.cpp src tests \( -name '*.h' -o -name '*.cpp' \) -print0 | xargs -0 clang-format -i
+	find src examples tests \( -name '*.h' -o -name '*.cpp' \) -print0 | xargs -0 clang-format -i
 
 lint-check:
 	@echo "Checking formatting..."
-	@find a.cpp src tests \( -name '*.h' -o -name '*.cpp' \) -print0 | \
+	@find src examples tests \( -name '*.h' -o -name '*.cpp' \) -print0 | \
 	xargs -0 clang-format --dry-run --Werror || \
 	( echo ""; echo "Run 'make lint' to fix formatting"; exit 1 )
 	@echo "Formatting check passed"
@@ -58,6 +55,3 @@ testas:
 	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I src -o test -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow
 	-./test
 	rm -f test
-
-clean:
-	rm -f a
