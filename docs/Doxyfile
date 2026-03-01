@@ -2948,7 +2948,7 @@ MSCFILE_DIRS           =
 
 
 
-INPUT += ../README.md ../src .
+INPUT += ../README.md ../single_include .
 
 USE_MDFILE_AS_MAINPAGE = README.md
 

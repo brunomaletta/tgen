@@ -1,14 +1,15 @@
-all: lint doc test
-
-sample:
-	@g++ -std=c++17 examples/all.cpp -I src -o sample
-	@-./sample
-	@rm -f sample
-
+SRC_DIR       := single_include
 DOC_BUILD_DIR := docs/build
 DOC_HTML_DIR  := $(DOC_BUILD_DIR)
 DOC_SRC_DIR   := docs
 THEME_DIR     := docs/doxygen-awesome-css
+
+all: lint doc test
+
+sample:
+	@g++ -std=c++17 examples/all.cpp -I $(SRC_DIR) -o sample
+	@-./sample
+	@rm -f sample
 
 .PHONY: doc clean-doc
 
@@ -37,21 +38,21 @@ opendoc:
 	google-chrome docs/build/index.html > /dev/null 2>&1 &
 
 lint:
-	find src examples tests \( -name '*.h' -o -name '*.cpp' \) -print0 | xargs -0 clang-format -i
+	find $(SRC_DIR) examples tests \( -name '*.h' -o -name '*.cpp' \) -print0 | xargs -0 clang-format -i
 
 lint-check:
 	@echo "Checking formatting..."
-	@find src examples tests \( -name '*.h' -o -name '*.cpp' \) -print0 | \
+	@find $(SRC_DIR) examples tests \( -name '*.h' -o -name '*.cpp' \) -print0 | \
 	xargs -0 clang-format --dry-run --Werror || \
 	( echo ""; echo "Run 'make lint' to fix formatting"; exit 1 )
 	@echo "Formatting check passed"
 
 test:
-	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I src -o test
+	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I $(SRC_DIR) -o test
 	./test
 	rm -f test
 
 testas:
-	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I src -o test -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow
+	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I $(SRC_DIR) -o test -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow
 	-./test
 	rm -f test
