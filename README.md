@@ -60,7 +60,7 @@ No loops. No backtracking. No custom generator code.
 Header-only. Download
 
 ```bash
-wget https://raw.githubusercontent.com/brunomaletta/tgen/main/src/tgen.h
+wget https://raw.githubusercontent.com/brunomaletta/tgen/main/single_include/tgen.h
 ```
 
 and include
