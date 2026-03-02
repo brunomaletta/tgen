@@ -38,8 +38,7 @@ Every generator of type `GEN` has a method `gen()`, that returns a `GEN::instanc
 In our example, we can call `gen()` to generate and print a random sequence of 10 elements from 1 to 100.
 
 ```cpp
-std::cout <<
-	seq_gen.gen() << std::endl;
+std::cout << seq_gen.gen() << std::endl;
 ```
 
 The nice thing is that we can add restrictions (specific to each type) to the generator, shrinking the set of valid arrays. For example, we can add the restriction that the first and second elements of the sequence have to be the same.
@@ -57,15 +56,16 @@ inst.reverse();
 Finally, there can be random operations defined for the type instance.
 
 ```cpp
-std::cout <<
-	tgen::sequence_op::any(inst) << std::endl;
+std::cout << tgen::sequence_op::any(inst) << std::endl;
 ```
 
 Combining everything into one line:
 
 ```cpp
 std::cout << tgen::sequence_op::any(
-	tgen::sequence<int>(10, 1, 100).equal(0, 1).gen()
+	tgen::sequence<int>(10, 1, 100)
+	.equal(0, 1)
+	.gen()
 	.reverse()
 ) << std::endl;
 ```
@@ -144,8 +144,7 @@ std::cout <<
 Random 1-based permutation of size 5 with only one cycle.
 
 ```cpp
-std::cout <<
-    tgen::permutation(5).gen({5}).add_1() << std::endl;
+std::cout << tgen::permutation(5).gen({5}).add_1() << std::endl;
 // "2 5 4 1 3"
 ```
 

@@ -1,0 +1,59 @@
+name: Docs
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install toolchain
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            graphviz \
+            make \
+            clang \
+            libc++-dev \
+            libc++abi-dev
+
+      - name: Install Doxygen 1.14.0
+        run: |
+          set -e
+          DOXYGEN_VERSION=1.14.0
+          URL=https://github.com/doxygen/doxygen/releases/download/Release_1_14_0/doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz
+          curl -L $URL -o doxygen.tar.gz
+          tar -xf doxygen.tar.gz
+          sudo mv doxygen-${DOXYGEN_VERSION}/bin/doxygen /usr/local/bin/
+
+      - name: Build documentation
+        run: make doc
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/build
+
+  deploy:
+    needs: build-docs
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

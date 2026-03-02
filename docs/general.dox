@@ -11,7 +11,7 @@ namespace tgen {
  * int size = tgen::next(10, 20);
  * tgen_ensure(size <= 20);
  *
- * Several numbers in {5, 10, 15, 20}.
+ * // Several numbers in {5, 10, 15, 20}.
  * std::vector<int> v(size);
  * for (int& i : v) i = tgen::any({5, 10, 15, 20});
  *
