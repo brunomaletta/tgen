@@ -543,6 +543,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
         a.href = redirects[page] + anchor;
     });
+
+	// Removes empty div in parameters.
+	document.querySelectorAll("table.memname tr").forEach(tr => {
+		const typeTd = tr.querySelector("td.paramtype");
+		const nameTd = tr.querySelector("td.paramname");
+
+		if (!typeTd && !nameTd) return;
+
+		function isEmpty(td) {
+			if (!td) return true;
+			return td.textContent.trim() === "";
+		}
+
+		// no parameters at all
+		if (isEmpty(typeTd) && isEmpty(nameTd)) {
+			// remove both columns
+			typeTd?.remove();
+			nameTd?.remove();
+
+			// also remove the comma separators Doxygen may leave (rare cases)
+			const prev = tr.querySelector("td:nth-last-child(3)");
+			if (prev && prev.textContent.trim() === ",") prev.remove();
+		}
+	});
 });
 
 document.addEventListener("DOMContentLoaded", () => {
