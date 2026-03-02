@@ -327,6 +327,10 @@ document.addEventListener('DOMContentLoaded', function() {
 	// apply to parameters
 	document.querySelectorAll(".paramtype").forEach(highlightType);
 
+	// apply to after params: for example "int f() const" -> apply to "const"
+	document.querySelectorAll(".memproto table.memname > tbody > tr:first-child > td:last-child")
+		.forEach(highlightType);
+
 
 
 	// Highlight return type in FUNCTION LIST.
