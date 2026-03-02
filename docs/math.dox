@@ -1,3 +1,5 @@
+#include "../single_include/tgen.h"
+
 namespace tgen::math {
 
 /**

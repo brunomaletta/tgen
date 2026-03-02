@@ -490,9 +490,30 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		});
 	});
-});
 
-document.addEventListener("DOMContentLoaded", () => {
+	// Removes links for function names in docs.
+	function unlinkNames(root = document) {
+		root.querySelectorAll(".tgen-name a").forEach(link => {
+				const text = link.textContent;
+				link.replaceWith(document.createTextNode(text));
+				});
+	}
+	// run once after load
+	window.addEventListener("load", () => unlinkNames());
+	// run whenever doxygen dynamically updates DOM
+	const observer = new MutationObserver(mutations => {
+		for (const m of mutations) {
+			for (const node of m.addedNodes) {
+				if (node.nodeType === 1) { // ELEMENT_NODE
+					unlinkNames(node);
+				}
+			}
+		}
+	});
+	observer.observe(document.body, {
+		childList: true,
+		subtree: true
+	});
 
     // mapping: original doxygen page -> new destination
     const redirects = {
@@ -518,6 +539,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         a.href = redirects[page] + anchor;
     });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
 });
 
 </script>

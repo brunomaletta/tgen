@@ -499,3 +499,15 @@ html.light-mode #projectlogo img {
 html.dark-mode #projectlogo img {
     content: url("tgen_logo_white_small.svg");
 }
+
+
+
+/* prevent link flash inside signatures */
+.tgen-name a {
+  color: inherit !important;
+  text-decoration: none !important;
+  pointer-events: none;
+  cursor: default;
+}
+
+

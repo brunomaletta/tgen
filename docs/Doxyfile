@@ -2948,7 +2948,7 @@ MSCFILE_DIRS           =
 
 
 
-INPUT += ../README.md ../single_include .
+INPUT += ../single_include .
 
 USE_MDFILE_AS_MAINPAGE = README.md
 
@@ -3006,6 +3006,4 @@ ALIASES += texttt{1}="<span class=\"texttt\">\1</span>"
 ALIASES += primitive{1}="<span class=\"tgen-primitive texttt\">\1</span>"
 ALIASES += namespace{1}="<span class=\"tgen-ns\">\1</span>"
 
-
-HTML_EXTRA_FILES += tgen_white.svg
 
