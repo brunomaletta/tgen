@@ -319,10 +319,10 @@ std::vector<T> choose(int k, const std::initializer_list<T> &il) {
 template <typename Gen> struct gen_base {
 	// Calls the generator until predicate is true.
 	template <typename Pred, typename... Args>
-	auto gen_until(Pred predicate, int max_tries, Args &&...args) {
+	auto gen_until(Pred predicate, int max_tries, Args &&...args) const {
 		for (int i = 0; i < max_tries; ++i) {
-			auto inst =
-				static_cast<Gen *>(this)->gen(std::forward<Args>(args)...);
+			auto inst = static_cast<const Gen *>(this)->gen(
+				std::forward<Args>(args)...);
 
 			if (predicate(inst))
 				return inst;
@@ -332,7 +332,7 @@ template <typename Gen> struct gen_base {
 	}
 	template <typename Pred, typename T, typename... Args>
 	auto gen_until(Pred predicate, int max_tries, std::initializer_list<T> il,
-				   Args &&...args) {
+				   Args &&...args) const {
 		return gen_until(predicate, max_tries, std::vector<T>(il),
 						 std::forward<Args>(args)...);
 	}
@@ -633,8 +633,9 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 	// Sequence instance.
 	// Operations on an instance are not random.
 	struct instance {
-		using value_type = T; // Value type, for templates.
-		std::vector<T> vec_;  // Sequence.
+		using value_type = T;			 // Value type, for templates.
+		using std_type = std::vector<T>; // std type for instance.
+		std::vector<T> vec_;			 // Sequence.
 
 		instance(const std::vector<T> &vec) : vec_(vec) {}
 		instance(const std::initializer_list<T> &il)
@@ -688,7 +689,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 	// Generates a uniformly random list of k distinct values in `[value_l,
 	// value_r]`, such that no value is in `forbidden_values`.
 	std::vector<T>
-	generate_distinct_values(int k, const std::set<T> &forbidden_values) {
+	generate_distinct_values(int k, const std::set<T> &forbidden_values) const {
 		for (auto forbidden : forbidden_values)
 			tgen_ensure(value_l_ <= forbidden and forbidden <= value_r_);
 		// We generate our numbers in the range [0, num_available) with
@@ -737,7 +738,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 
 	// Generates sequence instance.
 	// O(n log n).
-	instance gen() {
+	instance gen() const {
 		std::vector<T> vec(size_);
 		std::vector<bool> defined_idx(
 			size_, false); // For every index, if it has been set in `vec`.
@@ -1069,8 +1070,9 @@ struct permutation : gen_base<permutation> {
 	// Permutation instance.
 	// Operations on an instance are not random.
 	struct instance {
-		std::vector<int> vec_; // Permutation.
-		bool add_1_;		   // If should add 1, for printing.
+		using std_type = std::vector<int>; // std type for instance.
+		std::vector<int> vec_;			   // Permutation.
+		bool add_1_;					   // If should add 1, for printing.
 
 		instance(const std::vector<int> &vec) : vec_(vec), add_1_(false) {
 			tgen_ensure(!vec_.empty(), "permutation cannot be empty");
@@ -1159,7 +1161,7 @@ struct permutation : gen_base<permutation> {
 
 	// Generates permutation instance.
 	// O(n log n).
-	instance gen() {
+	instance gen() const {
 		// TODO: generate directly in O(n), instead of calling sequence<int>.
 		sequence<int> seq(size_, 0, size_ - 1);
 		seq.distinct();
@@ -1170,7 +1172,7 @@ struct permutation : gen_base<permutation> {
 
 	// Generates permutation instance, given cycle sizes.
 	// O(n).
-	instance gen(std::vector<int> cycle_sizes) {
+	instance gen(std::vector<int> cycle_sizes) const {
 		tgen_ensure(
 			size_ == std::accumulate(cycle_sizes.begin(), cycle_sizes.end(), 0),
 			"cycle sizes must add up to size of permutation");

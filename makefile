@@ -50,11 +50,11 @@ lint-check:
 	@echo "Formatting check passed"
 
 test:
-	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I $(SRC_DIR) -o test
+	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -o test -Wall -Wshadow -O2
 	./test
 	rm -f test
 
 testas:
-	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -I $(SRC_DIR) -o test -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow
+	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -o test -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow
 	-./test
 	rm -f test

@@ -1,37 +1,12 @@
 #include <gtest/gtest.h>
 
-#include "tgen.h"
+#include "../single_include/tgen.h"
+#include "tgen_test_utility.h"
 
 #include <iostream>
 #include <set>
 #include <utility>
 #include <vector>
-
-#define EXPECT_THROW_TGEN_PREFIX(stmt, prefix)                                 \
-	EXPECT_THROW(                                                              \
-		{                                                                      \
-			try {                                                              \
-				stmt;                                                          \
-				FAIL() << "Expected std::runtime_error, but no error ocurred"; \
-			} catch (const std::runtime_error &e) {                            \
-				std::string msg = e.what();                                    \
-				std::string tgen_pref = std::string("tgen: ") + prefix;        \
-				EXPECT_TRUE(msg.rfind(tgen_pref, 0) == 0)                      \
-					<< "Expected message to start with: \"" << tgen_pref       \
-					<< "\"\n"                                                  \
-					<< "Actual message: \"" << msg << "\"";                    \
-				throw e;                                                       \
-			}                                                                  \
-		},                                                                     \
-		std::runtime_error)
-
-inline std::vector<char *> get_argv(std::initializer_list<const char *> list) {
-	std::vector<char *> v;
-	for (auto s : list)
-		v.push_back(const_cast<char *>(s));
-	v.push_back(nullptr);
-	return v;
-}
 
 struct sequence_test {
 	int l, r;
@@ -72,10 +47,6 @@ struct sequence_test {
 		}
 	}
 };
-
-/*
- * Tests.
- */
 
 TEST(sequence_test, constructor_size_zero) {
 	auto argv = get_argv({"./executable"});
@@ -434,6 +405,27 @@ TEST(sequence_test, gen_with_all) {
 
 		test.check();
 	}
+}
+
+TEST(sequence_test, gen_uniform) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	check_generator_uniform(tgen::sequence<int>(5, 0, 1), 1 << 5);
+	check_generator_uniform(tgen::sequence<int>(5, 0, 1).set(0, 1), 1 << 4);
+	check_generator_uniform(tgen::sequence<int>(5, 0, 1).equal(0, 1), 1 << 4);
+	check_generator_uniform(tgen::sequence<int>(5, 0, 1).set(0, 1).equal(0, 1),
+							1 << 3);
+	check_generator_uniform(
+		tgen::sequence<int>(5, 0, 1).equal(0, 1).equal(1, 2), 1 << 3);
+	check_generator_uniform(tgen::sequence<int>(3, 1, 3).distinct(), 6);
+	check_generator_uniform(tgen::sequence<int>(5, 1, 5).distinct({0, 1, 2}),
+							60 * 5 * 5);
+	check_generator_uniform(
+		tgen::sequence<int>(5, 1, 5).distinct({0, 1, 2}).equal(1, 4), 60 * 5);
+	check_generator_uniform(
+		tgen::sequence<int>(5, 1, 5).distinct({0, 1, 2}).equal(1, 4).set(4, 3),
+		12 * 5);
 }
 
 TEST(sequence_test, gen_until_not_found) {

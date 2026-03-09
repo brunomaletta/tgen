@@ -1,36 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "tgen.h"
-
-#define EXPECT_THROW_TGEN_PREFIX(stmt, prefix)                                 \
-	EXPECT_THROW(                                                              \
-		{                                                                      \
-			try {                                                              \
-				stmt;                                                          \
-				FAIL() << "Expected std::runtime_error, but no error ocurred"; \
-			} catch (const std::runtime_error &e) {                            \
-				std::string msg = e.what();                                    \
-				std::string tgen_pref = std::string("tgen: ") + prefix;        \
-				EXPECT_TRUE(msg.rfind(tgen_pref, 0) == 0)                      \
-					<< "Expected message to start with: \"" << tgen_pref       \
-					<< "\"\n"                                                  \
-					<< "Actual message: \"" << msg << "\"";                    \
-				throw e;                                                       \
-			}                                                                  \
-		},                                                                     \
-		std::runtime_error)
-
-inline std::vector<char *> get_argv(std::initializer_list<const char *> list) {
-	std::vector<char *> v;
-	for (auto s : list)
-		v.push_back(const_cast<char *>(s));
-	v.push_back(nullptr);
-	return v;
-}
-
-/*
- * Tests.
- */
+#include "../single_include/tgen.h"
+#include "tgen_test_utility.h"
 
 TEST(opts_test, did_not_register_opt) {
 	// Fake reset registered status.

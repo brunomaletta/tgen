@@ -107,7 +107,7 @@ namespace tgen {
  * std::cout << inst << std::endl;
  * ```
  *
- * @fn permutation::gen();
+ * @fn permutation::gen() const;
  */
 
 
@@ -187,7 +187,7 @@ namespace tgen {
  * @memberof tgen::permutation
  */
 template<typename Gen, typename Pred, typename... Args>
-instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... args);
+instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... args) const;
 
 
 

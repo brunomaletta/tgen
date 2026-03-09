@@ -24,7 +24,7 @@ namespace tgen::math {
  * std::cout << tgen::math::gen_congruent(10, 99, {0, 1}, {2, 3}) << std::endl;
  * 
  * // Random partition of 10 into 4 parts in [2, 3].
- * auto part = tgen::math::partition_fixed_size(10, 4, 2, 3);
+ * auto part = tgen::math::gen_partition_fixed_size(10, 4, 2, 3);
  * ```
  */
 

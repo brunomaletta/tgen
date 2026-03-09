@@ -267,7 +267,7 @@ namespace tgen {
  * std::cout << inst << std::endl;
  * ```
  *
- * @fn sequence::gen();
+ * @fn sequence::gen() const;
  */
 
 
@@ -309,7 +309,7 @@ namespace tgen {
  *
  * @memberof tgen::sequence
  */
- template <typename T, typename Gen, typename Pred> instance gen_until(Pred predicate, int max_tries);
+ template <typename T, typename Gen, typename Pred> instance gen_until(Pred predicate, int max_tries) const;
 
 
 
