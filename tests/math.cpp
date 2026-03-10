@@ -206,7 +206,7 @@ TEST(math_test, gen_prime) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	for (int i = 0; i < 100; ++i) {
-		auto p = tgen::math::gen_prime(0, largest_number_64, i % 2 == 0);
+		auto p = tgen::math::gen_prime(0, largest_number_64);
 		EXPECT_TRUE(tgen::math::is_prime(p));
 	}
 
@@ -215,10 +215,18 @@ TEST(math_test, gen_prime) {
 		auto r =
 			tgen::next<uint64_t>(largest_number_64 / 100, largest_number_64);
 
-		auto p = tgen::math::gen_prime(l, r, i % 2 == 0);
+		auto p = tgen::math::gen_prime(l, r);
 		EXPECT_TRUE(tgen::math::is_prime(p));
 		EXPECT_TRUE(l <= p and p <= r);
 	}
+}
+
+TEST(math_test, gen_prime_uniform) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	check_function_uniform(tgen::math::gen_prime, 25, 0, 100);
+	check_function_uniform(tgen::math::gen_prime, 168, 0, 1000);
 }
 
 TEST(math_test, next_prime) {
@@ -296,6 +304,15 @@ TEST(math_test, gen_divisor_count) {
 		EXPECT_TRUE(static_cast<uint64_t>(tgen::math::num_divisors(x)) == p);
 		EXPECT_TRUE(l <= x and x <= r);
 	}
+}
+
+TEST(math_test, gen_divisor_count_uniform) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	check_function_uniform(tgen::math::gen_divisor_count, 25, 0, 100, 2);
+	check_function_uniform(tgen::math::gen_divisor_count, 11, 0, 1000, 3);
+	check_function_uniform(tgen::math::gen_divisor_count, 3, 0, 1000, 5);
 }
 
 TEST(math_test, prime_gaps) {
@@ -419,6 +436,21 @@ TEST(math_test, gen_congruent) {
 	}
 }
 
+TEST(math_test, gen_congruent_uniform) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	auto func = [](uint64_t l, uint64_t r, std::vector<uint64_t> rems,
+				   std::vector<uint64_t> mods) {
+		return tgen::math::gen_congruent(l, r, rems, mods);
+	};
+
+	check_function_uniform(func, 50, 0, 99, std::vector<uint64_t>{0},
+						   std::vector<uint64_t>{2});
+	check_function_uniform(func, 16, 0, 99, std::vector<uint64_t>{0, 1},
+						   std::vector<uint64_t>{2, 3});
+}
+
 TEST(math_test, fft_mod) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
@@ -497,6 +529,15 @@ TEST(math_test, gen_partition) {
 	test_partition(1e6);
 }
 
+TEST(math_test, gen_partition_uniform) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	check_function_uniform(tgen::math::gen_partition, 512, 10, 1, -1);
+	check_function_uniform(tgen::math::gen_partition, 7, 10, 2, 3);
+	check_function_uniform(tgen::math::gen_partition, 266, 100, 13, 15);
+}
+
 TEST(math_test, gen_partition_fixed_size_invalid) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
@@ -554,4 +595,16 @@ TEST(math_test, gen_partition_fixed_size) {
 	test_partition_fixed_size(1e6, 10);
 	test_partition_fixed_size(1e6, 5, 0);
 	test_partition_fixed_size(1e6, 5, 0, 1e6);
+}
+
+TEST(math_test, gen_partition_fixed_size_uniform) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	check_function_uniform(tgen::math::gen_partition_fixed_size, 66, 10, 3, 0,
+						   -1);
+	check_function_uniform(tgen::math::gen_partition_fixed_size, 36, 10, 3, 1,
+						   -1);
+	check_function_uniform(tgen::math::gen_partition_fixed_size, 381, 100, 5,
+						   18, 22);
 }

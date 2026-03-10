@@ -1361,127 +1361,6 @@ inline uint64_t totient(uint64_t n) {
 	return phi;
 }
 
-// O(log r) expected.
-// If adjust_distribution = true, then generates uniformly over value ranges.
-// Otherwise, uniform over primes, so smaller primes are generated more often.
-inline uint64_t gen_prime(uint64_t l, uint64_t r,
-						  bool adjust_distribution = true) {
-	if (r < l or r < 2)
-		throw there_is_no_in_range_error_internal("prime", l, r);
-	l = std::max<uint64_t>(l, 2);
-	// There might be no primes in the range.
-	if (r - l <= 1520) {
-		std::vector<uint64_t> vals(r - l + 1);
-		iota(vals.begin(), vals.end(), l);
-		shuffle(vals.begin(), vals.end());
-		for (uint64_t i : vals)
-			if (is_prime(i))
-				return i;
-		throw there_is_no_in_range_error_internal("prime", l, r);
-	}
-
-	// Sample with accepting probability proportional to prime density.
-	while (true) {
-		uint64_t n = next(l, r);
-		if (!is_prime(n))
-			continue;
-
-		if (!adjust_distribution or next<double>(0, 1) < log(n) / log(r))
-			return n;
-	}
-}
-
-// O(log^3 l) expected.
-// l < 2^64 - 59.
-inline uint64_t next_prime(uint64_t l) {
-	tgen_ensure(l < std::numeric_limits<uint64_t>::max() - 58, "invalid bound");
-	for (uint64_t i = std::max<uint64_t>(2, l + 1);; ++i)
-		if (is_prime(i))
-			return i;
-}
-
-// O(log^3 r) expected.
-inline uint64_t prev_prime(uint64_t r) {
-	if (r >= 3)
-		for (uint64_t i = r - 1; i >= 2; --i)
-			if (is_prime(i))
-				return i;
-	throw there_is_no_upto_error_internal("prime", r);
-}
-
-// checks if a * b <= limit, for positive numbers.
-inline bool mul_leq_internal(uint64_t a, uint64_t b, uint64_t limit) {
-	if (a == 0)
-		return true;
-	return a <= limit / b;
-}
-
-// base^exp, or null if base^exp > limit.
-inline std::optional<uint64_t> expo_internal(uint64_t base, uint64_t exp,
-											 uint64_t limit) {
-	uint64_t result = 1;
-
-	while (exp) {
-		if (exp & 1) {
-			if (!mul_leq_internal(result, base, limit))
-				return std::nullopt;
-			result *= base;
-		}
-
-		exp >>= 1;
-		// Necesary for correctness.
-		if (!exp)
-			break;
-
-		if (!mul_leq_internal(base, base, limit))
-			return std::nullopt;
-		base *= base;
-	}
-	return result;
-}
-
-// O(log n log k).
-// 0 <= n.
-// 0 < k.
-inline uint64_t kth_root_floor_internal(uint64_t n, uint64_t k) {
-	tgen_ensure(k > 0 and n >= 0, "values must be valid");
-	if (k == 1 or n <= 1)
-		return n;
-
-	uint64_t lo = 1, hi = 1ULL << ((64 + k - 1) / k);
-
-	while (lo < hi) {
-		uint64_t mid = lo + (hi - lo + 1) / 2;
-
-		if (expo_internal(mid, k, n)) {
-			lo = mid;
-		} else {
-			hi = mid - 1;
-		}
-	}
-	return lo;
-}
-
-// O(n^(1/4) log n) expected.
-// 0 < n.
-inline int num_divisors(uint64_t n) {
-	int divisors = 1;
-	for (auto [p, e] : factor_by_prime(n))
-		divisors *= (e + 1);
-	return divisors;
-}
-
-// O(log(r) log(divisor_count)).
-// divisor_count is prime.
-inline uint64_t gen_divisor_count(uint64_t l, uint64_t r, int divisor_count) {
-	tgen_ensure(divisor_count > 0 and is_prime(divisor_count),
-				"divisor count must be prime");
-	int root = divisor_count - 1;
-	uint64_t p = gen_prime(kth_root_floor_internal(l, root),
-						   kth_root_floor_internal(r, root));
-	return *expo_internal(p, root, r);
-}
-
 // Returns `(p_i, g_i)`: `p_i` is the prime, `g_i` is the gap.
 inline const std::pair<std::vector<uint64_t>, std::vector<uint64_t>> &
 prime_gaps() {
@@ -1583,6 +1462,121 @@ inline uint64_t highly_composite_upto(uint64_t r) {
 			return highly_composites()[i];
 
 	throw there_is_no_upto_error_internal("highly composite number", r);
+}
+
+// O(log r) expected.
+// Generates a random prime in [l, r].
+inline uint64_t gen_prime(uint64_t l, uint64_t r) {
+	if (r < l or r < 2)
+		throw there_is_no_in_range_error_internal("prime", l, r);
+	l = std::max<uint64_t>(l, 2);
+	// There might be no primes in the range.
+	if (r - l <= prime_gaps().second.back()) {
+		std::vector<uint64_t> vals(r - l + 1);
+		iota(vals.begin(), vals.end(), l);
+		shuffle(vals.begin(), vals.end());
+		for (uint64_t i : vals)
+			if (is_prime(i))
+				return i;
+		throw there_is_no_in_range_error_internal("prime", l, r);
+	}
+
+	uint64_t n;
+	do {
+		n = next(l, r);
+	} while (!is_prime(n));
+	return n;
+}
+
+// O(log^3 l) expected.
+// l < 2^64 - 59.
+inline uint64_t next_prime(uint64_t l) {
+	tgen_ensure(l < std::numeric_limits<uint64_t>::max() - 58, "invalid bound");
+	for (uint64_t i = std::max<uint64_t>(2, l + 1);; ++i)
+		if (is_prime(i))
+			return i;
+}
+
+// O(log^3 r) expected.
+inline uint64_t prev_prime(uint64_t r) {
+	if (r >= 3)
+		for (uint64_t i = r - 1; i >= 2; --i)
+			if (is_prime(i))
+				return i;
+	throw there_is_no_upto_error_internal("prime", r);
+}
+
+// checks if a * b <= limit, for positive numbers.
+inline bool mul_leq_internal(uint64_t a, uint64_t b, uint64_t limit) {
+	if (a == 0)
+		return true;
+	return a <= limit / b;
+}
+
+// base^exp, or null if base^exp > limit.
+inline std::optional<uint64_t> expo_internal(uint64_t base, uint64_t exp,
+											 uint64_t limit) {
+	uint64_t result = 1;
+
+	while (exp) {
+		if (exp & 1) {
+			if (!mul_leq_internal(result, base, limit))
+				return std::nullopt;
+			result *= base;
+		}
+
+		exp >>= 1;
+		// Necesary for correctness.
+		if (!exp)
+			break;
+
+		if (!mul_leq_internal(base, base, limit))
+			return std::nullopt;
+		base *= base;
+	}
+	return result;
+}
+
+// O(log n log k).
+// 0 <= n.
+// 0 < k.
+inline uint64_t kth_root_floor_internal(uint64_t n, uint64_t k) {
+	tgen_ensure(k > 0 and n >= 0, "values must be valid");
+	if (k == 1 or n <= 1)
+		return n;
+
+	uint64_t lo = 1, hi = 1ULL << ((64 + k - 1) / k);
+
+	while (lo < hi) {
+		uint64_t mid = lo + (hi - lo + 1) / 2;
+
+		if (expo_internal(mid, k, n)) {
+			lo = mid;
+		} else {
+			hi = mid - 1;
+		}
+	}
+	return lo;
+}
+
+// O(n^(1/4) log n) expected.
+// 0 < n.
+inline int num_divisors(uint64_t n) {
+	int divisors = 1;
+	for (auto [p, e] : factor_by_prime(n))
+		divisors *= (e + 1);
+	return divisors;
+}
+
+// O(log(r) log(divisor_count)).
+// divisor_count is prime.
+inline uint64_t gen_divisor_count(uint64_t l, uint64_t r, int divisor_count) {
+	tgen_ensure(divisor_count > 0 and is_prime(divisor_count),
+				"divisor count must be prime");
+	int root = divisor_count - 1;
+	uint64_t p = gen_prime(kth_root_floor_internal(l, root),
+						   kth_root_floor_internal(r, root));
+	return *expo_internal(p, root, r);
 }
 
 // gcd(a, b).

@@ -159,19 +159,92 @@ namespace tgen::math {
 
 /**
  * @ingroup math
+ * @brief Fetches prime gaps.
+ *
+ * Fetches maximal prime gaps for numbers that fit in @primitive{uint64_t} (less than @tt{2^64}).
+ *
+ * @return Columns @tt{p_n} and @tt{g_n} from
+ * <a href="https://en.wikipedia.org/wiki/Prime_gap#Numerical_results" target="_blank">wikipedia</a>.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * const auto &[p, g] = tgen::math::prime_gaps();
+ * ```
+ *
+ * @fn prime_gaps();
+ */
+
+
+/**
+ * @ingroup math
+ * @brief Largest prime gap up to given number.
+ *
+ * @param r Bound.
+ *
+ * @return Largest prime gap no larger than @pname{r}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Computes largest prime gap up to 1e12.
+ * auto [l, r] = tgen::math::prime_gap_upto(1e12);
+ * ```
+ *
+ * @fn prime_gap_upto(uint64_t r);
+ */
+
+
+/**
+ * @ingroup math
+ * @brief Fetches highly composite numbers.
+ *
+ * Fetches highly composite numbers that fit in @primitive{uint64_t} (less than @tt{2^64}).
+ *
+ * @return Highly composite numbers from 
+ * <a href="https://oeis.org/A002182/b002182.txt" target="_blank">wikipedia</a>.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints largest highly composite number that fits in 64 bits.
+ * std::cout << tgen::math::highly_composites().back() << std::endl;
+ * ```
+ *
+ * @fn highly_composites();
+ */
+
+
+/**
+ * @ingroup math
+ * @brief Largest highly composite number up to given number.
+ *
+ * @param r Bound.
+ *
+ * @return Largest highly composite number no larger than @pname{r}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints largest highly composite number up to 1e12.
+ * std::cout << tgen::math::highly_composite_upto(1e12) << std::endl;
+ * ```
+ *
+ * @fn highly_composite_upto(uint64_t r);
+ */
+
+
+/**
+ * @ingroup math
  * @brief Generates a random prime in given range.
  *
  * @param l Left endpoint of range.
  * @param r Right endpoint of range.
- * @param adjust_distribution If the distribution should be adjusted.
  *
  * @pre
  * @tt{@pname{n} > 0}.
  *
  * @return A uniformly random prime in @tt{[@pname{l}, @pname{r}]}.
- *
- * If @tt{@pname{adjust_distribution} = true}, then generates uniformly over value ranges.
- * Otherwise, uniform over primes, so smaller primes are generated more often.
  *
  * #### Complexity
  *
@@ -184,7 +257,7 @@ namespace tgen::math {
  * auto p = tgen::math::gen_prime(1, 1e18);
  * ```
  *
- * @fn gen_prime(uint64_t l, uint64_t r, bool adjust_distribution = true);
+ * @fn gen_prime(uint64_t l, uint64_t r);
  */
 
 
@@ -292,83 +365,6 @@ namespace tgen::math {
  * ```
  *
  * @fn gen_divisor_count(uint64_t l, uint64_t r, int divisor_count);
- */
-
-
-/**
- * @ingroup math
- * @brief Fetches prime gaps.
- *
- * Fetches maximal prime gaps for numbers that fit in @primitive{uint64_t} (less than @tt{2^64}).
- *
- * @return Columns @tt{p_n} and @tt{g_n} from
- * <a href="https://en.wikipedia.org/wiki/Prime_gap#Numerical_results" target="_blank">wikipedia</a>.
- *
- * #### Examples
- *
- * ```cpp
- * const auto &[p, g] = tgen::math::prime_gaps();
- * ```
- *
- * @fn prime_gaps();
- */
-
-
-/**
- * @ingroup math
- * @brief Largest prime gap up to given number.
- *
- * @param r Bound.
- *
- * @return Largest prime gap no larger than @pname{r}.
- *
- * #### Examples
- *
- * ```cpp
- * // Computes largest prime gap up to 1e12.
- * auto [l, r] = tgen::math::prime_gap_upto(1e12);
- * ```
- *
- * @fn prime_gap_upto(uint64_t r);
- */
-
-
-/**
- * @ingroup math
- * @brief Fetches highly composite numbers.
- *
- * Fetches highly composite numbers that fit in @primitive{uint64_t} (less than @tt{2^64}).
- *
- * @return Highly composite numbers from 
- * <a href="https://oeis.org/A002182/b002182.txt" target="_blank">wikipedia</a>.
- *
- * #### Examples
- *
- * ```cpp
- * // Prints largest highly composite number that fits in 64 bits.
- * std::cout << tgen::math::highly_composites().back() << std::endl;
- * ```
- *
- * @fn highly_composites();
- */
-
-
-/**
- * @ingroup math
- * @brief Largest highly composite number up to given number.
- *
- * @param r Bound.
- *
- * @return Largest highly composite number no larger than @pname{r}.
- *
- * #### Examples
- *
- * ```cpp
- * // Prints largest highly composite number up to 1e12.
- * std::cout << tgen::math::highly_composite_upto(1e12) << std::endl;
- * ```
- *
- * @fn highly_composite_upto(uint64_t r);
  */
 
 

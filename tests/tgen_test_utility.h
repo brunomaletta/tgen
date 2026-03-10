@@ -1,7 +1,10 @@
 #include <cmath>
 #include <gtest/gtest.h>
 #include <map>
+#include <type_traits>
 #include <vector>
+
+#include "../single_include/tgen.h"
 
 // Expects an error to be thrown, and asserts
 // that the error message starts with some prefix.
@@ -32,6 +35,31 @@ inline std::vector<char *> get_argv(std::initializer_list<const char *> list) {
 	return v;
 }
 
+// Given a count of elements `counts`, checks it was generated uniformly from
+// `num_tests` tests and `num_elements` total elements. If it was generated
+// uniformly, the probability of the failure is at most 1e-9.
+template <typename T>
+bool check_uniform(const std::map<T, int> &counts, int num_elements,
+				   int num_tests) {
+	EXPECT_TRUE(static_cast<int>(counts.size()) <= num_elements)
+		<< "Expected at most " << num_elements << " unique instances, but got "
+		<< counts.size();
+
+	double expected = double(num_tests) / num_elements;
+
+	double chi2 = 0;
+	for (auto [element, count] : counts) {
+		double d = count - expected;
+		chi2 += d * d / expected;
+	}
+	chi2 += (num_elements - counts.size()) * expected;
+
+	double df = num_elements - 1;
+
+	double z = 6.109410; // phi(z) = 1 - 1e-9
+	return chi2 <= df + z * std::sqrt(2 * df);
+}
+
 // Checks if the generator is uniform, assuming there are `num_elements`
 // possible instances. If the generator is uniform, the probability of the test
 // failing is at most 1e-27.
@@ -42,27 +70,31 @@ void check_generator_uniform(const Gen &gen, int num_elements) {
 		long long num_tests = std::max(1000, 20 * num_elements);
 
 		std::map<typename Gen::instance::std_type, int> counts;
-
 		for (long long j = 0; j < num_tests; ++j)
 			counts[gen.gen().to_std()]++;
 
-		EXPECT_TRUE(static_cast<int>(counts.size()) <= num_elements)
-			<< "Expected at most " << num_elements
-			<< " unique instances, but got " << counts.size();
+		if (!check_uniform(counts, num_elements, num_tests))
+			++count_fail;
+	}
+	EXPECT_TRUE(count_fail < repeats) << "Distribution not uniform";
+}
 
-		double expected = double(num_tests) / num_elements;
+// Checks if a function `func(args)` returns a random element, out of
+// `num_elements` possible values. Assumes the return value of `func` has
+// operator <. If the function is uniform, the probability of the test failing
+// is at most 1e-27.
+template <typename F, typename... Args>
+void check_function_uniform(F func, int num_elements, Args... args) {
+	using T = std::invoke_result_t<F, Args...>;
+	int repeats = 3, count_fail = 0;
+	for (int i = 0; i < repeats; ++i) {
+		long long num_tests = std::max(1000, 20 * num_elements);
 
-		double chi2 = 0;
-		for (auto [std_instance, count] : counts) {
-			double d = count - expected;
-			chi2 += d * d / expected;
-		}
-		chi2 += (num_elements - counts.size()) * expected;
+		std::map<T, int> counts;
+		for (long long j = 0; j < num_tests; ++j)
+			counts[func(args...)]++;
 
-		double df = num_elements - 1;
-
-		double z = 6.109410; // phi(z) = 1 - 1e-9
-		if (chi2 > df + z * std::sqrt(2 * df))
+		if (!check_uniform(counts, num_elements, num_tests))
 			++count_fail;
 	}
 	EXPECT_TRUE(count_fail < repeats) << "Distribution not uniform";
