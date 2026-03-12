@@ -323,9 +323,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	// apply to return types
 	document.querySelectorAll(".tgen-return").forEach(highlightType);
-
-	// apply to parameters
+	// apply to parameter types
 	document.querySelectorAll(".paramtype").forEach(highlightType);
+	// apply to parameter names
+	document.querySelectorAll(".paramname").forEach(highlightType);
 
 	// apply to after params: for example "int f() const" -> apply to "const"
 	document.querySelectorAll(".memproto table.memname > tbody > tr:first-child > td:last-child")
