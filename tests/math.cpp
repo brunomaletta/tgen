@@ -229,39 +229,39 @@ TEST(math_test, gen_prime_uniform) {
 	check_function_uniform(tgen::math::gen_prime, 168, 0, 1000);
 }
 
-TEST(math_test, next_prime) {
+TEST(math_test, prime_from) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::next_prime(largest_number_64 - 58),
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::prime_from(largest_number_64 - 57),
 							 "invalid bound");
-	EXPECT_EQ(tgen::math::next_prime(largest_number_64 - 59), largest_prime_64);
+	EXPECT_EQ(tgen::math::prime_from(largest_number_64 - 58), largest_prime_64);
 
 	auto p = tgen::math::gen_prime(0, largest_number_64 / 100);
 	EXPECT_TRUE(tgen::math::is_prime(p));
 	for (int i = 0; i < 100; ++i) {
 		EXPECT_THROW_TGEN_PREFIX(
-			tgen::math::gen_prime(p + 1, tgen::math::next_prime(p) - 1),
+			tgen::math::gen_prime(p + 1, tgen::math::prime_from(p + 1) - 1),
 			"there is no prime in range");
-		p = tgen::math::next_prime(p);
+		p = tgen::math::prime_from(p + 1);
 		EXPECT_TRUE(tgen::math::is_prime(p));
 	}
 }
 
-TEST(math_test, prev_prime) {
+TEST(math_test, prime_upto) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::prev_prime(2),
-							 "there is no prime up to 2");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::prime_upto(1),
+							 "there is no prime up to 1");
 
 	auto p = tgen::math::gen_prime(largest_number_64 / 100, largest_number_64);
 	EXPECT_TRUE(tgen::math::is_prime(p));
 	for (int i = 0; i < 100; ++i) {
 		EXPECT_THROW_TGEN_PREFIX(
-			tgen::math::gen_prime(tgen::math::prev_prime(p) + 1, p - 1),
+			tgen::math::gen_prime(tgen::math::prime_upto(p - 1) + 1, p - 1),
 			"there is no prime in range");
-		p = tgen::math::prev_prime(p);
+		p = tgen::math::prime_upto(p - 1);
 		EXPECT_TRUE(tgen::math::is_prime(p));
 	}
 }
@@ -398,7 +398,7 @@ TEST(math_test, gen_congruent_invalid) {
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::gen_congruent(
 			2, largest_number_64, {1, 1},
-			{largest_prime_64, tgen::math::prev_prime(largest_prime_64)}),
+			{largest_prime_64, tgen::math::prime_upto(largest_prime_64 - 1)}),
 		"there is no congruent number in range");
 }
 
@@ -420,7 +420,7 @@ TEST(math_test, gen_congruent) {
 	EXPECT_TRUE(tgen::math::gen_congruent(0, largest_number_64, 1, 3) % 3 == 1);
 	EXPECT_EQ(tgen::math::gen_congruent(
 				  1, largest_number_64, {1, 1},
-				  {largest_prime_64, tgen::math::prev_prime(largest_prime_64)}),
+				  {largest_prime_64, tgen::math::prime_upto(largest_prime_64)}),
 			  1);
 
 	for (int i = 0; i < 100; ++i) {

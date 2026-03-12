@@ -12,8 +12,8 @@ namespace tgen::math {
  * // Generates a random prime from 1 to 1e18.
  * auto p = tgen::math::gen_prime(1, 1e18);
  *
- * // Prints primes between 100 and 200.
- * for (int p = tgen::math::next_prime(100); p < 200; p = tgen::math::next_prime(p)) {
+ * // Prints primes from 100 to 200.
+ * for (int p = tgen::math::prime_from(100); p <= 200; p = tgen::math::prime_from(p + 1)) {
  *     std::cout << p << std::endl;
  * }
  * 
@@ -263,14 +263,14 @@ namespace tgen::math {
 
 /**
  * @ingroup math
- * @brief Computes smallest prime larger than given value.
+ * @brief Computes smallest prime from given value.
  *
  * @param l Bound.
  *
  * @pre
- * @tt{@pname{l} < 2^64 - 59}.
+ * @tt{@pname{l} <= 2^64 - 59}.
  *
- * @return Smallest prime larger than @pname{l}.
+ * @return Smallest prime larger than or equal to @pname{l}.
  *
  * #### Complexity
  *
@@ -279,23 +279,23 @@ namespace tgen::math {
  * #### Examples
  *
  * ```cpp
- * // Prints primes between 100 and 200.
- * for (int p = tgen::math::next_prime(100); p < 200; p = tgen::math::next_prime(p)) {
+ * // Prints primes from 100 to 200.
+ * for (int p = tgen::math::prime_from(100); p <= 200; p = tgen::math::prime_from(p + 1)) {
  *     std::cout << p << std::endl;
  * }
  * ```
  *
- * @fn next_prime(uint64_t l);
+ * @fn prime_from(uint64_t l);
  */
 
 
 /**
  * @ingroup math
- * @brief Computes largest prime smaller than given value.
+ * @brief Computes largest prime up to given value.
  *
  * @param r Bound.
  *
- * @return Largest prime smaller than @pname{r}.
+ * @return Largest prime smaller than or equal to @pname{r}.
  *
  * #### Complexity
  *
@@ -304,13 +304,13 @@ namespace tgen::math {
  * #### Examples
  *
  * ```cpp
- * // Prints primes between 100 and 200 in reverse.
- * for (int p = tgen::math::prev_prime(200); p > 100; p = tgen::math::prev_prime(p)) {
+ * // Prints primes from 100 to 200 in reverse.
+ * for (int p = tgen::math::prime_upto(200); p >= 100; p = tgen::math::prime_upto(p - 1)) {
  *     std::cout << p << std::endl;
  * }
  * ```
  *
- * @fn prev_prime(uint64_t r);
+ * @fn prime_upto(uint64_t r);
  */
 
 

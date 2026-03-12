@@ -1536,18 +1536,19 @@ inline uint64_t gen_prime(uint64_t l, uint64_t r) {
 }
 
 // O(log^3 l) expected.
-// l < 2^64 - 59.
-inline uint64_t next_prime(uint64_t l) {
-	tgen_ensure(l < std::numeric_limits<uint64_t>::max() - 58, "invalid bound");
-	for (uint64_t i = std::max<uint64_t>(2, l + 1);; ++i)
+// l <= 2^64 - 59.
+inline uint64_t prime_from(uint64_t l) {
+	tgen_ensure(l <= std::numeric_limits<uint64_t>::max() - 58,
+				"invalid bound");
+	for (uint64_t i = std::max<uint64_t>(2, l);; ++i)
 		if (is_prime(i))
 			return i;
 }
 
 // O(log^3 r) expected.
-inline uint64_t prev_prime(uint64_t r) {
-	if (r >= 3)
-		for (uint64_t i = r - 1; i >= 2; --i)
+inline uint64_t prime_upto(uint64_t r) {
+	if (r >= 2)
+		for (uint64_t i = r; i >= 2; --i)
 			if (is_prime(i))
 				return i;
 	throw there_is_no_upto_error_internal("prime", r);
