@@ -1,5 +1,11 @@
 *~
 test
+sample
+sample_debug
 
 # Website
 docs/build/
+
+# VsCode
+.vscode
+Testing

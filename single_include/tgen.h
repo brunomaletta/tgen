@@ -46,37 +46,36 @@ namespace tgen {
  * Error handling.
  */
 
-inline void throw_assertion_error_internal(const std::string &condition,
-										   const std::string &msg) {
+namespace _detail {
+
+inline void throw_assertion_error(const std::string &condition,
+								  const std::string &msg) {
 	throw std::runtime_error("tgen: " + msg + " (assertion `" + condition +
 							 "` failed)");
 }
-inline void throw_assertion_error_internal(const std::string &condition) {
+inline void throw_assertion_error(const std::string &condition) {
 	throw std::runtime_error("tgen: assertion `" + condition + "` failed");
 }
-inline std::runtime_error error_internal(const std::string &msg) {
+inline std::runtime_error error(const std::string &msg) {
 	return std::runtime_error("tgen: " + msg);
 }
-inline std::runtime_error
-contradiction_error_internal(const std::string &type,
-							 const std::string &msg = "") {
+inline std::runtime_error contradiction_error(const std::string &type,
+											  const std::string &msg = "") {
 	// Tried to generate a contradicting sequence.
 	std::string error_msg = "invalid " + type + " (contradicting constraints)";
 	if (!msg.empty())
 		error_msg += ": " + msg;
-	return error_internal(error_msg);
+	return error(error_msg);
 }
 template <typename T>
-std::runtime_error there_is_no_in_range_error_internal(const std::string &type,
-													   T l, T r) {
-	return error_internal("there is no " + type + " in range [" +
-						  std::to_string(l) + ", " + std::to_string(r) + "]");
+std::runtime_error there_is_no_in_range_error(const std::string &type, T l,
+											  T r) {
+	return error("there is no " + type + " in range [" + std::to_string(l) +
+				 ", " + std::to_string(r) + "]");
 }
 template <typename T>
-std::runtime_error there_is_no_upto_error_internal(const std::string &type,
-												   T r) {
-	return error_internal("there is no " + type + " up to " +
-						  std::to_string(r));
+std::runtime_error there_is_no_upto_error(const std::string &type, T r) {
+	return error("there is no " + type + " up to " + std::to_string(r));
 }
 inline void tgen_ensure_against_bug(bool cond) {
 	if (!cond)
@@ -87,62 +86,64 @@ inline void tgen_ensure_against_bug(bool cond) {
 // Ensures condition is true, with nice debug.
 #define tgen_ensure(cond, ...)                                                 \
 	if (!(cond))                                                               \
-		tgen::throw_assertion_error_internal(#cond, ##__VA_ARGS__);
+		tgen::_detail::throw_assertion_error(#cond, ##__VA_ARGS__);
 
 // Registering checks.
-inline bool registered_internal = false;
-inline void ensure_registered_internal() {
-	tgen_ensure(registered_internal,
+inline bool registered = false;
+inline void ensure_registered() {
+	tgen_ensure(registered,
 				"tgen was not registered! You should call "
 				"tgen::register_gen(argc, argv) before running tgen functions");
 }
+
+} // namespace _detail
 
 /*
  * Easier printing.
  */
 
+namespace _detail {
+
 // Template magic to detect types in compile tiem.
 
 // Detects containers != std::string.
-template <typename T, typename = void>
-struct is_container_internal : std::false_type {};
+template <typename T, typename = void> struct is_container : std::false_type {};
 template <typename T>
-struct is_container_internal<
-	T,
-	std::void_t<typename T::value_type, decltype(std::begin(std::declval<T>())),
-				decltype(std::end(std::declval<T>()))>> : std::true_type {};
-template <> struct is_container_internal<std::string> : std::false_type {};
+struct is_container<T, std::void_t<typename T::value_type,
+								   decltype(std::begin(std::declval<T>())),
+								   decltype(std::end(std::declval<T>()))>>
+	: std::true_type {};
+template <> struct is_container<std::string> : std::false_type {};
 // Detects std::pair.
-template <typename T> struct is_pair_internal : std::false_type {};
+template <typename T> struct is_pair : std::false_type {};
 template <typename A, typename B>
-struct is_pair_internal<std::pair<A, B>> : std::true_type {};
+struct is_pair<std::pair<A, B>> : std::true_type {};
 // Detects std::tuple.
-template <typename T> struct is_tuple_internal : std::false_type {};
+template <typename T> struct is_tuple : std::false_type {};
 template <typename... Ts>
-struct is_tuple_internal<std::tuple<Ts...>> : std::true_type {};
+struct is_tuple<std::tuple<Ts...>> : std::true_type {};
 // Detects scalar (printed atomically).
 template <typename T>
-struct is_scalar_internal
-	: std::bool_constant<!is_container_internal<T>::value and
-						 !is_tuple_internal<T>::value and
-						 !is_pair_internal<T>::value> {};
+struct is_scalar
+	: std::bool_constant<!is_container<T>::value and !is_tuple<T>::value and
+						 !is_pair<T>::value> {};
 // Detects complex container.
 template <typename T>
-struct is_container_multiline_internal
-	: std::bool_constant<is_container_internal<T>::value and
-						 !is_scalar_internal<typename T::value_type>::value> {};
+struct is_container_multiline
+	: std::bool_constant<is_container<T>::value and
+						 !is_scalar<typename T::value_type>::value> {};
 // Detects complex std::pair.
-template <typename T> struct is_pair_multiline_internal : std::false_type {};
+template <typename T> struct is_pair_multiline : std::false_type {};
 template <typename A, typename B>
-struct is_pair_multiline_internal<std::pair<A, B>>
-	: std::bool_constant<!is_scalar_internal<A>::value or
-						 !is_scalar_internal<B>::value> {};
+struct is_pair_multiline<std::pair<A, B>>
+	: std::bool_constant<!is_scalar<A>::value or !is_scalar<B>::value> {};
 // Detects complex std::tuple.
-template <typename Tuple>
-struct is_tuple_multiline_internal : std::false_type {};
+template <typename Tuple> struct is_tuple_multiline : std::false_type {};
 template <typename... Ts>
-struct is_tuple_multiline_internal<std::tuple<Ts...>>
-	: std::bool_constant<(!is_scalar_internal<Ts>::value or ...)> {};
+struct is_tuple_multiline<std::tuple<Ts...>>
+	: std::bool_constant<(!is_scalar<Ts>::value or ...)> {};
+
+} // namespace _detail
 
 // Struct to print standard types to std::ostream;
 struct print {
@@ -169,8 +170,8 @@ struct print {
 	}
 
 	template <typename T> void write(std::ostream &os, const T &x) {
-		if constexpr (is_pair_internal<T>::value) {
-			if constexpr (is_pair_multiline_internal<T>::value) {
+		if constexpr (_detail::is_pair<T>::value) {
+			if constexpr (_detail::is_pair_multiline<T>::value) {
 				write(os, x.first);
 				os << '\n';
 				write(os, x.second);
@@ -179,9 +180,9 @@ struct print {
 				os << ' ';
 				write(os, x.second);
 			}
-		} else if constexpr (is_tuple_internal<T>::value)
+		} else if constexpr (_detail::is_tuple<T>::value)
 			write_tuple(os, x);
-		else if constexpr (is_container_internal<T>::value)
+		else if constexpr (_detail::is_container<T>::value)
 			write_container(os, x);
 		else
 			os << x;
@@ -193,7 +194,7 @@ struct print {
 
 		for (const auto &e : c) {
 			if (!first)
-				os << (is_container_multiline_internal<C>::value ? '\n' : ' ');
+				os << (_detail::is_container_multiline<C>::value ? '\n' : ' ');
 			first = false;
 			write(os, e);
 		}
@@ -205,7 +206,7 @@ struct print {
 						  std::index_sequence<I...>) {
 		bool first = true;
 		((os << (first ? (first = false, "")
-					   : (is_tuple_multiline_internal<Tuple>::value ? "\n"
+					   : (_detail::is_tuple_multiline<Tuple>::value ? "\n"
 																	: " ")),
 		  write(os, std::get<I>(tp))),
 		 ...);
@@ -243,19 +244,61 @@ println(const std::initializer_list<std::initializer_list<T>> &il) {
  * Global random operations.
  */
 
-inline std::mt19937 rng_internal;
+namespace _detail {
+
+inline std::mt19937 rng;
+
+// Base struct for generators.
+template <typename Gen> struct gen_base {
+	// Calls the generator until predicate is true.
+	template <typename Pred, typename... Args>
+	auto gen_until(Pred predicate, int max_tries, Args &&...args) const {
+		for (int i = 0; i < max_tries; ++i) {
+			auto inst = static_cast<const Gen *>(this)->gen(
+				std::forward<Args>(args)...);
+
+			if (predicate(inst))
+				return inst;
+		}
+
+		throw error("could not generate instance matching predicate");
+	}
+	template <typename Pred, typename T, typename... Args>
+	auto gen_until(Pred predicate, int max_tries, std::initializer_list<T> il,
+				   Args &&...args) const {
+		return gen_until(predicate, max_tries, std::vector<T>(il),
+						 std::forward<Args>(args)...);
+	}
+
+	// Nice error for `std::cout << generator`.
+	friend std::ostream &operator<<(std::ostream &out, const gen_base &) {
+		static_assert(
+			false,
+			"you cannot print a generator. Maybe you forgot to call `gen()`?");
+		return out;
+	}
+};
+
+template <typename T, typename = void>
+struct is_associative_container : std::false_type {};
+template <typename T>
+struct is_associative_container<
+	T, std::void_t<typename T::key_type, typename T::key_compare>>
+	: std::true_type {};
+
+} // namespace _detail
 
 // Returns a random number in [l, r].
 // O(1).
 template <typename T> T next(T l, T r) {
-	ensure_registered_internal();
+	_detail::ensure_registered();
 	tgen_ensure(l <= r, "range for `next` bust be valid");
 	if constexpr (std::is_integral_v<T>)
-		return std::uniform_int_distribution<T>(l, r)(rng_internal);
+		return std::uniform_int_distribution<T>(l, r)(_detail::rng);
 	else if constexpr (std::is_floating_point_v<T>)
-		return std::uniform_real_distribution<T>(l, r)(rng_internal);
+		return std::uniform_real_distribution<T>(l, r)(_detail::rng);
 	else
-		throw error_internal("invalid type for next (" +
+		throw _detail::error("invalid type for next (" +
 							 std::string(typeid(T).name()) + ")");
 }
 
@@ -269,25 +312,18 @@ template <typename It> void shuffle(It first, It last) {
 		std::iter_swap(i, first + next(0, static_cast<int>(i - first)));
 }
 
-template <typename T, typename = void>
-struct is_associative_container_internal : std::false_type {};
-template <typename T>
-struct is_associative_container_internal<
-	T, std::void_t<typename T::key_type, typename T::key_compare>>
-	: std::true_type {};
-
 // Shuffles container uniformly.
 // O(|container|).
 template <
 	typename C,
-	std::enable_if_t<!is_associative_container_internal<C>::value, int> = 0>
+	std::enable_if_t<!_detail::is_associative_container<C>::value, int> = 0>
 [[nodiscard]] C shuffled(const C &container) {
 	auto new_container = container;
 	shuffle(new_container.begin(), new_container.end());
 	return new_container;
 }
 template <typename C, std::enable_if_t<
-						  is_associative_container_internal<C>::value, int> = 0>
+						  _detail::is_associative_container<C>::value, int> = 0>
 [[nodiscard]] std::vector<typename C::value_type> shuffled(const C &container) {
 	return shuffled(std::vector<typename C::value_type>(container.begin(),
 														container.end()));
@@ -337,37 +373,6 @@ std::vector<T> choose(int k, const std::initializer_list<T> &il) {
 	return choose(k, std::vector<T>(il.begin(), il.end()));
 }
 
-// Base struct for generators.
-template <typename Gen> struct gen_base {
-	// Calls the generator until predicate is true.
-	template <typename Pred, typename... Args>
-	auto gen_until(Pred predicate, int max_tries, Args &&...args) const {
-		for (int i = 0; i < max_tries; ++i) {
-			auto inst = static_cast<const Gen *>(this)->gen(
-				std::forward<Args>(args)...);
-
-			if (predicate(inst))
-				return inst;
-		}
-
-		throw error_internal("could not generate instance matching predicate");
-	}
-	template <typename Pred, typename T, typename... Args>
-	auto gen_until(Pred predicate, int max_tries, std::initializer_list<T> il,
-				   Args &&...args) const {
-		return gen_until(predicate, max_tries, std::vector<T>(il),
-						 std::forward<Args>(args)...);
-	}
-
-	// Nice error for `std::cout << generator`.
-	friend std::ostream &operator<<(std::ostream &out, const gen_base &) {
-		static_assert(
-			false,
-			"you cannot print a generator. Maybe you forgot to call `gen()`?");
-		return out;
-	}
-};
-
 /************
  *          *
  *   OPTS   *
@@ -389,24 +394,14 @@ template <typename Gen> struct gen_base {
  * For example, for "10 -n=20 str" positional option 1 is the string "str".
  */
 
+namespace _detail {
+
 inline std::vector<std::string>
-	pos_opts_internal; // Dictionary containing the positional parsed opts.
+	pos_opts; // Dictionary containing the positional parsed opts.
 inline std::map<std::string, std::string>
-	named_opts_internal; // Global dictionary the named parsed opts.
+	named_opts; // Global dictionary the named parsed opts.
 
-// Returns true if there is an opt at a given index.
-inline bool has_opt(std::size_t index) {
-	ensure_registered_internal();
-	return 0 <= index and index < pos_opts_internal.size();
-}
-
-// Returns true if there is an opt with a given key.
-inline bool has_opt(const std::string &key) {
-	ensure_registered_internal();
-	return named_opts_internal.count(key) != 0;
-}
-
-template <typename T> T get_opt_internal(const std::string &value) {
+template <typename T> T get_opt(const std::string &value) {
 	try {
 		if constexpr (std::is_same_v<T, bool>) {
 			if (value == "true" or value == "1")
@@ -425,36 +420,12 @@ template <typename T> T get_opt_internal(const std::string &value) {
 	} catch (...) {
 	}
 
-	throw error_internal("invalid value `" + value + "` for type " +
+	throw _detail::error("invalid value `" + value + "` for type " +
 						 typeid(T).name());
 }
 
-// Returns the parsed opt by a given key. If no opts with the given key are
-// found, returns the given default_value.
-template <typename T, typename Key>
-T opt(const Key &key, std::optional<T> default_value = std::nullopt) {
-	ensure_registered_internal();
-	if constexpr (std::is_same_v<Key, int>) {
-		if (!has_opt(key)) {
-			if (default_value)
-				return *default_value;
-			throw error_internal("cannot find key with index " +
-								 std::to_string(key));
-		}
-		return get_opt_internal<T>(pos_opts_internal[key]);
-	} else { // std::string
-		if (!has_opt(key)) {
-			if (default_value)
-				return *default_value;
-			throw error_internal("cannot find key with key " +
-								 std::string(key));
-		}
-		return get_opt_internal<T>(named_opts_internal[key]);
-	}
-}
-
-inline void parse_opts_internal(int argc, char **argv) {
-	// Parses the opts into `pos_opts_internal` vector and `named_opts_internal`
+inline void parse_opts(int argc, char **argv) {
+	// Parses the opts into `pos_opts` vector and `named_opts`
 	// map. Starting from 1 to ignore the name of the executable.
 	for (int i = 1; i < argc; ++i) {
 		std::string key(argv[i]);
@@ -464,7 +435,7 @@ inline void parse_opts_internal(int argc, char **argv) {
 						"invalid opt (" + std::string(argv[i]) + ")");
 			if ('0' <= key[1] and key[1] <= '9') {
 				// This case is a positional negative number argument
-				pos_opts_internal.push_back(key);
+				_detail::pos_opts.push_back(key);
 				continue;
 			}
 
@@ -472,7 +443,7 @@ inline void parse_opts_internal(int argc, char **argv) {
 			key = key.substr(1);
 		} else {
 			// This case is a positional argument that does not start with '-'
-			pos_opts_internal.push_back(key);
+			_detail::pos_opts.push_back(key);
 			continue;
 		}
 
@@ -497,20 +468,21 @@ inline void parse_opts_internal(int argc, char **argv) {
 			tgen_ensure(!key.empty() and !value.empty(),
 						"expected non-empty key/value in opt (" +
 							std::string(argv[1]));
-			tgen_ensure(named_opts_internal.count(key) == 0,
+			tgen_ensure(_detail::named_opts.count(key) == 0,
 						"cannot have repeated keys");
-			named_opts_internal[key] = value;
+			_detail::named_opts[key] = value;
 		} else {
 			// This is the '--key value' case.
-			tgen_ensure(named_opts_internal.count(key) == 0,
+			tgen_ensure(_detail::named_opts.count(key) == 0,
 						"cannot have repeated keys");
 			tgen_ensure(argv[i + 1], "value cannot be empty");
-			named_opts_internal[key] = std::string(argv[i + 1]);
+			_detail::named_opts[key] = std::string(argv[i + 1]);
 			++i;
 		}
 	}
 }
-inline void set_seed_internal(int argc, char **argv) {
+
+inline void set_seed(int argc, char **argv) {
 	std::vector<uint32_t> seed;
 
 	// Starting from 1 to ignore the name of the executable.
@@ -524,18 +496,56 @@ inline void set_seed_internal(int argc, char **argv) {
 		}
 	}
 	std::seed_seq seq(seed.begin(), seed.end());
-	rng_internal.seed(seq);
+	_detail::rng.seed(seq);
+}
+
+} // namespace _detail
+
+// Returns true if there is an opt at a given index.
+inline bool has_opt(std::size_t index) {
+	tgen::_detail::ensure_registered();
+	return 0 <= index and index < _detail::pos_opts.size();
+}
+
+// Returns true if there is an opt with a given key.
+inline bool has_opt(const std::string &key) {
+	tgen::_detail::ensure_registered();
+	return _detail::named_opts.count(key) != 0;
+}
+
+// Returns the parsed opt by a given key. If no opts with the given key are
+// found, returns the given default_value.
+template <typename T, typename Key>
+T opt(const Key &key, std::optional<T> default_value = std::nullopt) {
+	tgen::_detail::ensure_registered();
+	if constexpr (std::is_same_v<Key, int>) {
+		if (!has_opt(key)) {
+			if (default_value)
+				return *default_value;
+			throw _detail::error("cannot find key with index " +
+								 std::to_string(key));
+		}
+		return _detail::get_opt<T>(_detail::pos_opts[key]);
+	} else { // std::string
+		if (!has_opt(key)) {
+			if (default_value)
+				return *default_value;
+			throw _detail::error("cannot find key with key " +
+								 std::string(key));
+		}
+		return _detail::get_opt<T>(_detail::named_opts[key]);
+	}
 }
 
 // Registers generator by initializing rnd and parsing opts.
 inline void register_gen(int argc, char **argv) {
-	set_seed_internal(argc, argv);
+	_detail::set_seed(argc, argv);
 
-	pos_opts_internal.clear();
-	named_opts_internal.clear();
-	parse_opts_internal(argc, argv);
+	_detail::pos_opts.clear();
+	_detail::named_opts.clear();
+	_detail::parse_opts(argc, argv);
 
-	registered_internal = true;
+	_detail::registered = true;
 }
 
 /****************
@@ -548,7 +558,7 @@ inline void register_gen(int argc, char **argv) {
  * Sequence generator.
  */
 
-template <typename T> struct sequence : gen_base<sequence<T>> {
+template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 	int size_;			  // Size of sequence.
 	T value_l_, value_r_; // Range of defined values.
 	std::set<T> values_;  // Set of values. If empty, use range. if not,
@@ -720,7 +730,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		// map to store a virtual sequence that starts with a[i] = i.
 		T num_available = (value_r_ - value_l_ + 1) - forbidden_values.size();
 		if (num_available < k)
-			throw error_internal(
+			throw _detail::error(
 				"failed to generate sequence: complex constraints");
 		std::map<T, T> virtual_list;
 		std::vector<T> gen_list;
@@ -806,7 +816,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 								new_value = l;
 							} else if (new_value != l) {
 								// We found a contradiction
-								throw contradiction_error_internal(
+								throw _detail::contradiction_error(
 									"sequence",
 									"tried to set value to `" +
 										std::to_string(new_value) +
@@ -846,7 +856,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 				if (static_cast<uint64_t>(distinct.size() - 1) +
 						static_cast<uint64_t>(value_l_) >
 					static_cast<uint64_t>(value_r_))
-					throw contradiction_error_internal(
+					throw _detail::contradiction_error(
 						"sequence",
 						"tried to generate " + std::to_string(distinct.size()) +
 							" distinct values, but the maximum is " +
@@ -857,7 +867,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 				std::set<int> comp_ids;
 				for (int idx : distinct) {
 					if (comp_ids.count(comp_id[idx]))
-						throw contradiction_error_internal(
+						throw _detail::contradiction_error(
 							"sequence", "tried to set two indices as equal and "
 										"different");
 					comp_ids.insert(comp_id[idx]);
@@ -871,7 +881,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		// If some value is in >= 3 sets, then there is a cycle.
 		for (auto &distinct_containing : distinct_containing_comp_idx)
 			if (distinct_containing.size() >= 3)
-				throw error_internal(
+				throw _detail::error(
 					"failed to generate sequence: complex constraints");
 
 		std::vector<bool> vis_distinct(distinct_constraints_.size(), false);
@@ -889,7 +899,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 					// Checks if two values in `distinct_constraints_[dist_id]`
 					// have been set to the same value
 					if (defined_values.count(vec[idx]))
-						throw contradiction_error_internal(
+						throw _detail::contradiction_error(
 							"sequence",
 							"tried to set two indices as equal and different");
 
@@ -933,7 +943,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 
 						// Cycle found.
 						if (vis_distinct[nxt_distinct])
-							throw error_internal("failed to generate sequence: "
+							throw _detail::error("failed to generate sequence: "
 												 "complex constraints");
 
 						neigh_distinct.insert(nxt_distinct);
@@ -951,7 +961,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 							// when there are values not coverered by a single
 							// distinct constraint in the tree.
 							if (initially_defined_comp_idx[comp_id[idx2]])
-								throw error_internal(
+								throw _detail::error(
 									"failed to generate sequence: "
 									"complex constraints");
 
@@ -1073,7 +1083,7 @@ template <typename Inst> Inst choose(int k, const Inst &inst) {
  * Permutation are defined always as numbers in [0, n), that is, 0-based.
  */
 
-struct permutation : gen_base<permutation> {
+struct permutation : _detail::gen_base<permutation> {
 	int size_;							   // Size of permutation.
 	std::vector<std::pair<int, int>> sets; // {idx, value}.
 
@@ -1255,8 +1265,9 @@ struct permutation : gen_base<permutation> {
  ************/
 
 namespace math {
+namespace _detail {
 
-inline int ctzll_internal(uint64_t x) {
+inline int ctzll(uint64_t x) {
 	// Mistery code found on the internet.
 	// Uses de Brujin sequence.
 	static const unsigned char index64[64] = {
@@ -1267,18 +1278,20 @@ inline int ctzll_internal(uint64_t x) {
 	return index64[((x & -x) * 0x022FDD63CC95386D) >> 58];
 }
 
-inline uint64_t mul_mod_internal(uint64_t a, uint64_t b, uint64_t m) {
+inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t m) {
 	return static_cast<unsigned __int128>(a) * b % m;
 }
 
 // O(log n).
 // 0 <= x < m.
-inline uint64_t expo_mod_internal(uint64_t x, uint64_t y, uint64_t m) {
+inline uint64_t expo_mod(uint64_t x, uint64_t y, uint64_t m) {
 	if (!y)
 		return 1;
-	uint64_t ans = expo_mod_internal(mul_mod_internal(x, x, m), y / 2, m);
-	return y % 2 ? mul_mod_internal(x, ans, m) : ans;
+	uint64_t ans = expo_mod(mul_mod(x, x, m), y / 2, m);
+	return y % 2 ? mul_mod(x, ans, m) : ans;
 }
+
+} // namespace _detail
 
 // O(log^2 n).
 inline bool is_prime(uint64_t n) {
@@ -1289,15 +1302,15 @@ inline bool is_prime(uint64_t n) {
 	if (n % 2 == 0)
 		return false;
 
-	uint64_t r = ctzll_internal(n - 1), d = n >> r;
+	uint64_t r = _detail::ctzll(n - 1), d = n >> r;
 	// These bases are guaranteed to work for n <= 2^64.
 	for (int a : {2, 325, 9375, 28178, 450775, 9780504, 1795265022}) {
-		uint64_t x = expo_mod_internal(a, d, n);
+		uint64_t x = _detail::expo_mod(a, d, n);
 		if (x == 1 or x == n - 1 or a % n == 0)
 			continue;
 
 		for (uint64_t j = 0; j < r - 1; ++j) {
-			x = mul_mod_internal(x, x, n);
+			x = _detail::mul_mod(x, x, n);
 			if (x == n - 1)
 				break;
 		}
@@ -1307,16 +1320,18 @@ inline bool is_prime(uint64_t n) {
 	return true;
 }
 
-inline uint64_t pollard_rho_internal(uint64_t n) {
+namespace _detail {
+
+inline uint64_t pollard_rho(uint64_t n) {
 	if (n == 1 or is_prime(n))
 		return n;
-	auto f = [n](uint64_t x) { return mul_mod_internal(x, x, n) + 1; };
+	auto f = [n](uint64_t x) { return mul_mod(x, x, n) + 1; };
 
 	uint64_t x = 0, y = 0, t = 30, prd = 2, x0 = 1, q;
 	while (t % 40 != 0 or std::gcd(prd, n) == 1) {
 		if (x == y)
 			x = ++x0, y = f(x);
-		q = mul_mod_internal(prd, x > y ? x - y : y - x, n);
+		q = mul_mod(prd, x > y ? x - y : y - x, n);
 		if (q != 0)
 			prd = q;
 		x = f(x), y = f(f(y)), t++;
@@ -1324,23 +1339,25 @@ inline uint64_t pollard_rho_internal(uint64_t n) {
 	return std::gcd(prd, n);
 }
 
-inline std::vector<uint64_t> factor_internal(uint64_t n) {
+inline std::vector<uint64_t> factor(uint64_t n) {
 	if (n == 1)
 		return {};
 	if (is_prime(n))
 		return {n};
-	uint64_t d = pollard_rho_internal(n);
-	std::vector<uint64_t> l = factor_internal(d), r = factor_internal(n / d);
+	uint64_t d = _detail::pollard_rho(n);
+	std::vector<uint64_t> l = factor(d), r = factor(n / d);
 	l.insert(l.end(), r.begin(), r.end());
 	return l;
 }
+
+} // namespace _detail
 
 // Sorted.
 // O(n^(1/4) log n) expected.
 // 0 < n.
 inline std::vector<uint64_t> factor(uint64_t n) {
 	tgen_ensure(n > 0, "number to factor must be positive");
-	auto factors = factor_internal(n);
+	auto factors = _detail::factor(n);
 	std::sort(factors.begin(), factors.end());
 	return factors;
 }
@@ -1360,10 +1377,12 @@ inline std::vector<std::pair<uint64_t, int>> factor_by_prime(uint64_t n) {
 	return primes;
 }
 
+namespace _detail {
+
 // O(log mod).
 // 0 < a < mod.
 // gcd(a, mod) = 1.
-inline __int128 modular_inverse_128_internal(__int128 a, __int128 mod) {
+inline __int128 modular_inverse_128(__int128 a, __int128 mod) {
 	tgen_ensure(0 < a and a < mod,
 				"remainder must be positive and smaller than the mod");
 
@@ -1389,11 +1408,13 @@ inline __int128 modular_inverse_128_internal(__int128 a, __int128 mod) {
 	return t;
 }
 
+} // namespace _detail
+
 // O(log mod).
 // 0 < a < mod.
 // gcd(a, mod) = 1.
 inline uint64_t modular_inverse(uint64_t a, uint64_t mod) {
-	return modular_inverse_128_internal(a, mod);
+	return _detail::modular_inverse_128(a, mod);
 }
 
 // O(n^(1/4) log n) expected.
@@ -1446,7 +1467,7 @@ prime_gaps() {
 // O(log r) approximately.
 inline std::pair<uint64_t, uint64_t> prime_gap_upto(uint64_t r) {
 	if (r < 4)
-		throw there_is_no_upto_error_internal("prime gap", r);
+		throw tgen::_detail::there_is_no_upto_error("prime gap", r);
 
 	const auto &[P, G] = prime_gaps();
 	for (int i = P.size() - 1;; --i) {
@@ -1465,7 +1486,7 @@ inline std::pair<uint64_t, uint64_t> prime_gap_upto(uint64_t r) {
 // From https://oeis.org/A002182/b002182.txt.
 inline const std::vector<uint64_t> &highly_composites() {
 	/* clang-format off */
-	static const std::vector<uint64_t> highly_composites_internal = {
+	static const std::vector<uint64_t> highly_composites = {
 	1, 2, 4, 6, 12, 24, 36, 48, 60, 120, 180, 240, 360, 720, 840, 1260, 1680,
 	2520, 5040, 7560, 10080, 15120, 20160, 25200, 27720, 45360, 50400, 55440,
 	83160, 110880, 166320, 221760, 277200, 332640, 498960, 554400, 665280,
@@ -1499,7 +1520,7 @@ inline const std::vector<uint64_t> &highly_composites() {
 	4381203794791824000, 4488062423933088000, 6133685312708553600,
 	8976124847866176000, 9200527969062830400, 12267370625417107200ULL,
 	15334213281771384000ULL, 18401055938125660800ULL}; /* clang-format on */
-	return highly_composites_internal;
+	return highly_composites;
 }
 
 // O(log r) approximately.
@@ -1508,14 +1529,14 @@ inline uint64_t highly_composite_upto(uint64_t r) {
 		if (highly_composites()[i] <= r)
 			return highly_composites()[i];
 
-	throw there_is_no_upto_error_internal("highly composite number", r);
+	throw tgen::_detail::there_is_no_upto_error("highly composite number", r);
 }
 
 // O(log r) expected.
 // Generates a random prime in [l, r].
 inline uint64_t gen_prime(uint64_t l, uint64_t r) {
 	if (r < l or r < 2)
-		throw there_is_no_in_range_error_internal("prime", l, r);
+		throw tgen::_detail::there_is_no_in_range_error("prime", l, r);
 	l = std::max<uint64_t>(l, 2);
 	// There might be no primes in the range.
 	if (r - l <= prime_gaps().second.back()) {
@@ -1525,7 +1546,7 @@ inline uint64_t gen_prime(uint64_t l, uint64_t r) {
 		for (uint64_t i : vals)
 			if (is_prime(i))
 				return i;
-		throw there_is_no_in_range_error_internal("prime", l, r);
+		throw tgen::_detail::there_is_no_in_range_error("prime", l, r);
 	}
 
 	uint64_t n;
@@ -1551,24 +1572,24 @@ inline uint64_t prime_upto(uint64_t r) {
 		for (uint64_t i = r; i >= 2; --i)
 			if (is_prime(i))
 				return i;
-	throw there_is_no_upto_error_internal("prime", r);
+	throw tgen::_detail::there_is_no_upto_error("prime", r);
 }
 
 // checks if a * b <= limit, for positive numbers.
-inline bool mul_leq_internal(uint64_t a, uint64_t b, uint64_t limit) {
+inline bool mul_leq(uint64_t a, uint64_t b, uint64_t limit) {
 	if (a == 0)
 		return true;
 	return a <= limit / b;
 }
 
 // base^exp, or null if base^exp > limit.
-inline std::optional<uint64_t> expo_internal(uint64_t base, uint64_t exp,
-											 uint64_t limit) {
+inline std::optional<uint64_t> expo(uint64_t base, uint64_t exp,
+									uint64_t limit) {
 	uint64_t result = 1;
 
 	while (exp) {
 		if (exp & 1) {
-			if (!mul_leq_internal(result, base, limit))
+			if (!mul_leq(result, base, limit))
 				return std::nullopt;
 			result *= base;
 		}
@@ -1578,7 +1599,7 @@ inline std::optional<uint64_t> expo_internal(uint64_t base, uint64_t exp,
 		if (!exp)
 			break;
 
-		if (!mul_leq_internal(base, base, limit))
+		if (!mul_leq(base, base, limit))
 			return std::nullopt;
 		base *= base;
 	}
@@ -1588,7 +1609,7 @@ inline std::optional<uint64_t> expo_internal(uint64_t base, uint64_t exp,
 // O(log n log k).
 // 0 <= n.
 // 0 < k.
-inline uint64_t kth_root_floor_internal(uint64_t n, uint64_t k) {
+inline uint64_t kth_root_floor(uint64_t n, uint64_t k) {
 	tgen_ensure(k > 0 and n >= 0, "values must be valid");
 	if (k == 1 or n <= 1)
 		return n;
@@ -1598,7 +1619,7 @@ inline uint64_t kth_root_floor_internal(uint64_t n, uint64_t k) {
 	while (lo < hi) {
 		uint64_t mid = lo + (hi - lo + 1) / 2;
 
-		if (expo_internal(mid, k, n)) {
+		if (expo(mid, k, n)) {
 			lo = mid;
 		} else {
 			hi = mid - 1;
@@ -1622,14 +1643,15 @@ inline uint64_t gen_divisor_count(uint64_t l, uint64_t r, int divisor_count) {
 	tgen_ensure(divisor_count > 0 and is_prime(divisor_count),
 				"divisor count must be prime");
 	int root = divisor_count - 1;
-	uint64_t p = gen_prime(kth_root_floor_internal(l, root),
-						   kth_root_floor_internal(r, root));
-	return *expo_internal(p, root, r);
+	uint64_t p = gen_prime(kth_root_floor(l, root), kth_root_floor(r, root));
+	return *expo(p, root, r);
 }
+
+namespace _detail {
 
 // gcd(a, b).
 // O(log a).
-inline __int128 gcd128_internal(__int128 a, __int128 b) {
+inline __int128 gcd128(__int128 a, __int128 b) {
 	if (a < 0)
 		a = -a;
 	if (b < 0)
@@ -1645,7 +1667,7 @@ inline __int128 gcd128_internal(__int128 a, __int128 b) {
 // min(2^64, a*b).
 // O(log a).
 // a, b >= 0.
-inline __int128 mul_saturate_internal(__int128 a, __int128 b) {
+inline __int128 mul_saturate(__int128 a, __int128 b) {
 	tgen_ensure(a >= 0 and b >= 0);
 	static const __int128 LIMIT = (__int128)1 << 64;
 	if (a == 0 or b == 0)
@@ -1655,17 +1677,17 @@ inline __int128 mul_saturate_internal(__int128 a, __int128 b) {
 	return a * b;
 }
 
-struct crt_internal {
+struct crt {
 	using T = __int128;
 	T a, m;
 
-	crt_internal() : a(0), m(1) {}
-	crt_internal(T a_, T m_) : a(a_), m(m_) {}
-	crt_internal operator*(crt_internal C) {
+	crt() : a(0), m(1) {}
+	crt(T a_, T m_) : a(a_), m(m_) {}
+	crt operator*(crt C) {
 		if (m == 0 or C.m == 0)
 			return {-1, 0};
 
-		T g = gcd128_internal(m, C.m);
+		T g = gcd128(m, C.m);
 		if ((C.a - a) % g != 0)
 			return {-1, 0};
 
@@ -1675,7 +1697,7 @@ struct crt_internal {
 		if (m2 == 1)
 			return {a, m};
 
-		T inv = modular_inverse_128_internal(m1 % m2, m2);
+		T inv = modular_inverse_128(m1 % m2, m2);
 
 		T k = ((C.a - a) / g) % m2;
 		if (k < 0)
@@ -1683,7 +1705,7 @@ struct crt_internal {
 
 		k = static_cast<unsigned __int128>(k) * inv % m2;
 
-		T lcm = mul_saturate_internal(m, m2);
+		T lcm = mul_saturate(m, m2);
 
 		T res = (a + static_cast<T>((static_cast<unsigned __int128>(k) * m) %
 									lcm)) %
@@ -1695,6 +1717,8 @@ struct crt_internal {
 	}
 };
 
+} // namespace _detail
+
 // O(|mods| + log r).
 // |rems| = |mods|.
 // rems_i < mods_i.
@@ -1702,20 +1726,21 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 							  std::vector<uint64_t> rems,
 							  std::vector<uint64_t> mods) {
 	if (l > r)
-		throw there_is_no_in_range_error_internal("congruent number", l, r);
+		throw tgen::_detail::there_is_no_in_range_error("congruent number", l,
+														r);
 	tgen_ensure(rems.size() == mods.size(),
 				"number of remainders and mods must be the same");
 
-	crt_internal crt;
+	_detail::crt crt;
 	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
 		tgen_ensure(rems[i] < mods[i],
 					"remainder must be smaller than the mod");
-		crt = crt * crt_internal(rems[i], mods[i]);
+		crt = crt * _detail::crt(rems[i], mods[i]);
 
 		if (crt.a == -1 or crt.m > r) {
 			if (!(l <= crt.a and crt.a <= r))
-				throw there_is_no_in_range_error_internal("congruent number", l,
-														  r);
+				throw tgen::_detail::there_is_no_in_range_error(
+					"congruent number", l, r);
 
 			bool valid_candidate = true;
 			for (int j = 0; j < static_cast<int>(rems.size()); ++j)
@@ -1723,7 +1748,8 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 					valid_candidate = false;
 			if (valid_candidate)
 				return crt.a;
-			throw there_is_no_in_range_error_internal("congruent number", l, r);
+			throw tgen::_detail::there_is_no_in_range_error("congruent number",
+															l, r);
 		}
 	}
 
@@ -1731,7 +1757,8 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 	uint64_t k_max = (r - crt.a) / crt.m;
 
 	if (k_min > k_max)
-		throw there_is_no_in_range_error_internal("congruent number", l, r);
+		throw tgen::_detail::there_is_no_in_range_error("congruent number", l,
+														r);
 
 	return crt.a + next(k_min, k_max) * crt.m;
 }
@@ -1769,35 +1796,39 @@ inline const std::vector<uint64_t> &fibonacci() {
 	return fib;
 }
 
-inline constexpr long double LOG_ZERO_INTERNAL = -INFINITY;
-inline constexpr long double LOG_ONE_INTERNAL = 0.0;
+namespace _detail {
 
-inline long double log_space_internal(long double x) {
-	return x == 0.0 ? LOG_ZERO_INTERNAL : std::log(x);
+inline constexpr long double LOG_ZERO = -INFINITY;
+inline constexpr long double LOG_ONE = 0.0;
+
+inline long double log_space(long double x) {
+	return x == 0.0 ? LOG_ZERO : std::log(x);
 }
 
 // Math hack to add two values in log space.
-inline long double add_log_space_internal(long double a, long double b) {
-	if (a == LOG_ZERO_INTERNAL)
+inline long double add_log_space(long double a, long double b) {
+	if (a == LOG_ZERO)
 		return b;
-	if (b == LOG_ZERO_INTERNAL)
+	if (b == LOG_ZERO)
 		return a;
 	if (a < b)
 		std::swap(a, b);
-	if (b == LOG_ZERO_INTERNAL)
+	if (b == LOG_ZERO)
 		return a;
 	return a + log1p(exp(b - a));
 }
 
 // Math hack to subtract two values in log space.
 // a >= b.
-inline long double sub_log_space_internal(long double a, long double b) {
+inline long double sub_log_space(long double a, long double b) {
 	if (b >= a)
-		return LOG_ZERO_INTERNAL;
-	if (b == LOG_ZERO_INTERNAL)
+		return LOG_ZERO;
+	if (b == LOG_ZERO)
 		return a;
 	return a + log1p(-exp(b - a));
 }
+
+} // namespace _detail
 
 // Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
 // O(n).
@@ -1811,14 +1842,14 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 	tgen_ensure(part_l <= n and part_r > 0, "no such partition");
 
 	// dp[i] = log(numbers of ways to add to i).
-	std::vector<long double> dp(n + 1, LOG_ZERO_INTERNAL);
-	dp[0] = LOG_ONE_INTERNAL;
-	long double window = LOG_ZERO_INTERNAL;
+	std::vector<long double> dp(n + 1, _detail::LOG_ZERO);
+	dp[0] = _detail::LOG_ONE;
+	long double window = _detail::LOG_ZERO;
 	for (int i = 1; i <= n; ++i) {
 		if (i >= part_l)
-			window = add_log_space_internal(window, dp[i - part_l]);
+			window = _detail::add_log_space(window, dp[i - part_l]);
 		if (i >= part_r + 1)
-			window = sub_log_space_internal(window, dp[i - part_r - 1]);
+			window = _detail::sub_log_space(window, dp[i - part_r - 1]);
 		dp[i] = window;
 	}
 	tgen_ensure(dp[n] >= 0, "no such partition");
@@ -1826,14 +1857,14 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 	// Crazy math tricks ahead.
 	auto dp_pref = dp;
 	for (int i = 1; i <= n; ++i)
-		dp_pref[i] = add_log_space_internal(dp_pref[i - 1], dp[i]);
+		dp_pref[i] = _detail::add_log_space(dp_pref[i - 1], dp[i]);
 
 	std::vector<int> part;
 	int sum = n;
 	while (sum > 0) {
 		// Will generate a number such that what remains is in [l, r].
 		int l = std::max(0, sum - part_r), r = sum - part_l;
-		tgen_ensure_against_bug(r >= 0);
+		tgen::_detail::tgen_ensure_against_bug(r >= 0);
 
 		int nxt_sum = std::min(sum, r);
 		long double random = next<long double>(0, 1);
@@ -1847,11 +1878,11 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 		//   = log{exp(B) * [exp(A) / exp(B) + U * (1 - exp(A) / exp(B))]}
 		//   = B + log[exp(A - B) + U - U * exp(A - B))]
 		//   = B + log[U + (1 - U) * exp(A - B)].
-		long double val_l = l ? dp_pref[l - 1] : LOG_ZERO_INTERNAL,
+		long double val_l = l ? dp_pref[l - 1] : _detail::LOG_ZERO,
 					val_r = dp_pref[r];
 		while (nxt_sum > l and
 			   dp_pref[nxt_sum - 1] >=
-				   val_r + log_space_internal(random + (1 - random) *
+				   val_r + _detail::log_space(random + (1 - random) *
 														   exp(val_l - val_r)))
 			--nxt_sum;
 
@@ -1903,42 +1934,43 @@ inline std::vector<int> gen_partition_fixed_size(int n, int k, int part_l = 0,
 
 		// dp[i][j] = log(#ways to fill i parts with sum j)
 		std::vector<std::vector<long double>> dp(
-			k + 1, std::vector<long double>(s + 1, LOG_ZERO_INTERNAL));
-		dp[0][0] = LOG_ONE_INTERNAL;
+			k + 1, std::vector<long double>(s + 1, _detail::LOG_ZERO));
+		dp[0][0] = _detail::LOG_ONE;
 
 		for (int i = 1; i <= k; ++i) {
 			std::vector<long double> pref = dp[i - 1];
 			for (int j = 1; j <= s; ++j)
-				pref[j] = add_log_space_internal(pref[j - 1], dp[i - 1][j]);
+				pref[j] = _detail::add_log_space(pref[j - 1], dp[i - 1][j]);
 
 			for (int j = 0; j <= s; ++j) {
 				dp[i][j] = pref[j];
 				if (j >= u + 1)
 					dp[i][j] =
-						sub_log_space_internal(dp[i][j], pref[j - u - 1]);
+						_detail::sub_log_space(dp[i][j], pref[j - u - 1]);
 			}
 		}
 
 		// Recovers parts backwards.
 		int left_to_distribute = s;
 		for (int i = k; i >= 1; --i) {
-			long double log_total = LOG_ZERO_INTERNAL;
+			long double log_total = _detail::LOG_ZERO;
 			for (int j = 0; j <= u and j <= left_to_distribute; ++j)
-				log_total = add_log_space_internal(
+				log_total = _detail::add_log_space(
 					log_total, dp[i - 1][left_to_distribute - j]);
-			tgen_ensure_against_bug(log_total != LOG_ZERO_INTERNAL);
+			tgen::_detail::tgen_ensure_against_bug(log_total !=
+												   _detail::LOG_ZERO);
 
 			// Now we choose a number with probability proportional to
 			// dp[i-1][.].
 
 			// log(rand() * total) = log(rand()) + log(total).
 			long double random =
-				log_space_internal(next<long double>(0, 1)) + log_total;
+				_detail::log_space(next<long double>(0, 1)) + log_total;
 
-			long double cur_prob = LOG_ZERO_INTERNAL;
+			long double cur_prob = _detail::LOG_ZERO;
 			int chosen = 0;
 			for (int j = 0; j <= u and j <= left_to_distribute; ++j) {
-				cur_prob = add_log_space_internal(
+				cur_prob = _detail::add_log_space(
 					cur_prob, dp[i - 1][left_to_distribute - j]);
 				if (random < cur_prob) {
 					chosen = j;

@@ -1,6 +1,7 @@
-#include "tgen.h"
+#include "../single_include/tgen.h"
 
 #include <iostream>
+#include <limits>
 
 int main(int argc, char **argv) {
 	tgen::register_gen(argc, argv);
@@ -65,7 +66,7 @@ int main(int argc, char **argv) {
 
 	std::cout << tgen::math::gen_prime(1, 1e18) << std::endl;
 
-	std::cout << tgen::math::prev_prime(std::numeric_limits<uint64_t>::max())
+	std::cout << tgen::math::prime_upto(std::numeric_limits<uint64_t>::max())
 			  << std::endl;
 
 	auto [l, r] =

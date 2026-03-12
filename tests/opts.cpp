@@ -5,7 +5,7 @@
 
 TEST(opts_test, did_not_register_opt) {
 	// Fake reset registered status.
-	tgen::registered_internal = false;
+	tgen::_detail::registered = false;
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::has_opt(0),
 		"tgen was not registered! You should call tgen::register_gen(argc, "
@@ -14,7 +14,7 @@ TEST(opts_test, did_not_register_opt) {
 
 TEST(opts_test, did_not_register_next) {
 	// Fake reset registered status.
-	tgen::registered_internal = false;
+	tgen::_detail::registered = false;
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::next(0, 1),
 		"tgen was not registered! You should call tgen::register_gen(argc, "

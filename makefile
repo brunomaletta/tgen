@@ -6,6 +6,9 @@ THEME_DIR     := docs/doxygen-awesome-css
 
 all: lint doc test
 
+clean:
+	-.rm -f test sample sample_debug
+
 sample:
 	@g++ -std=c++17 examples/all.cpp -I $(SRC_DIR) -o sample
 	@-./sample
@@ -58,3 +61,6 @@ testas:
 	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -o test -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow
 	-./test
 	rm -f test
+
+debug:
+	g++ -g examples/all.cpp -o examples/sample_debug
