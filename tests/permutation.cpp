@@ -65,8 +65,10 @@ TEST(permutation_test, gen_invalid) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
+	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).set(0, 1).set(0, 2).gen(),
+							 "cannot set an idex to two different values");
 	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).set(0, 0).set(1, 0).gen(),
-							 "invalid sequence (contradicting constraints)");
+							 "cannot set two indices to the same value");
 }
 
 TEST(permutation_test, gen) {

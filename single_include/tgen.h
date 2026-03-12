@@ -1182,14 +1182,39 @@ struct permutation : gen_base<permutation> {
 	};
 
 	// Generates permutation instance.
-	// O(n log n).
+	// O(n).
 	instance gen() const {
-		// TODO: generate directly in O(n), instead of calling sequence<int>.
-		sequence<int> seq(size_, 0, size_ - 1);
-		seq.distinct();
-		for (auto [idx, val] : sets)
-			seq.set(idx, val);
-		return instance(seq.gen().to_std());
+		std::vector<int> idx_to_val(size_, -1), val_to_idx(size_, -1);
+		for (auto [idx, val] : sets) {
+			tgen_ensure(0 <= val and val < size_,
+						"value in permutation must be in [0, " +
+							std::to_string(size_) + ")");
+
+			if (idx_to_val[idx] != -1) {
+				tgen_ensure(idx_to_val[idx] == val,
+							"cannot set an idex to two different values");
+			} else
+				idx_to_val[idx] = val;
+
+			if (val_to_idx[val] != -1) {
+				tgen_ensure(val_to_idx[val] == idx,
+							"cannot set two indices to the same value");
+			} else
+				val_to_idx[val] = idx;
+		}
+
+		std::vector<int> perm(size_);
+		std::iota(perm.begin(), perm.end(), 0);
+		shuffle(perm.begin(), perm.end());
+		int cur_idx = 0;
+		for (int &i : idx_to_val)
+			if (i == -1) {
+				// While this value is used, skip.
+				while (val_to_idx[perm[cur_idx]] != -1)
+					++cur_idx;
+				i = perm[cur_idx++];
+			}
+		return idx_to_val;
 	}
 
 	// Generates permutation instance, given cycle sizes.

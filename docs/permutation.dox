@@ -97,7 +97,7 @@ namespace tgen {
  *
  * #### Complexity
  *
- * @tt{O(n log n)}.
+ * @tt{O(n)}.
  *
  * #### Examples
  *
@@ -135,7 +135,7 @@ namespace tgen {
  * std::cout << inst << std::endl;
  * ```
  *
- * @fn permutation::gen(std::vector<int> cycle_sizes);
+ * @fn permutation::gen(std::vector<int> cycle_sizes) const;
  */
 
 
