@@ -500,8 +500,6 @@ namespace tgen {
 
 
 
-namespace sequence_op {
-
 /**
  * @defgroup sequence_op Sequence operations
  * @ingroup sequence
@@ -531,10 +529,10 @@ namespace sequence_op {
  * // Shuffles and prints an instance.
  * tgen::sequence<int>::instance inst = {3, 1, 2};
  * std::cout <<
- *     tgen::sequence_op::shuffle(inst) << std::endl;
+ *     tgen::shuffle(inst) << std::endl;
  * ```
  *
- * @fn shuffle(const Inst &inst);
+ * @fn shuffled(const Inst &inst);
  */
 
 
@@ -558,7 +556,7 @@ namespace sequence_op {
  * // Prints a random element from v.
  * tgen::sequence<int>::instance inst = {3, 1, 2};
  * std::cout <<
- *     tgen::sequence_op::any(inst) << std::endl;
+ *     tgen::any(inst) << std::endl;
  * ```
  *
  * @fn any(const Inst &inst);
@@ -586,12 +584,10 @@ namespace sequence_op {
  * // Prints a subsequenec of length 2 from v.
  * tgen::sequence<int>::instance inst = {3, 1, 2};
  * std::cout <<
- *     tgen::sequence_op::choose(2, inst) << std::endl;
+ *     tgen::choose(2, inst) << std::endl;
  * ```
  *
  * @fn choose(int k, const Inst &inst);
  */
-
-};
 
 };

@@ -460,11 +460,7 @@ TEST(sequence_test, gen_until) {
 	}
 }
 
-/*
- * sequence_op.
- */
-
-TEST(sequence_test, sequence_op_choose) {
+TEST(sequence_test, sequence_choose) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -475,7 +471,7 @@ TEST(sequence_test, sequence_op_choose) {
 
 	for (int i = 0; i < 100; ++i) {
 		int k = tgen::next<int>(1, v.size());
-		auto subseq = tgen::sequence_op::choose(k, inst);
+		auto subseq = tgen::choose(k, inst);
 		int idx = 0;
 		// Tests if subseq is a subsequence of inst.
 		for (int j = 0; j < inst.size(); ++j)

@@ -286,6 +286,15 @@ struct is_associative_container<
 	T, std::void_t<typename T::key_type, typename T::key_compare>>
 	: std::true_type {};
 
+// Tag used to identify generator instance types (sequence::instance,
+// permutation::instance).
+struct generator_instance_tag {};
+template <typename T, typename = void>
+struct is_generator_instance : std::false_type {};
+template <typename T>
+struct is_generator_instance<T, std::void_t<typename T::_tgen_instance_tag>>
+	: std::is_same<typename T::_tgen_instance_tag, generator_instance_tag> {};
+
 } // namespace _detail
 
 // Returns a random number in [l, r].
@@ -314,9 +323,10 @@ template <typename It> void shuffle(It first, It last) {
 
 // Shuffles container uniformly.
 // O(|container|).
-template <
-	typename C,
-	std::enable_if_t<!_detail::is_associative_container<C>::value, int> = 0>
+template <typename C,
+		  std::enable_if_t<!_detail::is_associative_container<C>::value and
+							   !_detail::is_generator_instance<C>::value,
+						   int> = 0>
 [[nodiscard]] C shuffled(const C &container) {
 	auto new_container = container;
 	shuffle(new_container.begin(), new_container.end());
@@ -333,7 +343,18 @@ template <typename T>
 	return shuffled(std::vector<T>(il.begin(), il.end()));
 }
 
-// Returns a random element from [first, last).
+// Shuffles sequence/permutation instance uniformly.
+// O(n).
+template <
+	typename Inst,
+	std::enable_if_t<_detail::is_generator_instance<Inst>::value, int> = 0>
+Inst shuffled(const Inst &inst) {
+	Inst new_inst = inst;
+	tgen::shuffle(new_inst.vec_.begin(), new_inst.vec_.end());
+	return new_inst;
+}
+
+// Returns a random element from [first, last) uniformly.
 // O(1) for random_access_iterator, O(|last - first|) otherwise.
 template <typename It> typename It::value_type any(It first, It last) {
 	int size = std::distance(first, last);
@@ -342,19 +363,31 @@ template <typename It> typename It::value_type any(It first, It last) {
 	return *it;
 }
 
-// Returns a random element from container.
+// Returns a random element from container uniformly.
 // O(1) for random_access_iterator, O(|container|) otherwise.
-template <typename C> typename C::value_type any(const C &container) {
+template <typename C,
+		  std::enable_if_t<!_detail::is_generator_instance<C>::value, int> = 0>
+typename C::value_type any(const C &container) {
 	return any(container.begin(), container.end());
 }
 template <typename T> T any(const std::initializer_list<T> &il) {
 	return any(std::vector<T>(il.begin(), il.end()));
 }
 
-// Chooses k values from the container, as in a subsequence of size k. Returns a
-// copy.
-// O(|container|).
-template <typename C> C choose(int k, const C &container) {
+// Choses any value from sequence/permutation instance uniformly.
+// O(1).
+template <
+	typename Inst,
+	std::enable_if_t<_detail::is_generator_instance<Inst>::value, int> = 0>
+typename Inst::value_type any(const Inst &inst) {
+	return inst.vec_[next<int>(0, inst.vec_.size() - 1)];
+}
+
+// Chooses k values uniformly from container, as in a subsequence of size k.
+// Returns a copy. O(|container|).
+template <typename C,
+		  std::enable_if_t<!_detail::is_generator_instance<C>::value, int> = 0>
+C choose(int k, const C &container) {
 	tgen_ensure(0 < k and k <= static_cast<int>(container.size()),
 				"number of elements to choose must be valid");
 	std::vector<typename C::value_type> new_vec;
@@ -371,6 +404,27 @@ template <typename C> C choose(int k, const C &container) {
 template <typename T>
 std::vector<T> choose(int k, const std::initializer_list<T> &il) {
 	return choose(k, std::vector<T>(il.begin(), il.end()));
+}
+
+// Chooses k values uniformly from sequence/permutation instance, as in a
+// subsequence of size k.
+// O(n).
+template <
+	typename Inst,
+	std::enable_if_t<_detail::is_generator_instance<Inst>::value, int> = 0>
+Inst choose(int k, const Inst &inst) {
+	tgen_ensure(0 < k and k <= static_cast<int>(inst.vec_.size()),
+				"number of elements to choose must be valid");
+	std::vector<typename Inst::value_type> new_vec;
+	int need = k;
+	for (int i = 0; need > 0; ++i) {
+		int left = inst.vec_.size() - i;
+		if (next(1, left) <= need) {
+			new_vec.push_back(inst.vec_[i]);
+			need--;
+		}
+	}
+	return Inst(new_vec);
 }
 
 /************
@@ -665,6 +719,7 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 	// Sequence instance.
 	// Operations on an instance are not random.
 	struct instance {
+		using _tgen_instance_tag = _detail::generator_instance_tag;
 		using value_type = T;			 // Value type, for templates.
 		using std_type = std::vector<T>; // std type for instance.
 		std::vector<T> vec_;			 // Sequence.
@@ -1032,45 +1087,6 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 	}
 };
 
-/*
- * Sequence random operations.
- */
-
-namespace sequence_op {
-
-// Shuffles a sequence.
-// O(n).
-template <typename Inst> Inst shuffle(const Inst &inst) {
-	Inst new_inst = inst;
-	tgen::shuffle(new_inst.vec_);
-	return new_inst;
-}
-
-// Choses any value in the sequence.
-// O(1).
-template <typename Inst> typename Inst::value_type any(const Inst &inst) {
-	return inst.vec_[next<int>(0, inst.vec_.size() - 1)];
-}
-
-// Chooses k values from the sequence, as in a subsequence of size k.
-// O(n).
-template <typename Inst> Inst choose(int k, const Inst &inst) {
-	tgen_ensure(0 < k and k <= static_cast<int>(inst.vec_.size()),
-				"number of elements to choose must be valid");
-	std::vector<typename Inst::value_type> new_vec;
-	int need = k;
-	for (int i = 0; need > 0; ++i) {
-		int left = inst.vec_.size() - i;
-		if (next(1, left) <= need) {
-			new_vec.push_back(inst.vec_[i]);
-			need--;
-		}
-	}
-	return Inst(new_vec);
-}
-
-}; // namespace sequence_op
-
 /*******************
  *                 *
  *   PERMUTATION   *
@@ -1102,6 +1118,7 @@ struct permutation : _detail::gen_base<permutation> {
 	// Permutation instance.
 	// Operations on an instance are not random.
 	struct instance {
+		using _tgen_instance_tag = _detail::generator_instance_tag;
 		using std_type = std::vector<int>; // std type for instance.
 		std::vector<int> vec_;			   // Permutation.
 		bool add_1_;					   // If should add 1, for printing.

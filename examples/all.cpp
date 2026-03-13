@@ -84,4 +84,6 @@ int main(int argc, char **argv) {
 	std::cout << tgen::println(mat);
 
 	std::cout << tgen::println(tgen::shuffled(std::set<int>({1, 2, 3})));
+	std::cout << tgen::println(
+		tgen::shuffled(tgen::sequence<int>({1, 2, 3}).gen()));
 }
