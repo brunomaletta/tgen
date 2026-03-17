@@ -248,7 +248,7 @@ namespace tgen::math {
  *
  * #### Complexity
  *
- * @tt{O(log @pname{r})} expected.
+ * @tt{O(log^3 @pname{r})} expected.
  *
  * #### Examples
  *

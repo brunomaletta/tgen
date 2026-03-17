@@ -86,4 +86,9 @@ int main(int argc, char **argv) {
 	std::cout << tgen::println(tgen::shuffled(std::set<int>({1, 2, 3})));
 	std::cout << tgen::println(
 		tgen::shuffled(tgen::sequence<int>({1, 2, 3}).gen()));
+
+	tgen::str leq1e30("0 | [1-9][0-9]{0,%d} | 10{%d}", 30 - 1, 30);
+	std::cout << leq1e30.gen() << " " << leq1e30.gen() << " " << leq1e30.gen()
+			  << std::endl;
+	std::cout << tgen::str(10, "[a-zA-Z]").gen() << std::endl;
 }

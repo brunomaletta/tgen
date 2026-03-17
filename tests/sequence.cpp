@@ -53,7 +53,7 @@ TEST(sequence_test, constructor_size_zero) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(0, 1, 10),
-							 "size must be positive");
+							 "sequence: size must be positive");
 }
 
 TEST(sequence_test, constructor_invalid_range) {
@@ -61,7 +61,7 @@ TEST(sequence_test, constructor_invalid_range) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 2, 1),
-							 "value range must be valid");
+							 "sequence: value range must be valid");
 }
 
 TEST(sequence_test, constructor_empty_set) {
@@ -69,7 +69,7 @@ TEST(sequence_test, constructor_empty_set) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, {}),
-							 "value set must be non-empty");
+							 "sequence: value set must be non-empty");
 }
 
 TEST(sequence_test, gen_no_restrictions) {
@@ -109,9 +109,9 @@ TEST(sequence_test, set_invalid_idx) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(-1, 5),
-							 "index must be valid");
+							 "sequence: index must be valid");
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(10, 5),
-							 "index must be valid");
+							 "sequence: index must be valid");
 }
 
 TEST(sequence_test, set_range_invalid_value) {
@@ -119,7 +119,7 @@ TEST(sequence_test, set_range_invalid_value) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(3, 20),
-							 "value must be in the defined range");
+							 "sequence: value must be in the defined range");
 }
 
 TEST(sequence_test, set_range_twice) {
@@ -127,7 +127,7 @@ TEST(sequence_test, set_range_twice) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(3, 5).set(3, 6),
-							 "must not set to two different values");
+							 "sequence: must not set to two different values");
 }
 
 TEST(sequence_test, set_value_set_invalid) {
@@ -135,7 +135,7 @@ TEST(sequence_test, set_value_set_invalid) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, {5, 10, 15}).set(3, 3),
-							 "value must be in the set of values");
+							 "sequence: value must be in the set of values");
 }
 
 TEST(sequence_test, set_value_set_twice) {
@@ -144,7 +144,7 @@ TEST(sequence_test, set_value_set_twice) {
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, {5, 10, 15}).set(3, 5).set(3, 10),
-		"must not set to two different values");
+		"sequence: must not set to two different values");
 }
 
 TEST(sequence_test, set_twice_valid) {
@@ -160,7 +160,7 @@ TEST(sequence_test, equal_invalid) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(-1, 5),
-							 "index must be valid");
+							 "sequence: index must be valid");
 }
 
 TEST(sequence_test, instance_ops) {
@@ -280,33 +280,37 @@ TEST(sequence_test, gen_with_all_invalid) {
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 1, 10).set(0, 5).equal(0, 1).set(1, 6).gen(),
-		"invalid sequence (contradicting constraints)");
+		"sequence: invalid sequence (contradicting constraints)");
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10)
-								 .set(0, 5)
-								 .set(1, 5)
-								 .different(0, 1)
-								 .gen(),
-							 "invalid sequence (contradicting constraints)");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::sequence<int>(10, 1, 10)
+			.set(0, 5)
+			.set(1, 5)
+			.different(0, 1)
+			.gen(),
+		"sequence: invalid sequence (contradicting constraints)");
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 9).distinct().gen(),
-							 "invalid sequence (contradicting constraints)");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::sequence<int>(10, 1, 9).distinct().gen(),
+		"sequence: invalid sequence (contradicting constraints)");
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10)
-								 .set(0, 1)
-								 .set(2, 1)
-								 .distinct({0, 1, 2})
-								 .gen(),
-							 "invalid sequence (contradicting constraints)");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::sequence<int>(10, 1, 10)
+			.set(0, 1)
+			.set(2, 1)
+			.distinct({0, 1, 2})
+			.gen(),
+		"sequence: invalid sequence (contradicting constraints)");
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 0, 2)
-								 .equal(0, 1)
-								 .equal(2, 3)
-								 .set(0, 0)
-								 .set(2, 1)
-								 .distinct({0, 2, 3})
-								 .gen(),
-							 "invalid sequence (contradicting constraints)");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::sequence<int>(10, 0, 2)
+			.equal(0, 1)
+			.equal(2, 3)
+			.set(0, 0)
+			.set(2, 1)
+			.distinct({0, 2, 3})
+			.gen(),
+		"sequence: invalid sequence (contradicting constraints)");
 }
 
 TEST(sequence_test, gen_with_all_complex) {
@@ -319,7 +323,7 @@ TEST(sequence_test, gen_with_all_complex) {
 			.distinct({2, 3, 4})
 			.distinct({4, 5, 0})
 			.gen(),
-		"failed to generate sequence: complex constraints");
+		"sequence: failed to generate sequence: complex constraints");
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 1, 10)
@@ -328,7 +332,7 @@ TEST(sequence_test, gen_with_all_complex) {
 			.set(0, 5)
 			.set(2, 6)
 			.gen(),
-		"failed to generate sequence: complex constraints");
+		"sequence: failed to generate sequence: complex constraints");
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 1, 10)
@@ -336,7 +340,7 @@ TEST(sequence_test, gen_with_all_complex) {
 			.distinct({0, 1})
 			.distinct({0, 1})
 			.gen(),
-		"failed to generate sequence: complex constraints");
+		"sequence: failed to generate sequence: complex constraints");
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 1, 10)
@@ -345,7 +349,7 @@ TEST(sequence_test, gen_with_all_complex) {
 			.distinct({3, 4})
 			.equal(0, 4)
 			.gen(),
-		"failed to generate sequence: complex constraints");
+		"sequence: failed to generate sequence: complex constraints");
 }
 
 TEST(sequence_test, gen_two_distincts_one_set) {

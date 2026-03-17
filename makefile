@@ -52,7 +52,7 @@ lint-check:
 	( echo ""; echo "Run 'make lint' to fix formatting"; exit 1 )
 	@echo "Formatting check passed"
 
-test:
+test: single_include/* tests/*
 	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -o test -Wall -Wshadow -O2
 	./test
 	rm -f test

@@ -30,6 +30,7 @@
 #include <random>
 #include <set>
 #include <sstream>
+#include <stack>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -42,11 +43,11 @@ namespace tgen {
  *                        *
  **************************/
 
+namespace _detail {
+
 /*
  * Error handling.
  */
-
-namespace _detail {
 
 inline void throw_assertion_error(const std::string &condition,
 								  const std::string &msg) {
@@ -62,25 +63,18 @@ inline std::runtime_error error(const std::string &msg) {
 inline std::runtime_error contradiction_error(const std::string &type,
 											  const std::string &msg = "") {
 	// Tried to generate a contradicting sequence.
-	std::string error_msg = "invalid " + type + " (contradicting constraints)";
+	std::string error_msg =
+		type + ": invalid " + type + " (contradicting constraints)";
 	if (!msg.empty())
 		error_msg += ": " + msg;
 	return error(error_msg);
 }
-template <typename T>
-std::runtime_error there_is_no_in_range_error(const std::string &type, T l,
-											  T r) {
-	return error("there is no " + type + " in range [" + std::to_string(l) +
-				 ", " + std::to_string(r) + "]");
-}
-template <typename T>
-std::runtime_error there_is_no_upto_error(const std::string &type, T r) {
-	return error("there is no " + type + " up to " + std::to_string(r));
-}
-inline void tgen_ensure_against_bug(bool cond) {
-	if (!cond)
+inline void tgen_ensure_against_bug(bool cond, const std::string &msg = "") {
+	if (!cond) {
+		std::cerr << "tgen: " << msg << std::endl;
 		throw std::runtime_error(
 			"tgen: THERE IS A BUG IN TGEN; PLEASE CONTACT MAINTAINERS");
+	}
 }
 
 // Ensures condition is true, with nice debug.
@@ -96,15 +90,7 @@ inline void ensure_registered() {
 				"tgen::register_gen(argc, argv) before running tgen functions");
 }
 
-} // namespace _detail
-
-/*
- * Easier printing.
- */
-
-namespace _detail {
-
-// Template magic to detect types in compile tiem.
+// Template magic to detect types in compile time.
 
 // Detects containers != std::string.
 template <typename T, typename = void> struct is_container : std::false_type {};
@@ -143,7 +129,61 @@ template <typename... Ts>
 struct is_tuple_multiline<std::tuple<Ts...>>
 	: std::bool_constant<(!is_scalar<Ts>::value or ...)> {};
 
+// The single rng to be used by the library.
+inline std::mt19937 rng;
+
+// Base struct for generators.
+template <typename Gen> struct gen_base {
+	// Calls the generator until predicate is true.
+	template <typename Pred, typename... Args>
+	auto gen_until(Pred predicate, int max_tries, Args &&...args) const {
+		for (int i = 0; i < max_tries; ++i) {
+			auto inst = static_cast<const Gen *>(this)->gen(
+				std::forward<Args>(args)...);
+
+			if (predicate(inst))
+				return inst;
+		}
+
+		throw error("could not generate instance matching predicate");
+	}
+	template <typename Pred, typename T, typename... Args>
+	auto gen_until(Pred predicate, int max_tries, std::initializer_list<T> il,
+				   Args &&...args) const {
+		return gen_until(predicate, max_tries, std::vector<T>(il),
+						 std::forward<Args>(args)...);
+	}
+
+	// Nice error for `out << generator`.
+	friend std::ostream &operator<<(std::ostream &out, const gen_base &) {
+		static_assert(
+			false,
+			"you cannot print a generator. Maybe you forgot to call `gen()`?");
+		return out;
+	}
+};
+
+template <typename T, typename = void>
+struct is_associative_container : std::false_type {};
+template <typename T>
+struct is_associative_container<
+	T, std::void_t<typename T::key_type, typename T::key_compare>>
+	: std::true_type {};
+
+// Tag used to identify generator instance types (sequence::instance,
+// permutation::instance).
+struct generator_instance_tag {};
+template <typename T, typename = void>
+struct is_generator_instance : std::false_type {};
+template <typename T>
+struct is_generator_instance<T, std::void_t<typename T::_tgen_instance_tag>>
+	: std::is_same<typename T::_tgen_instance_tag, generator_instance_tag> {};
+
 } // namespace _detail
+
+/*
+ * Easier printing.
+ */
 
 // Struct to print standard types to std::ostream;
 struct print {
@@ -243,59 +283,6 @@ println(const std::initializer_list<std::initializer_list<T>> &il) {
 /*
  * Global random operations.
  */
-
-namespace _detail {
-
-inline std::mt19937 rng;
-
-// Base struct for generators.
-template <typename Gen> struct gen_base {
-	// Calls the generator until predicate is true.
-	template <typename Pred, typename... Args>
-	auto gen_until(Pred predicate, int max_tries, Args &&...args) const {
-		for (int i = 0; i < max_tries; ++i) {
-			auto inst = static_cast<const Gen *>(this)->gen(
-				std::forward<Args>(args)...);
-
-			if (predicate(inst))
-				return inst;
-		}
-
-		throw error("could not generate instance matching predicate");
-	}
-	template <typename Pred, typename T, typename... Args>
-	auto gen_until(Pred predicate, int max_tries, std::initializer_list<T> il,
-				   Args &&...args) const {
-		return gen_until(predicate, max_tries, std::vector<T>(il),
-						 std::forward<Args>(args)...);
-	}
-
-	// Nice error for `std::cout << generator`.
-	friend std::ostream &operator<<(std::ostream &out, const gen_base &) {
-		static_assert(
-			false,
-			"you cannot print a generator. Maybe you forgot to call `gen()`?");
-		return out;
-	}
-};
-
-template <typename T, typename = void>
-struct is_associative_container : std::false_type {};
-template <typename T>
-struct is_associative_container<
-	T, std::void_t<typename T::key_type, typename T::key_compare>>
-	: std::true_type {};
-
-// Tag used to identify generator instance types (sequence::instance,
-// permutation::instance).
-struct generator_instance_tag {};
-template <typename T, typename = void>
-struct is_generator_instance : std::false_type {};
-template <typename T>
-struct is_generator_instance<T, std::void_t<typename T::_tgen_instance_tag>>
-	: std::is_same<typename T::_tgen_instance_tag, generator_instance_tag> {};
-
-} // namespace _detail
 
 // Returns a random number in [l, r].
 // O(1).
@@ -628,8 +615,9 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 	// Creates generator for sequences of size 'size', with random T in [l, r].
 	sequence(int size, T value_l, T value_r)
 		: size_(size), value_l_(value_l), value_r_(value_r), neigh_(size) {
-		tgen_ensure(size_ > 0, "size must be positive");
-		tgen_ensure(value_l_ <= value_r_, "value range must be valid");
+		tgen_ensure(size_ > 0, "sequence: size must be positive");
+		tgen_ensure(value_l_ <= value_r_,
+					"sequence: value range must be valid");
 		for (int i = 0; i < size_; ++i)
 			val_range_.emplace_back(value_l_, value_r_);
 	}
@@ -637,8 +625,8 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 	// Creates sequence with value set.
 	sequence(int size, std::set<T> values)
 		: size_(size), values_(values), neigh_(size) {
-		tgen_ensure(size_ > 0, "size must be positive");
-		tgen_ensure(!values.empty(), "value set must be non-empty");
+		tgen_ensure(size_ > 0, "sequence: size must be positive");
+		tgen_ensure(!values.empty(), "sequence: value set must be non-empty");
 		value_l_ = 0, value_r_ = values.size() - 1;
 		for (int i = 0; i < size_; ++i)
 			val_range_.emplace_back(value_l_, value_r_);
@@ -649,24 +637,24 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 
 	// Restricts sequences for sequence[idx] = value.
 	sequence &set(int idx, T value) {
-		tgen_ensure(0 <= idx and idx < size_, "index must be valid");
+		tgen_ensure(0 <= idx and idx < size_, "sequence: index must be valid");
 		if (values_.size() == 0) {
 			auto &[left, right] = val_range_[idx];
 			if (left == right and value_l_ != value_r_) {
 				tgen_ensure(left == value,
-							"must not set to two different values");
+							"sequence: must not set to two different values");
 			} else {
 				tgen_ensure(left <= value and value <= right,
-							"value must be in the defined range");
+							"sequence: value must be in the defined range");
 			}
 			left = right = value;
 		} else {
 			tgen_ensure(values_.count(value),
-						"value must be in the set of values");
+						"sequence: value must be in the set of values");
 			auto &[left, right] = val_range_[idx];
 			int new_val = value_idx_in_set_[value];
 			tgen_ensure(left <= new_val and new_val <= right,
-						"must not set to two different values");
+						"sequence: must not set to two different values");
 			left = right = new_val;
 		}
 		return *this;
@@ -676,7 +664,7 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 	sequence &equal(int idx_1, int idx_2) {
 		tgen_ensure(0 <= std::min(idx_1, idx_2) and
 						std::max(idx_1, idx_2) < size_,
-					"indices must be valid");
+					"sequence: indices must be valid");
 		if (idx_1 == idx_2)
 			return *this;
 
@@ -688,7 +676,7 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 	// Restricts sequences for sequence[left..right] to have all equal values.
 	sequence &equal_range(int left, int right) {
 		tgen_ensure(0 <= left and left <= right and right < size_,
-					"range indices bust be valid");
+					"sequence: range indices bust be valid");
 		for (int i = left; i < right; ++i)
 			equal(i, i + 1);
 		return *this;
@@ -732,8 +720,16 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 		int size() const { return vec_.size(); }
 
 		// Fetches position idx.
-		T &operator[](int idx) { return vec_[idx]; }
-		const T &operator[](int idx) const { return vec_[idx]; }
+		T &operator[](int idx) {
+			tgen_ensure(0 <= idx and idx < size(),
+						"sequence: instance: index out of bounds");
+			return vec_[idx];
+		}
+		const T &operator[](int idx) const {
+			tgen_ensure(0 <= idx and idx < size(),
+						"sequence: instance: index out of bounds");
+			return vec_[idx];
+		}
 
 		// Sorts values in non-decreasing order.
 		// O(n log n).
@@ -786,7 +782,7 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 		T num_available = (value_r_ - value_l_ + 1) - forbidden_values.size();
 		if (num_available < k)
 			throw _detail::error(
-				"failed to generate sequence: complex constraints");
+				"sequence: failed to generate sequence: complex constraints");
 		std::map<T, T> virtual_list;
 		std::vector<T> gen_list;
 		for (int i = 0; i < k; ++i) {
@@ -936,8 +932,8 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 		// If some value is in >= 3 sets, then there is a cycle.
 		for (auto &distinct_containing : distinct_containing_comp_idx)
 			if (distinct_containing.size() >= 3)
-				throw _detail::error(
-					"failed to generate sequence: complex constraints");
+				throw _detail::error("sequence: failed to generate sequence: "
+									 "complex constraints");
 
 		std::vector<bool> vis_distinct(distinct_constraints_.size(), false);
 		std::vector<bool> initially_defined_comp_idx(comp_count, false);
@@ -998,8 +994,9 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 
 						// Cycle found.
 						if (vis_distinct[nxt_distinct])
-							throw _detail::error("failed to generate sequence: "
-												 "complex constraints");
+							throw _detail::error(
+								"sequence: failed to generate sequence: "
+								"complex constraints");
 
 						neigh_distinct.insert(nxt_distinct);
 					}
@@ -1017,7 +1014,7 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 							// distinct constraint in the tree.
 							if (initially_defined_comp_idx[comp_id[idx2]])
 								throw _detail::error(
-									"failed to generate sequence: "
+									"sequence: failed to generate sequence: "
 									"complex constraints");
 
 							nxt_defined_values.insert(vec[idx2]);
@@ -1100,18 +1097,19 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
  */
 
 struct permutation : _detail::gen_base<permutation> {
-	int size_;							   // Size of permutation.
-	std::vector<std::pair<int, int>> sets; // {idx, value}.
+	int size_;								// Size of permutation.
+	std::vector<std::pair<int, int>> sets_; // {idx, value}.
 
 	// Creates generator for permutation of size 'size'.
 	permutation(int size) : size_(size) {
-		tgen_ensure(size_ > 0, "size must be positive");
+		tgen_ensure(size_ > 0, "permutation: size must be positive");
 	}
 
 	// Restricts sequences for permutation[idx] = value.
 	permutation &set(int idx, int value) {
-		tgen_ensure(0 <= idx and idx < size_, "index must be valid");
-		sets.emplace_back(idx, value);
+		tgen_ensure(0 <= idx and idx < size_,
+					"permutation: index must be valid");
+		sets_.emplace_back(idx, value);
 		return *this;
 	}
 
@@ -1124,14 +1122,17 @@ struct permutation : _detail::gen_base<permutation> {
 		bool add_1_;					   // If should add 1, for printing.
 
 		instance(const std::vector<int> &vec) : vec_(vec), add_1_(false) {
-			tgen_ensure(!vec_.empty(), "permutation cannot be empty");
+			tgen_ensure(!vec_.empty(),
+						"permutation: instance: cannot be empty");
 			std::vector<bool> vis(vec_.size(), false);
 			for (int i = 0; i < size(); ++i) {
 				tgen_ensure(0 <= vec_[i] and
 								vec_[i] < static_cast<int>(vec_.size()),
-							"permutation values must be from `0` to `size-1`");
-				tgen_ensure(!vis[vec_[i]],
-							"cannot have repeated values in permutation");
+							"permutation: instance: values must be from `0` to "
+							"`size-1`");
+				tgen_ensure(
+					!vis[vec_[i]],
+					"permutation: instance: cannot have repeated values");
 				vis[vec_[i]] = true;
 			}
 		}
@@ -1142,8 +1143,11 @@ struct permutation : _detail::gen_base<permutation> {
 		int size() const { return vec_.size(); }
 
 		// Fetches position idx.
-		int &operator[](int idx) { return vec_[idx]; }
-		const int &operator[](int idx) const { return vec_[idx]; }
+		const int &operator[](int idx) const {
+			tgen_ensure(0 <= idx and idx < size(),
+						"permutation: instance: index out of bounds");
+			return vec_[idx];
+		}
 
 		// Returns parity of the permutation (+1 if even, -1 if odd).
 		// O(n).
@@ -1212,20 +1216,22 @@ struct permutation : _detail::gen_base<permutation> {
 	// O(n).
 	instance gen() const {
 		std::vector<int> idx_to_val(size_, -1), val_to_idx(size_, -1);
-		for (auto [idx, val] : sets) {
+		for (auto [idx, val] : sets_) {
 			tgen_ensure(0 <= val and val < size_,
-						"value in permutation must be in [0, " +
+						"permutation: value in permutation must be in [0, " +
 							std::to_string(size_) + ")");
 
 			if (idx_to_val[idx] != -1) {
-				tgen_ensure(idx_to_val[idx] == val,
-							"cannot set an idex to two different values");
+				tgen_ensure(
+					idx_to_val[idx] == val,
+					"permutation: cannot set an idex to two different values");
 			} else
 				idx_to_val[idx] = val;
 
 			if (val_to_idx[val] != -1) {
-				tgen_ensure(val_to_idx[val] == idx,
-							"cannot set two indices to the same value");
+				tgen_ensure(
+					val_to_idx[val] == idx,
+					"permutation: cannot set two indices to the same value");
 			} else
 				val_to_idx[val] = idx;
 		}
@@ -1249,7 +1255,7 @@ struct permutation : _detail::gen_base<permutation> {
 	instance gen(std::vector<int> cycle_sizes) const {
 		tgen_ensure(
 			size_ == std::accumulate(cycle_sizes.begin(), cycle_sizes.end(), 0),
-			"cycle sizes must add up to size of permutation");
+			"permutation: cycle sizes must add up to size of permutation");
 
 		// Creates cycles.
 		std::vector<int> order(size_);
@@ -1282,6 +1288,7 @@ struct permutation : _detail::gen_base<permutation> {
  ************/
 
 namespace math {
+
 namespace _detail {
 
 inline int ctzll(uint64_t x) {
@@ -1367,41 +1374,26 @@ inline std::vector<uint64_t> factor(uint64_t n) {
 	return l;
 }
 
-} // namespace _detail
-
-// Sorted.
-// O(n^(1/4) log n) expected.
-// 0 < n.
-inline std::vector<uint64_t> factor(uint64_t n) {
-	tgen_ensure(n > 0, "number to factor must be positive");
-	auto factors = _detail::factor(n);
-	std::sort(factors.begin(), factors.end());
-	return factors;
+// Error handling.
+template <typename T>
+std::runtime_error there_is_no_in_range_error(const std::string &type, T l,
+											  T r) {
+	return tgen::_detail::error("math: there is no " + type + " in range [" +
+								std::to_string(l) + ", " + std::to_string(r) +
+								"]");
 }
-
-// Sorted.
-// O(n^(1/4) log n) expected.
-// 0 < n.
-inline std::vector<std::pair<uint64_t, int>> factor_by_prime(uint64_t n) {
-	tgen_ensure(n > 0, "number to factor must be positive");
-	std::vector<std::pair<uint64_t, int>> primes;
-	for (uint64_t p : factor(n)) {
-		if (!primes.empty() and primes.back().first == p)
-			++primes.back().second;
-		else
-			primes.emplace_back(p, 1);
-	}
-	return primes;
+template <typename T>
+std::runtime_error there_is_no_upto_error(const std::string &type, T r) {
+	return tgen::_detail::error("math: there is no " + type + " up to " +
+								std::to_string(r));
 }
-
-namespace _detail {
 
 // O(log mod).
 // 0 < a < mod.
 // gcd(a, mod) = 1.
 inline __int128 modular_inverse_128(__int128 a, __int128 mod) {
 	tgen_ensure(0 < a and a < mod,
-				"remainder must be positive and smaller than the mod");
+				"math: remainder must be positive and smaller than the mod");
 
 	__int128 t = 0, new_t = 1;
 	__int128 r = mod, new_r = a;
@@ -1418,178 +1410,11 @@ inline __int128 modular_inverse_128(__int128 a, __int128 mod) {
 		new_r = tmp_r;
 	}
 
-	tgen_ensure(r == 1, "remainder and mod must be coprime");
+	tgen_ensure(r == 1, "math: remainder and mod must be coprime");
 
 	if (t < 0)
 		t += mod;
 	return t;
-}
-
-} // namespace _detail
-
-// O(log mod).
-// 0 < a < mod.
-// gcd(a, mod) = 1.
-inline uint64_t modular_inverse(uint64_t a, uint64_t mod) {
-	return _detail::modular_inverse_128(a, mod);
-}
-
-// O(n^(1/4) log n) expected.
-// 0 < n.
-inline uint64_t totient(uint64_t n) {
-	tgen_ensure(n > 0, "totient(0) is undefined");
-	uint64_t phi = n;
-
-	for (auto [p, e] : factor_by_prime(n))
-		phi -= phi / p;
-
-	return phi;
-}
-
-// Returns `(p_i, g_i)`: `p_i` is the prime, `g_i` is the gap.
-inline const std::pair<std::vector<uint64_t>, std::vector<uint64_t>> &
-prime_gaps() {
-	// From https://en.wikipedia.org/wiki/Prime_gap.
-	static const std::pair<std::vector<uint64_t>, std::vector<uint64_t>> value{
-		/* clang-format off */ {
-			2, 3, 7, 23, 89, 113, 523, 887, 1129, 1327, 9551, 15683, 19609,
-			31397, 155921, 360653, 370261, 492113, 1349533, 1357201, 2010733,
-			4652353, 17051707, 20831323, 47326693, 122164747, 189695659,
-			191912783, 387096133, 436273009, 1294268491, 1453168141,
-			2300942549, 3842610773, 4302407359, 10726904659, 20678048297,
-			22367084959, 25056082087, 42652618343, 127976334671, 182226896239,
-			241160624143, 297501075799, 303371455241, 304599508537,
-			416608695821, 461690510011, 614487453523, 738832927927,
-			1346294310749, 1408695493609, 1968188556461, 2614941710599,
-			7177162611713, 13829048559701, 19581334192423, 42842283925351,
-			90874329411493, 171231342420521, 218209405436543, 1189459969825483,
-			1686994940955803, 1693182318746371, 43841547845541059,
-			55350776431903243, 80873624627234849, 203986478517455989,
-			218034721194214273, 305405826521087869, 352521223451364323,
-			401429925999153707, 418032645936712127, 804212830686677669,
-			1425172824437699411, 5733241593241196731, 6787988999657777797
-		}, /* clang-format on */
-		{1,	   2,	 4,	   6,	 8,	   14,	 18,   20,	 22,   34,	 36,
-		 44,   52,	 72,   86,	 96,   112,	 114,  118,	 132,  148,	 154,
-		 180,  210,	 220,  222,	 234,  248,	 250,  282,	 288,  292,	 320,
-		 336,  354,	 382,  384,	 394,  456,	 464,  468,	 474,  486,	 490,
-		 500,  514,	 516,  532,	 534,  540,	 582,  588,	 602,  652,	 674,
-		 716,  766,	 778,  804,	 806,  906,	 916,  924,	 1132, 1184, 1198,
-		 1220, 1224, 1248, 1272, 1328, 1356, 1370, 1442, 1476, 1488, 1510}};
-
-	return value;
-}
-
-// Returns pair (first_composite_in_gap, last_composite_in_gap).
-// O(log r) approximately.
-inline std::pair<uint64_t, uint64_t> prime_gap_upto(uint64_t r) {
-	if (r < 4)
-		throw tgen::_detail::there_is_no_upto_error("prime gap", r);
-
-	const auto &[P, G] = prime_gaps();
-	for (int i = P.size() - 1;; --i) {
-		if (P[i] >= r)
-			continue;
-
-		uint64_t right = std::min(r, P[i] + G[i] - 1);
-		uint64_t prev = i > 0 ? G[i - 1] : 0;
-		uint64_t curr = right - P[i];
-
-		if (curr >= prev)
-			return {P[i] + 1, right};
-	}
-}
-
-// From https://oeis.org/A002182/b002182.txt.
-inline const std::vector<uint64_t> &highly_composites() {
-	/* clang-format off */
-	static const std::vector<uint64_t> highly_composites = {
-	1, 2, 4, 6, 12, 24, 36, 48, 60, 120, 180, 240, 360, 720, 840, 1260, 1680,
-	2520, 5040, 7560, 10080, 15120, 20160, 25200, 27720, 45360, 50400, 55440,
-	83160, 110880, 166320, 221760, 277200, 332640, 498960, 554400, 665280,
-	720720, 1081080, 1441440, 2162160, 2882880, 3603600, 4324320, 6486480,
-	7207200, 8648640, 10810800, 14414400, 17297280, 21621600, 32432400,
-	36756720, 43243200, 61261200, 73513440, 110270160, 122522400, 147026880,
-	183783600, 245044800, 294053760, 367567200, 551350800, 698377680, 735134400,
-	1102701600, 1396755360, 2095133040, 2205403200, 2327925600, 2793510720,
-	3491888400, 4655851200, 5587021440, 6983776800, 10475665200, 13967553600,
-	20951330400, 27935107200, 41902660800, 48886437600, 64250746560,
-	73329656400, 80313433200, 97772875200, 128501493120, 146659312800,
-	160626866400, 240940299600, 293318625600, 321253732800, 481880599200,
-	642507465600, 963761198400, 1124388064800, 1606268664000, 1686582097200,
-	1927522396800, 2248776129600, 3212537328000, 3373164194400, 4497552259200,
-	6746328388800, 8995104518400, 9316358251200, 13492656777600, 18632716502400,
-	26985313555200, 27949074753600, 32607253879200, 46581791256000,
-	48910880818800, 55898149507200, 65214507758400, 93163582512000,
-	97821761637600, 130429015516800, 195643523275200, 260858031033600,
-	288807105787200, 391287046550400, 577614211574400, 782574093100800,
-	866421317361600, 1010824870255200, 1444035528936000, 1516237305382800,
-	1732842634723200, 2021649740510400, 2888071057872000, 3032474610765600,
-	4043299481020800, 6064949221531200, 8086598962041600, 10108248702552000,
-	12129898443062400, 18194847664593600, 20216497405104000, 24259796886124800,
-	30324746107656000, 36389695329187200, 48519593772249600, 60649492215312000,
-	72779390658374400, 74801040398884800, 106858629141264000,
-	112201560598327200, 149602080797769600, 224403121196654400,
-	299204161595539200, 374005201994424000, 448806242393308800,
-	673209363589963200, 748010403988848000, 897612484786617600,
-	1122015605983272000, 1346418727179926400, 1795224969573235200,
-	2244031211966544000, 2692837454359852800, 3066842656354276800,
-	4381203794791824000, 4488062423933088000, 6133685312708553600,
-	8976124847866176000, 9200527969062830400, 12267370625417107200ULL,
-	15334213281771384000ULL, 18401055938125660800ULL}; /* clang-format on */
-	return highly_composites;
-}
-
-// O(log r) approximately.
-inline uint64_t highly_composite_upto(uint64_t r) {
-	for (int i = highly_composites().size() - 1; i >= 0; --i)
-		if (highly_composites()[i] <= r)
-			return highly_composites()[i];
-
-	throw tgen::_detail::there_is_no_upto_error("highly composite number", r);
-}
-
-// O(log r) expected.
-// Generates a random prime in [l, r].
-inline uint64_t gen_prime(uint64_t l, uint64_t r) {
-	if (r < l or r < 2)
-		throw tgen::_detail::there_is_no_in_range_error("prime", l, r);
-	l = std::max<uint64_t>(l, 2);
-	// There might be no primes in the range.
-	if (r - l <= prime_gaps().second.back()) {
-		std::vector<uint64_t> vals(r - l + 1);
-		iota(vals.begin(), vals.end(), l);
-		shuffle(vals.begin(), vals.end());
-		for (uint64_t i : vals)
-			if (is_prime(i))
-				return i;
-		throw tgen::_detail::there_is_no_in_range_error("prime", l, r);
-	}
-
-	uint64_t n;
-	do {
-		n = next(l, r);
-	} while (!is_prime(n));
-	return n;
-}
-
-// O(log^3 l) expected.
-// l <= 2^64 - 59.
-inline uint64_t prime_from(uint64_t l) {
-	tgen_ensure(l <= std::numeric_limits<uint64_t>::max() - 58,
-				"invalid bound");
-	for (uint64_t i = std::max<uint64_t>(2, l);; ++i)
-		if (is_prime(i))
-			return i;
-}
-
-// O(log^3 r) expected.
-inline uint64_t prime_upto(uint64_t r) {
-	if (r >= 2)
-		for (uint64_t i = r; i >= 2; --i)
-			if (is_prime(i))
-				return i;
-	throw tgen::_detail::there_is_no_upto_error("prime", r);
 }
 
 // checks if a * b <= limit, for positive numbers.
@@ -1627,7 +1452,8 @@ inline std::optional<uint64_t> expo(uint64_t base, uint64_t exp,
 // 0 <= n.
 // 0 < k.
 inline uint64_t kth_root_floor(uint64_t n, uint64_t k) {
-	tgen_ensure(k > 0 and n >= 0, "values must be valid");
+	tgen::_detail::tgen_ensure_against_bug(k > 0 and n >= 0,
+										   "math: values must be valid");
 	if (k == 1 or n <= 1)
 		return n;
 
@@ -1644,27 +1470,6 @@ inline uint64_t kth_root_floor(uint64_t n, uint64_t k) {
 	}
 	return lo;
 }
-
-// O(n^(1/4) log n) expected.
-// 0 < n.
-inline int num_divisors(uint64_t n) {
-	int divisors = 1;
-	for (auto [p, e] : factor_by_prime(n))
-		divisors *= (e + 1);
-	return divisors;
-}
-
-// O(log(r) log(divisor_count)).
-// divisor_count is prime.
-inline uint64_t gen_divisor_count(uint64_t l, uint64_t r, int divisor_count) {
-	tgen_ensure(divisor_count > 0 and is_prime(divisor_count),
-				"divisor count must be prime");
-	int root = divisor_count - 1;
-	uint64_t p = gen_prime(kth_root_floor(l, root), kth_root_floor(r, root));
-	return *expo(p, root, r);
-}
-
-namespace _detail {
 
 // gcd(a, b).
 // O(log a).
@@ -1734,7 +1539,250 @@ struct crt {
 	}
 };
 
+// Math hacks to operate on log space.
+
+inline constexpr long double LOG_ZERO = -INFINITY;
+inline constexpr long double LOG_ONE = 0.0;
+
+inline long double log_space(long double x) {
+	return x == 0.0 ? LOG_ZERO : std::log(x);
+}
+
+// Math hack to add two values in log space.
+inline long double add_log_space(long double a, long double b) {
+	if (a == LOG_ZERO)
+		return b;
+	if (b == LOG_ZERO)
+		return a;
+	if (a < b)
+		std::swap(a, b);
+	if (b == LOG_ZERO)
+		return a;
+	return a + log1p(exp(b - a));
+}
+
+// Math hack to subtract two values in log space.
+// a >= b.
+inline long double sub_log_space(long double a, long double b) {
+	if (b >= a)
+		return LOG_ZERO;
+	if (b == LOG_ZERO)
+		return a;
+	return a + log1p(-exp(b - a));
+}
+
 } // namespace _detail
+
+// Sorted.
+// O(n^(1/4) log n) expected.
+// 0 < n.
+inline std::vector<uint64_t> factor(uint64_t n) {
+	tgen_ensure(n > 0, "math: number to factor must be positive");
+	auto factors = _detail::factor(n);
+	std::sort(factors.begin(), factors.end());
+	return factors;
+}
+
+// Sorted.
+// O(n^(1/4) log n) expected.
+// 0 < n.
+inline std::vector<std::pair<uint64_t, int>> factor_by_prime(uint64_t n) {
+	tgen_ensure(n > 0, "math: number to factor must be positive");
+	std::vector<std::pair<uint64_t, int>> primes;
+	for (uint64_t p : factor(n)) {
+		if (!primes.empty() and primes.back().first == p)
+			++primes.back().second;
+		else
+			primes.emplace_back(p, 1);
+	}
+	return primes;
+}
+
+// O(log mod).
+// 0 < a < mod.
+// gcd(a, mod) = 1.
+inline uint64_t modular_inverse(uint64_t a, uint64_t mod) {
+	return _detail::modular_inverse_128(a, mod);
+}
+
+// O(n^(1/4) log n) expected.
+// 0 < n.
+inline uint64_t totient(uint64_t n) {
+	tgen_ensure(n > 0, "math: totient(0) is undefined");
+	uint64_t phi = n;
+
+	for (auto [p, e] : factor_by_prime(n))
+		phi -= phi / p;
+
+	return phi;
+}
+
+// Returns `(p_i, g_i)`: `p_i` is the prime, `g_i` is the gap.
+inline const std::pair<std::vector<uint64_t>, std::vector<uint64_t>> &
+prime_gaps() {
+	// From https://en.wikipedia.org/wiki/Prime_gap.
+	static const std::pair<std::vector<uint64_t>, std::vector<uint64_t>> value{
+		/* clang-format off */ {
+			2, 3, 7, 23, 89, 113, 523, 887, 1129, 1327, 9551, 15683, 19609,
+			31397, 155921, 360653, 370261, 492113, 1349533, 1357201, 2010733,
+			4652353, 17051707, 20831323, 47326693, 122164747, 189695659,
+			191912783, 387096133, 436273009, 1294268491, 1453168141,
+			2300942549, 3842610773, 4302407359, 10726904659, 20678048297,
+			22367084959, 25056082087, 42652618343, 127976334671, 182226896239,
+			241160624143, 297501075799, 303371455241, 304599508537,
+			416608695821, 461690510011, 614487453523, 738832927927,
+			1346294310749, 1408695493609, 1968188556461, 2614941710599,
+			7177162611713, 13829048559701, 19581334192423, 42842283925351,
+			90874329411493, 171231342420521, 218209405436543, 1189459969825483,
+			1686994940955803, 1693182318746371, 43841547845541059,
+			55350776431903243, 80873624627234849, 203986478517455989,
+			218034721194214273, 305405826521087869, 352521223451364323,
+			401429925999153707, 418032645936712127, 804212830686677669,
+			1425172824437699411, 5733241593241196731, 6787988999657777797
+		}, /* clang-format on */
+		{1,	   2,	 4,	   6,	 8,	   14,	 18,   20,	 22,   34,	 36,
+		 44,   52,	 72,   86,	 96,   112,	 114,  118,	 132,  148,	 154,
+		 180,  210,	 220,  222,	 234,  248,	 250,  282,	 288,  292,	 320,
+		 336,  354,	 382,  384,	 394,  456,	 464,  468,	 474,  486,	 490,
+		 500,  514,	 516,  532,	 534,  540,	 582,  588,	 602,  652,	 674,
+		 716,  766,	 778,  804,	 806,  906,	 916,  924,	 1132, 1184, 1198,
+		 1220, 1224, 1248, 1272, 1328, 1356, 1370, 1442, 1476, 1488, 1510}};
+
+	return value;
+}
+
+// Returns pair (first_composite_in_gap, last_composite_in_gap).
+// O(log r) approximately.
+inline std::pair<uint64_t, uint64_t> prime_gap_upto(uint64_t r) {
+	if (r < 4)
+		throw _detail::there_is_no_upto_error("prime gap", r);
+
+	const auto &[P, G] = prime_gaps();
+	for (int i = P.size() - 1;; --i) {
+		if (P[i] >= r)
+			continue;
+
+		uint64_t right = std::min(r, P[i] + G[i] - 1);
+		uint64_t prev = i > 0 ? G[i - 1] : 0;
+		uint64_t curr = right - P[i];
+
+		if (curr >= prev)
+			return {P[i] + 1, right};
+	}
+}
+
+// From https://oeis.org/A002182/b002182.txt.
+inline const std::vector<uint64_t> &highly_composites() {
+	/* clang-format off */
+	static const std::vector<uint64_t> highly_composites = {
+	1, 2, 4, 6, 12, 24, 36, 48, 60, 120, 180, 240, 360, 720, 840, 1260, 1680,
+	2520, 5040, 7560, 10080, 15120, 20160, 25200, 27720, 45360, 50400, 55440,
+	83160, 110880, 166320, 221760, 277200, 332640, 498960, 554400, 665280,
+	720720, 1081080, 1441440, 2162160, 2882880, 3603600, 4324320, 6486480,
+	7207200, 8648640, 10810800, 14414400, 17297280, 21621600, 32432400,
+	36756720, 43243200, 61261200, 73513440, 110270160, 122522400, 147026880,
+	183783600, 245044800, 294053760, 367567200, 551350800, 698377680, 735134400,
+	1102701600, 1396755360, 2095133040, 2205403200, 2327925600, 2793510720,
+	3491888400, 4655851200, 5587021440, 6983776800, 10475665200, 13967553600,
+	20951330400, 27935107200, 41902660800, 48886437600, 64250746560,
+	73329656400, 80313433200, 97772875200, 128501493120, 146659312800,
+	160626866400, 240940299600, 293318625600, 321253732800, 481880599200,
+	642507465600, 963761198400, 1124388064800, 1606268664000, 1686582097200,
+	1927522396800, 2248776129600, 3212537328000, 3373164194400, 4497552259200,
+	6746328388800, 8995104518400, 9316358251200, 13492656777600, 18632716502400,
+	26985313555200, 27949074753600, 32607253879200, 46581791256000,
+	48910880818800, 55898149507200, 65214507758400, 93163582512000,
+	97821761637600, 130429015516800, 195643523275200, 260858031033600,
+	288807105787200, 391287046550400, 577614211574400, 782574093100800,
+	866421317361600, 1010824870255200, 1444035528936000, 1516237305382800,
+	1732842634723200, 2021649740510400, 2888071057872000, 3032474610765600,
+	4043299481020800, 6064949221531200, 8086598962041600, 10108248702552000,
+	12129898443062400, 18194847664593600, 20216497405104000, 24259796886124800,
+	30324746107656000, 36389695329187200, 48519593772249600, 60649492215312000,
+	72779390658374400, 74801040398884800, 106858629141264000,
+	112201560598327200, 149602080797769600, 224403121196654400,
+	299204161595539200, 374005201994424000, 448806242393308800,
+	673209363589963200, 748010403988848000, 897612484786617600,
+	1122015605983272000, 1346418727179926400, 1795224969573235200,
+	2244031211966544000, 2692837454359852800, 3066842656354276800,
+	4381203794791824000, 4488062423933088000, 6133685312708553600,
+	8976124847866176000, 9200527969062830400, 12267370625417107200ULL,
+	15334213281771384000ULL, 18401055938125660800ULL}; /* clang-format on */
+	return highly_composites;
+}
+
+// O(log r) approximately.
+inline uint64_t highly_composite_upto(uint64_t r) {
+	for (int i = highly_composites().size() - 1; i >= 0; --i)
+		if (highly_composites()[i] <= r)
+			return highly_composites()[i];
+
+	throw _detail::there_is_no_upto_error("highly composite number", r);
+}
+
+// O(log^3 r) expected.
+// Generates a random prime in [l, r].
+inline uint64_t gen_prime(uint64_t l, uint64_t r) {
+	if (r < l or r < 2)
+		throw _detail::there_is_no_in_range_error("prime", l, r);
+	l = std::max<uint64_t>(l, 2);
+	auto [l_gap, r_gap] = prime_gap_upto(r);
+	if (r - l + 1 <= r_gap - l_gap + 1) {
+		// There might be no primes in the range.
+		std::vector<uint64_t> vals(r - l + 1);
+		iota(vals.begin(), vals.end(), l);
+		shuffle(vals.begin(), vals.end());
+		for (uint64_t i : vals)
+			if (is_prime(i))
+				return i;
+		throw _detail::there_is_no_in_range_error("prime", l, r);
+	}
+
+	uint64_t n;
+	do {
+		n = next(l, r);
+	} while (!is_prime(n));
+	return n;
+}
+
+// O(log^3 l) expected.
+// l <= 2^64 - 59.
+inline uint64_t prime_from(uint64_t l) {
+	tgen_ensure(l <= std::numeric_limits<uint64_t>::max() - 58,
+				"math: invalid bound");
+	for (uint64_t i = std::max<uint64_t>(2, l);; ++i)
+		if (is_prime(i))
+			return i;
+}
+
+// O(log^3 r) expected.
+inline uint64_t prime_upto(uint64_t r) {
+	if (r >= 2)
+		for (uint64_t i = r; i >= 2; --i)
+			if (is_prime(i))
+				return i;
+	throw _detail::there_is_no_upto_error("prime", r);
+}
+
+// O(n^(1/4) log n) expected.
+// 0 < n.
+inline int num_divisors(uint64_t n) {
+	int divisors = 1;
+	for (auto [p, e] : factor_by_prime(n))
+		divisors *= (e + 1);
+	return divisors;
+}
+
+// O(log(r) log(divisor_count)).
+// divisor_count is prime.
+inline uint64_t gen_divisor_count(uint64_t l, uint64_t r, int divisor_count) {
+	tgen_ensure(divisor_count > 0 and is_prime(divisor_count),
+				"math: divisor count must be prime");
+	int root = divisor_count - 1;
+	uint64_t p = gen_prime(_detail::kth_root_floor(l, root),
+						   _detail::kth_root_floor(r, root));
+	return *_detail::expo(p, root, r);
+}
 
 // O(|mods| + log r).
 // |rems| = |mods|.
@@ -1743,21 +1791,20 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 							  std::vector<uint64_t> rems,
 							  std::vector<uint64_t> mods) {
 	if (l > r)
-		throw tgen::_detail::there_is_no_in_range_error("congruent number", l,
-														r);
+		throw _detail::there_is_no_in_range_error("congruent number", l, r);
 	tgen_ensure(rems.size() == mods.size(),
-				"number of remainders and mods must be the same");
+				"math: number of remainders and mods must be the same");
 
 	_detail::crt crt;
 	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
 		tgen_ensure(rems[i] < mods[i],
-					"remainder must be smaller than the mod");
+					"math: remainder must be smaller than the mod");
 		crt = crt * _detail::crt(rems[i], mods[i]);
 
 		if (crt.a == -1 or crt.m > r) {
 			if (!(l <= crt.a and crt.a <= r))
-				throw tgen::_detail::there_is_no_in_range_error(
-					"congruent number", l, r);
+				throw _detail::there_is_no_in_range_error("congruent number", l,
+														  r);
 
 			bool valid_candidate = true;
 			for (int j = 0; j < static_cast<int>(rems.size()); ++j)
@@ -1765,8 +1812,7 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 					valid_candidate = false;
 			if (valid_candidate)
 				return crt.a;
-			throw tgen::_detail::there_is_no_in_range_error("congruent number",
-															l, r);
+			throw _detail::there_is_no_in_range_error("congruent number", l, r);
 		}
 	}
 
@@ -1774,8 +1820,7 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 	uint64_t k_max = (r - crt.a) / crt.m;
 
 	if (k_min > k_max)
-		throw tgen::_detail::there_is_no_in_range_error("congruent number", l,
-														r);
+		throw _detail::there_is_no_in_range_error("congruent number", l, r);
 
 	return crt.a + next(k_min, k_max) * crt.m;
 }
@@ -1813,40 +1858,6 @@ inline const std::vector<uint64_t> &fibonacci() {
 	return fib;
 }
 
-namespace _detail {
-
-inline constexpr long double LOG_ZERO = -INFINITY;
-inline constexpr long double LOG_ONE = 0.0;
-
-inline long double log_space(long double x) {
-	return x == 0.0 ? LOG_ZERO : std::log(x);
-}
-
-// Math hack to add two values in log space.
-inline long double add_log_space(long double a, long double b) {
-	if (a == LOG_ZERO)
-		return b;
-	if (b == LOG_ZERO)
-		return a;
-	if (a < b)
-		std::swap(a, b);
-	if (b == LOG_ZERO)
-		return a;
-	return a + log1p(exp(b - a));
-}
-
-// Math hack to subtract two values in log space.
-// a >= b.
-inline long double sub_log_space(long double a, long double b) {
-	if (b >= a)
-		return LOG_ZERO;
-	if (b == LOG_ZERO)
-		return a;
-	return a + log1p(-exp(b - a));
-}
-
-} // namespace _detail
-
 // Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
 // O(n).
 // 0 < n.
@@ -1855,8 +1866,9 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 	if (part_r == -1)
 		part_r = n;
 	part_r = std::min(part_r, n);
-	tgen_ensure(n > 0 and part_l > 0, "invalid parameters to gen_partition");
-	tgen_ensure(part_l <= n and part_r > 0, "no such partition");
+	tgen_ensure(n > 0 and part_l > 0,
+				"math: invalid parameters to gen_partition");
+	tgen_ensure(part_l <= n and part_r > 0, "math: no such partition");
 
 	// dp[i] = log(numbers of ways to add to i).
 	std::vector<long double> dp(n + 1, _detail::LOG_ZERO);
@@ -1869,7 +1881,7 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 			window = _detail::sub_log_space(window, dp[i - part_r - 1]);
 		dp[i] = window;
 	}
-	tgen_ensure(dp[n] >= 0, "no such partition");
+	tgen_ensure(dp[n] >= 0, "math: no such partition");
 
 	// Crazy math tricks ahead.
 	auto dp_pref = dp;
@@ -1881,7 +1893,8 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 	while (sum > 0) {
 		// Will generate a number such that what remains is in [l, r].
 		int l = std::max(0, sum - part_r), r = sum - part_l;
-		tgen::_detail::tgen_ensure_against_bug(r >= 0);
+		tgen::_detail::tgen_ensure_against_bug(r >= 0,
+											   "math: r < 0 in gen_partition");
 
 		int nxt_sum = std::min(sum, r);
 		long double random = next<long double>(0, 1);
@@ -1920,10 +1933,10 @@ inline std::vector<int> gen_partition_fixed_size(int n, int k, int part_l = 0,
 		part_r = n;
 	part_r = std::min(part_r, n);
 	tgen_ensure(0 < k and k <= n and part_l >= 0,
-				"invalid parameters to gen_partition_fixed_size");
+				"math: invalid parameters to gen_partition_fixed_size");
 	tgen_ensure(static_cast<long long>(k) * part_l <= n and
 					n <= static_cast<long long>(k) * part_r,
-				"no such partition");
+				"math: no such partition");
 
 	// What we need to distribute to the parts.
 	int s = n - k * part_l;
@@ -1974,8 +1987,9 @@ inline std::vector<int> gen_partition_fixed_size(int n, int k, int part_l = 0,
 			for (int j = 0; j <= u and j <= left_to_distribute; ++j)
 				log_total = _detail::add_log_space(
 					log_total, dp[i - 1][left_to_distribute - j]);
-			tgen::_detail::tgen_ensure_against_bug(log_total !=
-												   _detail::LOG_ZERO);
+			tgen::_detail::tgen_ensure_against_bug(
+				log_total != _detail::LOG_ZERO,
+				"math: total == 0 in gen_partition_fixed_size");
 
 			// Now we choose a number with probability proportional to
 			// dp[i-1][.].
@@ -2007,4 +2021,505 @@ inline std::vector<int> gen_partition_fixed_size(int n, int k, int part_l = 0,
 
 }; // namespace math
 
-}; // namespace tgen
+/**************
+ *            *
+ *   STRING   *
+ *            *
+ **************/
+
+/*
+ * String generator.
+ */
+
+namespace _detail {
+
+/*
+ * Regex.
+ *
+ * Compatible with testlib's regex.
+ *
+ * Operations:
+ * - A single character yields itself ("a", "3").
+ * - A list of characters inside square braces yields any a random element
+ *   from the list ("[abc123]").
+ * - A range of characters is equivalent to listing them ("[a-z1-9A-Z]").
+ * - A pattern followed by {n} yields the pattern repeated n times ("a{3}").
+ * - A pattern followed by {l,r} yields the pattern repeated between l and r
+ *   times, uniformly at random ("a{3,5}").
+ * - A list of patterns separated by | yields a random pattern from the
+ *   list, uniformly at random ("abc|def|ghi").
+ * - Parentheses can be used for grouping ("a((a|b){3})").
+ *
+ * Examples:
+ * 1. str("[1-9][0-9]{1,2}") generates two- or three-digit numbers.
+ * 2. str("a[b-d]{2}|e") generates "e" or a random string of length 3, with
+ *                       the first character being 'a' and the second and
+ *                       third characters being 'b', 'c', or 'd'.
+ * 3. str("[1-9][0-9]{%d}", n-1) generates n-digit numbers.
+ *
+ * Operations defined by {n} and {l,r} are applied from left to right, and
+ * the pattern that comes before has its delimiters defined either by () or
+ * [] at its end or is taken from the beginning of the pattern (in
+ * "a[bc]{2}", "{2}" is applied to "[bc]", and in "[01]abc{3}", the "{3}" is
+ * appied to "[01]abc").
+ */
+
+// If it has children, it is either a SEQ or an OR group, defined by the
+// pattern_ field.
+struct regex_node {
+	// Considered to be repetition of left_bound != -1, pattern if
+	// children_.empty(), otherwise "SEQ" or "OR", defined by the pattern_
+	// field.
+	std::string
+		pattern_; // Either pattern, or "SEQ" or "OR" (if !children_.empty()).
+	std::vector<regex_node> children_; // Children, when SEQ or OR.
+	int left_bound_, right_bound_; // Left and right bounds of the repetition,
+								   // or -1 if not a repetition.
+	double
+		log_space_num_ways_; // Log space number of ways to match the pattern.
+
+	regex_node(const std::string &pattern)
+		: pattern_(pattern), left_bound_(-1), right_bound_(-1) {
+		if (pattern.size() == 1) {
+			log_space_num_ways_ = math::_detail::LOG_ONE;
+			return;
+		}
+		tgen_ensure_against_bug(pattern[0] == '[' and pattern.back() == ']',
+								"str: invalid regex: expected character class");
+		log_space_num_ways_ = math::_detail::log_space(pattern.size() - 2);
+	}
+	regex_node(const std::string &pattern, std::vector<regex_node> &children)
+		: pattern_(pattern), left_bound_(-1), right_bound_(-1) {
+		if (pattern == "SEQ") {
+			// Multiply the number of ways.
+			log_space_num_ways_ = math::_detail::LOG_ONE;
+			for (const auto &child : children)
+				log_space_num_ways_ += child.log_space_num_ways_;
+		} else if (pattern == "OR") {
+			// Add the number of ways.
+			log_space_num_ways_ = math::_detail::LOG_ZERO;
+			for (const auto &child : children)
+				log_space_num_ways_ = math::_detail::add_log_space(
+					log_space_num_ways_, child.log_space_num_ways_);
+		} else
+			tgen_ensure_against_bug("str: invalid regex: expected SEQ or OR");
+
+		children_ = std::move(children);
+		children.clear();
+	}
+	regex_node(int left_bound, int right_bound, regex_node &child)
+		: pattern_("REP"), left_bound_(left_bound), right_bound_(right_bound) {
+		log_space_num_ways_ = math::_detail::LOG_ZERO;
+		for (int i = left_bound; i <= right_bound; i++)
+			log_space_num_ways_ = math::_detail::add_log_space(
+				log_space_num_ways_, i * child.log_space_num_ways_);
+
+		children_.push_back(std::move(child));
+	}
+};
+
+// State of the regex parser.
+struct regex_state {
+	std::vector<regex_node> cur;	  // Current sequence of nodes.
+	std::vector<regex_node> branches; // Branches of the current OR group.
+};
+
+// Creates a SEQ node from the current state.
+inline regex_node make_regex_seq(regex_state &st) {
+	return regex_node("SEQ", st.cur);
+}
+
+// Finishes current state.
+inline regex_node finish_regex_state(regex_state &st) {
+	// SEQ.
+	if (st.branches.empty())
+		return make_regex_seq(st);
+
+	// OR.
+	st.branches.push_back(make_regex_seq(st));
+	return regex_node("OR", st.branches);
+}
+
+// Parses a regex pattern into a tree, computing the number of ways to match the
+// pattern.
+inline regex_node parse_regex(std::string regex) {
+	std::string new_regex;
+	for (char c : regex)
+		if (c != ' ')
+			new_regex += c;
+	swap(regex, new_regex);
+	regex_state cur;
+	std::vector<regex_state> stack;
+
+	for (size_t i = 0; i < regex.size(); i++) {
+		char c = regex[i];
+
+		if (c == '(') {
+			// Pushes the current state to the stack.
+			stack.push_back(std::move(cur));
+			cur = regex_state();
+		} else if (c == ')') {
+			// Finishes the current state, and adds it to the parent.
+			regex_node node = finish_regex_state(cur);
+
+			tgen_ensure(!stack.empty(), "str: invalid regex: unmatched `)`");
+			cur = std::move(stack.back());
+			stack.pop_back();
+
+			cur.cur.push_back(std::move(node));
+		} else if (c == '|') {
+			// Starts a new OR group.
+			regex_node node = make_regex_seq(cur);
+			cur.branches.push_back(std::move(node));
+		} else if (c == '[') {
+			// Parses a character class.
+			std::string chars;
+
+			for (++i; i < regex.size() and regex[i] != ']'; ++i) {
+				if (i + 2 < regex.size() and regex[i + 1] == '-') {
+					char a = regex[i], b = regex[i + 2];
+					if (a > b)
+						std::swap(a, b);
+					for (char x = a; x <= b; x++)
+						chars += x;
+					i += 2;
+				} else
+					chars += regex[i];
+			}
+
+			tgen_ensure(i < regex.size() and regex[i] == ']',
+						"str: invalid regex: unmatched `[`");
+			cur.cur.emplace_back("[" + chars + "]");
+		} else if (c == '{') {
+			// Parses a repetition.
+			++i;
+			int l = -1, r = -1;
+
+			while (i < regex.size() and
+				   isdigit(static_cast<unsigned char>(regex[i]))) {
+				if (l == -1)
+					l = 0;
+				tgen_ensure(l <= static_cast<int>(1e8),
+							"str: invalid regex: number too large inside `{}`");
+				l = 10 * l + (regex[i] - '0');
+				++i;
+			}
+
+			if (i < regex.size() and regex[i] == ',') {
+				++i;
+				while (i < regex.size() and
+					   isdigit(static_cast<unsigned char>(regex[i]))) {
+					if (r == -1)
+						r = 0;
+					tgen_ensure(
+						r <= static_cast<int>(1e8),
+						"str: invalid regex: number too large inside `{}`");
+					r = 10 * r + (regex[i] - '0');
+					++i;
+				}
+			} else
+				r = l;
+
+			tgen_ensure(i < regex.size() and regex[i] == '}',
+						"str: invalid regex: unmatched `{`");
+			tgen_ensure(l != -1 and r != -1,
+						"str: invalid regex: missing number inside `{}`");
+			tgen_ensure(l <= r, "invalid regex: invalid range inside `{}`");
+
+			// Creates a REP node from the previous node.
+			tgen_ensure(!cur.cur.empty(),
+						"str: invalid regex: expected expression before `{}`");
+
+			regex_node rep(l, r, cur.cur.back());
+			cur.cur.pop_back();
+			cur.cur.push_back(std::move(rep));
+		} else {
+			// Creates a char node.
+			cur.cur.emplace_back(std::string(1, c));
+		}
+	}
+
+	tgen_ensure(stack.empty(), "str: invalid regex: unmatched `(`");
+	return finish_regex_state(cur);
+}
+
+inline void gen_regex(const regex_node &node, std::string &str) {
+	// For [chars], generate a random character from the list.
+	if (node.pattern_[0] == '[') {
+		str += node.pattern_[1 + next<int>(0, node.pattern_.size() - 3)];
+		return;
+	}
+
+	// For REP, generate a random number of times to repeat the pattern.
+	if (node.left_bound_ != -1) {
+		// Generates a random value W from 0 to num_ways.
+		// log(W) = log(random(0, 1) * num_ways)
+		//        = log(random(0, 1)) + log(num_ways).
+		double log_rand = math::_detail::log_space(next<double>(0, 1)) +
+						  node.log_space_num_ways_;
+		double cur_prob = math::_detail::LOG_ZERO;
+		double child_num_ways = node.children_[0].log_space_num_ways_;
+
+		for (int i = node.left_bound_; i <= node.right_bound_; ++i) {
+			cur_prob =
+				math::_detail::add_log_space(cur_prob, i * child_num_ways);
+			if (log_rand <= cur_prob) {
+				for (int j = 0; j < i; ++j)
+					gen_regex(node.children_[0], str);
+				return;
+			}
+		}
+
+		tgen_ensure_against_bug(false, "str: log_rand > cur_prob in gen_regex");
+	}
+
+	// For SEQ, generate all children.
+	if (!node.children_.empty() and node.pattern_ == "SEQ") {
+		for (const regex_node &child : node.children_)
+			gen_regex(child, str);
+		return;
+	}
+
+	// For OR, generate a random child.
+	if (!node.children_.empty() and node.pattern_ == "OR") {
+		// Generates a random value W from 0 to num_ways.
+		// log(W) = log(random(0, 1) * num_ways)
+		//        = log(random(0, 1)) + log(num_ways).
+		double log_rand = math::_detail::log_space(next<double>(0, 1)) +
+						  node.log_space_num_ways_;
+		double cur_prob = math::_detail::LOG_ZERO;
+
+		for (const regex_node &child : node.children_) {
+			cur_prob = math::_detail::add_log_space(cur_prob,
+													child.log_space_num_ways_);
+			if (log_rand <= cur_prob) {
+				gen_regex(child, str);
+				return;
+			}
+		}
+
+		tgen_ensure_against_bug(false, "str: log_rand > cur_prob in gen_regex");
+	}
+
+	// For char, generate the character.
+	_detail::tgen_ensure_against_bug(
+		node.pattern_.size() == 1,
+		"str: invalid regex: expected single character, but got `" +
+			node.pattern_ + "`");
+	str += node.pattern_[0];
+}
+
+// Formats a regex string with given arguments.
+template <typename... Args>
+std::string regex_format(const std::string &s, Args &&...args) {
+	if constexpr (sizeof...(Args) == 0) {
+		return s;
+	} else {
+		int size = std::snprintf(nullptr, 0, s.c_str(), args...) + 1;
+		std::string buf(size, '\0');
+		std::snprintf(buf.data(), size, s.c_str(), args...);
+		buf.pop_back(); // remove '\0'
+		return buf;
+	}
+}
+
+} // namespace _detail
+
+struct str : _detail::gen_base<str> {
+	std::optional<sequence<char>> seq_; // Sequence of characters.
+	std::optional<_detail::regex_node>
+		root_; // Root node of the regex tree for the whole string.
+
+	// Creates generator for strings of size 'size', with random characters in
+	// [value_l, value_r].
+	str(int size, char value_l = 'a', char value_r = 'z')
+		: seq_(sequence<char>(size, value_l, value_r)) {}
+
+	// Creates generator for strings of size 'size', with random characters in
+	// 'values'.
+	str(int size, std::set<char> values) : seq_(sequence<char>(size, values)) {}
+
+	// Creates generator for strings that match the given regex.
+	template <typename... Args> str(const std::string &regex, Args &&...args) {
+		tgen_ensure(regex.size() > 0, "str: regex must be non-empty");
+
+		root_ = _detail::parse_regex(
+			_detail::regex_format(regex, std::forward<Args>(args)...));
+	}
+
+	// Creates generator for strings that are `size` times the given regex.
+	template <typename... Args>
+	str(int size, const std::string &regex, Args &&...args) {
+		tgen_ensure(size > 0, "str: size must be positive");
+		tgen_ensure(regex.size() > 0, "str: regex must be non-empty");
+
+		auto formatted_regex =
+			_detail::regex_format(regex, std::forward<Args>(args)...);
+		root_ = _detail::parse_regex("(" + formatted_regex + "){ " +
+									 std::to_string(size) + "}");
+	}
+
+	// Restricts strings for str[idx] = value.
+	str &set(int idx, char character) {
+		tgen_ensure(!root_, "str: cannot set value after regex");
+		seq_->set(idx, character);
+		return *this;
+	}
+
+	// Restricts strings for str[idx_1] = str[idx_2].
+	str &equal(int idx_1, int idx_2) {
+		tgen_ensure(!root_, "str: cannot set value after regex");
+		seq_->equal(idx_1, idx_2);
+		return *this;
+	}
+
+	// Restricts strings for str[left..right] to have all equal values.
+	str &equal_range(int left, int right) {
+		tgen_ensure(!root_, "str: cannot set value after regex");
+		seq_->equal_range(left, right);
+		return *this;
+	}
+
+	// Restricts strings for str[left..right] to be a palindrome.
+	str &palindrome(int left, int right) {
+		tgen_ensure(!root_, "str: cannot set value after regex");
+		tgen_ensure(0 <= left and left <= right and right < seq_->size_,
+					"str: range indices bust be valid");
+		for (int i = left; i < right - (i - left); ++i)
+			equal(i, right - (i - left));
+		return *this;
+	}
+
+	// Restricts strings for the entire string to be a palindrome.
+	str &palindrome() {
+		tgen_ensure(!root_, "str: cannot set value after regex");
+		return palindrome(0, seq_->size_ - 1);
+	}
+
+	// Restricts strings for str[S] to be distinct, for given subset S of
+	// indices.
+	str &distinct(std::set<int> indices) {
+		tgen_ensure(!root_, "str: cannot set value after regex");
+		seq_->distinct(indices);
+		return *this;
+	}
+
+	// Restricts strings for str[idx_1] != str[idx_2].
+	str &different(int idx_1, int idx_2) {
+		tgen_ensure(!root_, "str: cannot set value after regex");
+		seq_->different(idx_1, idx_2);
+		return *this;
+	}
+
+	// Restricts strings for all values to be distinct.
+	str &distinct() {
+		tgen_ensure(!root_, "str: cannot set value after regex");
+		seq_->distinct();
+		return *this;
+	}
+
+	// str instance.
+	// Operations on an instance are not random.
+	struct instance {
+		using _tgen_instance_tag = _detail::generator_instance_tag;
+		using value_type = char;
+		using std_type = std::string;
+		std::string str_;
+
+		instance(const std::string &str) : str_(str) {
+			tgen_ensure(!str_.empty(), "str: instance: cannot be empty");
+		}
+
+		// Fetches size.
+		int size() const { return str_.size(); }
+
+		// Fetches position idx.
+		char &operator[](int idx) {
+			tgen_ensure(0 <= idx and idx < size(),
+						"str: instane: index out of bounds");
+			return str_[idx];
+		}
+		const char &operator[](int idx) const {
+			tgen_ensure(0 <= idx and idx < size(),
+						"str: instance: index out of bounds");
+			return str_[idx];
+		}
+
+		// Sorts characters in non-decreasing order.
+		// O(n log n).
+		instance &sort() {
+			std::sort(str_.begin(), str_.end());
+			return *this;
+		}
+
+		// Reverses string.
+		// O(n).
+		instance &reverse() {
+			std::reverse(str_.begin(), str_.end());
+			return *this;
+		}
+
+		// Lowercases all characters.
+		// O(n).
+		instance &lowercase() {
+			for (char &c : str_)
+				c = std::tolower(c);
+			return *this;
+		}
+
+		// Uppercases all characters.
+		// O(n).
+		instance &uppercase() {
+			for (char &c : str_)
+				c = std::toupper(c);
+			return *this;
+		}
+
+		// Concatenates two instances.
+		// Linear.
+		instance operator+(const instance &rhs) {
+			return instance(str_ + rhs.str_);
+		}
+
+		// Prints to std::ostream, separated by spaces.
+		friend std::ostream &operator<<(std::ostream &out,
+										const instance &inst) {
+			return out << inst.str_;
+		}
+
+		// Gets a std::string representing the instance.
+		std::string to_std() const { return str_; }
+	};
+
+	// Generates str instance.
+	// O(n).
+	instance gen() const {
+		if (root_) {
+			// Regex.
+			std::string ret_str;
+			gen_regex(*root_, ret_str);
+			return instance(ret_str);
+		} else {
+			// Sequence.
+			std::vector<char> vec = seq_->gen().to_std();
+			return instance(std::string(vec.begin(), vec.end()));
+		}
+	}
+
+	// Fetches prefix of length n of the string "abacabadabacabae...".
+	static instance abacaba(int n) {
+		tgen_ensure(n > 0, "str: size must be positive");
+		std::string str = "a";
+		char c = 'a';
+		while (static_cast<int>(str.size()) < n) {
+			int prev_size = str.size();
+			str += ++c;
+			for (int j = 0; j < prev_size and static_cast<int>(str.size()) < n;
+				 ++j)
+				str += str[j];
+		}
+		return instance(str);
+	}
+};
+
+} // namespace tgen

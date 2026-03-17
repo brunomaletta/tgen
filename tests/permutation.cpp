@@ -9,7 +9,8 @@ TEST(permutation_test, constructor_size_zero) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(0), "size must be positive");
+	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(0),
+							 "permutation: size must be positive");
 }
 
 TEST(permutation_test, set_invalid_index) {
@@ -17,9 +18,9 @@ TEST(permutation_test, set_invalid_index) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).set(-1, 0),
-							 "index must be valid");
+							 "permutation: index must be valid");
 	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).set(5, 0),
-							 "index must be valid");
+							 "permutation: index must be valid");
 }
 
 TEST(permutation_test, instance_invalid) {
@@ -27,11 +28,13 @@ TEST(permutation_test, instance_invalid) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	std::vector<int> invalid = {1, 2};
-	EXPECT_THROW_TGEN_PREFIX(tgen::permutation::instance inst = invalid,
-							 "permutation values must be from `0` to `size-1`");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::permutation::instance inst = invalid,
+		"permutation: instance: values must be from `0` to `size-1`");
 	invalid = {1, 1};
-	EXPECT_THROW_TGEN_PREFIX(tgen::permutation::instance inst = invalid,
-							 "cannot have repeated values in permutation");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::permutation::instance inst = invalid,
+		"permutation: instance: cannot have repeated values");
 }
 
 TEST(permutation_test, instance_ops) {
@@ -65,10 +68,12 @@ TEST(permutation_test, gen_invalid) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).set(0, 1).set(0, 2).gen(),
-							 "cannot set an idex to two different values");
-	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).set(0, 0).set(1, 0).gen(),
-							 "cannot set two indices to the same value");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::permutation(5).set(0, 1).set(0, 2).gen(),
+		"permutation: cannot set an idex to two different values");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::permutation(5).set(0, 0).set(1, 0).gen(),
+		"permutation: cannot set two indices to the same value");
 }
 
 TEST(permutation_test, gen) {
@@ -110,8 +115,9 @@ TEST(permutation_test, gen_cycles_invalid) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).gen({4}),
-							 "cycle sizes must add up to size of permutation");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::permutation(5).gen({4}),
+		"permutation: cycle sizes must add up to size of permutation");
 }
 
 TEST(permutation_test, gen_cycles) {

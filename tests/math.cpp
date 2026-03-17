@@ -104,7 +104,7 @@ TEST(math_test, factor) {
 	using vec = std::vector<uint64_t>;
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::factor(0),
-							 "number to factor must be positive");
+							 "math: number to factor must be positive");
 
 	EXPECT_EQ(tgen::math::factor(1), vec({}));
 	EXPECT_EQ(tgen::math::factor(2), vec({2}));
@@ -127,7 +127,7 @@ TEST(math_test, factor_by_prime) {
 	using vec = std::vector<std::pair<uint64_t, int>>;
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::factor_by_prime(0),
-							 "number to factor must be positive");
+							 "math: number to factor must be positive");
 
 	EXPECT_EQ(tgen::math::factor_by_prime(1), vec({}));
 	EXPECT_EQ(tgen::math::factor_by_prime(2), vec({{2, 1}}));
@@ -155,12 +155,12 @@ TEST(math_test, modular_inverse_invalid) {
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::modular_inverse(0, 5),
-		"remainder must be positive and smaller than the mod");
+		"math: remainder must be positive and smaller than the mod");
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::modular_inverse(5, 5),
-		"remainder must be positive and smaller than the mod");
+		"math: remainder must be positive and smaller than the mod");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::modular_inverse(2, 6),
-							 "remainder and mod must be coprime");
+							 "math: remainder and mod must be coprime");
 }
 
 TEST(math_test, modular_inverse) {
@@ -176,7 +176,8 @@ TEST(math_test, totient) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::totient(0), "totient(0) is undefined");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::totient(0),
+							 "math: totient(0) is undefined");
 
 	EXPECT_EQ(tgen::math::totient(1), 1);
 	EXPECT_EQ(tgen::math::totient(2), 1);
@@ -192,12 +193,12 @@ TEST(math_test, gen_prime_no_prime) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_prime(2, 1),
-							 "there is no prime in range [2, 1]");
+							 "math: there is no prime in range [2, 1]");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_prime(0, 1),
-							 "there is no prime in range [0, 1]");
+							 "math: there is no prime in range [0, 1]");
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::gen_prime(6787988999657777798, 6787988999657779306),
-		"there is no prime in range [6787988999657777798, "
+		"math: there is no prime in range [6787988999657777798, "
 		"6787988999657779306]");
 }
 
@@ -234,7 +235,7 @@ TEST(math_test, prime_from) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::prime_from(largest_number_64 - 57),
-							 "invalid bound");
+							 "math: invalid bound");
 	EXPECT_EQ(tgen::math::prime_from(largest_number_64 - 58), largest_prime_64);
 
 	auto p = tgen::math::gen_prime(0, largest_number_64 / 100);
@@ -242,7 +243,7 @@ TEST(math_test, prime_from) {
 	for (int i = 0; i < 100; ++i) {
 		EXPECT_THROW_TGEN_PREFIX(
 			tgen::math::gen_prime(p + 1, tgen::math::prime_from(p + 1) - 1),
-			"there is no prime in range");
+			"math: there is no prime in range");
 		p = tgen::math::prime_from(p + 1);
 		EXPECT_TRUE(tgen::math::is_prime(p));
 	}
@@ -253,14 +254,14 @@ TEST(math_test, prime_upto) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::prime_upto(1),
-							 "there is no prime up to 1");
+							 "math: there is no prime up to 1");
 
 	auto p = tgen::math::gen_prime(largest_number_64 / 100, largest_number_64);
 	EXPECT_TRUE(tgen::math::is_prime(p));
 	for (int i = 0; i < 100; ++i) {
 		EXPECT_THROW_TGEN_PREFIX(
 			tgen::math::gen_prime(tgen::math::prime_upto(p - 1) + 1, p - 1),
-			"there is no prime in range");
+			"math: there is no prime in range");
 		p = tgen::math::prime_upto(p - 1);
 		EXPECT_TRUE(tgen::math::is_prime(p));
 	}
@@ -271,7 +272,7 @@ TEST(math_test, num_divisors) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::num_divisors(0),
-							 "number to factor must be positive");
+							 "math: number to factor must be positive");
 	EXPECT_EQ(tgen::math::num_divisors(1), 1);
 	EXPECT_EQ(tgen::math::num_divisors(2), 2);
 	EXPECT_EQ(tgen::math::num_divisors(12), 6);
@@ -284,9 +285,9 @@ TEST(math_test, gen_divisor_count) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_divisor_count(1, 10, -1),
-							 "divisor count must be prime");
+							 "math: divisor count must be prime");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_divisor_count(0, 0, 2),
-							 "there is no prime in range [0, 0]");
+							 "math: there is no prime in range [0, 0]");
 
 	for (int i = 0; i < 100; ++i) {
 		auto p = tgen::math::gen_prime(0, 30);
@@ -329,7 +330,7 @@ TEST(math_test, prime_gap_upto) {
 	using pair = std::pair<uint64_t, uint64_t>;
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::prime_gap_upto(3),
-							 "there is no prime gap up to 3");
+							 "math: there is no prime gap up to 3");
 	EXPECT_EQ(tgen::math::prime_gap_upto(4), pair(4, 4));
 	EXPECT_EQ(tgen::math::prime_gap_upto(5), pair(4, 4));
 	EXPECT_EQ(tgen::math::prime_gap_upto(6), pair(4, 4));
@@ -362,8 +363,9 @@ TEST(math_test, highly_composite_upto) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::highly_composite_upto(0),
-							 "there is no highly composite number up to 0");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::highly_composite_upto(0),
+		"math: there is no highly composite number up to 0");
 	EXPECT_EQ(tgen::math::highly_composite_upto(1), 1);
 	EXPECT_EQ(tgen::math::highly_composite_upto(2), 2);
 	EXPECT_EQ(tgen::math::highly_composite_upto(3), 2);
@@ -378,28 +380,35 @@ TEST(math_test, gen_congruent_invalid) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_congruent(1, 0, 0, 2),
-							 "there is no congruent number in range [1, 0]");
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_congruent(0, 10, {0, 1}, {2}),
-							 "number of remainders and mods must be the same");
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_congruent(2, 5, {1, 1}, {2, 3}),
-							 "there is no congruent number in range [2, 5]");
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_congruent(0, 0, {1, 1}, {2, 3}),
-							 "there is no congruent number in range [0, 0]");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_congruent(1, 0, 0, 2),
+		"math: there is no congruent number in range [1, 0]");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_congruent(0, 10, {0, 1}, {2}),
+		"math: number of remainders and mods must be the same");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_congruent(2, 5, {1, 1}, {2, 3}),
+		"math: there is no congruent number in range [2, 5]");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_congruent(0, 0, {1, 1}, {2, 3}),
+		"math: there is no congruent number in range [0, 0]");
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::gen_congruent(1, 5, {1, 1, 0}, {2, 3, 5}),
-		"there is no congruent number in range [1, 5]");
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_congruent(0, 10, {0, 1}, {2, 4}),
-							 "there is no congruent number in range [0, 10]");
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_congruent(2, 4, 1, 4),
-							 "there is no congruent number in range [2, 4]");
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_congruent(8, 12, {1, 1}, {2, 3}),
-							 "there is no congruent number in range [8, 12]");
+		"math: there is no congruent number in range [1, 5]");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_congruent(0, 10, {0, 1}, {2, 4}),
+		"math: there is no congruent number in range [0, 10]");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_congruent(2, 4, 1, 4),
+		"math: there is no congruent number in range [2, 4]");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_congruent(8, 12, {1, 1}, {2, 3}),
+		"math: there is no congruent number in range [8, 12]");
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::gen_congruent(
 			2, largest_number_64, {1, 1},
 			{largest_prime_64, tgen::math::prime_upto(largest_prime_64 - 1)}),
-		"there is no congruent number in range");
+		"math: there is no congruent number in range");
 }
 
 TEST(math_test, gen_congruent) {
@@ -475,23 +484,23 @@ TEST(math_test, gen_partition_invalid) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(0, 1, 2),
-							 "invalid parameters to gen_partition");
+							 "math: invalid parameters to gen_partition");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(1, 0, 1),
-							 "invalid parameters to gen_partition");
+							 "math: invalid parameters to gen_partition");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(1, 2, 3),
-							 "no such partition");
+							 "math: no such partition");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(100, 40, 45),
-							 "no such partition");
+							 "math: no such partition");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(100, 10, -10),
-							 "no such partition");
+							 "math: no such partition");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(65005, 1e4, 1e4 + 10),
-							 "no such partition");
+							 "math: no such partition");
 
 	for (int i = 0; i < 10; ++i) {
 		EXPECT_THROW_TGEN_PREFIX(
 			tgen::math::gen_partition(tgen::next<int>(1e4 + 1e3, 1e4 + 2e3),
 									  1e4, 1e4 + 10),
-			"no such partition");
+			"math: no such partition");
 	}
 }
 
@@ -542,18 +551,21 @@ TEST(math_test, gen_partition_fixed_size_invalid) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition_fixed_size(1, 0),
-							 "invalid parameters to gen_partition_fixed_size");
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition_fixed_size(1, 2),
-							 "invalid parameters to gen_partition_fixed_size");
-	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition_fixed_size(1, 1, -1, 1),
-							 "invalid parameters to gen_partition_fixed_size");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_partition_fixed_size(1, 0),
+		"math: invalid parameters to gen_partition_fixed_size");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_partition_fixed_size(1, 2),
+		"math: invalid parameters to gen_partition_fixed_size");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_partition_fixed_size(1, 1, -1, 1),
+		"math: invalid parameters to gen_partition_fixed_size");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition_fixed_size(3, 3, 0, -10),
-							 "no such partition");
+							 "math: no such partition");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition_fixed_size(3, 2, 2, 3),
-							 "no such partition");
+							 "math: no such partition");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition_fixed_size(7, 2, 2, 3),
-							 "no such partition");
+							 "math: no such partition");
 }
 
 TEST(math_test, gen_partition_fixed_size) {

@@ -2991,7 +2991,7 @@ LAYOUT_FILE            = layout.xml
 
 GENERATE_LATEX = NO
 
-EXCLUDE_SYMBOLS = gen_base crt_internal
+EXCLUDE_SYMBOLS = _detail
 
 
 CLANG_ASSISTED_PARSING = YES
