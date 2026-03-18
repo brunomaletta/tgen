@@ -142,7 +142,7 @@ TEST(str_test, gen_regex_uniform) {
 
 	check_generator_uniform(tgen::str(2, 'a', 'b'), 4);
 	check_generator_uniform(tgen::str(3, std::set<char>{'0', '1'}), 8);
-	check_generator_uniform(tgen::str(2, 'a', 'z').set(0, 'x'), 26);
+	check_generator_uniform(tgen::str(2, 'a', 'z').fix(0, 'x'), 26);
 
 	check_generator_uniform(tgen::str("[ab]"), 2);
 	check_generator_uniform(tgen::str("a|b|c"), 3);
@@ -154,12 +154,14 @@ TEST(str_test, gen_regex_uniform) {
 	check_generator_uniform(tgen::str("0 | [1-9][0-9]{0, 1}"), 100);
 }
 
-TEST(str_test, set_after_regex_throws) {
+TEST(str_test, add_restriction_after_regex_throws) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::str("a").set(0, 'x'),
-							 "str: cannot set value after regex");
+	EXPECT_THROW_TGEN_PREFIX(tgen::str("a").fix(0, 'x'),
+							 "str: cannot add restriction for regex");
+	EXPECT_THROW_TGEN_PREFIX(tgen::str("a").distinct(),
+							 "str: cannot add restriction for regex");
 }
 
 TEST(str_test, instance_ops) {

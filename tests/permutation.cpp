@@ -13,13 +13,13 @@ TEST(permutation_test, constructor_size_zero) {
 							 "permutation: size must be positive");
 }
 
-TEST(permutation_test, set_invalid_index) {
+TEST(permutation_test, fix_invalid_index) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).set(-1, 0),
+	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).fix(-1, 0),
 							 "permutation: index must be valid");
-	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).set(5, 0),
+	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).fix(5, 0),
 							 "permutation: index must be valid");
 }
 
@@ -69,10 +69,10 @@ TEST(permutation_test, gen_invalid) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::permutation(5).set(0, 1).set(0, 2).gen(),
+		tgen::permutation(5).fix(0, 1).fix(0, 2).gen(),
 		"permutation: cannot set an idex to two different values");
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::permutation(5).set(0, 0).set(1, 0).gen(),
+		tgen::permutation(5).fix(0, 0).fix(1, 0).gen(),
 		"permutation: cannot set two indices to the same value");
 }
 
@@ -93,7 +93,7 @@ TEST(permutation_test, gen) {
 
 		for (int j = 0; j < num_op; ++j)
 			if (set_idx[j])
-				perm.set(j, set_val[j]);
+				perm.fix(j, set_val[j]);
 
 		auto inst = perm.gen();
 		for (int j = 0; j < num_op; ++j)
@@ -108,7 +108,7 @@ TEST(permutation_test, gen_uniform) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	check_generator_uniform(tgen::permutation(4), 24);
-	check_generator_uniform(tgen::permutation(5).set(0, 3).set(1, 2), 6);
+	check_generator_uniform(tgen::permutation(5).fix(0, 3).fix(1, 2), 6);
 }
 
 TEST(permutation_test, gen_cycles_invalid) {

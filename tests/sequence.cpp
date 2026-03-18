@@ -11,30 +11,30 @@
 struct sequence_test {
 	int l, r;
 	tgen::sequence<int> s;
-	std::vector<std::pair<int, int>> sets;
+	std::vector<std::pair<int, int>> defs;
 	std::vector<std::pair<int, int>> equals;
 	std::vector<std::set<int>> distincts;
 
 	sequence_test(int n, int l_, int r_) : l(l_), r(r_), s(n, l, r) {}
 
-	void set(int idx, int val) {
-		s.set(idx, val);
-		sets.emplace_back(idx, val);
+	void fix(int idx, int val) {
+		s.fix(idx, val);
+		defs.emplace_back(idx, val);
 	}
 	void equal(int idx_1, int idx_2) {
 		s.equal(idx_1, idx_2);
 		equals.emplace_back(idx_1, idx_2);
 	}
-	void distinct(std::set<int> distinct) {
-		s.distinct(distinct);
-		distincts.push_back(distinct);
+	void distinct(std::set<int> indices) {
+		s.distinct(indices);
+		distincts.push_back(indices);
 	}
 
 	void check() {
 		auto v = s.gen();
 		for (int i = 0; i < v.size(); ++i)
 			EXPECT_TRUE(l <= v[i] and v[i] <= r);
-		for (auto [idx, val] : sets)
+		for (auto [idx, val] : defs)
 			EXPECT_TRUE(v[idx] == val);
 		for (auto [idx_1, idx_2] : equals)
 			EXPECT_TRUE(v[idx_1] == v[idx_2]);
@@ -108,9 +108,9 @@ TEST(sequence_test, set_invalid_idx) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(-1, 5),
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(-1, 5),
 							 "sequence: index must be valid");
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(10, 5),
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(10, 5),
 							 "sequence: index must be valid");
 }
 
@@ -118,7 +118,7 @@ TEST(sequence_test, set_range_invalid_value) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(3, 20),
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(3, 20),
 							 "sequence: value must be in the defined range");
 }
 
@@ -126,7 +126,7 @@ TEST(sequence_test, set_range_twice) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(3, 5).set(3, 6),
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(3, 5).fix(3, 6),
 							 "sequence: must not set to two different values");
 }
 
@@ -134,7 +134,7 @@ TEST(sequence_test, set_value_set_invalid) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, {5, 10, 15}).set(3, 3),
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, {5, 10, 15}).fix(3, 3),
 							 "sequence: value must be in the set of values");
 }
 
@@ -143,7 +143,7 @@ TEST(sequence_test, set_value_set_twice) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::sequence<int>(10, {5, 10, 15}).set(3, 5).set(3, 10),
+		tgen::sequence<int>(10, {5, 10, 15}).fix(3, 5).fix(3, 10),
 		"sequence: must not set to two different values");
 }
 
@@ -151,15 +151,15 @@ TEST(sequence_test, set_twice_valid) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	tgen::sequence<int>(10, 1, 10).set(3, 5).set(3, 5);
-	tgen::sequence<int>(10, {5, 10, 15}).set(3, 5).set(3, 5);
+	tgen::sequence<int>(10, 1, 10).fix(3, 5).fix(3, 5);
+	tgen::sequence<int>(10, {5, 10, 15}).fix(3, 5).fix(3, 5);
 }
 
 TEST(sequence_test, equal_invalid) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).set(-1, 5),
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(-1, 5),
 							 "sequence: index must be valid");
 }
 
@@ -203,7 +203,7 @@ TEST(sequence_test, gen_with_set) {
 
 		for (int j = 0; j < num_op; ++j)
 			if (set_idx[j])
-				test.set(j, tgen::next(1, n));
+				test.fix(j, tgen::next(1, n));
 
 		test.check();
 	}
@@ -279,38 +279,38 @@ TEST(sequence_test, gen_with_all_invalid) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::sequence<int>(10, 1, 10).set(0, 5).equal(0, 1).set(1, 6).gen(),
-		"sequence: invalid sequence (contradicting constraints)");
+		tgen::sequence<int>(10, 1, 10).fix(0, 5).equal(0, 1).fix(1, 6).gen(),
+		"sequence: invalid sequence (contradicting restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 1, 10)
-			.set(0, 5)
-			.set(1, 5)
+			.fix(0, 5)
+			.fix(1, 5)
 			.different(0, 1)
 			.gen(),
-		"sequence: invalid sequence (contradicting constraints)");
+		"sequence: invalid sequence (contradicting restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 1, 9).distinct().gen(),
-		"sequence: invalid sequence (contradicting constraints)");
+		"sequence: invalid sequence (contradicting restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 1, 10)
-			.set(0, 1)
-			.set(2, 1)
+			.fix(0, 1)
+			.fix(2, 1)
 			.distinct({0, 1, 2})
 			.gen(),
-		"sequence: invalid sequence (contradicting constraints)");
+		"sequence: invalid sequence (contradicting restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 0, 2)
 			.equal(0, 1)
 			.equal(2, 3)
-			.set(0, 0)
-			.set(2, 1)
+			.fix(0, 0)
+			.fix(2, 1)
 			.distinct({0, 2, 3})
 			.gen(),
-		"sequence: invalid sequence (contradicting constraints)");
+		"sequence: invalid sequence (contradicting restrictions)");
 }
 
 TEST(sequence_test, gen_with_all_complex) {
@@ -323,16 +323,16 @@ TEST(sequence_test, gen_with_all_complex) {
 			.distinct({2, 3, 4})
 			.distinct({4, 5, 0})
 			.gen(),
-		"sequence: failed to generate sequence: complex constraints");
+		"sequence: cannot represent sequence (complex restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 1, 10)
 			.distinct({0, 1})
 			.distinct({1, 2})
-			.set(0, 5)
-			.set(2, 6)
+			.fix(0, 5)
+			.fix(2, 6)
 			.gen(),
-		"sequence: failed to generate sequence: complex constraints");
+		"sequence: cannot represent sequence (complex restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 1, 10)
@@ -340,7 +340,7 @@ TEST(sequence_test, gen_with_all_complex) {
 			.distinct({0, 1})
 			.distinct({0, 1})
 			.gen(),
-		"sequence: failed to generate sequence: complex constraints");
+		"sequence: cannot represent sequence (complex restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 1, 10)
@@ -349,7 +349,7 @@ TEST(sequence_test, gen_with_all_complex) {
 			.distinct({3, 4})
 			.equal(0, 4)
 			.gen(),
-		"sequence: failed to generate sequence: complex constraints");
+		"sequence: cannot represent sequence (complex restrictions)");
 }
 
 TEST(sequence_test, gen_two_distincts_one_set) {
@@ -370,7 +370,7 @@ TEST(sequence_test, gen_two_distincts_one_set) {
 			test.distinct(idx);
 		}
 
-		test.set(tgen::next(0, n - 1), tgen::next(1, n));
+		test.fix(tgen::next(0, n - 1), tgen::next(1, n));
 
 		test.check();
 	}
@@ -385,8 +385,8 @@ TEST(sequence_test, gen_with_all) {
 		test.distinct({0, 1});
 		test.distinct({1, 2, 3});
 		test.distinct({3, 4});
-		test.set(1, 1);
-		test.set(3, 2);
+		test.fix(1, 1);
+		test.fix(3, 2);
 
 		test.check();
 	}
@@ -395,7 +395,7 @@ TEST(sequence_test, gen_with_all) {
 		test.equal(0, 1);
 		test.equal(1, 2);
 		test.distinct({0, 5, 6});
-		test.set(6, 10);
+		test.fix(6, 10);
 
 		test.check();
 	}
@@ -404,8 +404,8 @@ TEST(sequence_test, gen_with_all) {
 		test.equal(0, 1);
 		test.equal(1, 2);
 		test.distinct({0, 5, 6});
-		test.set(5, 10);
-		test.set(6, 9);
+		test.fix(5, 10);
+		test.fix(6, 9);
 
 		test.check();
 	}
@@ -416,9 +416,9 @@ TEST(sequence_test, gen_uniform) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	check_generator_uniform(tgen::sequence<int>(5, 0, 1), 1 << 5);
-	check_generator_uniform(tgen::sequence<int>(5, 0, 1).set(0, 1), 1 << 4);
+	check_generator_uniform(tgen::sequence<int>(5, 0, 1).fix(0, 1), 1 << 4);
 	check_generator_uniform(tgen::sequence<int>(5, 0, 1).equal(0, 1), 1 << 4);
-	check_generator_uniform(tgen::sequence<int>(5, 0, 1).set(0, 1).equal(0, 1),
+	check_generator_uniform(tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1),
 							1 << 3);
 	check_generator_uniform(
 		tgen::sequence<int>(5, 0, 1).equal(0, 1).equal(1, 2), 1 << 3);
@@ -428,7 +428,7 @@ TEST(sequence_test, gen_uniform) {
 	check_generator_uniform(
 		tgen::sequence<int>(5, 1, 5).distinct({0, 1, 2}).equal(1, 4), 60 * 5);
 	check_generator_uniform(
-		tgen::sequence<int>(5, 1, 5).distinct({0, 1, 2}).equal(1, 4).set(4, 3),
+		tgen::sequence<int>(5, 1, 5).distinct({0, 1, 2}).equal(1, 4).fix(4, 3),
 		12 * 5);
 }
 
@@ -436,7 +436,7 @@ TEST(sequence_test, gen_until_not_found) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 0, 1).set(0, 1).gen_until(
+	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 0, 1).fix(0, 1).gen_until(
 								 [](const auto &inst) {
 									 auto vec = inst.to_std();
 									 return std::accumulate(vec.begin(),
@@ -451,7 +451,7 @@ TEST(sequence_test, gen_until) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	for (int i = 0; i < 100; ++i) {
-		auto inst = tgen::sequence<int>(10, 0, 1).set(0, 1).gen_until(
+		auto inst = tgen::sequence<int>(10, 0, 1).fix(0, 1).gen_until(
 			[](const auto &inst2) {
 				auto vec = inst2.to_std();
 				return std::accumulate(vec.begin(), vec.end(), 0) == 5;

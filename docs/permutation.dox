@@ -11,7 +11,7 @@ namespace tgen {
  * ```cpp
  * // Prints a random 1-based permutation of size 10 that start with 2.
  * std::cout <<
- *     tgen::permutation(10).set(0, 1).gen().add_1() << std::endl;
+ *     tgen::permutation(10).fix(0, 1).gen().add_1() << std::endl;
  * // "2 7 10 4 3 9 1 5 8 6"
  * 
  * // Prints a random permutation of size 5 with only one cycle.
@@ -82,10 +82,10 @@ namespace tgen {
  *
  * ```cpp
  * // Permutations of size 10 that start with 1.
- * auto perm_gen = tgen::permutation(10).set(0, 1);
+ * auto perm_gen = tgen::permutation(10).fix(0, 1);
  * ```
  *
- * @fn permutation::set(int idx, int value);
+ * @fn permutation::fix(int idx, int value);
  */
 
 
@@ -93,9 +93,9 @@ namespace tgen {
  * @ingroup permutation_gen
  * @brief Generates a random instance from the set of valid permutations.
  *
- * @return A uniformly random @tt{tgen::permutation::instance} from the set of valid permutations, given the added constraints.
+ * @return A uniformly random @tt{tgen::permutation::instance} from the set of valid permutations, given the added restrictions.
  *
- * @throws std::runtime_error if there is no valid permutation satisfying all added constraints.
+ * @throws std::runtime_error if there is no valid permutation satisfying all added restrictions.
  *
  * #### Complexity
  *
@@ -125,7 +125,7 @@ namespace tgen {
  *
  * @return A uniformly random @tt{tgen::permutation::instance} with the given list of cycle sizes.
  *
- * @throws std::runtime_error if there is no valid permutation satisfying all added constraints.
+ * @throws std::runtime_error if there is no valid permutation satisfying all added restrictions.
  *
  * #### Complexity
  *

@@ -62,9 +62,19 @@ inline std::runtime_error error(const std::string &msg) {
 }
 inline std::runtime_error contradiction_error(const std::string &type,
 											  const std::string &msg = "") {
-	// Tried to generate a contradicting sequence.
+	// Tried to generate a contradicting type.
 	std::string error_msg =
-		type + ": invalid " + type + " (contradicting constraints)";
+		type + ": invalid " + type + " (contradicting restrictions)";
+	if (!msg.empty())
+		error_msg += ": " + msg;
+	return error(error_msg);
+}
+inline std::runtime_error
+complex_restrictions_error(const std::string &type,
+						   const std::string &msg = "") {
+	// Tried to generate a type with too many distinct restrictions.
+	std::string error_msg =
+		type + ": cannot represent " + type + " (complex restrictions)";
 	if (!msg.empty())
 		error_msg += ": " + msg;
 	return error(error_msg);
@@ -610,7 +620,7 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 	std::vector<std::pair<T, T>> val_range_; // Range of values of each index.
 	std::vector<std::vector<int>> neigh_;	 // Adjacency list of equality.
 	std::vector<std::set<int>>
-		distinct_constraints_; // All distinct constraints.
+		distinct_restrictions_; // All distinct restrictions.
 
 	// Creates generator for sequences of size 'size', with random T in [l, r].
 	sequence(int size, T value_l, T value_r)
@@ -636,7 +646,7 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 	}
 
 	// Restricts sequences for sequence[idx] = value.
-	sequence &set(int idx, T value) {
+	sequence &fix(int idx, T value) {
 		tgen_ensure(0 <= idx and idx < size_, "sequence: index must be valid");
 		if (values_.size() == 0) {
 			auto &[left, right] = val_range_[idx];
@@ -687,7 +697,7 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 	// You can not add two of these restrictions with intersection.
 	sequence &distinct(std::set<int> indices) {
 		if (!indices.empty())
-			distinct_constraints_.push_back(indices);
+			distinct_restrictions_.push_back(indices);
 		return *this;
 	}
 
@@ -781,8 +791,8 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 		// map to store a virtual sequence that starts with a[i] = i.
 		T num_available = (value_r_ - value_l_ + 1) - forbidden_values.size();
 		if (num_available < k)
-			throw _detail::error(
-				"sequence: failed to generate sequence: complex constraints");
+			throw _detail::complex_restrictions_error(
+				"sequence", "not enough distinct values");
 		std::map<T, T> virtual_list;
 		std::vector<T> gen_list;
 		for (int i = 0; i < k; ++i) {
@@ -890,7 +900,7 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 						comp[comp_id[cur_idx]].push_back(cur_idx);
 					}
 
-					// Sets value if needed.
+					// Defines value if needed.
 					if (value_defined)
 						define_comp(comp_count, new_value);
 
@@ -898,11 +908,11 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 				}
 		}
 
-		// Initial parsing of distinct constraints.
+		// Initial parsing of distinct restrictions.
 		std::vector<std::set<int>> distinct_containing_comp_idx(comp_count);
 		{
 			int dist_id = 0;
-			for (const std::set<int> &distinct : distinct_constraints_) {
+			for (const std::set<int> &distinct : distinct_restrictions_) {
 				// Checks if there are too many distinct values.
 				if (static_cast<uint64_t>(distinct.size() - 1) +
 						static_cast<uint64_t>(value_l_) >
@@ -932,22 +942,23 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 		// If some value is in >= 3 sets, then there is a cycle.
 		for (auto &distinct_containing : distinct_containing_comp_idx)
 			if (distinct_containing.size() >= 3)
-				throw _detail::error("sequence: failed to generate sequence: "
-									 "complex constraints");
+				throw _detail::complex_restrictions_error(
+					"sequence",
+					"one index can not be in >= 3 distinct restrictions");
 
-		std::vector<bool> vis_distinct(distinct_constraints_.size(), false);
+		std::vector<bool> vis_distinct(distinct_restrictions_.size(), false);
 		std::vector<bool> initially_defined_comp_idx(comp_count, false);
 
-		// Fills the value in a tree defined by distinct constraints.
+		// Fills the value in a tree defined by distinct restrictions.
 		auto define_tree = [&](int distinct_id) {
-			// The set `distinct_constraints_[distinct_id]` can have some values
-			// that are defined.
+			// The set `distinct_restrictions_[distinct_id]` can have some
+			// values that are defined.
 
 			// Generates set of already defined values.
 			std::set<T> defined_values;
-			for (int idx : distinct_constraints_[distinct_id])
+			for (int idx : distinct_restrictions_[distinct_id])
 				if (defined_idx[idx]) {
-					// Checks if two values in `distinct_constraints_[dist_id]`
+					// Checks if two values in `distinct_restrictions_[dist_id]`
 					// have been set to the same value
 					if (defined_values.count(vec[idx]))
 						throw _detail::contradiction_error(
@@ -957,15 +968,15 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 					defined_values.insert(vec[idx]);
 				}
 
-			// Generates values in this root distinct constraint.
+			// Generates values in this root distinct restriction.
 			{
 				int new_value_count =
-					distinct_constraints_[distinct_id].size() -
+					distinct_restrictions_[distinct_id].size() -
 					static_cast<int>(defined_values.size());
 				std::vector<T> generated_values =
 					generate_distinct_values(new_value_count, defined_values);
 				auto val_it = generated_values.begin();
-				for (int idx : distinct_constraints_[distinct_id])
+				for (int idx : distinct_restrictions_[distinct_id])
 					if (defined_idx[idx]) {
 						// The root can cover these components, but there should
 						// not be any other defined in this tree.
@@ -976,7 +987,7 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 					}
 			}
 
-			// BFS on the tree of distinct constraints.
+			// BFS on the tree of distinct restrictions.
 			std::queue<std::pair<int, int>> q; // {id, parent id}
 			q.emplace(distinct_id, -1);
 			vis_distinct[distinct_id] = true;
@@ -985,7 +996,7 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 				q.pop();
 
 				std::set<int> neigh_distinct;
-				for (int idx : distinct_constraints_[cur_distinct])
+				for (int idx : distinct_restrictions_[cur_distinct])
 					for (int nxt_distinct :
 						 distinct_containing_comp_idx[comp_id[idx]]) {
 						if (nxt_distinct == cur_distinct or
@@ -994,9 +1005,9 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 
 						// Cycle found.
 						if (vis_distinct[nxt_distinct])
-							throw _detail::error(
-								"sequence: failed to generate sequence: "
-								"complex constraints");
+							throw _detail::complex_restrictions_error(
+								"sequence",
+								"cycle found in distinct restrictions");
 
 						neigh_distinct.insert(nxt_distinct);
 					}
@@ -1005,27 +1016,26 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 					vis_distinct[nxt_distinct] = true;
 					q.emplace(nxt_distinct, cur_distinct);
 
-					// Generates this distinct constraint.
+					// Generates this distinct restriction.
 					std::set<T> nxt_defined_values;
-					for (int idx2 : distinct_constraints_[nxt_distinct])
+					for (int idx2 : distinct_restrictions_[nxt_distinct])
 						if (defined_idx[idx2]) {
 							// There can not be any more defined. This case is
 							// when there are values not coverered by a single
-							// distinct constraint in the tree.
+							// distinct restriction in the tree.
 							if (initially_defined_comp_idx[comp_id[idx2]])
-								throw _detail::error(
-									"sequence: failed to generate sequence: "
-									"complex constraints");
+								throw _detail::complex_restrictions_error(
+									"sequence");
 
 							nxt_defined_values.insert(vec[idx2]);
 						}
 					int new_value_count =
-						distinct_constraints_[nxt_distinct].size() -
+						distinct_restrictions_[nxt_distinct].size() -
 						static_cast<int>(nxt_defined_values.size());
 					std::vector<T> generated_values = generate_distinct_values(
 						new_value_count, nxt_defined_values);
 					auto val_it = generated_values.begin();
-					for (int idx2 : distinct_constraints_[nxt_distinct])
+					for (int idx2 : distinct_restrictions_[nxt_distinct])
 						if (!defined_idx[idx2]) {
 							define_comp(comp_id[idx2], *val_it);
 							++val_it;
@@ -1034,14 +1044,14 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 			}
 		};
 
-		// Loops through distinct constraints, sorts distinct constraints
+		// Loops through distinct restrictions, sorts distinct restrictions
 		// by number of defined components (non-increasing). This guarantees
 		// that if there is a valid root (that covers all 'defined'), we find
 		// it.
 		{
 			std::vector<std::pair<int, int>> defined_cnt_and_distinct_idx;
 			int dist_id = 0;
-			for (const std::set<int> &distinct : distinct_constraints_) {
+			for (const std::set<int> &distinct : distinct_restrictions_) {
 				int defined_cnt = 0;
 				for (int idx : distinct)
 					if (defined_idx[idx]) {
@@ -1060,15 +1070,15 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 					define_tree(distinct_idx);
 		}
 
-		// Loops through distinct constraints do define the rest.
-		for (std::size_t dist_id = 0; dist_id < distinct_constraints_.size();
+		// Loops through distinct restrictions do define the rest.
+		for (std::size_t dist_id = 0; dist_id < distinct_restrictions_.size();
 			 ++dist_id)
 			if (!vis_distinct[dist_id])
 				define_tree(dist_id);
 
 		// Define final values. These values all should be random in [l, r], and
-		// the distinct constraints have already been processed. However, there
-		// can be still equality constraints, so we set entire components.
+		// the distinct restrictions have already been processed. However, there
+		// can be still equality restrictions, so we define entire components.
 		for (int idx = 0; idx < size_; ++idx)
 			if (!defined_idx[idx])
 				define_comp(comp_id[idx], next<T>(value_l_, value_r_));
@@ -1098,7 +1108,7 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 
 struct permutation : _detail::gen_base<permutation> {
 	int size_;								// Size of permutation.
-	std::vector<std::pair<int, int>> sets_; // {idx, value}.
+	std::vector<std::pair<int, int>> defs_; // {idx, value}.
 
 	// Creates generator for permutation of size 'size'.
 	permutation(int size) : size_(size) {
@@ -1106,10 +1116,10 @@ struct permutation : _detail::gen_base<permutation> {
 	}
 
 	// Restricts sequences for permutation[idx] = value.
-	permutation &set(int idx, int value) {
+	permutation &fix(int idx, int value) {
 		tgen_ensure(0 <= idx and idx < size_,
 					"permutation: index must be valid");
-		sets_.emplace_back(idx, value);
+		defs_.emplace_back(idx, value);
 		return *this;
 	}
 
@@ -1216,7 +1226,7 @@ struct permutation : _detail::gen_base<permutation> {
 	// O(n).
 	instance gen() const {
 		std::vector<int> idx_to_val(size_, -1), val_to_idx(size_, -1);
-		for (auto [idx, val] : sets_) {
+		for (auto [idx, val] : defs_) {
 			tgen_ensure(0 <= val and val < size_,
 						"permutation: value in permutation must be in [0, " +
 							std::to_string(size_) + ")");
@@ -2336,8 +2346,8 @@ struct str : _detail::gen_base<str> {
 		: seq_(sequence<char>(size, value_l, value_r)) {}
 
 	// Creates generator for strings of size 'size', with random characters in
-	// 'values'.
-	str(int size, std::set<char> values) : seq_(sequence<char>(size, values)) {}
+	// 'chars'.
+	str(int size, std::set<char> chars) : seq_(sequence<char>(size, chars)) {}
 
 	// Creates generator for strings that match the given regex.
 	template <typename... Args> str(const std::string &regex, Args &&...args) {
@@ -2360,29 +2370,29 @@ struct str : _detail::gen_base<str> {
 	}
 
 	// Restricts strings for str[idx] = value.
-	str &set(int idx, char character) {
-		tgen_ensure(!root_, "str: cannot set value after regex");
-		seq_->set(idx, character);
+	str &fix(int idx, char character) {
+		tgen_ensure(!root_, "str: cannot add restriction for regex");
+		seq_->fix(idx, character);
 		return *this;
 	}
 
 	// Restricts strings for str[idx_1] = str[idx_2].
 	str &equal(int idx_1, int idx_2) {
-		tgen_ensure(!root_, "str: cannot set value after regex");
+		tgen_ensure(!root_, "str: cannot add restriction for regex");
 		seq_->equal(idx_1, idx_2);
 		return *this;
 	}
 
 	// Restricts strings for str[left..right] to have all equal values.
 	str &equal_range(int left, int right) {
-		tgen_ensure(!root_, "str: cannot set value after regex");
+		tgen_ensure(!root_, "str: cannot add restriction for regex");
 		seq_->equal_range(left, right);
 		return *this;
 	}
 
 	// Restricts strings for str[left..right] to be a palindrome.
 	str &palindrome(int left, int right) {
-		tgen_ensure(!root_, "str: cannot set value after regex");
+		tgen_ensure(!root_, "str: cannot add restriction for regex");
 		tgen_ensure(0 <= left and left <= right and right < seq_->size_,
 					"str: range indices bust be valid");
 		for (int i = left; i < right - (i - left); ++i)
@@ -2392,28 +2402,28 @@ struct str : _detail::gen_base<str> {
 
 	// Restricts strings for the entire string to be a palindrome.
 	str &palindrome() {
-		tgen_ensure(!root_, "str: cannot set value after regex");
+		tgen_ensure(!root_, "str: cannot add restriction for regex");
 		return palindrome(0, seq_->size_ - 1);
 	}
 
 	// Restricts strings for str[S] to be distinct, for given subset S of
 	// indices.
 	str &distinct(std::set<int> indices) {
-		tgen_ensure(!root_, "str: cannot set value after regex");
+		tgen_ensure(!root_, "str: cannot add restriction for regex");
 		seq_->distinct(indices);
 		return *this;
 	}
 
 	// Restricts strings for str[idx_1] != str[idx_2].
 	str &different(int idx_1, int idx_2) {
-		tgen_ensure(!root_, "str: cannot set value after regex");
+		tgen_ensure(!root_, "str: cannot add restriction for regex");
 		seq_->different(idx_1, idx_2);
 		return *this;
 	}
 
 	// Restricts strings for all values to be distinct.
 	str &distinct() {
-		tgen_ensure(!root_, "str: cannot set value after regex");
+		tgen_ensure(!root_, "str: cannot add restriction for regex");
 		seq_->distinct();
 		return *this;
 	}

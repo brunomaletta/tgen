@@ -11,29 +11,29 @@ namespace tgen {
  * Regex syntax compatible with testlib's regex.
  *
  * Operations:
- * - A single character yields itself (@tt{"a"}, @tt{"3"}).
+ * - A single character yields itself (@tt{a}, @tt{3}).
  * - A list of characters inside square braces yields any a random element
- *   from the list (@tt{"[abc123]"}).
- * - A range of characters is equivalent to listing them ("@tt{[a-z1-9A-Z]}").
- * - A pattern followed by @tt{{n}} yields the pattern repeated n times (@tt{"a{3}"}).
+ *   from the list (@tt{[abc123]}).
+ * - A range of characters is equivalent to listing them (@tt{[a-z1-9A-Z]}).
+ * - A pattern followed by @tt{{n}} yields the pattern repeated n times (@tt{a{3}}).
  * - A pattern followed by @tt{{l,r}} yields the pattern repeated between @tt{l} and @tt{r}
- *   times, uniformly at random (@tt{"a{3,5}"}).
+ *   times, uniformly at random (@tt{a{3,5}}).
  * - A list of patterns separated by @tt{|} yields a random pattern from the
- *   list, uniformly at random (@tt{"abc|def|ghi"}).
- * - Parentheses can be used for grouping (@tt{"a((a|b){3})"}).
+ *   list, uniformly at random (@tt{abc|def|ghi}).
+ * - Parentheses can be used for grouping (@tt{a((a|b){3})}).
  *
  * Examples:
  * 1. @tt{str("[1-9][0-9]{1,2}")} generates two- or three-digit numbers.
- * 2. @tt{str("a[b-d]{2}|e")} generates @tt{"e"} or a random string of length 3, with
- *                       the first character being @tt{'a'} and the second and
- *                       third characters being @tt{'b'}, @tt{'c'}, or @tt{'d'}.
+ * 2. @tt{str("a[b-d]{2}|e")} generates @tt{e} or a random string of length 3, with
+ *                       the first character being @tt{a} and the second and
+ *                       third characters being @tt{b}, @tt{c}, or @tt{d}.
  * 3. @tt{str("[1-9][0-9]{%d}", n-1)} generates @tt{n}-digit numbers.
  *
  * Operations defined by @tt{{n}} and @tt{{l,r}} are applied from left to right, and
  * the pattern that comes before has its delimiters defined either by @tt{()} or
  * @tt{[]} at its end or is taken from the beginning of the pattern (in
- * @tt{"a[bc]{2}"}, @tt{"{2}"} is applied to @tt{"[bc]"}, and in @tt{"[01]abc{3}"}, the @tt{"{3}"} is
- * appied to @tt{"[01]abc"}).
+ * @tt{a[bc]{2}}, @tt{{2}} is applied to @tt{[bc]}, and in @tt{[01]abc{3}}, the @tt{{3}} is
+ * appied to @tt{[01]abc}).
  *
  * <b>Regex generation is uniform</b> (each string has the same probability of being generated), as long
  * as each generated string can be generated uniquely from the regex. Otherwise, the probability of
@@ -41,7 +41,20 @@ namespace tgen {
  *
  * ### Examples
  *
+ * Prints a random string of 20 lower ou uppercase letters.
+ *
  * ```cpp
+ * // Prints a random string of 20 lower and uppercase letters.
+ * std::cout << tgen::str(20, "[a-zA-Z]").gen() << std::endl;
+ * // "OewztXVHjOvOTZwYWRrf"
+ * ```
+ *
+ * Prints 2 uniformly random numbers in @tt{[0, 10^n]}.
+ *
+ * ```cpp
+ * auto leq1eN = tgen::str("0 | [1-9][0-9]{0,%d} | 10{%d}", n-1, n);
+ * std::cout << leq1eN.gen() << " " << leq1eN.gen() << std::endl;
+ * // "843 647", for n = 3
  * ```
  */
 
@@ -71,11 +84,11 @@ namespace tgen {
 
  /**
  * @ingroup str_gen
- * @brief Creates string generator define by size and range of values.
+ * @brief Creates string generator define by size and range of characters.
  *
  * @param size Size of the string.
- * @param value_l Left endpoint of value range.
- * @param value_r Right endpoint of value range.
+ * @param value_l Left endpoint of character range.
+ * @param value_r Right endpoint of character range.
  *
  * Defines a generator of strings of length @pname{size} with characters in
  * @tt{[@pname{value_l}, @pname{value_r}]}.
@@ -93,12 +106,12 @@ namespace tgen {
 
  /**
  * @ingroup str_gen
- * @brief Creates string generator define by value set.
+ * @brief Creates string generator define by character set.
  *
  * @param size Size of the string.
- * @param values Value set.
+ * @param chars Character set.
  *
- * Defines a generator of strings of length @pname{size} with characters in @pname{values}.
+ * Defines a generator of strings of length @pname{size} with characters in @pname{chars}.
  *
  * #### Examples
  *
@@ -107,7 +120,7 @@ namespace tgen {
  * auto seq_gen = tgen::str(10, {'a', 'e', 'i'});
  * ```
  *
- * @fn str::str(int size, std::set<char> values);
+ * @fn str::str(int size, std::set<char> chars);
  */
 
 
@@ -162,16 +175,16 @@ namespace tgen {
  * @param character Character.
  *
  * @throws std::runtime_error if the generator was created from
- *         a regex (constraints cannot be added for regex).
+ *         a regex (restrictions cannot be added for regex).
  *
  * #### Examples
  *
  * ```cpp
  * // Strings of 5 lowercase letters starting with 'x'.
- * auto str_gen = tgen::str(5, 'a', 'z').set(0, 'x');
+ * auto str_gen = tgen::str(5, 'a', 'z').fix(0, 'x');
  * ```
  *
- * @fn str &str::set(int idx, char character);
+ * @fn str &str::fix(int idx, char character);
  */
 
 
@@ -183,7 +196,7 @@ namespace tgen {
  * @param idx_2 Second index.
  *
  * @throws std::runtime_error if the generator was created from
- *         a regex (constraints cannot be added for regex).
+ *         a regex (restrictions cannot be added for regex).
  *
  * #### Examples
  *
@@ -204,7 +217,7 @@ namespace tgen {
  * @param right Right endpoint of index range (inclusive).
  *
  * @throws std::runtime_error if the generator was created from
- *         a regex (constraints cannot be added for regex).
+ *         a regex (restrictions cannot be added for regex).
  *
  * #### Examples
  *
@@ -225,7 +238,7 @@ namespace tgen {
  * @param right Right endpoint of the index range (inclusive).
  *
  * @throws std::runtime_error if the generator was created from
- *         a regex (constraints cannot be added for regex).
+ *         a regex (restrictions cannot be added for regex).
  *
  * #### Examples
  *
@@ -243,7 +256,7 @@ namespace tgen {
  * @brief Restricts generator s.t. string is a palindrome.
  *
  * @throws std::runtime_error if the generator was created from
- *         a regex (constraints cannot be added for regex).
+ *         a regex (restrictions cannot be added for regex).
  *
  * #### Examples
  *
@@ -266,13 +279,13 @@ namespace tgen {
  *       The restrictions are considered too complex if the following condition does not hold.
  *       Consider the graph defined with vertices as the @tt{tgen::str::distinct} sets added,
  *       and there is an edge between two vertices if they share an index. Note that you need
- *       to consider indices (directed or indirectly) connected by equality constraints as
+ *       to consider indices (directed or indirectly) connected by equality restrictions as
  *       being the same. This resulting graph must be a acyclic. Moreover, for every tree in this
  *       graph, all of its indices with a @tt{tgen::str::set} operation must be covered by a single
- *       distinct constraint set.
+ *       distinct restriction set.
  *
  * @throws std::runtime_error if the generator was created from
- *         a regex (constraints cannot be added for regex).
+ *         regex (restrictions cannot be added for regex).
  *
  * #### Examples
  *
@@ -293,7 +306,7 @@ namespace tgen {
  * @param idx_2 Second index.
  *
  * @throws std::runtime_error if the generator was created from
- *         a regex (constraints cannot be added for regex).
+ *         a regex (restrictions cannot be added for regex).
  *
  * Equivalent to @tt{tgen::str::distinct({idx_1, idx_2})}.
  *
@@ -317,7 +330,7 @@ namespace tgen {
  * @note If you add this restriction, do not add another `tgen::str::distinct` restriction! Generation might fail otherwise.
  *
  * @throws std::runtime_error if the generator was created from
- *         a regex (constraints cannot be added for regex).
+ *         a regex (restrictions cannot be added for regex).
  *
  * #### Examples
  *
@@ -334,14 +347,14 @@ namespace tgen {
  * @ingroup str_gen
  * @brief Generates a random instance from the set of valid strings.
  *
- * @return A uniformly random @tt{tgen::str::instance} satisfying the constraints,
+ * @return A uniformly random @tt{tgen::str::instance} satisfying the restrictions,
  *         or (for regex generators) a random match according to the regex semantics
  *         described in @ref str.
  *
  * @note For regex, the generation is only guaranteed to be uniform if there is a unique
  *       way to generate each string generated by the regex (see @ref str).
  *
- * @throws std::runtime_error if there is no valid string satisfying all constraints.
+ * @throws std::runtime_error if there is no valid string satisfying all restrictions.
  *
  * #### Complexity
  *
@@ -358,6 +371,7 @@ namespace tgen {
  *
  * @fn str::gen() const;
  */
+
 
 /**
  * @ingroup str_gen
@@ -412,6 +426,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
+ * // Prints "abacaba".
  * std::cout << tgen::str::abacaba(7) << std::endl;
  * ```
  *
@@ -543,6 +558,8 @@ namespace tgen {
  * @ingroup str_inst
  * @brief Sets all characters to lowercase.
  *
+ * #### Complexity
+ *
  * @tt{O(n)}.
  *
  * #### Examples
@@ -560,6 +577,8 @@ namespace tgen {
 /**
  * @ingroup str_inst
  * @brief Sets all characters to uppercase.
+ *
+ * #### Complexity
  *
  * @tt{O(n)}.
  *

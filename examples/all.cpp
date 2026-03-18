@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
 	std::cout << s2.gen() << std::endl;
 
 	// Random binary sequence of length 10 with 5 1's that start with 1.
-	std::cout << tgen::sequence<int>(10, 0, 1).set(0, 1).gen_until(
+	std::cout << tgen::sequence<int>(10, 0, 1).fix(0, 1).gen_until(
 					 [](const auto &inst) {
 						 auto vec = inst.to_std();
 						 return accumulate(vec.begin(), vec.end(), 0) == 5;
@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 			  << std::endl;
 
 	// Prints a random 1-based permutation of size 10 that start with 2.
-	std::cout << tgen::permutation(10).set(0, 1).gen().add_1() << std::endl;
+	std::cout << tgen::permutation(10).fix(0, 1).gen().add_1() << std::endl;
 
 	// Random permutation of size 5 with only one cycle.
 	std::cout << tgen::permutation(5).gen({5}) << std::endl;
@@ -56,9 +56,9 @@ int main(int argc, char **argv) {
 	// Random swap permutation of size 20.
 	std::cout << tgen::permutation(20)
 					 .gen(tgen::sequence<int>(19, 1, 2)
-							  .set(0, 1)
+							  .fix(0, 1)
 							  .equal_range(0, 17)
-							  .set(18, 2)
+							  .fix(18, 2)
 							  .gen()
 							  .to_std())
 					 .add_1()
