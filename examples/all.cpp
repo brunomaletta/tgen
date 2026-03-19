@@ -91,4 +91,6 @@ int main(int argc, char **argv) {
 	std::cout << leq1e30.gen() << " " << leq1e30.gen() << " " << leq1e30.gen()
 			  << std::endl;
 	std::cout << tgen::str(10, "[a-zA-Z]").gen() << std::endl;
+
+	std::cout << tgen::str("a-z").gen() << std::endl;
 }

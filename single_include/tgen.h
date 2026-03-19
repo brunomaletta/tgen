@@ -564,28 +564,31 @@ inline bool has_opt(const std::string &key) {
 	return _detail::named_opts.count(key) != 0;
 }
 
+// Returns the parsed opt by a given index. If no opts with the given index are
+// found, returns the given default_value.
+template <typename T>
+T opt(size_t index, std::optional<T> default_value = std::nullopt) {
+	tgen::_detail::ensure_registered();
+	if (!has_opt(index)) {
+		if (default_value)
+			return *default_value;
+		throw _detail::error("cannot find key with index " +
+							 std::to_string(index));
+	}
+	return _detail::get_opt<T>(_detail::pos_opts[index]);
+}
+
 // Returns the parsed opt by a given key. If no opts with the given key are
 // found, returns the given default_value.
-template <typename T, typename Key>
-T opt(const Key &key, std::optional<T> default_value = std::nullopt) {
+template <typename T>
+T opt(const std::string &key, std::optional<T> default_value = std::nullopt) {
 	tgen::_detail::ensure_registered();
-	if constexpr (std::is_same_v<Key, int>) {
-		if (!has_opt(key)) {
-			if (default_value)
-				return *default_value;
-			throw _detail::error("cannot find key with index " +
-								 std::to_string(key));
-		}
-		return _detail::get_opt<T>(_detail::pos_opts[key]);
-	} else { // std::string
-		if (!has_opt(key)) {
-			if (default_value)
-				return *default_value;
-			throw _detail::error("cannot find key with key " +
-								 std::string(key));
-		}
-		return _detail::get_opt<T>(_detail::named_opts[key]);
+	if (!has_opt(key)) {
+		if (default_value)
+			return *default_value;
+		throw _detail::error("cannot find key with key " + key);
 	}
+	return _detail::get_opt<T>(_detail::named_opts[key]);
 }
 
 // Registers generator by initializing rnd and parsing opts.

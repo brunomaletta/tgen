@@ -14,30 +14,27 @@ namespace tgen {
  * - A single character yields itself (@tt{a}, @tt{3}).
  * - A list of characters inside square braces yields any a random element
  *   from the list (@tt{[abc123]}).
- * - A range of characters is equivalent to listing them (@tt{[a-z1-9A-Z]}).
+ *   - A range of characters inside @tt{[]} is equivalent to listing them (@tt{[a-z1-9A-Z]}).
  * - A pattern followed by @tt{{n}} yields the pattern repeated n times (@tt{a{3}}).
  * - A pattern followed by @tt{{l,r}} yields the pattern repeated between @tt{l} and @tt{r}
- *   times, uniformly at random (@tt{a{3,5}}).
+ *   times (@tt{a{3,5}}).
  * - A list of patterns separated by @tt{|} yields a random pattern from the
- *   list, uniformly at random (@tt{abc|def|ghi}).
+ *   list (@tt{abc|def|ghi}).
  * - Parentheses can be used for grouping (@tt{a((a|b){3})}).
  *
- * Examples:
- * 1. @tt{str("[1-9][0-9]{1,2}")} generates two- or three-digit numbers.
- * 2. @tt{str("a[b-d]{2}|e")} generates @tt{e} or a random string of length 3, with
- *                       the first character being @tt{a} and the second and
- *                       third characters being @tt{b}, @tt{c}, or @tt{d}.
- * 3. @tt{str("[1-9][0-9]{%d}", n-1)} generates @tt{n}-digit numbers.
- *
- * Operations defined by @tt{{n}} and @tt{{l,r}} are applied from left to right, and
- * the pattern that comes before has its delimiters defined either by @tt{()} or
- * @tt{[]} at its end or is taken from the beginning of the pattern (in
- * @tt{a[bc]{2}}, @tt{{2}} is applied to @tt{[bc]}, and in @tt{[01]abc{3}}, the @tt{{3}} is
- * appied to @tt{[01]abc}).
+ * Operations defined by @tt{{n}} and @tt{{l,r}} are applied to what comes before it: a character,
+ * a group defined by @tt{[]} or @tt{()}, or @tt{{n}}/@tt{{l,r}} expressions.
  *
  * <b>Regex generation is uniform</b> (each string has the same probability of being generated), as long
  * as each generated string can be generated uniquely from the regex. Otherwise, the probability of
  * each string being generated is proportional to the number of ways it cab be generated from the regex.
+ *
+ * Examples:
+ * 1. @tt{str("0 | [1-9][0-9]{0,2} | 1000")} generates random numbers in @tt{[0, 1000]}.
+ * 2. @tt{str("a[b-d]{2}|e")} generates @tt{e} or a random string of length 3, with
+ *                       the first character being @tt{a} and the second and
+ *                       third characters being @tt{b}, @tt{c}, or @tt{d}.
+ * 3. @tt{str("[1-9][0-9]{%d}", n-1)} generates @tt{n}-digit numbers.
  *
  * ### Examples
  *

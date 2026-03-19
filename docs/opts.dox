@@ -101,11 +101,34 @@ namespace tgen {
  *
  * @tparam T Type of the opt.
  *
- * @param key Key to fetch. If it is of type @primitive{int}, considered to be an index.
- * Otherwise, considered to be a @type{std::string} named opt key.
+ * @param index index to fetch.
+ * @param default_value Default value to be returned, if @pname{index} is not found.
+ *
+ * @return The value of opt at @pname{index}. If not found, returns @pname{default_value}.
+ *
+ * @throws std::runtime_error if opt is not found and @pname{default_value} is not given.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Consumes opt at 0.
+ * int q = tgen::opt<int>(0);
+ * ```
+ *
+ * @fn opt(size_t index, std::optional<T> default_value = std::nullopt);
+ */
+
+
+/**
+ * @ingroup opts
+ * @brief Gets opt by key.
+ *
+ * @tparam T Type of the opt.
+ *
+ * @param key Key to fetch.
  * @param default_value Default value to be returned, if @pname{key} is not found.
  *
- * @return The value of opt at/with @pname{key} (index or name). If not found, returns @pname{default_value}.
+ * @return The value of opt with @pname{key}. If not found, returns @pname{default_value}.
  *
  * @throws std::runtime_error if opt is not found and @pname{default_value} is not given.
  *
@@ -116,7 +139,7 @@ namespace tgen {
  * int q = tgen::opt<int>("q");
  * ```
  *
- * @fn opt(const Key &key, std::optional<T> default_value = std::nullopt);
+ * @fn opt(const std::string &key, std::optional<T> default_value = std::nullopt);
  */
 
 
