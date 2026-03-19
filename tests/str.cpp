@@ -18,7 +18,6 @@ TEST(str_test, constructor_regex_empty) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::str(""), "str: regex must be non-empty");
-	EXPECT_THROW_TGEN_PREFIX(tgen::str(3, ""), "str: regex must be non-empty");
 }
 
 TEST(str_test, gen_fixed_size_range) {

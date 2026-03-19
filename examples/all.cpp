@@ -90,7 +90,9 @@ int main(int argc, char **argv) {
 	tgen::str leq1e30("0 | [1-9][0-9]{0,%d} | 10{%d}", 30 - 1, 30);
 	std::cout << leq1e30.gen() << " " << leq1e30.gen() << " " << leq1e30.gen()
 			  << std::endl;
-	std::cout << tgen::str(10, "[a-zA-Z]").gen() << std::endl;
+	std::cout << tgen::str("[a-zA-Z]{10}").gen() << std::endl;
 
 	std::cout << tgen::str("a-z").gen() << std::endl;
+	std::cout << tgen::any_by_distribution({"a", "b", "c"}, {1, 2, 3})
+			  << std::endl;
 }

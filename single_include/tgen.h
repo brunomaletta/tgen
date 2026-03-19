@@ -182,12 +182,14 @@ struct is_associative_container<
 
 // Tag used to identify generator instance types (sequence::instance,
 // permutation::instance).
-struct generator_instance_tag {};
+struct sequential_generator_instance_tag {};
 template <typename T, typename = void>
-struct is_generator_instance : std::false_type {};
+struct is_sequential_generator_instance : std::false_type {};
 template <typename T>
-struct is_generator_instance<T, std::void_t<typename T::_tgen_instance_tag>>
-	: std::is_same<typename T::_tgen_instance_tag, generator_instance_tag> {};
+struct is_sequential_generator_instance<
+	T, std::void_t<typename T::_tgen_instance_tag>>
+	: std::is_same<typename T::_tgen_instance_tag,
+				   sequential_generator_instance_tag> {};
 
 } // namespace _detail
 
@@ -294,6 +296,20 @@ println(const std::initializer_list<std::initializer_list<T>> &il) {
  * Global random operations.
  */
 
+// Returns a random number in [0, n)
+// O(1).
+template <typename T> T next(T n) {
+	_detail::ensure_registered();
+	tgen_ensure(0 <= n, "value for `next` bust be valid");
+	if constexpr (std::is_integral_v<T>)
+		return std::uniform_int_distribution<T>(0, n - 1)(_detail::rng);
+	else if constexpr (std::is_floating_point_v<T>)
+		return std::uniform_real_distribution<T>(0, n)(_detail::rng);
+	else
+		throw _detail::error("invalid type for next (" +
+							 std::string(typeid(T).name()) + ")");
+}
+
 // Returns a random number in [l, r].
 // O(1).
 template <typename T> T next(T l, T r) {
@@ -308,6 +324,26 @@ template <typename T> T next(T l, T r) {
 							 std::string(typeid(T).name()) + ")");
 }
 
+// Returns i with probability proportional to distribution[i].
+template <typename T>
+size_t next_by_distribution(const std::vector<T> &distribution) {
+	tgen_ensure(distribution.size() > 0, "distribution must be non-empty");
+
+	T r = next<T>(
+		std::accumulate(distribution.begin(), distribution.end(), T(0)));
+	for (size_t i = 0; i < distribution.size(); ++i) {
+		if (r < distribution[i])
+			return i;
+		r -= distribution[i];
+	}
+	return distribution.size() - 1;
+}
+template <typename T>
+size_t next_by_distribution(const std::initializer_list<T> &distribution) {
+	return next_by_distribution(
+		std::vector<T>(distribution.begin(), distribution.end()));
+}
+
 // Shuffles [first, last) inplace uniformly, for RandomAccessIterator.
 // O(|container|).
 template <typename It> void shuffle(It first, It last) {
@@ -320,10 +356,11 @@ template <typename It> void shuffle(It first, It last) {
 
 // Shuffles container uniformly.
 // O(|container|).
-template <typename C,
-		  std::enable_if_t<!_detail::is_associative_container<C>::value and
-							   !_detail::is_generator_instance<C>::value,
-						   int> = 0>
+template <
+	typename C,
+	std::enable_if_t<!_detail::is_associative_container<C>::value and
+						 !_detail::is_sequential_generator_instance<C>::value,
+					 int> = 0>
 [[nodiscard]] C shuffled(const C &container) {
 	auto new_container = container;
 	shuffle(new_container.begin(), new_container.end());
@@ -340,11 +377,11 @@ template <typename T>
 	return shuffled(std::vector<T>(il.begin(), il.end()));
 }
 
-// Shuffles sequence/permutation instance uniformly.
+// Shuffles sequential generator instance uniformly.
 // O(n).
-template <
-	typename Inst,
-	std::enable_if_t<_detail::is_generator_instance<Inst>::value, int> = 0>
+template <typename Inst,
+		  std::enable_if_t<
+			  _detail::is_sequential_generator_instance<Inst>::value, int> = 0>
 Inst shuffled(const Inst &inst) {
 	Inst new_inst = inst;
 	tgen::shuffle(new_inst.vec_.begin(), new_inst.vec_.end());
@@ -363,7 +400,8 @@ template <typename It> typename It::value_type any(It first, It last) {
 // Returns a random element from container uniformly.
 // O(1) for random_access_iterator, O(|container|) otherwise.
 template <typename C,
-		  std::enable_if_t<!_detail::is_generator_instance<C>::value, int> = 0>
+		  std::enable_if_t<!_detail::is_sequential_generator_instance<C>::value,
+						   int> = 0>
 typename C::value_type any(const C &container) {
 	return any(container.begin(), container.end());
 }
@@ -371,19 +409,77 @@ template <typename T> T any(const std::initializer_list<T> &il) {
 	return any(std::vector<T>(il.begin(), il.end()));
 }
 
-// Choses any value from sequence/permutation instance uniformly.
+// Returns a random element from sequential generator instance uniformly.
 // O(1).
-template <
-	typename Inst,
-	std::enable_if_t<_detail::is_generator_instance<Inst>::value, int> = 0>
+template <typename Inst,
+		  std::enable_if_t<
+			  _detail::is_sequential_generator_instance<Inst>::value, int> = 0>
 typename Inst::value_type any(const Inst &inst) {
 	return inst.vec_[next<int>(0, inst.vec_.size() - 1)];
+}
+
+// Returns container[i] with probability proportional to distribution[i].
+// O(1) for random_access_iterator, O(|container|) otherwise.
+template <typename C, typename T,
+		  std::enable_if_t<!_detail::is_sequential_generator_instance<C>::value,
+						   int> = 0>
+typename C::value_type any_by_distribution(const C &container,
+										   std::vector<T> distribution) {
+	tgen_ensure(container.size() == distribution.size(),
+				"container and distribution must have the same size");
+	auto it = container.begin();
+	std::advance(it, next_by_distribution(distribution));
+	return *it;
+}
+template <typename C, typename T,
+		  std::enable_if_t<!_detail::is_sequential_generator_instance<C>::value,
+						   int> = 0>
+typename C::value_type
+any_by_distribution(const C &container,
+					const std::initializer_list<T> &distribution) {
+	return any_by_distribution(
+		container, std::vector<T>(distribution.begin(), distribution.end()));
+}
+template <typename T, typename U>
+T any_by_distribution(const std::initializer_list<T> &il,
+					  const std::vector<U> &distribution) {
+	return any_by_distribution(std::vector<T>(il.begin(), il.end()),
+							   distribution);
+}
+template <typename T, typename U>
+T any_by_distribution(const std::initializer_list<T> &il,
+					  const std::initializer_list<U> &distribution) {
+	return any_by_distribution(
+		std::vector<T>(il.begin(), il.end()),
+		std::vector<U>(distribution.begin(), distribution.end()));
+}
+
+// Returns inst[i] with probability proportional to distribution[i].
+// O(1).
+template <typename Inst, typename T,
+		  std::enable_if_t<
+			  _detail::is_sequential_generator_instance<Inst>::value, int> = 0>
+typename Inst::value_type
+any_by_distribution(const Inst &inst, const std::vector<T> &distribution) {
+	tgen_ensure(inst.size() == distribution.size(),
+				"inst and distribution must have the same size");
+	return inst[next_by_distribution(distribution)];
+}
+template <typename Inst, typename T,
+		  std::enable_if_t<
+			  _detail::is_sequential_generator_instance<Inst>::value, int> = 0>
+typename Inst::value_type
+any_by_distribution(const Inst &inst,
+					const std::initializer_list<T> &distribution) {
+	return any_by_distribution(
+		inst, std::vector<T>(distribution.begin(), distribution.end()));
 }
 
 // Chooses k values uniformly from container, as in a subsequence of size k.
 // Returns a copy. O(|container|).
 template <typename C,
-		  std::enable_if_t<!_detail::is_generator_instance<C>::value, int> = 0>
+		  std::enable_if_t<!_detail::is_sequential_generator_instance<C>::value,
+						   int> = 0>
 C choose(int k, const C &container) {
 	tgen_ensure(0 < k and k <= static_cast<int>(container.size()),
 				"number of elements to choose must be valid");
@@ -403,12 +499,12 @@ std::vector<T> choose(int k, const std::initializer_list<T> &il) {
 	return choose(k, std::vector<T>(il.begin(), il.end()));
 }
 
-// Chooses k values uniformly from sequence/permutation instance, as in a
+// Chooses k values uniformly from sequential generator instance, as in a
 // subsequence of size k.
 // O(n).
-template <
-	typename Inst,
-	std::enable_if_t<_detail::is_generator_instance<Inst>::value, int> = 0>
+template <typename Inst,
+		  std::enable_if_t<
+			  _detail::is_sequential_generator_instance<Inst>::value, int> = 0>
 Inst choose(int k, const Inst &inst) {
 	tgen_ensure(0 < k and k <= static_cast<int>(inst.vec_.size()),
 				"number of elements to choose must be valid");
@@ -720,7 +816,7 @@ template <typename T> struct sequence : _detail::gen_base<sequence<T>> {
 	// Sequence instance.
 	// Operations on an instance are not random.
 	struct instance {
-		using _tgen_instance_tag = _detail::generator_instance_tag;
+		using _tgen_instance_tag = _detail::sequential_generator_instance_tag;
 		using value_type = T;			 // Value type, for templates.
 		using std_type = std::vector<T>; // std type for instance.
 		std::vector<T> vec_;			 // Sequence.
@@ -1129,7 +1225,7 @@ struct permutation : _detail::gen_base<permutation> {
 	// Permutation instance.
 	// Operations on an instance are not random.
 	struct instance {
-		using _tgen_instance_tag = _detail::generator_instance_tag;
+		using _tgen_instance_tag = _detail::sequential_generator_instance_tag;
 		using std_type = std::vector<int>; // std type for instance.
 		std::vector<int> vec_;			   // Permutation.
 		bool add_1_;					   // If should add 1, for printing.
@@ -2360,18 +2456,6 @@ struct str : _detail::gen_base<str> {
 			_detail::regex_format(regex, std::forward<Args>(args)...));
 	}
 
-	// Creates generator for strings that are `size` times the given regex.
-	template <typename... Args>
-	str(int size, const std::string &regex, Args &&...args) {
-		tgen_ensure(size > 0, "str: size must be positive");
-		tgen_ensure(regex.size() > 0, "str: regex must be non-empty");
-
-		auto formatted_regex =
-			_detail::regex_format(regex, std::forward<Args>(args)...);
-		root_ = _detail::parse_regex("(" + formatted_regex + "){ " +
-									 std::to_string(size) + "}");
-	}
-
 	// Restricts strings for str[idx] = value.
 	str &fix(int idx, char character) {
 		tgen_ensure(!root_, "str: cannot add restriction for regex");
@@ -2434,7 +2518,7 @@ struct str : _detail::gen_base<str> {
 	// str instance.
 	// Operations on an instance are not random.
 	struct instance {
-		using _tgen_instance_tag = _detail::generator_instance_tag;
+		using _tgen_instance_tag = _detail::sequential_generator_instance_tag;
 		using value_type = char;
 		using std_type = std::string;
 		std::string str_;

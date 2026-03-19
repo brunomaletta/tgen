@@ -115,12 +115,41 @@ TEST(general_test, next_invalid_range) {
 							 "range for `next` bust be valid");
 }
 
-TEST(general_test, next) {
+TEST(general_test, next_val) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	auto n = tgen::next(10, 20);
-	EXPECT_TRUE(10 <= n and n <= 20);
+	for (int i = 0; i < 100; ++i) {
+		auto n = tgen::next(10);
+		EXPECT_TRUE(0 <= n and n < 10);
+	}
+	check_function_uniform([]() -> int { return tgen::next<int>(10); }, 10);
+	check_function_uniform([]() -> int { return tgen::next<double>(2) < 1; },
+						   2);
+}
+
+TEST(general_test, next_range) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	for (int i = 0; i < 100; ++i) {
+		auto n = tgen::next(10, 20);
+		EXPECT_TRUE(10 <= n and n <= 20);
+	}
+	check_function_uniform([](int l, int r) { return tgen::next<int>(l, r); },
+						   11, 10, 20);
+}
+
+TEST(general_test, next_by_distribution) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	for (int i = 0; i < 100; ++i) {
+		auto n = tgen::next_by_distribution({1, 2, 3});
+		EXPECT_TRUE(0 <= n and n < 3);
+	}
+	check_function_uniform(
+		[]() { return tgen::next_by_distribution({2, 2, 2}); }, 3);
 }
 
 TEST(general_test, shuffle) {
@@ -162,6 +191,22 @@ TEST(general_test, any) {
 		int value = tgen::any(v);
 		EXPECT_TRUE(find(v.begin(), v.end(), value) != v.end());
 	}
+}
+
+TEST(general_test, any_by_distribution) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	std::vector<int> v(3);
+	for (int &i : v)
+		i = tgen::next(1, 10);
+
+	for (int i = 0; i < 10; ++i) {
+		int value = tgen::any_by_distribution(v, {1, 2, 3});
+		EXPECT_TRUE(find(v.begin(), v.end(), value) != v.end());
+	}
+	check_function_uniform(
+		[]() { return tgen::any_by_distribution({1, 2, 3}, {2, 2, 2}); }, 3);
 }
 
 TEST(general_test, choose_invalid_ammount) {
