@@ -6,6 +6,10 @@ namespace tgen {
  * @defgroup str Strings
  * @brief Generation of strings.
  *
+ * Its instances have the properties:
+ * - @tt{tgen::is_sequential}
+ * - @tt{tgen::has_subset_defined}
+ *
  * ## Regex
  *
  * Regex syntax compatible with testlib's regex.
@@ -345,48 +349,6 @@ namespace tgen {
  *
  * @fn str::gen() const;
  */
-
-
-/**
- * @ingroup str_gen
- * @brief Generates a random instance from the set of valid strings until a condition is met.
- *
- * @tparam Gen Automatically set to @tt{tgen::str}.
- * @tparam Pred Type of predicate, deduced automatically.
- *
- * @param predicate Condition to be checked. Should be a function that takes in a
- *        @tt{tgen::str::instance}, and returns a @primitive{bool}.
- * @param max_tries The maximum number of times the function will try to generate a valid instance
- *        satisfying @pname{predicate}.
- *
- * If @pname{predicate} has probabiliyy @tt{p} of returning @tt{true}, then the instance
- * will be found with probability @tt{1 - (1-p)^@pname{max_tries}}.
- *
- * @return A @tt{tgen::str::instance} found by repeatedly choosing a uniformly random valid sequence and checking
- * if it satisfies @pname{predicate}.
- *
- * @throws std::runtime_error if no valid instance satisfying @pname{predicate} is found after @pname{max_tries}
- *         tries.
- *
- * #### Complexity
- *
- * If created from restrictions: @tt{O((1/p) n log n)} expected, @tt{O(@pname{max_tries} * n log n)} worst case.
- *
- * If created from regex: @tt{O(min(1/p, @pname{max_tries}) n)} expected.
- *
- * #### Examples
- *
- * ```cpp
- * // Prints a string of 10 letters that starts and ends with the same character.
- * std::cout <<
- *     tgen::str(10, "[a-zA-Z]")
- *         .gen_until([](const auto &s) { return s[0] == s[9]; }, 100)
- * 	 << std::endl;
- * ```
- *
- * @memberof tgen::str
- */
- template <typename Gen, typename Pred> instance tgen::str::gen_until(Pred predicate, int max_tries) const;
 
 
 /**

@@ -15,7 +15,9 @@ The first thing is to [register the generator](https://brunomaletta.github.io/tg
 
 There are:
 
-- [General operations](https://brunomaletta.github.io/tgen/group__general.html)
+- [Base operations](https://brunomaletta.github.io/tgen/group__general.html)
+- [Generator operations](https://brunomaletta.github.io/tgen/group__generator_op.html)
+- [Generator instance operations](https://brunomaletta.github.io/tgen/group__generator_instance_op.html)
 - [Math operations](https://brunomaletta.github.io/tgen/group__math.html)
 
 and operations for specific data types:
@@ -26,7 +28,7 @@ and operations for specific data types:
 
 ### Type generators and instances
 
-All data types specified above define a **generator**, that when called upon will generate a uniformly random **instance** with the given constraints. Let's see an example with `tgen::sequence`:
+All data types specified above define a **generator**, that when called upon will generate a uniformly random **instance** with the given constraints. Let's see an example with @tt{tgen::sequence}:
 
 ```cpp
 tgen::sequence<int> seq_gen = tgen::sequence<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/100);

@@ -6,17 +6,18 @@ namespace tgen {
  * @defgroup permutation Permutations
  * @brief Generation of permutations.
  *
+ * Its instances have the properties:
+ * - @tt{tgen::is_sequential}
+ *
  * ### Examples
  *
  * ```cpp
  * // Prints a random 1-based permutation of size 10 that start with 2.
- * std::cout <<
- *     tgen::permutation(10).fix(0, 1).gen().add_1() << std::endl;
+ * std::cout << tgen::permutation(10).fix(0, 1).gen().add_1() << std::endl;
  * // "2 7 10 4 3 9 1 5 8 6"
  * 
  * // Prints a random permutation of size 5 with only one cycle.
- * std::cout <<
- *     tgen::permutation(5).gen({5}) << std::endl;
+ * std::cout << tgen::permutation(5).gen({5}) << std::endl;
  * // "1 4 3 0 2"
  * 
  * // Prints the inverse of a random odd permutation of size 5.
@@ -141,57 +142,6 @@ namespace tgen {
  *
  * @fn permutation::gen(std::vector<int> cycle_sizes) const;
  */
-
-
-/**
- * @ingroup permutation_gen
- * @brief Generates a random instance from the set of valid permutations until a condition is met.
- *
- * @tparam Gen Automatically set to @tt{tgen::permutation}.
- * @tparam Pred Type of @pname{predicate}, deduced automatically.
- * @tparam Args Empty or @texttt{@namespace{std}::@type{vector}<@primitive{int}>} with cycle sizes,
- *         deduced automatically.
- *
- * @param predicate Condition to be checked. Should be a function that takes in a
- *        @tt{tgen::permutation::instance}, and returns a @primitive{bool}.
- * @param max_tries The maximum number of times the function will try to generate a valid instance
- *        satisfying @pname{predicate}.
- * @param args Arguments for the the function @tt{tgen::permutation::gen}.
- *
- * Calls @tt{tgen::permutation::gen(args...)} until @pname{predicate} is true, at most @pname{max_tries} times.
- * If @pname{predicate} has probabiliyy @tt{p} of returning @tt{true}, then the instance
- * will be found with probability @tt{1 - (1-p)^@pname{max_tries}}.
- *
- * @return A @tt{tgen::permutation::instance} found by repeatedly choosing a uniformly random valid permutation and checking
- * if it satisfies @pname{predicate}.
- *
- * @throws std::runtime_error if no valid instance satisfying @pname{predicate} is found after @pname{max_tries}
- *         tries.
- *
- * #### Complexity
- *
- * @tt{O((1/p) n)} expected, @tt{O(@pname{max_tries} * n)} worst case.
- *
- * #### Examples
- *
- * ```cpp
- * // Prints a random odd permutation of size 5.
- * std::cout <<
- *     tgen::permutation(5)
- *         .gen_until([](const auto &perm) { return perm.parity() == -1; }, 100)
- * 	 << std::endl;
- * 
- * // Prints a random odd permutation of size 5 with one cycle.
- * std::cout <<
- *     tgen::permutation(5)
- *         .gen_until([](const auto &perm) { return perm.parity() == -1; }, 100, {5})
- * 	 << std::endl;
- * ```
- *
- * @memberof tgen::permutation
- */
-template<typename Gen, typename Pred, typename... Args>
-instance tgen::permutation::gen_until(Pred predicate, int max_tries, Args&&... args) const;
 
 
 

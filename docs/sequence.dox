@@ -6,6 +6,10 @@ namespace tgen {
  * @defgroup sequence Sequences
  * @brief Generation of sequences.
  *
+ * Its instances have the properties:
+ * - @tt{tgen::is_sequential}
+ * - @tt{tgen::has_subset_defined}
+ *
  * ### Examples
  *
  *  Random 20 distinct values from 1 to 100.
@@ -273,48 +277,6 @@ namespace tgen {
  */
 
 
-/**
- * @ingroup sequence_gen
- * @brief Generates a random instance from the set of valid sequences until a condition is met.
- *
- * @tparam Gen Automatically set to @tt{tgen::sequence<T>}.
- * @tparam Pred Type of predicate, deduced automatically.
- *
- * @param predicate Condition to be checked. Should be a function that takes in a
- *        @tt{tgen::sequence::instance}, and returns a @primitive{bool}.
- * @param max_tries The maximum number of times the function will try to generate a valid instance
- *        satisfying @pname{predicate}.
- *
- * If @pname{predicate} has probabiliyy @tt{p} of returning @tt{true}, then the instance
- * will be found with probability @tt{1 - (1-p)^@pname{max_tries}}.
- *
- * @return A @tt{tgen::sequence::instance} found by repeatedly choosing a uniformly random valid sequence and checking
- * if it satisfies @pname{predicate}.
- *
- * @throws std::runtime_error if no valid instance satisfying @pname{predicate} is found after @pname{max_tries}
- *         tries.
- *
- * #### Complexity
- *
- * @tt{O((1/p) n log n)} expected, @tt{O(@pname{max_tries} * n log n)} worst case.
- *
- * #### Examples
- *
- * ```cpp
- * // Prints a sequence of 10 distinct ints from 1 to 10 such that the first element is larger than the last.
- * std::cout <<
- *     tgen::sequence<int>(10, 1, 10)
- *         .distinct()
- *         .gen_until([](const auto &seq) { return seq[0] < seq[9]; }, 100)
- * 	 << std::endl;
- * ```
- *
- * @memberof tgen::sequence
- */
- template<typename T>
- template <typename Gen, typename Pred> instance tgen::sequence<T>::gen_until(Pred predicate, int max_tries) const;
-
-
 
 
 
@@ -323,7 +285,7 @@ namespace tgen {
  * @ingroup sequence
  * @brief Instance of a sequence.
  *
- * It can be deterministically operated upon (see @ref sequence_op for random operations) 
+ * It can be deterministically operated upon (see @ref generator_op for random operations) 
  * and printed through `std::cout`.
  */
 
@@ -498,97 +460,6 @@ namespace tgen {
  * ```
  *
  * @fn sequence::instance::to_std() const;
- */
-
-
-
-
-
-/**
- * @defgroup sequence_op Sequence operations
- * @ingroup sequence
- * @brief Random operations on sequence instances.
- *
- * These operations make random decisions.
- */
-
-
-/**
- * @ingroup sequence_op
- * @brief Shuffles a sequence instance.
- *
- * @tparam Inst Sequence instance type, deduced automatically. Must be a `tgen::sequence::instance`.
- *
- * @param inst the original instance.
- *
- * @return The shuffled instance.
- *
- * #### Complexity
- *
- * @tt{O(|@pname{inst}|)}.
- *
- * #### Examples
- *
- * ```cpp
- * // Shuffles and prints an instance.
- * tgen::sequence<int>::instance inst = {3, 1, 2};
- * std::cout << tgen::shuffle(inst) << std::endl;
- * ```
- *
- * @fn shuffled(const Inst &inst);
- */
-
-
-/**
- * @ingroup sequence_op
- * @brief Choses a random element from the sequence instance.
- *
- * @tparam Inst Sequence instance type, deduced automatically. Must be a `tgen::sequence::instance`.
- *
- * @param inst the original instance.
- *
- * @return A uniformly random element from the instance.
- *
- * #### Complexity
- *
- * @tt{O(1)}.
- *
- * #### Examples
- *
- * ```cpp
- * // Prints a random element from v.
- * tgen::sequence<int>::instance inst = {3, 1, 2};
- * std::cout << tgen::any(inst) << std::endl;
- * ```
- *
- * @fn any(const Inst &inst);
- */
-
-
-/**
- * @ingroup sequence_op
- * @brief Chooses some values from the sequence instance, as in a subsequence of fixed length.
- *
- * @tparam Inst Sequence instance type, deduced automatically. Must be a `tgen::sequence::instance`.
- *
- * @param k The size of the subsequence.
- * @param inst the original instance.
- *
- * @return A uniformly random subsequence of length @pname{k}.
- *
- * #### Complexity
- *
- * @tt{O(|@pname{inst}|)}.
- *
- * #### Examples
- *
- * ```cpp
- * // Prints a subsequenec of length 2 from v.
- * tgen::sequence<int>::instance inst = {3, 1, 2};
- * std::cout << tgen::choose(2, inst) << std::endl;
- * ```
- *
- * @fn choose(int k, const Inst &inst);
  */
 
 };
