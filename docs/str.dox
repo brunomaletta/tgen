@@ -64,27 +64,20 @@ namespace tgen {
 
 
  /**
- * @defgroup str_gen String generators
  * @ingroup str
- * @brief Defines a set of strings, subject to restrictions.
+ * @brief String generator.
+ *
+ * Defines a set of strings, subject to restrictions.
  *
  * A uniformly random @tt{tgen::str::instance}
  * (see @ref str_inst) from this set of strings (that satisfies the restrictions) can be
  * generated with @tt{tgen::str::gen}.
- */
-
-
- /**
- * @ingroup str_gen
- * @brief String generator.
- *
- * \see @ref str_gen.
  *
  * @struct str;
  */
 
+
  /**
- * @ingroup str_gen
  * @brief Creates string generator define by size and range of characters.
  *
  * @param size Size of the string.
@@ -106,7 +99,6 @@ namespace tgen {
 
 
  /**
- * @ingroup str_gen
  * @brief Creates string generator define by character set.
  *
  * @param size Size of the string.
@@ -126,7 +118,6 @@ namespace tgen {
 
 
  /**
- * @ingroup str_gen
  * @brief Creates string generator define by regex.
  *
  * @param regex Regex.
@@ -146,7 +137,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_gen
  * @brief Restricts generator s.t. character at index is fixed.
  *
  * @param idx Index.
@@ -167,7 +157,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_gen
  * @brief Restricts generator s.t. values at two indices are the same.
  *
  * @param idx_1 First index.
@@ -188,7 +177,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_gen
  * @brief Restricts generator s.t. all values at index range are the same.
  *
  * @param left Left endpoint of index range (inclusive).
@@ -209,7 +197,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_gen
  * @brief Restricts generator s.t. range is a palindrome.
  *
  * @param left Left endpoint of the index range (inclusive).
@@ -230,7 +217,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_gen
  * @brief Restricts generator s.t. string is a palindrome.
  *
  * @throws std::runtime_error if the generator was created from
@@ -248,7 +234,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_gen
  * @brief Restricts generator s.t. all characters in index set are distinct.
  *
  * @param indices Index set.
@@ -277,7 +262,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_gen
  * @brief Restricts generator s.t. characters at two indices are different.
  *
  * @param idx_1 First index.
@@ -300,7 +284,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_gen
  * @brief Restricts generator s.t. all characters are distinct.
  *
  * Equivalent to @tt{tgen::str::distinct({0, 1, ... size-1})}.
@@ -322,7 +305,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_gen
  * @brief Generates a random instance from the set of valid strings.
  *
  * @return A uniformly random @tt{tgen::str::instance} satisfying the restrictions,
@@ -352,7 +334,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_gen
  * @brief Returns the prefix of the infinite word "abacabad...".
  *
  * @param n Length of the prefix.
@@ -374,26 +355,21 @@ namespace tgen {
 
 
 /**
- * @defgroup str_inst String instances
  * @ingroup str
- * @brief Instance of a string.
- *
- * It can be deterministically operated upon and printed through `std::cout`.
- */
-
-
-/**
- * @ingroup str_inst
  * @brief String instance.
  *
- * \see @ref str_inst.
+ * Instance of a string.
+ *
+ * It can be deterministically operated upon (see @ref generator_instance_op for random operations) 
+ * and printed through `std::cout`.
+ *
+ * It can be deterministically operated upon and printed through `std::cout`.
  *
  * @struct str::instance;
  */
 
 
 /**
- * @ingroup str_inst
  * @brief Creates a string instance from a @texttt{@namespace{std}::@type{string}}.
  *
  * @param str The @texttt{@namespace{std}::@type{string}} representing the instance.
@@ -412,7 +388,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_inst
  * @brief Returns the size of the string instance.
  *
  * @return The number of characters in the instance.
@@ -430,7 +405,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_inst
  * @brief Accesses the character at some position of the instance.
  *
  * @param idx Index to be accessed.
@@ -451,7 +425,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_inst
  * @brief Sorts the characters in non-decreasing order.
  *
  * #### Complexity
@@ -471,7 +444,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_inst
  * @brief Reverses the instance.
  *
  * #### Complexity
@@ -482,7 +454,7 @@ namespace tgen {
  *
  * ```cpp
  * // Reverses and prints an instance.
- * tgen::str::instance inst = "bac;
+ * tgen::str::instance inst = "bac";
  * std::cout << inst.reverse() << std::endl; // Prints "cab".
  * ```
  *
@@ -491,7 +463,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_inst
  * @brief Sets all characters to lowercase.
  *
  * #### Complexity
@@ -511,7 +482,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_inst
  * @brief Sets all characters to uppercase.
  *
  * #### Complexity
@@ -531,7 +501,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_inst
  * @brief Concatenates two instances.
  *
  * @param rhs The right-hand side.
@@ -555,7 +524,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_inst
  * @brief Prints the instance to a @texttt{@namespace{std}::@type{ostream}}.
  *
  * The string is printed with no end of line.
@@ -572,7 +540,6 @@ namespace tgen {
 
 
 /**
- * @ingroup str_inst
  * @brief Converts the instance to a @texttt{@namespace{std}::@type{string}}.
  *
  * @return A @texttt{@namespace{std}::@type{string}} representing the instance.

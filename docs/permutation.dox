@@ -35,28 +35,20 @@ namespace tgen {
 
 
 /**
- * @defgroup permutation_gen Permutation generators
  * @ingroup permutation
- * @brief Defines a set of permutations, subject to restrictions.
+ * @brief Permutation generator.
+ *
+ * Defines a set of permutations, subject to restrictions.
  *
  * A uniformly random @tt{tgen::permutation::instance}
  * (see @ref permutation_inst) from this set of permutations (that satisfies the restrictions) can be
  * generated with @tt{tgen::permutation::gen}.
- */
-
-
-/**
- * @ingroup permutation_gen
- * @brief Permutation generator.
- *
- * \see @ref permutation_gen.
  *
  * @struct permutation;
  */
 
 
 /**
- * @ingroup permutation_gen
  * @brief Creates permutation generator defined by size.
  *
  * @param size Size of the permutation.
@@ -73,7 +65,6 @@ namespace tgen {
 
 
 /**
- * @ingroup permutation_gen
  * @brief Restricts generator s.t. value at index is fixed.
  *
  * @param idx Index.
@@ -91,7 +82,6 @@ namespace tgen {
 
 
 /**
- * @ingroup permutation_gen
  * @brief Generates a random instance from the set of valid permutations.
  *
  * @return A uniformly random @tt{tgen::permutation::instance} from the set of valid permutations, given the added restrictions.
@@ -115,7 +105,6 @@ namespace tgen {
 
 
 /**
- * @ingroup permutation_gen
  * @brief Generates a random instance from the set of valid permutations, given a list
  *        of cycle sizes.
  *
@@ -148,26 +137,20 @@ namespace tgen {
 
 
 /**
- * @defgroup permutation_inst Permutation instances
  * @ingroup permutation
- * @brief Instance of a permutation.
  *
- * It can be deterministically operated upon and printed through `std::cout`.
- */
-
-
-/**
- * @ingroup permutation_inst
  * @brief Permutation instance.
  *
- * \see @ref permutation_inst.
+ * Instance of a permutation.
+ *
+ * It can be deterministically operated upon (see @ref generator_instance_op for random operations) 
+ * and printed through `std::cout`.
  *
  * @struct permutation::instance;
  */
 
 
 /**
- * @ingroup permutation_inst
  * @brief Creates a permutation instance from a @texttt{@namespace{std}::@type{vector}}.
  *
  * @param vec The @texttt{@namespace{std}::@type{vector}} representing the instance.
@@ -190,7 +173,6 @@ namespace tgen {
 
 
 /**
- * @ingroup permutation_inst
  * @brief Returns the size of the permutation instance.
  *
  * @return The size (number of elements) of the permutation instance.
@@ -208,7 +190,6 @@ namespace tgen {
 
 
 /**
- * @ingroup permutation_inst
  * @brief Returns the value at some position of the instance.
  *
  * @param idx Index to be accessed.
@@ -228,7 +209,6 @@ namespace tgen {
 
 
 /**
- * @ingroup permutation_inst
  * @brief Parity of the permutation.
  *
  * @return @tt{+1} if the permutation is even, or @tt{-1} if the permutation is odd.
@@ -246,7 +226,6 @@ namespace tgen {
 
 
 /**
- * @ingroup permutation_inst
  * @brief Sorts the instance in non-decreasing order.
  *
  * #### Complexity
@@ -266,7 +245,6 @@ namespace tgen {
 
 
 /**
- * @ingroup permutation_inst
  * @brief Reverses the instance.
  *
  * #### Complexity
@@ -286,7 +264,6 @@ namespace tgen {
 
 
 /**
- * @ingroup permutation_inst
  * @brief Inverse of the permutation.
  *
  * The inverse of the permutation @tt{p} is another @tt{pi} such that @tt{pi[p[i]] = p[pi[i]] = i}.
@@ -308,7 +285,6 @@ namespace tgen {
 
 
 /**
- * @ingroup permutation_inst
  * @brief Adds 1 for printing.
  *
  * This makes it so, when given to @texttt{@namespace{std}::@type{cout}}, the permutation will be printed as
@@ -331,7 +307,6 @@ namespace tgen {
 
 
 /**
- * @ingroup permutation_inst
  * @brief Prints the instance to a @texttt{@namespace{std}::@type{ostream}}.
  *
  * The values are printed with one space as a separator,
@@ -349,7 +324,6 @@ namespace tgen {
 
 
 /**
- * @ingroup permutation_inst
  * @brief Converts the instance to a @texttt{@namespace{std}::@type{vector}}.
  *
  * @return A @texttt{@namespace{std}::@type{vector}} representing the instance.

@@ -3,7 +3,7 @@
 namespace tgen {
 
 /**
- * @defgroup general Base Operations
+ * @defgroup base Base Operations
  * @brief Operations for basic number generation and basic random operations.
  *
  * ### Examples
@@ -27,7 +27,7 @@ namespace tgen {
 
 
 /**
- * @ingroup general
+ * @ingroup base
  * @brief Ensures condition is true.
  *
  * @param cond Condition to me ensured.
@@ -50,7 +50,7 @@ namespace tgen {
 
 
 /**
- * @ingroup general
+ * @ingroup base
  * @brief Printer helper for standard types.
  *
  * Just call @tt{std::cout << print(x)} to print @tt{x}, or @tt{std::cout << println(x)} to
@@ -75,7 +75,7 @@ namespace tgen {
 
 
 /**
- * @ingroup general
+ * @ingroup base
  * @brief Returns a random number up to value.
  *
  * @tparam T type to be generated. Should be an arithmetic type: @primitive{int}, @primitive{double}, @primitive{long long}, @primitive{char}, etc.
@@ -102,10 +102,11 @@ namespace tgen {
 
 
 /**
- * @ingroup general
+ * @ingroup base
  * @brief Returns a random number in range.
  *
- * @tparam T type to be generated. Should be an arithmetic type: @primitive{int}, @primitive{double}, @primitive{long long}, @primitive{char}, etc.
+ * @tparam T type to be generated. Should be an arithmetic type: @primitive{int}, @primitive{double},
+ *         @primitive{long long}, @primitive{char}, etc.
  *
  * @param l Left endpoint of the range.
  * @param r Light endpoint of the range.
@@ -128,12 +129,13 @@ namespace tgen {
 
 
 /**
- * @ingroup general
+ * @ingroup base
  * @brief Returns random index with given probabilities.
  *
  * @param distribution Probability distribution.
  *
- * @return @tt{i} in @tt{[0, @pname{distribution}.size()-]} with probability proportional to @tt{@pname{distribution}[i]}.
+ * @return @tt{i} in @tt{[0, @pname{distribution}.size()-]} with probability proportional to
+ *         @tt{@pname{distribution}[i]}.
  *
  * #### Complexity
  *
@@ -151,7 +153,7 @@ namespace tgen {
 
 
 /**
- * @ingroup general
+ * @ingroup base
  * @brief Shuffles range inplace, for random_access_iterator.
  *
  * @param first First iterator of range.
@@ -177,7 +179,7 @@ namespace tgen {
 
 
 /**
- * @ingroup general
+ * @ingroup base
  * @brief Shuffles a container.
  *
  * @param container Container to be shuffled.
@@ -206,7 +208,7 @@ namespace tgen {
 
 
 /**
- * @ingroup general
+ * @ingroup base
  * @brief Choses a random element from iterator range.
  *
  * @param first First iterator of range.
@@ -230,7 +232,7 @@ namespace tgen {
 
 
 /**
- * @ingroup general
+ * @ingroup base
  * @brief Choses a random element from container.
  *
  * @param container Container to choose from.
@@ -255,7 +257,7 @@ namespace tgen {
 
 
 /**
- * @ingroup general
+ * @ingroup base
  * @brief Choses a random element with given probabilities.
  *
  * @param container Container to choose from.
@@ -263,7 +265,8 @@ namespace tgen {
  *
  * Also works with @texttt{@namespace{std}::@type{initializer_list}}.
  *
- * @return For @tt{i} in @tt{[0, @pname{container}.size()-]}, @tt{@pname{container}[i]} with probability proportional to @tt{@pname{distribution}[i]}.
+ * @return For @tt{i} in @tt{[0, @pname{container}.size()-1]}, @tt{@pname{container}[i]} with probability
+ *         proportional to @tt{@pname{distribution}[i]}.
  *
  * #### Complexity
  *
@@ -281,7 +284,7 @@ namespace tgen {
 
 
 /**
- * @ingroup general
+ * @ingroup base
  * @brief Chooses elements from container, as in a subsequence fixed length.
  *
  * @param k Number of elements to be chosen.
@@ -311,6 +314,7 @@ namespace tgen {
 
 /**
  * @defgroup generator_op Generator Operations
+ * @ingroup base
  * @brief Operations for @tt{tgen} generators.
  *
  * ### Examples
@@ -390,6 +394,7 @@ namespace tgen {
 
 /**
  * @defgroup generator_instance_op Generator Instance Operations
+ * @ingroup base
  * @brief Operations for @tt{tgen} generator instances.
  *
  * ### Examples

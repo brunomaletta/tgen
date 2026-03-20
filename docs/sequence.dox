@@ -67,28 +67,20 @@ namespace tgen {
 
 
 /**
- * @defgroup sequence_gen Sequence generators
  * @ingroup sequence
- * @brief Defines a set of sequences, subject to restrictions.
+ * @brief Sequence generator.
+ *
+ * Defines a set of sequences, subject to restrictions.
  *
  * A uniformly random @tt{tgen::sequence::instance}
  * (see @ref sequence_inst) from this set of sequences (that satisfies the restrictions) can be
  * generated with @tt{tgen::sequence::gen}.
- */
-
-
-/**
- * @ingroup sequence_gen
- * @brief Sequence generator.
- *
- * \see @ref sequence_gen.
  *
  * @struct sequence;
  */
 
 
 /**
- * @ingroup sequence_gen
  * @brief Creates sequence generator define by size and range of values.
  *
  * @param size Size of the sequence.
@@ -110,7 +102,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_gen
  * @brief Creates sequence generator define by value set.
  *
  * @param size Size of the sequence.
@@ -130,7 +121,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_gen
  * @brief Restricts generator s.t. value at index is fixed.
  *
  * @param idx Index.
@@ -150,7 +140,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_gen
  * @brief Restricts generator s.t. values at two indices are the same.
  *
  * @param idx_1 First index.
@@ -168,7 +157,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_gen
  * @brief Restricts generator s.t. all values at index range are the same.
  *
  * @param left Left endpoint of index range (inclusive).
@@ -186,7 +174,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_gen
  * @brief Restricts generator s.t. all values in index set are distinct.
  *
  * @param indices Index set.
@@ -214,7 +201,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_gen
  * @brief Restricts generator s.t. values at two indices are different.
  *
  * @param idx_1 First index.
@@ -234,7 +220,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_gen
  * @brief Restricts generator s.t. all values are distinct.
  *
  * Equivalent to @tt{tgen::sequence::distinct({0, 1, ... size-1})}.
@@ -253,7 +238,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_gen
  * @brief Generates a random instance from the set of valid sequences.
  *
  * @return A uniformly random @tt{tgen::sequence::instance} from the set of valid sequences, given the added restrictions.
@@ -281,27 +265,19 @@ namespace tgen {
 
 
 /**
- * @defgroup sequence_inst Sequence instances
  * @ingroup sequence
- * @brief Instance of a sequence.
- *
- * It can be deterministically operated upon (see @ref generator_op for random operations) 
- * and printed through `std::cout`.
- */
-
-
-/**
- * @ingroup sequence_inst
  * @brief Sequence instance.
  *
- * \see @ref sequence_inst.
+ * Instance of a sequence.
+ *
+ * It can be deterministically operated upon (see @ref generator_instance_op for random operations) 
+ * and printed through `std::cout`.
  *
  * @struct sequence::instance;
  */
 
 
 /**
- * @ingroup sequence_inst
  * @brief Creates a sequence instance from a @texttt{@namespace{std}::@type{vector}}.
  *
  * @param vec The @texttt{@namespace{std}::@type{vector}} representing the instance.
@@ -324,7 +300,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_inst
  * @brief Returns the size of the sequence instance.
  *
  * @return The size (number of elements) of the sequence instance.
@@ -342,7 +317,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_inst
  * @brief Accesses the value at some position of the instance.
  *
  * @param idx Index to be accessed.
@@ -363,7 +337,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_inst
  * @brief Sorts the instance in non-decreasing order.
  *
  * #### Complexity
@@ -383,7 +356,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_inst
  * @brief Reverses the instance.
  *
  * #### Complexity
@@ -403,7 +375,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_inst
  * @brief Concatenates two instances.
  *
  * @param rhs The right-hand side.
@@ -427,7 +398,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_inst
  * @brief Prints the instance to a @texttt{@namespace{std}::@type{ostream}}.
  *
  * The values are printed with one space as a separator,
@@ -445,7 +415,6 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence_inst
  * @brief Converts the instance to a @texttt{@namespace{std}::@type{vector}}.
  *
  * @return A @texttt{@namespace{std}::@type{vector}} representing the instance.

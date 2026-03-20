@@ -2621,7 +2621,8 @@ struct str : _detail::gen_base<str> {
 	};
 
 	// Generates str instance.
-	// O(n).
+	// If created from restrictions: O(n log n).
+	// If created from regex: expected linear.
 	instance gen() const {
 		if (root_) {
 			// Regex.

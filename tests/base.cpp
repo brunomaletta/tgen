@@ -5,7 +5,7 @@
 
 #include <algorithm>
 
-TEST(general_test, print_scalar) {
+TEST(base_test, print_scalar) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -18,7 +18,7 @@ TEST(general_test, print_scalar) {
 	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("str"));
 }
 
-TEST(general_test, print_pair) {
+TEST(base_test, print_pair) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -27,7 +27,7 @@ TEST(general_test, print_pair) {
 	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("str 0.1"));
 }
 
-TEST(general_test, print_tuple) {
+TEST(base_test, print_tuple) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -37,7 +37,7 @@ TEST(general_test, print_tuple) {
 	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("5 0.1 str"));
 }
 
-TEST(general_test, print_1d_container) {
+TEST(base_test, print_1d_container) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -58,7 +58,7 @@ TEST(general_test, print_1d_container) {
 	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2 3"));
 }
 
-TEST(general_test, print_2d_container) {
+TEST(base_test, print_2d_container) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -107,7 +107,7 @@ TEST(general_test, print_2d_container) {
 	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2\n3 4"));
 }
 
-TEST(general_test, next_invalid_range) {
+TEST(base_test, next_invalid_range) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -115,7 +115,7 @@ TEST(general_test, next_invalid_range) {
 							 "range for `next` bust be valid");
 }
 
-TEST(general_test, next_val) {
+TEST(base_test, next_val) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -128,7 +128,7 @@ TEST(general_test, next_val) {
 						   2);
 }
 
-TEST(general_test, next_range) {
+TEST(base_test, next_range) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -140,7 +140,7 @@ TEST(general_test, next_range) {
 						   11, 10, 20);
 }
 
-TEST(general_test, next_by_distribution) {
+TEST(base_test, next_by_distribution) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -152,7 +152,7 @@ TEST(general_test, next_by_distribution) {
 		[]() { return tgen::next_by_distribution({2, 2, 2}); }, 3);
 }
 
-TEST(general_test, shuffle) {
+TEST(base_test, shuffle) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -169,7 +169,7 @@ TEST(general_test, shuffle) {
 	}
 }
 
-TEST(general_test, shuffled) {
+TEST(base_test, shuffled) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -179,7 +179,7 @@ TEST(general_test, shuffled) {
 	std::vector<int> d = tgen::shuffled({1, 2, 3});
 }
 
-TEST(general_test, any) {
+TEST(base_test, any) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -193,7 +193,7 @@ TEST(general_test, any) {
 	}
 }
 
-TEST(general_test, any_by_distribution) {
+TEST(base_test, any_by_distribution) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -209,7 +209,7 @@ TEST(general_test, any_by_distribution) {
 		[]() { return tgen::any_by_distribution({1, 2, 3}, {2, 2, 2}); }, 3);
 }
 
-TEST(general_test, choose_invalid_ammount) {
+TEST(base_test, choose_invalid_ammount) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -221,7 +221,7 @@ TEST(general_test, choose_invalid_ammount) {
 							 "number of elements to choose must be valid");
 }
 
-TEST(general_test, choose) {
+TEST(base_test, choose) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
