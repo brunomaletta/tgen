@@ -1,6 +1,5 @@
-<!-- HTML header for doxygen 1.9.8-->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="$langISO">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <link rel="icon" type="image/svg+xml" href="$relpath^favicon.svg">
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
@@ -239,6 +238,10 @@ document.addEventListener('DOMContentLoaded', function() {
 	  "typename","class","struct","signed","unsigned"
 	]);
 
+	function isInNavTree(node) {
+		return node.closest && node.closest("#nav-tree");
+	}
+
 	// ACTUAL FUNCTION
 	function highlightType(node) {
 		const walker = document.createTreeWalker(
@@ -260,6 +263,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 			const parent = textNode.parentElement;
 			if (!parent) continue;
+
+			if (isInNavTree(parent)) continue;
 
 			// CRITICAL FIX: DO NOT TOUCH DOXYGEN LINKS
 			if (parent.closest("a.el")) continue;
@@ -499,23 +504,28 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Removes links for function names in docs.
 	function unlinkNames(root = document) {
 		root.querySelectorAll(".tgen-name a").forEach(link => {
-				const text = link.textContent;
-				link.replaceWith(document.createTextNode(text));
-				});
+			if (link.closest("#nav-tree")) return; // CRITICAL
+
+			const text = link.textContent;
+			link.replaceWith(document.createTextNode(text));
+		});
 	}
 	// run once after load
-	window.addEventListener("load", () => unlinkNames());
+	window.addEventListener("load", () => {
+		const root = document.getElementById("doc-content");
+		unlinkNames(root);
+	});
 	// run whenever doxygen dynamically updates DOM
 	const observer = new MutationObserver(mutations => {
 		for (const m of mutations) {
 			for (const node of m.addedNodes) {
-				if (node.nodeType === 1) { // ELEMENT_NODE
+				if (node.nodeType === 1 && !isInNavTree(node)) { // ELEMENT_NODE
 					unlinkNames(node);
 				}
 			}
 		}
 	});
-	observer.observe(document.body, {
+	observer.observe(document.getElementById("doc-content"), {
 		childList: true,
 		subtree: true
 	});
@@ -525,7 +535,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		"structtgen_1_1__detail_1_1gen__base.html": "group__generator__op.html",
     };
 
-    document.querySelectorAll("a.el").forEach(a => {
+	const root = document.getElementById("doc-content");
+    root.querySelectorAll("a.el").forEach(a => {
 
         const href = a.getAttribute("href");
         if (!href) return;
@@ -565,9 +576,6 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (prev && prev.textContent.trim() === ",") prev.remove();
 		}
 	});
-});
-
-document.addEventListener("DOMContentLoaded", () => {
 });
 
 </script>
