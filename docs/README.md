@@ -5,7 +5,7 @@
 
 # Overview
 
-`tgen` is a `C++` library to help you generate random stuff, useful for testcase generation (such as [jngen](https://github.com/ifsmirnov/jngen) or [testlib](https://github.com/MikeMirzayanov/testlib)). The code is in a single file [tgen.h](https://github.com/brunomaletta/tgen/blob/main/src/tgen.h), that should be added to your directory.
+@tt{tgen} is a @tt{C++} library to help you generate random stuff, useful for testcase generation (such as [jngen](https://github.com/ifsmirnov/jngen) or [testlib](https://github.com/MikeMirzayanov/testlib)). The code is in a single file [tgen.h](https://github.com/brunomaletta/tgen/blob/main/src/tgen.h), that should be added to your directory.
 
 ```cpp
 #include "tgen.h"
@@ -36,9 +36,9 @@ tgen::sequence<int> seq_gen = tgen::sequence<int>(/*size=*/10, /*value_l=*/1, /*
 
 This will create a sequence generator representing the set of all sequences with 10 values from 1 to 100.
 
-Every generator of type `GEN` has a method `gen()`, that returns a `GEN::instance` representing an element chosen uniformly at random from the set of all valid elements from the current state of the generator. A `GEN::instance` can be fed to `std::cout` to be printed.
+Every generator of type @tt{@type{Gen}} has a method @tt{gen()}, that returns a @tt{@type{Gen}\::instance} representing an element chosen uniformly at random from the set of all valid elements from the current state of the generator. A @tt{@type{Gen}\::instance} can be fed to @tt{@namespace{std}\::cout} to be printed.
 
-In our example, we can call `gen()` to generate and print a random sequence of 10 elements from 1 to 100.
+In our example, we can call @tt{gen()} to generate and print a random sequence of 10 elements from 1 to 100.
 
 ```cpp
 std::cout << seq_gen.gen() << std::endl;
@@ -59,13 +59,13 @@ inst.reverse();
 Finally, there can be random operations defined for the type instance.
 
 ```cpp
-std::cout << tgen::sequence_op::any(inst) << std::endl;
+std::cout << tgen::any(inst) << std::endl;
 ```
 
 Combining everything into one line:
 
 ```cpp
-std::cout << tgen::sequence_op::any(
+std::cout << tgen::any(
 	tgen::sequence<int>(10, 1, 100)
 	.equal(0, 1)
 	.gen()
@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
 }
 ```
 
-Calling this code with `./a.out -n 100` will generate a random number from 1 to 100.
+Calling this code with @tt{./a.out -n 100} will generate a random number from 1 to 100.
 
 ### Generation
 
@@ -136,7 +136,7 @@ Random binary sequence of length 10 with 5 1's that start with 1.
 ```cpp
 std::cout <<
     tgen::sequence<int>(10, 0, 1)
-    .set(0, 1)
+    .fix(0, 1)
     .gen_until([](const auto& inst) {
         auto vec = inst.to_std();
         return std::accumulate(vec.begin(), vec.end(), 0) == 5;

@@ -41,7 +41,7 @@ namespace tgen {
  * Defines a set of permutations, subject to restrictions.
  *
  * A uniformly random @tt{tgen::permutation::instance}
- * (see @ref permutation_inst) from this set of permutations (that satisfies the restrictions) can be
+ * from this set of permutations (that satisfies the restrictions) can be
  * generated with @tt{tgen::permutation::gen}.
  *
  * @struct permutation;
@@ -144,7 +144,7 @@ namespace tgen {
  * Instance of a permutation.
  *
  * It can be deterministically operated upon (see @ref generator_instance_op for random operations) 
- * and printed through `std::cout`.
+ * and printed through @tt{@namespace{std}::cout}.
  *
  * @struct permutation::instance;
  */

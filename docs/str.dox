@@ -70,7 +70,7 @@ namespace tgen {
  * Defines a set of strings, subject to restrictions.
  *
  * A uniformly random @tt{tgen::str::instance}
- * (see @ref str_inst) from this set of strings (that satisfies the restrictions) can be
+ * from this set of strings (that satisfies the restrictions) can be
  * generated with @tt{tgen::str::gen}.
  *
  * @struct str;
@@ -361,9 +361,7 @@ namespace tgen {
  * Instance of a string.
  *
  * It can be deterministically operated upon (see @ref generator_instance_op for random operations) 
- * and printed through `std::cout`.
- *
- * It can be deterministically operated upon and printed through `std::cout`.
+ * and printed through @tt{@namespace{std}::cout}.
  *
  * @struct str::instance;
  */
