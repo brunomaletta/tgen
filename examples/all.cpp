@@ -95,4 +95,8 @@ int main(int argc, char **argv) {
 	std::cout << tgen::str("a-z").gen() << std::endl;
 	std::cout << tgen::any_by_distribution({"a", "b", "c"}, {1, 2, 3})
 			  << std::endl;
+
+	tgen::distinct d10(1, 10);
+	for (int i = 0; i < 5; i++)
+		std::cout << d10.gen() << " \n"[i + 1 == 5];
 }

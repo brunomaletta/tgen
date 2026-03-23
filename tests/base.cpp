@@ -240,3 +240,27 @@ TEST(base_test, choose) {
 		EXPECT_TRUE(subseq_it == subseq.end());
 	}
 }
+
+TEST(base_test, distinct_generate_too_many_values) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	tgen::distinct d(1, 10);
+	for (int i = 0; i < 10; ++i)
+		d.gen();
+	EXPECT_THROW_TGEN_PREFIX(d.gen(), "distinct: no more values to generate");
+}
+
+TEST(base_test, distinct) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	tgen::distinct d(1, 10);
+	std::set<int> s;
+	for (int i = 0; i < 10; ++i) {
+		int value = d.gen();
+		EXPECT_TRUE(1 <= value and value <= 10);
+		s.insert(value);
+	}
+	EXPECT_EQ(s.size(), 10);
+}

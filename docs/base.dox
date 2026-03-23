@@ -53,10 +53,11 @@ namespace tgen {
  * @ingroup base
  * @brief Printer helper for standard types.
  *
- * Just call @tt{std::cout << print(x)} to print @tt{x}, or @tt{std::cout << println(x)} to
- * print @tt{x} and @tt{\\n}. Works with @tt{std::initializer_list}.
+ * Just call @tt{std::cout << @namespace{tgen}::print(x)} to print @tt{x}, or
+ * @tt{@namespace{std}::cout << @namespace{tgen}::println(x)} to
+ * print @tt{x} and @tt{\\n}. Works with @tt{@namespace{std}::initializer_list}.
  *
- * Prints @tt{std::pair}, @tt{std::tuple} and containers nicely (separade by a space).
+ * Prints @tt{@namespace{std}::pair}, @tt{@namespace{std}::tuple} and containers nicely (separade by a space).
  * Matrices (@tt{container<container<T>>}) are also handleled nicely, printing one
  * row per line.
  *
@@ -64,13 +65,31 @@ namespace tgen {
  *
  * ```cpp
  * std::tuple<int, double, std::string> tu = {5, 0.1, "str"};
- * std::cout << println(tu);
+ * std::cout << tgen::println(tu);
  * // "5 0.1 str\n"
- * std::cout << print({{1, 2}, {3, 4}});
+ * std::cout << tgen::print({{1, 2}, {3, 4}});
  * // "1 2\n3 4"
  * ```
  *
  * @struct print;
+ */
+
+
+/**
+ * @ingroup base
+ * @brief Printer helper for standard types, printing on a new line.
+ *
+ * Same as @ref print, but prints on a new line (appending a @tt{\n} at the end).
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * std::tuple<int, double, std::string> tu = {5, 0.1, "str"};
+ * std::cout << tgen::println(tu);
+ * // "5 0.1 str\n"
+ * ```
+ *
+ * @struct println;
  */
 
 
@@ -306,6 +325,67 @@ namespace tgen {
  * ```
  *
  * @fn choose(int k, const C &container);
+ */
+
+
+/**
+ * @ingroup base
+ * @brief Distinct generator for integral types.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints 3 distinct numbers from 1 to 10, uniformly at random.
+ * tgen::distinct d(5, 10);
+ * std::cout << d.gen() << " " << d.gen() << " " << d.gen() << std::endl;
+ * ```
+ *
+ * @struct distinct;
+ */
+
+
+/**
+ * @brief Creates distinct generator for values in given range.
+ *
+ * @param l Left endpoint of the range.
+ * @param r Right endpoint of the range.
+ *
+ * The generator will generate numbers in @tt{[@pname{l}, @pname{r}]}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Creates a generator for distinct nubers from 5 to 10.
+ * auto distinct = tgen::distinct(5, 10);
+ * ```
+ *
+ * @fn distinct::distinct(T l, T r);
+ */
+
+
+/**
+ * @brief Generates a distinct random value in the defined range.
+ *
+ * @param l Left endpoint of the range.
+ * @param r Right endpoint of the range.
+ *
+ * @return A value in the given range that has not been generated before, uniformly at random.
+ *
+ * @throws std::runtime_error if there no more values to generate.
+ *
+ * #### Complexity
+ *
+ * @tt{O(log(n))} for the @tt{n}-th call of @tt{gen}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints 3 distinct numbers from 1 to 10, uniformly at random.
+ * tgen::distinct d(5, 10);
+ * std::cout << d.gen() << " " << d.gen() << " " << d.gen() << std::endl;
+ * ```
+ *
+ * @fn distinct::gen();
  */
 
 

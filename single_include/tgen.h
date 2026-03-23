@@ -231,17 +231,17 @@ struct has_subset_defined<
 
 // Struct to print standard types to std::ostream;
 struct print {
-	std::string s;
+	std::string s_;
 
 	template <typename T> print(const T &x) {
 		std::ostringstream oss;
 		write(oss, x);
-		s = oss.str();
+		s_ = oss.str();
 	}
 	template <typename T> print(const std::initializer_list<T> &il) {
 		std::ostringstream oss;
 		write(oss, std::vector<T>(il.begin(), il.end()));
-		s = oss.str();
+		s_ = oss.str();
 	}
 	template <typename T>
 	print(const std::initializer_list<std::initializer_list<T>> &il) {
@@ -250,7 +250,7 @@ struct print {
 		for (const auto &i : il)
 			mat.push_back(i);
 		write(oss, mat);
-		s = oss.str();
+		s_ = oss.str();
 	}
 
 	template <typename T> void write(std::ostream &os, const T &x) {
@@ -301,28 +301,25 @@ struct print {
 	}
 
 	friend std::ostream &operator<<(std::ostream &out, const print &pr) {
-		return out << pr.s;
+		return out << pr.s_;
 	}
 };
 
 // Prints in a new line.
-template <typename T> inline print println(const T &x) {
-	print p(x);
-	p.s += '\n';
-	return p;
-}
-template <typename T> inline print println(const std::initializer_list<T> &il) {
-	print p(il);
-	p.s += '\n';
-	return p;
-}
-template <typename T>
-inline print
-println(const std::initializer_list<std::initializer_list<T>> &il) {
-	print p(il);
-	p.s += '\n';
-	return p;
-}
+struct println : print {
+	template <typename T> println(const T &x) : print(x) {}
+
+	template <typename T>
+	println(const std::initializer_list<T> &il) : print(il) {}
+
+	template <typename T>
+	println(const std::initializer_list<std::initializer_list<T>> &il)
+		: print(il) {}
+
+	friend std::ostream &operator<<(std::ostream &out, const println &pr) {
+		return out << pr.s_ << '\n';
+	}
+};
 
 /*
  * Global random operations.
@@ -332,12 +329,13 @@ println(const std::initializer_list<std::initializer_list<T>> &il) {
 // O(1).
 template <typename T> T next(T n) {
 	_detail::ensure_registered();
-	tgen_ensure(0 <= n, "value for `next` bust be valid");
-	if constexpr (std::is_integral_v<T>)
+	if constexpr (std::is_integral_v<T>) {
+		tgen_ensure(n >= 1, "value for `next` bust be valid");
 		return std::uniform_int_distribution<T>(0, n - 1)(_detail::rng);
-	else if constexpr (std::is_floating_point_v<T>)
+	} else if constexpr (std::is_floating_point_v<T>) {
+		tgen_ensure(n >= 0, "value for `next` bust be valid");
 		return std::uniform_real_distribution<T>(0, n)(_detail::rng);
-	else
+	} else
 		throw _detail::error("invalid type for next (" +
 							 std::string(typeid(T).name()) + ")");
 }
@@ -420,7 +418,8 @@ template <typename T>
 template <typename Inst, std::enable_if_t<is_sequential<Inst>::value, int> = 0>
 [[nodiscard]] Inst shuffled(const Inst &inst) {
 	Inst new_inst = inst;
-	return shuffle(new_inst);
+	shuffle(new_inst);
+	return new_inst;
 }
 
 // Returns a random element from [first, last) uniformly.
@@ -546,6 +545,34 @@ Inst choose(int k, const Inst &inst) {
 	}
 	return Inst(new_vec);
 }
+
+// Number distinct generator for integral types.
+template <typename T> struct distinct {
+	T l_, r_;
+	int num_available_;
+	std::map<T, T> virtual_list_;
+
+	// Generator of distinct values in [l_, r_].
+	distinct(T l, T r) : l_(l), r_(r), num_available_(r - l + 1) {}
+
+	// Generates a random value in [l_, r_] that has not been generated yet.
+	// O(log n).
+	T gen() {
+		// One iteration of Fisher–Yates.
+		tgen_ensure(num_available_ > 0, "distinct: no more values to generate");
+
+		T i = next<T>(0, num_available_ - 1);
+		T j = num_available_ - 1;
+
+		T vi = virtual_list_.count(i) ? virtual_list_[i] : i;
+		T vj = virtual_list_.count(j) ? virtual_list_[j] : j;
+		virtual_list_[i] = vj;
+
+		--num_available_;
+
+		return vi + l_;
+	}
+};
 
 /************
  *          *
