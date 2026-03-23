@@ -33,6 +33,7 @@
 #include <stack>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace tgen {
@@ -547,22 +548,25 @@ Inst choose(int k, const Inst &inst) {
 }
 
 // Number distinct generator for integral types.
-template <typename T> struct distinct {
+template <typename T> struct distinct_range {
 	T l_, r_;
-	int num_available_;
+	T num_available_;
 	std::map<T, T> virtual_list_;
 
 	// Generator of distinct values in [l_, r_].
-	distinct(T l, T r) : l_(l), r_(r), num_available_(r - l + 1) {}
+	distinct_range(T l, T r) : l_(l), r_(r), num_available_(r - l + 1) {}
+
+	// Returns the number of distinct values left to generate.
+	T size() const { return num_available_; }
 
 	// Generates a random value in [l_, r_] that has not been generated yet.
 	// O(log n).
 	T gen() {
 		// One iteration of Fisher–Yates.
-		tgen_ensure(num_available_ > 0, "distinct: no more values to generate");
+		tgen_ensure(size() > 0, "distinct_range: no more values to generate");
 
-		T i = next<T>(0, num_available_ - 1);
-		T j = num_available_ - 1;
+		T i = next<T>(0, size() - 1);
+		T j = size() - 1;
 
 		T vi = virtual_list_.count(i) ? virtual_list_[i] : i;
 		T vj = virtual_list_.count(j) ? virtual_list_[j] : j;
@@ -573,6 +577,29 @@ template <typename T> struct distinct {
 		return vi + l_;
 	}
 };
+
+// Distinct generator for containers.
+template <typename T> struct distinct_container {
+	std::vector<T> list_;
+	distinct_range<size_t> idx_;
+
+	// Creates a distinct container generator for the given container.
+	template <typename C>
+	distinct_container(const C &container)
+		: list_(container.begin(), container.end()),
+		  idx_(0, static_cast<int>(container.size()) - 1) {}
+	distinct_container(const std::initializer_list<T> &il)
+		: distinct_container(std::vector<T>(il.begin(), il.end())) {}
+
+	// Returns the number of distinct elements left to generate.
+	size_t size() const { return idx_.size(); }
+
+	// Generates a random element from container uniformly.
+	// O(log n).
+	T gen() { return list_[idx_.gen()]; }
+};
+template <typename C>
+distinct_container(const C &) -> distinct_container<typename C::value_type>;
 
 /************
  *          *
@@ -2243,7 +2270,10 @@ struct regex_node {
 								   // or -1 if not a repetition.
 	double
 		log_space_num_ways_; // Log space number of ways to match the pattern.
+	std::optional<distinct_container<char>>
+		distinct_; // Distinct generator for the pattern, for [chars].
 
+	// c or [chars].
 	regex_node(const std::string &pattern)
 		: pattern_(pattern), left_bound_(-1), right_bound_(-1) {
 		if (pattern.size() == 1) {
@@ -2252,8 +2282,11 @@ struct regex_node {
 		}
 		tgen_ensure_against_bug(pattern[0] == '[' and pattern.back() == ']',
 								"str: invalid regex: expected character class");
-		log_space_num_ways_ = math::_detail::log_space(pattern.size() - 2);
+		int size = pattern.size() - 2;
+		log_space_num_ways_ = math::_detail::log_space(size);
+		distinct_ = distinct_container<char>(pattern.substr(1, size));
 	}
+	// SEQ or OR.
 	regex_node(const std::string &pattern, std::vector<regex_node> &children)
 		: pattern_(pattern), left_bound_(-1), right_bound_(-1) {
 		if (pattern == "SEQ") {
@@ -2273,6 +2306,7 @@ struct regex_node {
 		children_ = std::move(children);
 		children.clear();
 	}
+	// REP.
 	regex_node(int left_bound, int right_bound, regex_node &child)
 		: pattern_("REP"), left_bound_(left_bound), right_bound_(right_bound) {
 		log_space_num_ways_ = math::_detail::LOG_ZERO;
@@ -2409,6 +2443,7 @@ inline regex_node parse_regex(std::string regex) {
 	return finish_regex_state(cur);
 }
 
+// Generates a uniformly random string that matches the given regex.
 inline void gen_regex(const regex_node &node, std::string &str) {
 	// For [chars], generate a random character from the list.
 	if (node.pattern_[0] == '[') {
@@ -2436,7 +2471,8 @@ inline void gen_regex(const regex_node &node, std::string &str) {
 			}
 		}
 
-		tgen_ensure_against_bug(false, "str: log_rand > cur_prob in gen_regex");
+		tgen_ensure_against_bug(false,
+								"str: log_rand > cur_prob in REP gen_regex");
 	}
 
 	// For SEQ, generate all children.
@@ -2464,7 +2500,8 @@ inline void gen_regex(const regex_node &node, std::string &str) {
 			}
 		}
 
-		tgen_ensure_against_bug(false, "str: log_rand > cur_prob in gen_regex");
+		tgen_ensure_against_bug(false,
+								"str: log_rand > cur_prob in OR gen_regex");
 	}
 
 	// For char, generate the character.
@@ -2473,6 +2510,93 @@ inline void gen_regex(const regex_node &node, std::string &str) {
 		"str: invalid regex: expected single character, but got `" +
 			node.pattern_ + "`");
 	str += node.pattern_[0];
+}
+
+// Generates a uniformly random string that matches the given regex, updating
+// the number of remaining strings that match the regex and have not been
+// generated yet.
+inline void gen_regex_update(regex_node &node, std::string &str) {
+	// For [chars], generate a random character from the list.
+	if (node.pattern_[0] == '[') {
+		str += node.distinct_->gen();
+		node.log_space_num_ways_ =
+			math::_detail::log_space(node.distinct_->size());
+		return;
+	}
+
+	// For REP, generate a random number of times to repeat the pattern.
+	if (node.left_bound_ != -1) {
+		// Generates a random value W from 0 to num_ways.
+		// log(W) = log(random(0, 1) * num_ways)
+		//        = log(random(0, 1)) + log(num_ways).
+		double log_rand = math::_detail::log_space(next<double>(0, 1)) +
+						  node.log_space_num_ways_;
+		double cur_prob = math::_detail::LOG_ZERO;
+		double child_num_ways = node.children_[0].log_space_num_ways_;
+		bool generated = false;
+		node.log_space_num_ways_ = math::_detail::LOG_ZERO;
+
+		for (int i = node.left_bound_; i <= node.right_bound_; ++i) {
+			cur_prob =
+				math::_detail::add_log_space(cur_prob, i * child_num_ways);
+			if (!generated and log_rand <= cur_prob) {
+				generated = true;
+				for (int j = 0; j < i; ++j)
+					gen_regex_update(node.children_[0], str);
+				generated = true;
+			}
+			node.log_space_num_ways_ = math::_detail::add_log_space(
+				node.log_space_num_ways_, i * child_num_ways);
+		}
+
+		tgen_ensure_against_bug(
+			generated, "str: log_rand > cur_prob in REP gen_regex_update");
+		return;
+	}
+
+	// For SEQ, generate all children.
+	if (!node.children_.empty() and node.pattern_ == "SEQ") {
+		node.log_space_num_ways_ = math::_detail::LOG_ONE;
+		for (const regex_node &child : node.children_) {
+			gen_regex(child, str);
+			node.log_space_num_ways_ += child.log_space_num_ways_;
+		}
+		return;
+	}
+
+	// For OR, generate a random child.
+	if (!node.children_.empty() and node.pattern_ == "OR") {
+		// Generates a random value W from 0 to num_ways.
+		// log(W) = log(random(0, 1) * num_ways)
+		//        = log(random(0, 1)) + log(num_ways).
+		double log_rand = math::_detail::log_space(next<double>(0, 1)) +
+						  node.log_space_num_ways_;
+		double cur_prob = math::_detail::LOG_ZERO;
+		bool generated = false;
+		node.log_space_num_ways_ = math::_detail::LOG_ZERO;
+
+		for (const regex_node &child : node.children_) {
+			cur_prob = math::_detail::add_log_space(cur_prob,
+													child.log_space_num_ways_);
+			if (!generated and log_rand <= cur_prob) {
+				gen_regex(child, str);
+				generated = true;
+			}
+			node.log_space_num_ways_ = math::_detail::add_log_space(
+				node.log_space_num_ways_, child.log_space_num_ways_);
+		}
+
+		tgen_ensure_against_bug(
+			generated, "str: log_rand > cur_prob in OR gen_regex_update");
+		return;
+	}
+
+	// // For char, generate the character.
+	// _detail::tgen_ensure_against_bug(
+	// 	node.pattern_.size() == 1,
+	// 	"str: invalid regex: expected single character, but got `" +
+	// 		node.pattern_ + "`");
+	// str += node.pattern_[0];
 }
 
 // Formats a regex string with given arguments.
@@ -2662,6 +2786,22 @@ struct str : _detail::gen_base<str> {
 			return instance(std::string(vec.begin(), vec.end()));
 		}
 	}
+
+	struct distinct {
+		_detail::regex_node root_;
+
+		template <typename... Args>
+		distinct(const std::string &regex, Args &&...args) {
+			root_ = _detail::parse_regex(
+				_detail::regex_format(regex, std::forward<Args>(args)...));
+		}
+
+		instance gen() {
+			std::string ret_str;
+			_detail::gen_regex(root_, ret_str);
+			return instance(ret_str);
+		}
+	};
 
 	// Fetches prefix of length n of the string "abacabadabacabae...".
 	static instance abacaba(int n) {

@@ -241,26 +241,43 @@ TEST(base_test, choose) {
 	}
 }
 
-TEST(base_test, distinct_generate_too_many_values) {
+TEST(base_test, distinct_range_generate_too_many_values) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	tgen::distinct d(1, 10);
+	tgen::distinct_range d(1, 10);
 	for (int i = 0; i < 10; ++i)
 		d.gen();
-	EXPECT_THROW_TGEN_PREFIX(d.gen(), "distinct: no more values to generate");
+	EXPECT_THROW_TGEN_PREFIX(d.gen(),
+							 "distinct_range: no more values to generate");
 }
 
-TEST(base_test, distinct) {
+TEST(base_test, distinct_range) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	tgen::distinct d(1, 10);
+	tgen::distinct_range d(1, 10);
 	std::set<int> s;
 	for (int i = 0; i < 10; ++i) {
 		int value = d.gen();
 		EXPECT_TRUE(1 <= value and value <= 10);
 		s.insert(value);
+		EXPECT_EQ(d.size(), 10 - i - 1);
 	}
 	EXPECT_EQ(s.size(), 10);
+}
+
+TEST(base_test, distinct_container) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	std::vector<int> v(10);
+	for (int &i : v)
+		i = tgen::next(1, 100);
+	tgen::distinct_container d(v);
+	for (int i = 0; i < 10; ++i) {
+		int value = d.gen();
+		EXPECT_TRUE(find(v.begin(), v.end(), value) != v.end());
+		EXPECT_EQ(d.size(), v.size() - i - 1);
+	}
 }
