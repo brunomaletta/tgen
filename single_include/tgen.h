@@ -161,6 +161,9 @@ inline std::mt19937 rng;
  * Base classes.
  */
 
+// Used to return false in compile time only if evaluated.
+template <typename> inline constexpr bool dependent_false_v = false;
+
 // Base struct for generators.
 template <typename Gen> struct gen_base {
 	// Calls the generator until predicate is true.
@@ -186,7 +189,7 @@ template <typename Gen> struct gen_base {
 	// Nice error for `out << generator`.
 	friend std::ostream &operator<<(std::ostream &out, const gen_base &) {
 		static_assert(
-			false,
+			dependent_false_v<gen_base>,
 			"you cannot print a generator. Maybe you forgot to call `gen()`?");
 		return out;
 	}

@@ -336,7 +336,7 @@ namespace tgen {
  *
  * ```cpp
  * // Prints 3 distinct numbers from 1 to 10, uniformly at random.
- * tgen::distinct_range d(5, 10);
+ * tgen::distinct_range d(1, 10);
  * std::cout << d.gen() << " " << d.gen() << " " << d.gen() << std::endl;
  * ```
  *
@@ -401,7 +401,7 @@ namespace tgen {
  *
  * ```cpp
  * // Prints 3 distinct numbers from 1 to 10, uniformly at random.
- * tgen::distinct_range d(5, 10);
+ * tgen::distinct_range d(1, 10);
  * std::cout << d.gen() << " " << d.gen() << " " << d.gen() << std::endl;
  * ```
  *
