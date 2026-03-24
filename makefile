@@ -57,10 +57,15 @@ test: single_include/* tests/*
 	./test
 	rm -f test
 
-testas:
+test_clang: single_include/* tests/*
+	clang++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -o test -Wall -Wshadow -O2
+	./test
+	rm -f test
+
+test_asan:
 	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -o test -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow
 	-./test
 	rm -f test
 
-debug:
+sample_debug:
 	g++ -g examples/all.cpp -o examples/sample_debug
