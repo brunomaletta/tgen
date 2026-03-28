@@ -521,8 +521,6 @@ namespace tgen {
  * @brief Generates a random instance from the valid set until a condition is met.
  *
  * @tparam Gen Automatically set to the given type.
- * @tparam Pred Type of @pname{predicate}, deduced automatically.
- * @tparam Args Arguments for the @tt{gen} call, deduced automatically.
  *
  * @param predicate Condition to be checked. Should be a function that takes in a
  *        @tt{@type{Gen}::instance}, and returns a @primitive{bool}.
@@ -539,6 +537,12 @@ namespace tgen {
  *
  * @throws std::runtime_error if no valid instance satisfying @pname{predicate} is found after @pname{max_tries}
  *         tries.
+ *
+ * #### Complexity
+ *
+ * @tt{O(T(n) * (1 / p))} expected, if @tt{@type{Gen}::instance} runs in @tt{O(T(n))} time, and @pname{predicate} has probability
+ * @tt{p} of returning @tt{true}.
+ * @tt{O(T(n) * @pname{max_tries})}, worst case.
  *
  * #### Examples
  *
@@ -569,7 +573,37 @@ namespace tgen {
  * 	 << std::endl;
  * ```
  *
- * @fn _detail::gen_base::gen_until(Pred predicate, int max_tries, Args &&...args) const;
+ * @fn auto _detail::gen_base::gen_until(Pred predicate, int max_tries, Args &&...args) const;
+ */
+
+
+/**
+ * @ingroup generator_op
+ * @brief Generates a random instance from the valid set until a condition is met.
+ *
+ * @param args Arguments for the the function @tt{tgen::@type{Gen}::gen}.
+ *
+ * Calls @tt{tgen::@type{Gen}::gen(args...)} until it generated an instance that has not been generated
+ * by this function before.
+ *
+ * @return The uniformly generated @tt{tgen::@type{Gen}::instance}.
+ *
+ * @throws std::runtime_error if there are probably (with probability at least @tt{1 - 10^(-18)}) no
+ *         more unique instances to generate.
+ *
+ * #### Complexity
+ *
+ * @tt{O(T(n) * log^2(n))} amortized expected, if @tt{@type{Gen}::instance} runs in @tt{O(T(n))} time.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints 3 distinct strings of size n.
+ * auto s = tgen::str("[a-z]{%d}", n);
+ * std::cout << s.gen_unique() << " " << s.gen_unique() << " " << s.gen_unique() << std::endl;
+ * ```
+ *
+ * @fn auto _detail::gen_base::gen_unique(Args &&...args);
  */
 
 

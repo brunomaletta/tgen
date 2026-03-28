@@ -98,4 +98,8 @@ int main(int argc, char **argv) {
 	tgen::distinct_range d10(1, 10);
 	for (int i = 0; i < 5; i++)
 		std::cout << d10.gen() << " \n"[i + 1 == 5];
+
+	tgen::str s("[ab]{5}");
+	for (int i = 0; i < 5; ++i)
+		std::cout << s.gen_unique() << std::endl;
 }
