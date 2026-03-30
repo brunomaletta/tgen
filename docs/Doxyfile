@@ -3007,3 +3007,5 @@ ALIASES += primitive{1}="<span class=\"tgen-primitive texttt\">\1</span>"
 ALIASES += namespace{1}="<span class=\"tgen-ns\">\1</span>"
 
 
+HAVE_DOT               = YES
+COLLABORATION_GRAPH    = NO
