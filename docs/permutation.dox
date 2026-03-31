@@ -91,7 +91,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Generates and prints a random permutation of size 5 with only one cycle.
+ * // Permutations of size 5 with only one cycle.
  * auto perm_gen = tgen::permutation(5).cycles({5}).gen();
  * ```
  *

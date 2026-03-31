@@ -663,23 +663,23 @@ Inst choose(int k, const Inst &inst) {
 	return Inst(new_vec);
 }
 
-// Number distinct generator for integral types.
-template <typename T> struct distinct_range {
+// Number unique generator for integral types.
+template <typename T> struct unique_range {
 	T l_, r_;
 	T num_available_;
 	std::map<T, T> virtual_list_;
 
-	// Generator of distinct values in [l_, r_].
-	distinct_range(T l, T r) : l_(l), r_(r), num_available_(r - l + 1) {}
+	// Generator of unique values in [l_, r_].
+	unique_range(T l, T r) : l_(l), r_(r), num_available_(r - l + 1) {}
 
-	// Returns the number of distinct values left to generate.
+	// Returns the number of unique values left to generate.
 	T size() const { return num_available_; }
 
 	// Generates a random value in [l_, r_] that has not been generated yet.
 	// O(log n).
 	T gen() {
 		// One iteration of Fisher–Yates.
-		tgen_ensure(size() > 0, "distinct_range: no more values to generate");
+		tgen_ensure(size() > 0, "unique_range: no more values to generate");
 
 		T i = next<T>(0, size() - 1);
 		T j = size() - 1;
@@ -692,30 +692,66 @@ template <typename T> struct distinct_range {
 
 		return vi + l_;
 	}
+
+	// Generates a list of unique values.
+	// O(size * log(n)).
+	std::vector<T> gen_list(int size) {
+		std::vector<T> res;
+		for (int i = 0; i < size; ++i)
+			res.push_back(gen());
+		return res;
+	}
+
+	// Generates all unique values.
+	// O(n log(n))
+	std::vector<T> gen_all() {
+		std::vector<T> res;
+		while (size() > 0)
+			res.push_back(gen());
+		return res;
+	}
 };
 
-// Distinct generator for containers.
-template <typename T> struct distinct_container {
+// Unique generator for containers.
+template <typename T> struct unique_container {
 	std::vector<T> list_;
-	distinct_range<size_t> idx_;
+	unique_range<size_t> idx_;
 
-	// Creates a distinct container generator for the given container.
+	// Creates a unique container generator for the given container.
 	template <typename C>
-	distinct_container(const C &container)
+	unique_container(const C &container)
 		: list_(container.begin(), container.end()),
 		  idx_(0, static_cast<int>(container.size()) - 1) {}
-	distinct_container(const std::initializer_list<T> &il)
-		: distinct_container(std::vector<T>(il)) {}
+	unique_container(const std::initializer_list<T> &il)
+		: unique_container(std::vector<T>(il)) {}
 
-	// Returns the number of distinct elements left to generate.
+	// Returns the number of unique elements left to generate.
 	size_t size() const { return idx_.size(); }
 
 	// Generates a random element from container uniformly.
 	// O(log n).
 	T gen() { return list_[idx_.gen()]; }
+
+	// Generates a list of unique values.
+	// O(size * log(n)).
+	std::vector<T> gen_list(int size) {
+		std::vector<T> res;
+		for (int i = 0; i < size; ++i)
+			res.push_back(gen());
+		return res;
+	}
+
+	// Generates all unique values.
+	// O(n log(n))
+	std::vector<T> gen_all() {
+		std::vector<T> res;
+		while (size() > 0)
+			res.push_back(gen());
+		return res;
+	}
 };
 template <typename C>
-distinct_container(const C &) -> distinct_container<typename C::value_type>;
+unique_container(const C &) -> unique_container<typename C::value_type>;
 
 /************
  *          *
@@ -2394,7 +2430,7 @@ struct regex_node {
 								   // or -1 if not a repetition.
 	double
 		log_space_num_ways_; // Log space number of ways to match the pattern.
-	std::optional<distinct_container<char>>
+	std::optional<unique_container<char>>
 		distinct_; // Distinct generator for the pattern, for [chars].
 
 	// c or [chars].
@@ -2408,7 +2444,7 @@ struct regex_node {
 								"str: invalid regex: expected character class");
 		int size = pattern.size() - 2;
 		log_space_num_ways_ = math::_detail::log_space(size);
-		distinct_ = distinct_container<char>(pattern.substr(1, size));
+		distinct_ = unique_container<char>(pattern.substr(1, size));
 	}
 	// SEQ or OR.
 	regex_node(const std::string &pattern, std::vector<regex_node> &children)

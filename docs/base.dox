@@ -382,24 +382,27 @@ namespace tgen {
  */
 
 
+
+
+
 /**
  * @ingroup base
- * @brief Distinct generator for integral ranges.
+ * @brief Unique generator for integral ranges.
  *
  * #### Examples
  *
  * ```cpp
  * // Prints 3 distinct numbers from 1 to 10, uniformly at random.
- * tgen::distinct_range d(1, 10);
- * std::cout << d.gen() << " " << d.gen() << " " << d.gen() << std::endl;
+ * tgen::unique_range u(1, 10);
+ * std::cout << u.gen() << " " << u.gen() << " " << u.gen() << std::endl;
  * ```
  *
- * @struct distinct_range;
+ * @struct unique_range;
  */
 
 
 /**
- * @brief Creates distinct generator for values in given range.
+ * @brief Creates unique generator for values in given range.
  *
  * @param l Left endpoint of the range.
  * @param r Right endpoint of the range.
@@ -410,10 +413,10 @@ namespace tgen {
  *
  * ```cpp
  * // Creates a generator for distinct nubers from 5 to 10.
- * auto distinct = tgen::distinct_range(5, 10);
+ * auto u = tgen::unique_range(5, 10);
  * ```
  *
- * @fn distinct_range::distinct_range(T l, T r);
+ * @fn unique_range::unique_range(T l, T r);
  */
 
 
@@ -430,13 +433,13 @@ namespace tgen {
  *
  * ```cpp
  * // Prints current size of distinct generator.
- * tgen::distinct_range d(5, 10);
- * d.gen(), d.gen();
- * std::cout << d.size() << std::endl;
+ * tgen::unique_range u(5, 10);
+ * u.gen(), u.gen();
+ * std::cout << u.size() << std::endl;
  * // "4"
  * ```
  *
- * @fn distinct_range::size();
+ * @fn unique_range::size();
  */
 
 
@@ -455,33 +458,80 @@ namespace tgen {
  *
  * ```cpp
  * // Prints 3 distinct numbers from 1 to 10, uniformly at random.
- * tgen::distinct_range d(1, 10);
- * std::cout << d.gen() << " " << d.gen() << " " << d.gen() << std::endl;
+ * tgen::unique_range u(1, 10);
+ * std::cout << u.gen() << " " << u.gen() << " " << u.gen() << std::endl;
  * ```
  *
- * @fn distinct_range::gen();
+ * @fn unique_range::gen();
  */
 
 
 /**
+ * @brief Generates a list of several unique values.
+ *
+ * @return A uniformly random @tt{@namespace{std}::@type{vector}} with @pname{size}
+ *         unique values from the range.
+ *
+ * @throws std::runtime_error if there are not enough values to generate.
+ *
+ * #### Complexity
+ *
+ * The same as @pname{size} calls to @ref unique_range::gen.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints 3 distinct numbers from 1 to 10, uniformly at random.
+ * std::cout << tgen::println(tgen::unique_range(1, 10).gen_list(3));
+ * ```
+ *
+ * @fn unique_range::gen_list(int size);
+ */
+
+
+/**
+ * @brief Generates all unique values left to generate.
+ *
+ * @return A uniformly random @tt{@namespace{std}::@type{vector}} with all
+ *         unique values from the range that have not been generated yet.
+ *
+ * #### Complexity
+ *
+ * The same as calling @ref unique_range::gen until there are no more unique values.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints all numbers from 1 to 10 in a uniformly random order.
+ * std::cout << tgen::println(tgen::unique_range(1, 10).gen_all());
+ * ```
+ *
+ * @fn unique_range::gen_all();
+ */
+
+
+
+
+
+/**
  * @ingroup base
- * @brief Distinct generator for containers.
+ * @brief Unique generator for containers.
  *
  * #### Examples
  *
  * ```cpp
  * // Prints 3 distinct from the set.
  * std::set<int> s = {3, 5, 9};
- * tgen::distinct_container d(s);
- * std::cout << d.gen() << " " << d.gen() << " " << d.gen() << std::endl;
+ * tgen::unique_container u(s);
+ * std::cout << u.gen() << " " << u.gen() << " " << u.gen() << std::endl;
  * ```
  *
- * @struct distinct_container;
+ * @struct unique_container;
  */
 
 
 /**
- * @brief Creates distinct generator for elements of the given container.
+ * @brief Creates unique generator for elements of the given container.
  *
  * @param container Container.
  *
@@ -492,10 +542,10 @@ namespace tgen {
  * ```cpp
  * // Creates a generator distinct elements from s.
  * std::set<int> s = {3, 5, 9};
- * auto distinct = tgen::distinct_container(s);
+ * auto u = tgen::unique_container(s);
  * ```
  *
- * @fn distinct_container::distinct_container(const C &container);
+ * @fn unique_container::unique_container(const C &container);
  */
 
 
@@ -511,15 +561,15 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints current size of distinct generator.
+ * // Prints current size of unique generator.
  * std::set<int> s = {3, 5, 9};
- * tgen::distinct_container d(s);
- * d.gen();
- * std::cout << d.size() << std::endl;
+ * tgen::unique_container u(s);
+ * u.gen();
+ * std::cout << u.size() << std::endl;
  * // "2"
  * ```
  *
- * @fn distinct_container::size();
+ * @fn unique_container::size();
  */
 
 
@@ -539,11 +589,57 @@ namespace tgen {
  * ```cpp
  * // Prints 3 distinct from the set.
  * std::set<int> s = {3, 5, 9};
- * tgen::distinct_container d(s);
- * std::cout << d.gen() << " " << d.gen() << " " << d.gen() << std::endl;
+ * tgen::unique_container u(s);
+ * std::cout << u.gen() << " " << u.gen() << " " << u.gen() << std::endl;
  * ```
  *
- * @fn distinct_container::gen();
+ * @fn unique_container::gen();
+ */
+
+
+/**
+ * @brief Generates a list of several unique elements.
+ *
+ * @return A uniformly random @tt{@namespace{std}::@type{vector}} with @pname{size}
+ *         unique elements from the container.
+ *
+ * @throws std::runtime_error if there are not enough elements to generate.
+ *
+ * #### Complexity
+ *
+ * The same as @pname{size} calls to @ref unique_container::gen.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints 3 distinct elements from s, uniformly at random.
+ * std::set<int> s = {1, 2, 5, 7, 9};
+ * std::cout << tgen::println(tgen::unique_container(s).gen_list(3));
+ * ```
+ *
+ * @fn unique_container::gen_list(int size);
+ */
+
+
+/**
+ * @brief Generates all unique elements left to generate.
+ *
+ * @return A uniformly random @tt{@namespace{std}::@type{vector}} with all
+ *         unique elements from the container that have not been generated yet.
+ *
+ * #### Complexity
+ *
+ * The same as calling @ref unique_container::gen until there are no more unique values.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints all elements from s in a uniformly random order.
+ * std::set<int> s = {1, 2, 5, 7, 9};
+ * std::cout << tgen::println(tgen::unique_container(s).gen_all());
+ * ```
+ *
+ * @fn unique_container::gen_all();
  */
 
 
@@ -626,6 +722,8 @@ namespace tgen {
  *
  * @return A uniformly random @tt{@namespace{std}::@type{vector}} with @pname{size}
  *         unique values from the function with the given arguments.
+ *
+ * @throws std::runtime_error if there are not enough values to generate.
  *
  * #### Complexity
  *

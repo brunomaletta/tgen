@@ -109,18 +109,14 @@ int main(int argc, char **argv) {
 			  << std::endl;
 
 	// Prints 5 random distinct numbers in [1, 10].
-	tgen::distinct_range d10(1, 10);
-	for (int i = 0; i < 5; i++)
-		std::cout << d10.gen() << " \n"[i + 1 == 5];
+	std::cout << tgen::println(tgen::unique_range(1, 10).gen_list(5));
 
 	// Prints 3 random unique strings of length 5.
-	std::cout << tgen::print(tgen::str("[ab]{5}").unique().gen_list(3))
-			  << std::endl;
+	std::cout << tgen::println(tgen::str("[ab]{5}").unique().gen_list(3));
 
 	// Prints 3 random unique primes in [1, 10].
-	std::cout << tgen::print(
-					 tgen::unique(tgen::math::gen_prime, 1, 10).gen_list(3))
-			  << std::endl;
+	std::cout << tgen::println(
+		tgen::unique(tgen::math::gen_prime, 1, 10).gen_list(3));
 
 	// Prints a random perfect matching of K_10.
 	auto g = tgen::unique([&]() { return tgen::next(0, 9); });
@@ -128,13 +124,10 @@ int main(int argc, char **argv) {
 		std::cout << g.gen() << " " << g.gen() << std::endl;
 
 	// Prints all unique primes in [1, 10].
-	std::cout << tgen::print(
-					 tgen::unique(tgen::math::gen_prime, 1, 10).gen_all())
-			  << std::endl;
+	std::cout << tgen::println(
+		tgen::unique(tgen::math::gen_prime, 1, 10).gen_all());
 
 	// Prints all unique permutations of size 3 and 1 cycles of sizes 1 and 2.
-	std::cout << tgen::print(
-					 tgen::permutation(3).cycles({1, 2}).unique().gen_all(),
-					 '\n')
-			  << std::endl;
+	std::cout << tgen::println(
+		tgen::permutation(3).cycles({1, 2}).unique().gen_all(), '\n');
 }
