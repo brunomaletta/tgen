@@ -552,7 +552,7 @@ namespace tgen {
 
 /**
  * @ingroup base
- * @brief Unique generator for discrete functions.
+ * @brief Unique generator for discrete uniform functions.
  *
  * ### Examples
  *
@@ -564,14 +564,16 @@ namespace tgen {
 
 
 /**
- * @brief Generates a unique generator of a discrete function.
+ * @brief Generates a unique generator of a discrete uniform function.
  *
  * @tparam Func Automatically set to the function type.
  *
  * @param func The function.
  * @param args Arguments for the function.
  *
- * @pre Return type of @pname{f} must have less-than operator overload (@tt{operator<}).
+ * @pre Return type of @pname{func} must have less-than operator overload (@tt{operator<}). <br>
+ *      The function must be **uniform** on its image (every value in the function's image
+ *      must have the same probability of being returned).
  *
  * #### Examples
  *

@@ -147,7 +147,7 @@ std::cout <<
 Random 1-based permutation of size 5 with only one cycle.
 
 ```cpp
-std::cout << tgen::permutation(5).gen({5}).add_1() << std::endl;
+std::cout << tgen::permutation(5).cycles({5}).gen().add_1() << std::endl;
 // "2 5 4 1 3"
 ```
 

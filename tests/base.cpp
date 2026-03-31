@@ -5,6 +5,53 @@
 
 #include <algorithm>
 
+TEST(base_test, unique) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	tgen::unique g([]() { return tgen::next(1, 10); });
+	std::set<int> st;
+	while (!g.empty()) {
+		int val = g.gen();
+		EXPECT_TRUE(1 <= val and val <= 10);
+		st.insert(val);
+	}
+
+	EXPECT_EQ(st.size(), 10);
+	EXPECT_THROW_TGEN_PREFIX(g.gen(), "no more unique values");
+}
+
+TEST(base_test, unique_gen_list) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	tgen::unique g([]() { return tgen::next(1, 10); });
+	std::vector<int> values = g.gen_list(5);
+	std::set<int> st;
+	for (int val : values) {
+		EXPECT_TRUE(1 <= val and val <= 10);
+		st.insert(val);
+	}
+
+	EXPECT_EQ(st.size(), 5);
+}
+
+TEST(base_test, unique_gen_all) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	tgen::unique g([]() { return tgen::next(1, 10); });
+	std::vector<int> values = g.gen_all();
+	std::set<int> st;
+	for (int val : values) {
+		EXPECT_TRUE(1 <= val and val <= 10);
+		st.insert(val);
+	}
+
+	EXPECT_EQ(st.size(), 10);
+	EXPECT_THROW_TGEN_PREFIX(g.gen(), "no more unique values");
+}
+
 TEST(base_test, print_scalar) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());

@@ -464,6 +464,34 @@ TEST(sequence_test, gen_until) {
 	}
 }
 
+TEST(sequence_test, gen_list) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	auto insts = tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1).gen_list(5);
+	for (auto &inst : insts) {
+		EXPECT_TRUE(inst[0] == 1);
+		EXPECT_EQ(inst[0], inst[1]);
+	}
+}
+
+TEST(sequence_test, unique) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	auto insts =
+		tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1).unique().gen_list(5);
+	for (auto &inst : insts) {
+		EXPECT_TRUE(inst[0] == 1);
+		EXPECT_EQ(inst[0], inst[1]);
+	}
+
+	EXPECT_EQ(
+		std::set<tgen::sequence<int>::instance>(insts.begin(), insts.end())
+			.size(),
+		5);
+}
+
 TEST(sequence_test, sequence_choose) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());

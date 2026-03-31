@@ -182,7 +182,7 @@ template <typename Func, typename... Args> struct unique {
 	// Generates unique instance and inserts it if `insert` is true.
 	// Returns the instance if found, otherwise returns std::nullopt.
 	auto generate_unique(bool insert) {
-		for (int i = 0; i < 84 * std::max<size_t>(1, seen_.size()); ++i) {
+		for (int i = 0; i < 84 * std::max<int>(1, seen_.size()); ++i) {
 			T val = std::apply(func_, args_);
 			if (insert ? seen_.insert(val).second : seen_.count(val) == 0)
 				return std::optional<T>(val);
@@ -231,6 +231,14 @@ template <typename Func, typename... Args> struct unique {
 				break;
 		}
 		return res;
+	}
+
+	// Nice error for `out << unique`.
+	friend std::ostream &operator<<(std::ostream &out, const unique &) {
+		static_assert(_detail::dependent_false_v<unique>,
+					  "cannot print a unique generator. Maybe you forgot to "
+					  "call `gen()`?");
+		return out;
 	}
 };
 template <typename Func, typename... Args>
@@ -288,7 +296,7 @@ template <typename Gen> struct gen_base {
 	friend std::ostream &operator<<(std::ostream &out, const gen_base &) {
 		static_assert(
 			_detail::dependent_false_v<gen_base>,
-			"you cannot print a generator. Maybe you forgot to call `gen()`?");
+			"cannot print a generator. Maybe you forgot to call `gen()`?");
 		return out;
 	}
 };
@@ -1396,8 +1404,9 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
  */
 
 struct permutation : gen_base<permutation> {
-	int size_;								// Size of permutation.
-	std::vector<std::pair<int, int>> defs_; // {idx, value}.
+	int size_;									  // Size of permutation.
+	std::vector<std::pair<int, int>> defs_;		  // {idx, value}.
+	std::optional<std::vector<int>> cycle_sizes_; // Cycle sizes.
 
 	// Creates generator for permutation of size 'size'.
 	permutation(int size) : size_(size) {
@@ -1410,6 +1419,18 @@ struct permutation : gen_base<permutation> {
 					"permutation: index must be valid");
 		defs_.emplace_back(idx, value);
 		return *this;
+	}
+
+	// Restricts sequences for permutation to have cycle sizes.
+	permutation &cycles(const std::vector<int> &cycle_sizes) {
+		tgen_ensure(
+			size_ == std::accumulate(cycle_sizes.begin(), cycle_sizes.end(), 0),
+			"permutation: cycle sizes must add up to size of permutation");
+		cycle_sizes_ = cycle_sizes;
+		return *this;
+	}
+	permutation &cycles(const std::initializer_list<int> &cycle_sizes) {
+		return cycles(std::vector<int>(cycle_sizes));
 	}
 
 	// Permutation instance.
@@ -1515,47 +1536,43 @@ struct permutation : gen_base<permutation> {
 	// Generates permutation instance.
 	// O(n).
 	instance gen() const {
-		std::vector<int> idx_to_val(size_, -1), val_to_idx(size_, -1);
-		for (auto [idx, val] : defs_) {
-			tgen_ensure(0 <= val and val < size_,
-						"permutation: value in permutation must be in [0, " +
-							std::to_string(size_) + ")");
-
-			if (idx_to_val[idx] != -1) {
+		if (!cycle_sizes_) {
+			// Cycle sizes not specified.
+			std::vector<int> idx_to_val(size_, -1), val_to_idx(size_, -1);
+			for (auto [idx, val] : defs_) {
 				tgen_ensure(
-					idx_to_val[idx] == val,
-					"permutation: cannot set an idex to two different values");
-			} else
-				idx_to_val[idx] = val;
+					0 <= val and val < size_,
+					"permutation: value in permutation must be in [0, " +
+						std::to_string(size_) + ")");
 
-			if (val_to_idx[val] != -1) {
-				tgen_ensure(
-					val_to_idx[val] == idx,
-					"permutation: cannot set two indices to the same value");
-			} else
-				val_to_idx[val] = idx;
-		}
+				if (idx_to_val[idx] != -1) {
+					tgen_ensure(idx_to_val[idx] == val,
+								"permutation: cannot set an idex to two "
+								"different values");
+				} else
+					idx_to_val[idx] = val;
 
-		std::vector<int> perm(size_);
-		std::iota(perm.begin(), perm.end(), 0);
-		shuffle(perm.begin(), perm.end());
-		int cur_idx = 0;
-		for (int &i : idx_to_val)
-			if (i == -1) {
-				// While this value is used, skip.
-				while (val_to_idx[perm[cur_idx]] != -1)
-					++cur_idx;
-				i = perm[cur_idx++];
+				if (val_to_idx[val] != -1) {
+					tgen_ensure(val_to_idx[val] == idx,
+								"permutation: cannot set two indices to the "
+								"same value");
+				} else
+					val_to_idx[val] = idx;
 			}
-		return idx_to_val;
-	}
 
-	// Generates permutation instance, given cycle sizes.
-	// O(n).
-	instance gen(std::vector<int> cycle_sizes) const {
-		tgen_ensure(
-			size_ == std::accumulate(cycle_sizes.begin(), cycle_sizes.end(), 0),
-			"permutation: cycle sizes must add up to size of permutation");
+			std::vector<int> perm(size_);
+			std::iota(perm.begin(), perm.end(), 0);
+			shuffle(perm.begin(), perm.end());
+			int cur_idx = 0;
+			for (int &i : idx_to_val)
+				if (i == -1) {
+					// While this value is used, skip.
+					while (val_to_idx[perm[cur_idx]] != -1)
+						++cur_idx;
+					i = perm[cur_idx++];
+				}
+			return idx_to_val;
+		}
 
 		// Creates cycles.
 		std::vector<int> order(size_);
@@ -1563,7 +1580,7 @@ struct permutation : gen_base<permutation> {
 		shuffle(order.begin(), order.end());
 		int idx = 0;
 		std::vector<std::vector<int>> cycles;
-		for (int cycle_size : cycle_sizes) {
+		for (int cycle_size : *cycle_sizes_) {
 			cycles.emplace_back();
 			for (int i = 0; i < cycle_size; ++i)
 				cycles.back().push_back(order[idx++]);

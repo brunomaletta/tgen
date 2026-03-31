@@ -23,6 +23,15 @@ TEST(permutation_test, fix_invalid_index) {
 							 "permutation: index must be valid");
 }
 
+TEST(permutation_test, cycles_invalid) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::permutation(5).cycles({4}),
+		"permutation: cycle sizes must add up to size of permutation");
+}
+
 TEST(permutation_test, instance_invalid) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
@@ -76,7 +85,7 @@ TEST(permutation_test, gen_invalid) {
 		"permutation: cannot set two indices to the same value");
 }
 
-TEST(permutation_test, gen) {
+TEST(permutation_test, gen_without_cycles) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -103,24 +112,7 @@ TEST(permutation_test, gen) {
 	}
 }
 
-TEST(permutation_test, gen_uniform) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
-
-	check_generator_uniform(tgen::permutation(4), 24);
-	check_generator_uniform(tgen::permutation(5).fix(0, 3).fix(1, 2), 6);
-}
-
-TEST(permutation_test, gen_cycles_invalid) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
-
-	EXPECT_THROW_TGEN_PREFIX(
-		tgen::permutation(5).gen({4}),
-		"permutation: cycle sizes must add up to size of permutation");
-}
-
-TEST(permutation_test, gen_cycles) {
+TEST(permutation_test, gen_with_cycles) {
 	auto argv = get_argv({"./executable"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
@@ -134,7 +126,7 @@ TEST(permutation_test, gen_cycles) {
 			cycles.push_back(tgen::next(1, left));
 		}
 
-		auto inst = tgen::permutation(n).gen(cycles);
+		auto inst = tgen::permutation(n).cycles(cycles).gen();
 		std::vector<bool> vis(n, false);
 		std::vector<int> gen_cycles;
 		for (int j = 0; j < n; ++j)
@@ -151,4 +143,12 @@ TEST(permutation_test, gen_cycles) {
 		std::sort(gen_cycles.begin(), gen_cycles.end());
 		EXPECT_EQ(cycles, gen_cycles);
 	}
+}
+
+TEST(permutation_test, gen_uniform) {
+	auto argv = get_argv({"./executable"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	check_generator_uniform(tgen::permutation(4), 24);
+	check_generator_uniform(tgen::permutation(5).fix(0, 3).fix(1, 2), 6);
 }

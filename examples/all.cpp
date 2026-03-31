@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
 	std::cout << tgen::permutation(10).fix(0, 1).gen().add_1() << std::endl;
 
 	// Random permutation of size 5 with only one cycle.
-	std::cout << tgen::permutation(5).gen({5}) << std::endl;
+	std::cout << tgen::permutation(5).cycles({5}).gen() << std::endl;
 
 	// Inverse of a random odd permutation of size 5.
 	std::cout << tgen::permutation(5)
@@ -55,46 +55,60 @@ int main(int argc, char **argv) {
 
 	// Random swap permutation of size 20.
 	std::cout << tgen::permutation(20)
-					 .gen(tgen::sequence<int>(19, 1, 2)
-							  .fix(0, 1)
-							  .equal_range(0, 17)
-							  .fix(18, 2)
-							  .gen()
-							  .to_std())
+					 .cycles(tgen::sequence<int>(19, 1, 2)
+								 .fix(0, 1)
+								 .equal_range(0, 17)
+								 .fix(18, 2)
+								 .gen()
+								 .to_std())
+					 .gen()
 					 .add_1()
 			  << std::endl;
 
+	// Prints a random prime in [1, 1e18].
 	std::cout << tgen::math::gen_prime(1, 1e18) << std::endl;
 
+	// Prints the largest prime that fits in uint64_t.
 	std::cout << tgen::math::prime_upto(std::numeric_limits<uint64_t>::max())
 			  << std::endl;
 
+	// Prints largest prime gap that fits in uint64_t.
 	auto [l, r] =
 		tgen::math::prime_gap_upto(std::numeric_limits<uint64_t>::max());
 	std::cout << l << " " << r << " " << r - l << std::endl;
 
+	// Prints a random even number in [1, 10].
 	std::cout << tgen::math::gen_even(1, 10) << std::endl;
 
+	// Prints a random partition of 10.
 	std::cout << tgen::println(tgen::math::gen_partition(10));
 
+	// Prints a random partition of 10 into 2 parts in [3, 7].
 	std::cout << tgen::print(tgen::math::gen_partition_fixed_size(10, 2, 3, 7))
 			  << std::endl;
 
+	// Prints a matrix.
 	std::vector<std::vector<int>> mat = {{1, 2}, {3, 4}};
 	std::cout << tgen::println(mat);
 
+	// Prints a shuffled set.
 	std::cout << tgen::println(tgen::shuffled(std::set<int>({1, 2, 3})));
+
+	// Prints a shuffled sequence.
 	std::cout << tgen::println(
 		tgen::shuffled(tgen::sequence<int>({1, 2, 3}).gen()));
 
+	// Prints random numbers in [0, 1e30].
 	tgen::str leq1e30("0 | [1-9][0-9]{0,%d} | 10{%d}", 30 - 1, 30);
 	std::cout << leq1e30.gen() << " " << leq1e30.gen() << " " << leq1e30.gen()
 			  << std::endl;
 	std::cout << tgen::str("[a-zA-Z]{10}").gen() << std::endl;
 
+	// Prints a random element from {"a", "b", "c"} by distribution {1, 2, 3}.
 	std::cout << tgen::any_by_distribution({"a", "b", "c"}, {1, 2, 3})
 			  << std::endl;
 
+	// Prints 5 random distinct numbers in [1, 10].
 	tgen::distinct_range d10(1, 10);
 	for (int i = 0; i < 5; i++)
 		std::cout << d10.gen() << " \n"[i + 1 == 5];
@@ -119,7 +133,8 @@ int main(int argc, char **argv) {
 			  << std::endl;
 
 	// Prints all unique permutations of size 3 and 1 cycles of sizes 1 and 2.
-	std::cout << tgen::print(tgen::permutation(3).unique({1, 2}).gen_all(),
-							 '\n')
+	std::cout << tgen::print(
+					 tgen::permutation(3).cycles({1, 2}).unique().gen_all(),
+					 '\n')
 			  << std::endl;
 }

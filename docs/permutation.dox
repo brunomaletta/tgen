@@ -17,7 +17,7 @@ namespace tgen {
  * // "2 7 10 4 3 9 1 5 8 6"
  * 
  * // Prints a random permutation of size 5 with only one cycle.
- * std::cout << tgen::permutation(5).gen({5}) << std::endl;
+ * std::cout << tgen::permutation(5).cycles({5}).gen() << std::endl;
  * // "1 4 3 0 2"
  * 
  * // Prints the inverse of a random odd permutation of size 5.
@@ -82,6 +82,24 @@ namespace tgen {
 
 
 /**
+ * @brief Restricts generator s.t. cycle sizes are fixed.
+ *
+ * @param cycle_sizes Sizes of cycles.
+ *
+ * The sizes of cycles of the generated permuttion will be @pname{cycle_sizes}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Generates and prints a random permutation of size 5 with only one cycle.
+ * auto perm_gen = tgen::permutation(5).cycles({5}).gen();
+ * ```
+ *
+ * @fn permutation::cycles(const std::vector<int> &cycle_sizes);
+ */
+
+
+/**
  * @brief Generates a random instance from the set of valid permutations.
  *
  * @return A uniformly random @tt{tgen::permutation::instance} from the set of valid permutations, given the added restrictions.
@@ -101,35 +119,6 @@ namespace tgen {
  * ```
  *
  * @fn permutation::gen() const;
- */
-
-
-/**
- * @brief Generates a random instance from the set of valid permutations, given a list
- *        of cycle sizes.
- *
- * @param cycle_sizes Sizes of cycles.
- *
- * The sizes of cycles of the generated permuttion will be @pname{cycle_sizes}. The permutation is generated
- * uniformly at random among all permutations with these cycle sizes.
- *
- * @return A uniformly random @tt{tgen::permutation::instance} with the given list of cycle sizes.
- *
- * @throws std::runtime_error if there is no valid permutation satisfying all added restrictions.
- *
- * #### Complexity
- *
- * @tt{O(n)}.
- *
- * #### Examples
- *
- * ```cpp
- * // Generates and prints a random permutation of size 5 with only one cycle.
- * auto inst = tgen::permutation(5).gen({5});
- * std::cout << inst << std::endl;
- * ```
- *
- * @fn permutation::gen(std::vector<int> cycle_sizes) const;
  */
 
 
