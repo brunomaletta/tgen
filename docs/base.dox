@@ -26,6 +26,9 @@ namespace tgen {
  */
 
 
+
+
+
 /**
  * @ingroup base
  * @brief Ensures condition is true.
@@ -49,6 +52,9 @@ namespace tgen {
  */
 
 
+
+
+
 /**
  * @ingroup base
  * @brief Printer helper for standard types.
@@ -65,14 +71,37 @@ namespace tgen {
  *
  * ```cpp
  * std::tuple<int, double, std::string> tu = {5, 0.1, "str"};
- * std::cout << tgen::println(tu);
- * // "5 0.1 str\n"
- * std::cout << tgen::print({{1, 2}, {3, 4}});
- * // "1 2\n3 4"
+ * std::cout << tgen::print(tu);
+ * // "5 0.1 str"
+ * std::cout << tgen::print({{1, 2}, {3, 4}}, ',');
+ * // "1,2\n3,4"
  * ```
  *
  * @struct print;
  */
+
+
+/**
+ * @brief Cretes a printer object.
+ *
+ * @param val Value to be printed.
+ * @param sep Separator for values printed in the same line.
+ *
+ * @fn print::print(const T &val, char sep = ' ');
+ */
+
+
+/**
+ * @brief Prints printer object.
+ *
+ * @param out Stream to print to.
+ * @param pr Printer object.
+ *
+ * @fn print::operator<<(std::ostream &out, const print &pr);
+ */
+
+
+
 
 
 /**
@@ -87,10 +116,35 @@ namespace tgen {
  * std::tuple<int, double, std::string> tu = {5, 0.1, "str"};
  * std::cout << tgen::println(tu);
  * // "5 0.1 str\n"
+ * std::cout << tgen::print({{1, 2}, {3, 4}}, ',');
+ * // "1,2\n3,4\n"
  * ```
  *
  * @struct println;
  */
+
+
+/**
+ * @brief Cretes a printer object that prints on a new line.
+ *
+ * @param val Value to be printed.
+ * @param sep Separator for values printed in the same line.
+ *
+ * @fn println::println(const T &val, char sep = ' ');
+ */
+
+
+/**
+ * @brief Prints printer object on a new line.
+ *
+ * @param out Stream to print to.
+ * @param pr Printer object.
+ *
+ * @fn println::operator<<(std::ostream &out, const println &pr);
+ */
+
+
+
 
 
 /**

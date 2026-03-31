@@ -171,26 +171,23 @@ template <typename> inline constexpr bool dependent_false_v = false;
 
 // Generates unique instances of a function.
 template <typename Func> struct unique {
-	Func func;
+	Func func_;
+	std::any seen_any_; // Holds std::set<T>.
 
-	// One entry per instantiation and (Args...) signature.
-	std::unordered_map<std::type_index, std::any> storage;
-
-	explicit unique(Func f) : func(std::move(f)) {}
+	explicit unique(Func func) : func_(std::move(func)) {}
 
 	// Fetches the set of seen values for the given arguments.
 	template <typename... Args> auto &get_seen() {
 		using T = std::invoke_result_t<Func &, Args...>;
-		using Set = std::set<T>;
 
-		std::type_index key(typeid(Set));
+		if (!seen_any_.has_value())
+			seen_any_ = std::set<T>();
 
-		auto it = storage.find(key);
-		if (it == storage.end()) {
-			it = storage.emplace(key, Set{}).first;
-		}
+		if (seen_any_.type() != typeid(std::set<T>))
+			throw _detail::error(
+				"tgen: unique: generation called with different types");
 
-		return *std::any_cast<Set>(&it->second);
+		return *std::any_cast<std::set<T>>(&seen_any_);
 	}
 
 	// Generates unique instance and inserts it if `insert` is true.
@@ -201,7 +198,7 @@ template <typename Func> struct unique {
 		auto &seen = get_seen<Args...>();
 
 		for (int i = 0; i < 84 * std::max<size_t>(1, seen.size()); ++i) {
-			T x = std::invoke(func, std::forward<Args>(args)...);
+			T x = std::invoke(func_, std::forward<Args>(args)...);
 			if (insert ? seen.insert(x).second : seen.count(x) == 0)
 				return std::optional<T>(x);
 		}
@@ -358,70 +355,77 @@ struct has_subset_defined<
 struct print {
 	std::string s_;
 
-	template <typename T> print(const T &x) {
+	template <typename T> print(const T &val, char sep = ' ') {
 		std::ostringstream oss;
-		write(oss, x);
-		s_ = oss.str();
-	}
-	template <typename T> print(const std::initializer_list<T> &il) {
-		std::ostringstream oss;
-		write(oss, std::vector<T>(il.begin(), il.end()));
+		write(oss, val, sep);
 		s_ = oss.str();
 	}
 	template <typename T>
-	print(const std::initializer_list<std::initializer_list<T>> &il) {
+	print(const std::initializer_list<T> &il, char sep = ' ') {
+		std::ostringstream oss;
+		write(oss, std::vector<T>(il.begin(), il.end()), sep);
+		s_ = oss.str();
+	}
+	template <typename T>
+	print(const std::initializer_list<std::initializer_list<T>> &il,
+		  char sep = ' ') {
 		std::ostringstream oss;
 		std::vector<std::vector<T>> mat;
 		for (const auto &i : il)
 			mat.push_back(i);
-		write(oss, mat);
+		write(oss, mat, sep);
 		s_ = oss.str();
 	}
 
-	template <typename T> void write(std::ostream &os, const T &x) {
+	template <typename T>
+	void write(std::ostream &os, const T &val, char sep = ' ') {
 		if constexpr (_detail::is_pair<T>::value) {
 			if constexpr (_detail::is_pair_multiline<T>::value) {
-				write(os, x.first);
+				write(os, val.first, sep);
 				os << '\n';
-				write(os, x.second);
+				write(os, val.second, sep);
 			} else {
-				write(os, x.first);
-				os << ' ';
-				write(os, x.second);
+				write(os, val.first);
+				os << sep;
+				write(os, val.second);
 			}
 		} else if constexpr (_detail::is_tuple<T>::value)
-			write_tuple(os, x);
+			write_tuple(os, val, sep);
 		else if constexpr (_detail::is_container<T>::value)
-			write_container(os, x);
+			write_container(os, val, sep);
 		else
-			os << x;
+			os << val;
 	}
 
 	// Writes container, checking separator.
-	template <typename C> void write_container(std::ostream &os, const C &c) {
+	template <typename C>
+	void write_container(std::ostream &os, const C &container, char sep = ' ') {
 		bool first = true;
 
-		for (const auto &e : c) {
+		for (const auto &e : container) {
 			if (!first)
-				os << (_detail::is_container_multiline<C>::value ? '\n' : ' ');
+				os << (_detail::is_container_multiline<C>::value ? '\n' : sep);
 			first = false;
-			write(os, e);
+			write(os, e, _detail::is_container_multiline<C>::value ? sep : ' ');
 		}
 	}
 
 	// Writes tuple, checking separator.
 	template <typename Tuple, size_t... I>
-	void write_tuple_impl(std::ostream &os, const Tuple &tp,
+	void write_tuple_impl(std::ostream &os, const Tuple &tp, char sep,
 						  std::index_sequence<I...>) {
 		bool first = true;
 		((os << (first ? (first = false, "")
-					   : (_detail::is_tuple_multiline<Tuple>::value ? "\n"
-																	: " ")),
-		  write(os, std::get<I>(tp))),
+					   : (_detail::is_tuple_multiline<Tuple>::value
+							  ? "\n"
+							  : std::string(1, sep))),
+		  write(os, std::get<I>(tp),
+				_detail::is_tuple_multiline<Tuple>::value ? sep : ' ')),
 		 ...);
 	}
-	template <typename T> void write_tuple(std::ostream &os, const T &tp) {
-		write_tuple_impl(os, tp,
+	template <typename T>
+	void write_tuple(std::ostream &os, const T &tp, char sep = ' ') {
+		write_tuple_impl(os, tp, sep,
 						 std::make_index_sequence<std::tuple_size<T>::value>{});
 	}
 
@@ -432,14 +436,15 @@ struct print {
 
 // Prints in a new line.
 struct println : print {
-	template <typename T> println(const T &x) : print(x) {}
-
 	template <typename T>
-	println(const std::initializer_list<T> &il) : print(il) {}
-
+	println(const T &val, char sep = ' ') : print(val, sep) {}
 	template <typename T>
-	println(const std::initializer_list<std::initializer_list<T>> &il)
-		: print(il) {}
+	println(const std::initializer_list<T> &il, char sep = ' ')
+		: print(il, sep) {}
+	template <typename T>
+	println(const std::initializer_list<std::initializer_list<T>> &il,
+			char sep = ' ')
+		: print(il, sep) {}
 
 	friend std::ostream &operator<<(std::ostream &out, const println &pr) {
 		return out << pr.s_ << '\n';
