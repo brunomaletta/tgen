@@ -469,7 +469,7 @@ namespace tgen {
 /**
  * @brief Generates a list of several unique values.
  *
- * @return A uniformly random @tt{@namespace{std}::@type{vector}} with @pname{size}
+ * @return A uniformly random @ref tgen::sequence::instance with @pname{size}
  *         unique values from the range.
  *
  * @throws std::runtime_error if there are not enough values to generate.
@@ -482,7 +482,7 @@ namespace tgen {
  *
  * ```cpp
  * // Prints 3 distinct numbers from 1 to 10, uniformly at random.
- * std::cout << tgen::println(tgen::unique_range(1, 10).gen_list(3));
+ * std::cout << tgen::unique_range(1, 10).gen_list(3) << std::endl;
  * ```
  *
  * @fn unique_range::gen_list(int size);
@@ -492,7 +492,7 @@ namespace tgen {
 /**
  * @brief Generates all unique values left to generate.
  *
- * @return A uniformly random @tt{@namespace{std}::@type{vector}} with all
+ * @return A uniformly random @ref tgen::sequence::instance with all
  *         unique values from the range that have not been generated yet.
  *
  * #### Complexity
@@ -503,7 +503,7 @@ namespace tgen {
  *
  * ```cpp
  * // Prints all numbers from 1 to 10 in a uniformly random order.
- * std::cout << tgen::println(tgen::unique_range(1, 10).gen_all());
+ * std::cout << tgen::unique_range(1, 10).gen_all() << std::endl;
  * ```
  *
  * @fn unique_range::gen_all();
@@ -600,7 +600,7 @@ namespace tgen {
 /**
  * @brief Generates a list of several unique elements.
  *
- * @return A uniformly random @tt{@namespace{std}::@type{vector}} with @pname{size}
+ * @return A uniformly random @ref tgen::sequence::instance with @pname{size}
  *         unique elements from the container.
  *
  * @throws std::runtime_error if there are not enough elements to generate.
@@ -614,7 +614,7 @@ namespace tgen {
  * ```cpp
  * // Prints 3 distinct elements from s, uniformly at random.
  * std::set<int> s = {1, 2, 5, 7, 9};
- * std::cout << tgen::println(tgen::unique_container(s).gen_list(3));
+ * std::cout << tgen::unique_container(s).gen_list(3) << std::endl;
  * ```
  *
  * @fn unique_container::gen_list(int size);
@@ -624,7 +624,7 @@ namespace tgen {
 /**
  * @brief Generates all unique elements left to generate.
  *
- * @return A uniformly random @tt{@namespace{std}::@type{vector}} with all
+ * @return A uniformly random @ref tgen::sequence::instance with all
  *         unique elements from the container that have not been generated yet.
  *
  * #### Complexity
@@ -636,7 +636,7 @@ namespace tgen {
  * ```cpp
  * // Prints all elements from s in a uniformly random order.
  * std::set<int> s = {1, 2, 5, 7, 9};
- * std::cout << tgen::println(tgen::unique_container(s).gen_all());
+ * std::cout << tgen::unique_container(s).gen_all() << std::endl;
  * ```
  *
  * @fn unique_container::gen_all();
@@ -720,20 +720,20 @@ namespace tgen {
  *
  * @param size Size of the list to be generated.
  *
- * @return A uniformly random @tt{@namespace{std}::@type{vector}} with @pname{size}
+ * @return A uniformly random @ref tgen::sequence::instance with @pname{size}
  *         unique values from the function with the given arguments.
  *
  * @throws std::runtime_error if there are not enough values to generate.
  *
  * #### Complexity
  *
- * The same as @tt{@pname{size}} calls to @ref unique::gen.
+ * The same as @pname{size} calls to @ref unique::gen.
  *
  * #### Examples
  *
  * ```cpp
  * // Prints 10 random unique strings.
- * std::cout << print(tgen::str("[a-z]{5}").unique().gen_list(10)) << std::endl;
+ * std::cout << tgen::str("[a-z]{5}").unique().gen_list(10) << std::endl;
  * ```
  *
  * @fn unique::gen_list(int size);
@@ -764,7 +764,7 @@ namespace tgen {
 /**
  * @brief Generates all unique values left to generate.
  *
- * @return A uniformly random @tt{@namespace{std}::@type{vector}} with all
+ * @return A uniformly random @ref tgen::sequence::instance with all
  *         unique values from the function with the given arguments
  *         that have not been generated yet.
  *
@@ -776,7 +776,7 @@ namespace tgen {
  *
  * ```cpp
  * // Prints all primes in [1, 10].
- * std::cout << print(tgen::unique(tgen::math::gen_prime, 1, 10).gen_all()) << std::endl;
+ * std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_all() << std::endl;
  * ```
  *
  * @fn unique::gen_all();
@@ -802,18 +802,18 @@ namespace tgen {
  * @param size Size of the list to be generated.
  * @param args Arguments for the @tt{tgen::@type{Gen}::gen} call.
  *
- * @return A @tt{@namespace{std}::@type{vector}<tgen::@type{Gen}::instance>} with @pname{size}
+ * @return A @ref tgen::sequence::instance with @pname{size}
  *         calls to @tt{tgen::@type{gen}::gen(@pname{args}...)}.
  *
  * #### Complexity
  *
- * @tt{@pname{size}} times the complexity of one @tt{tgen::@type{Gen}::gen(@pname{args}...)} call.
+ * @pname{size} times the complexity of one @tt{tgen::@type{Gen}::gen(@pname{args}...)} call.
  *
  * #### Examples
  *
  * ```cpp
  * // Creates unique generator of strings of size n.
- * tgen::gen_unique g = tgen::str("[a-z]{%d}", n).unique();
+ * tgen::unique g = tgen::str("[a-z]{%d}", n).gen_list();
  * ```
  *
  * @fn gen_base::gen_list(int size, Args &&...args) const;
@@ -899,10 +899,10 @@ namespace tgen {
  * // Creates unique generator of strings of size n.
  * tgen::unique g = tgen::str("[a-z]{%d}", n).unique();
  * // Creates unique generator of permutations with cycles of sizes 1 and 2.
- * g = tgen::permutation(3).unique({1, 2});
+ * u = tgen::permutation(3).unique({1, 2});
  * ```
  *
- * @fn gen_base::unique(Args &&...args) const
+ * @fn gen_base::unique(Args &&...args) const;
  */
 
 

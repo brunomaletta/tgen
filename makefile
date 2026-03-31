@@ -7,7 +7,7 @@ THEME_DIR     := docs/doxygen-awesome-css
 all: lint doc test
 
 clean:
-	-.rm -f test sample sample_debug
+	-rm -f test sample examples/sample_debug
 
 sample:
 	@g++ -std=c++17 examples/all.cpp -I $(SRC_DIR) -o sample
@@ -69,3 +69,6 @@ test_asan:
 
 sample_debug:
 	g++ -g examples/all.cpp -o examples/sample_debug
+
+cloc: clean
+	cloc --by-file single_include examples tests docs/custom.css docs/header.html

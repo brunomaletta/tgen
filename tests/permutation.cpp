@@ -71,6 +71,10 @@ TEST(permutation_test, instance_ops) {
 	testing::internal::CaptureStdout();
 	std::cout << inst.add_1();
 	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2 3"));
+
+	testing::internal::CaptureStdout();
+	std::cout << inst.add_1().separator(',');
+	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1,2,3"));
 }
 
 TEST(permutation_test, gen_invalid) {

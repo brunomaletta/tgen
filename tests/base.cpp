@@ -26,7 +26,7 @@ TEST(base_test, unique_gen_list) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	tgen::unique g([]() { return tgen::next(1, 10); });
-	std::vector<int> values = g.gen_list(5);
+	std::vector<int> values = g.gen_list(5).to_std();
 	std::set<int> st;
 	for (int val : values) {
 		EXPECT_TRUE(1 <= val and val <= 10);
@@ -41,7 +41,7 @@ TEST(base_test, unique_gen_all) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	tgen::unique g([]() { return tgen::next(1, 10); });
-	std::vector<int> values = g.gen_all();
+	std::vector<int> values = g.gen_all().to_std();
 	std::set<int> st;
 	for (int val : values) {
 		EXPECT_TRUE(1 <= val and val <= 10);
@@ -325,9 +325,9 @@ TEST(base_test, unique_range) {
 		EXPECT_EQ(d.size(), 10 - i - 1);
 	}
 	EXPECT_EQ(s.size(), 10);
-	auto vec = tgen::unique_range(1, 10).gen_all();
+	auto vec = tgen::unique_range(1, 10).gen_all().to_std();
 	EXPECT_EQ(std::set<int>(vec.begin(), vec.end()).size(), 10);
-	vec = tgen::unique_range(1, 10).gen_list(5);
+	vec = tgen::unique_range(1, 10).gen_list(5).to_std();
 	EXPECT_EQ(std::set<int>(vec.begin(), vec.end()).size(), 5);
 }
 
@@ -344,8 +344,8 @@ TEST(base_test, unique_container) {
 		EXPECT_TRUE(find(v.begin(), v.end(), value) != v.end());
 		EXPECT_EQ(d.size(), v.size() - i - 1);
 	}
-	auto vec = tgen::unique_container(v).gen_all();
+	auto vec = tgen::unique_container(v).gen_all().to_std();
 	EXPECT_EQ(vec.size(), 10);
-	vec = tgen::unique_container(v).gen_list(5);
+	vec = tgen::unique_container(v).gen_list(5).to_std();
 	EXPECT_EQ(vec.size(), 5);
 }

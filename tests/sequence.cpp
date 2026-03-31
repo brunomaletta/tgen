@@ -186,6 +186,11 @@ TEST(sequence_test, instance_ops) {
 	std::cout << inst;
 	EXPECT_EQ(testing::internal::GetCapturedStdout(),
 			  std::string("1 2 3 4 5 6"));
+
+	testing::internal::CaptureStdout();
+	std::cout << inst.separator(',');
+	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+			  std::string("1,2,3,4,5,6"));
 }
 
 TEST(sequence_test, gen_with_set) {
@@ -469,7 +474,7 @@ TEST(sequence_test, gen_list) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	auto insts = tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1).gen_list(5);
-	for (auto &inst : insts) {
+	for (auto &inst : insts.to_std()) {
 		EXPECT_TRUE(inst[0] == 1);
 		EXPECT_EQ(inst[0], inst[1]);
 	}
@@ -481,14 +486,14 @@ TEST(sequence_test, unique) {
 
 	auto insts =
 		tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1).unique().gen_list(5);
-	for (auto &inst : insts) {
+	for (auto &inst : insts.to_std()) {
 		EXPECT_TRUE(inst[0] == 1);
 		EXPECT_EQ(inst[0], inst[1]);
 	}
 
+	auto vec = insts.to_std();
 	EXPECT_EQ(
-		std::set<tgen::sequence<int>::instance>(insts.begin(), insts.end())
-			.size(),
+		std::set<tgen::sequence<int>::instance>(vec.begin(), vec.end()).size(),
 		5);
 }
 

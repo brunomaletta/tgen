@@ -274,6 +274,25 @@ namespace tgen {
 
 
 /**
+ * @brief Sets separator for printing.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints a permutation, separated by commas.
+ * tgen::permutation::instance inst = {2, 0, 1};
+ * std::cout << inst.separator(',') << std::endl; // Prints "2,0,1".
+ * ```
+ *
+ * @fn permutation::instance::separator(char sep);
+ */
+
+
+/**
  * @brief Adds 1 for printing.
  *
  * This makes it so, when given to @texttt{@namespace{std}::@type{cout}}, the permutation will be printed as

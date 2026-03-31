@@ -169,6 +169,9 @@ template <typename> inline constexpr bool dependent_false_v = false;
  * Base classes.
  */
 
+// Needed for return type of some functions.
+template <typename T> struct sequence;
+
 // Generates unique instances of a function.
 template <typename Func, typename... Args> struct unique {
 	Func func_;
@@ -214,7 +217,7 @@ template <typename Func, typename... Args> struct unique {
 		for (int i = 0; i < size; ++i)
 			res.push_back(gen());
 
-		return res;
+		return typename sequence<T>::instance(res);
 	}
 
 	// Checks if there are no more unique instances.
@@ -230,7 +233,7 @@ template <typename Func, typename... Args> struct unique {
 			else
 				break;
 		}
-		return res;
+		return typename sequence<T>::instance(res);
 	}
 
 	// Nice error for `out << unique`.
@@ -255,7 +258,7 @@ template <typename Gen> struct gen_base {
 			res.push_back(static_cast<const Gen *>(this)->gen(
 				std::forward<Args>(args)...));
 
-		return res;
+		return typename sequence<typename Gen::instance>::instance(res);
 	}
 
 	// Calls the generator until predicate is true.
@@ -695,20 +698,20 @@ template <typename T> struct unique_range {
 
 	// Generates a list of unique values.
 	// O(size * log(n)).
-	std::vector<T> gen_list(int size) {
+	auto gen_list(int size) {
 		std::vector<T> res;
 		for (int i = 0; i < size; ++i)
 			res.push_back(gen());
-		return res;
+		return typename sequence<T>::instance(res);
 	}
 
 	// Generates all unique values.
 	// O(n log(n))
-	std::vector<T> gen_all() {
+	auto gen_all() {
 		std::vector<T> res;
 		while (size() > 0)
 			res.push_back(gen());
-		return res;
+		return typename sequence<T>::instance(res);
 	}
 };
 
@@ -734,20 +737,20 @@ template <typename T> struct unique_container {
 
 	// Generates a list of unique values.
 	// O(size * log(n)).
-	std::vector<T> gen_list(int size) {
+	auto gen_list(int size) {
 		std::vector<T> res;
 		for (int i = 0; i < size; ++i)
 			res.push_back(gen());
-		return res;
+		return typename sequence<T>::instance(res);
 	}
 
 	// Generates all unique values.
 	// O(n log(n))
-	std::vector<T> gen_all() {
+	auto gen_all() {
 		std::vector<T> res;
 		while (size() > 0)
 			res.push_back(gen());
-		return res;
+		return typename sequence<T>::instance(res);
 	}
 };
 template <typename C>
@@ -1055,9 +1058,11 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		using value_type = T;			 // Value type, for templates.
 		using std_type = std::vector<T>; // std type for instance.
 		std::vector<T> vec_;			 // Sequence.
+		char sep_;						 // Separator for printing.
 
-		instance(const std::vector<T> &vec) : vec_(vec) {}
-		instance(const std::initializer_list<T> &il) : vec_(il) {}
+		instance(const std::vector<T> &vec) : vec_(vec), sep_(' ') {}
+		instance(const std::initializer_list<T> &il)
+			: instance(std::vector<T>(il)) {}
 
 		// Fetches size.
 		int size() const { return vec_.size(); }
@@ -1088,6 +1093,13 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 			return *this;
 		}
 
+		// Sets the separator for the sequence, for printing.
+		// O(1).
+		instance &separator(char sep) {
+			sep_ = sep;
+			return *this;
+		}
+
 		// Concatenates two instances.
 		// Linear.
 		instance operator+(const instance &rhs) {
@@ -1102,7 +1114,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 										const instance &inst) {
 			for (int i = 0; i < inst.size(); ++i) {
 				if (i > 0)
-					out << ' ';
+					out << inst.sep_;
 				out << inst[i];
 			}
 			return out;
@@ -1476,9 +1488,11 @@ struct permutation : gen_base<permutation> {
 
 		using std_type = std::vector<int>; // std type for instance.
 		std::vector<int> vec_;			   // Permutation.
+		char sep_;						   // Separator for printing.
 		bool add_1_;					   // If should add 1, for printing.
 
-		instance(const std::vector<int> &vec) : vec_(vec), add_1_(false) {
+		instance(const std::vector<int> &vec)
+			: vec_(vec), sep_(' '), add_1_(false) {
 			tgen_ensure(!vec_.empty(),
 						"permutation: instance: cannot be empty");
 			std::vector<bool> vis(vec_.size(), false);
@@ -1547,6 +1561,13 @@ struct permutation : gen_base<permutation> {
 			return *this;
 		}
 
+		// Sets the separator, for printing.
+		// O(1).
+		instance &separator(char sep) {
+			sep_ = sep;
+			return *this;
+		}
+
 		// Sets that should print values 1-based.
 		// O(1).
 		instance &add_1() {
@@ -1559,7 +1580,7 @@ struct permutation : gen_base<permutation> {
 										const instance &inst) {
 			for (int i = 0; i < inst.size(); ++i) {
 				if (i > 0)
-					out << ' ';
+					out << inst.sep_;
 				out << inst[i] + inst.add_1_;
 			}
 			return out;

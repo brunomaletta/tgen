@@ -375,6 +375,25 @@ namespace tgen {
 
 
 /**
+ * @brief Sets separator for printing.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints an instance, separated by commas.
+ * tgen::sequence<int>::instance inst = {3, 1, 2};
+ * std::cout << inst.separator(',') << std::endl; // Prints "3,1,2".
+ * ```
+ *
+ * @fn sequence::instance::separator(char sep);
+ */
+
+
+/**
  * @brief Concatenates two instances.
  *
  * @param rhs The right-hand side.
