@@ -7,22 +7,19 @@
 #include <string>
 
 TEST(str_test, constructor_size_zero) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::str(0), "sequence: size must be positive");
 }
 
 TEST(str_test, constructor_regex_empty) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::str(""), "str: regex must be non-empty");
 }
 
 TEST(str_test, gen_fixed_size_range) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 50; ++i) {
 		auto s = tgen::str(10, 'c', 'g').gen();
@@ -39,8 +36,7 @@ TEST(str_test, gen_fixed_size_range) {
 }
 
 TEST(str_test, gen_fixed_size_set) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	std::set<char> dna = {'A', 'C', 'G', 'T'};
 	for (int i = 0; i < 50; ++i) {
@@ -52,16 +48,14 @@ TEST(str_test, gen_fixed_size_set) {
 }
 
 TEST(str_test, gen_regex_single_char) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_EQ(tgen::str("a").gen().to_std(), "a");
 	EXPECT_EQ(tgen::str("Z").gen().to_std(), "Z");
 }
 
 TEST(str_test, gen_regex_char_class) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	std::set<std::string> expected = {"a", "b"};
 	for (int i = 0; i < 50; ++i) {
@@ -72,8 +66,7 @@ TEST(str_test, gen_regex_char_class) {
 }
 
 TEST(str_test, gen_regex_char_class_range) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 50; ++i) {
 		std::string s = tgen::str("[0-9]").gen().to_std();
@@ -83,8 +76,7 @@ TEST(str_test, gen_regex_char_class_range) {
 }
 
 TEST(str_test, gen_regex_repetition_fixed) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_EQ(tgen::str("a{3}").gen().to_std(), "aaa");
 	EXPECT_EQ(tgen::str("x{1}").gen().to_std(), "x");
@@ -92,8 +84,7 @@ TEST(str_test, gen_regex_repetition_fixed) {
 }
 
 TEST(str_test, gen_regex_repetition_range) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	std::set<int> lengths = {2, 3, 4};
 	for (int i = 0; i < 100; ++i) {
@@ -105,8 +96,7 @@ TEST(str_test, gen_regex_repetition_range) {
 }
 
 TEST(str_test, gen_regex_alternation) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	std::set<std::string> expected = {"a", "b"};
 	for (int i = 0; i < 50; ++i) {
@@ -116,8 +106,7 @@ TEST(str_test, gen_regex_alternation) {
 }
 
 TEST(str_test, gen_regex_complex) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		std::string s = tgen::str("[1-9][0-9]{1,2}").gen().to_std();
@@ -129,15 +118,13 @@ TEST(str_test, gen_regex_complex) {
 }
 
 TEST(str_test, gen_regex_with_grouping) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_EQ(tgen::str("(ab){2}").gen().to_std(), "abab");
 }
 
 TEST(str_test, gen_regex_uniform) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	check_generator_uniform(tgen::str(2, 'a', 'b'), 4);
 	check_generator_uniform(tgen::str(3, std::set<char>{'0', '1'}), 8);
@@ -154,8 +141,7 @@ TEST(str_test, gen_regex_uniform) {
 }
 
 TEST(str_test, add_restriction_after_regex_throws) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::str("a").fix(0, 'x'),
 							 "str: cannot add restriction for regex");
@@ -164,8 +150,7 @@ TEST(str_test, add_restriction_after_regex_throws) {
 }
 
 TEST(str_test, instance_ops) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	tgen::str::instance inst = tgen::str("hello").gen();
 	EXPECT_EQ(inst.size(), 5);

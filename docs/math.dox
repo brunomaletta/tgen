@@ -535,7 +535,7 @@ namespace tgen::math {
  * @tt{@pname{part_l} > 0}.
  *
  * Partition is ordered (so technically a composition). That is, @tt{(1, 1, 2) != (1, 2, 1)}.
- * If @tt{@pname{part_r} = -1}, @pname{part_r} is considered to be @pname{n} (unbounded).
+ * If @pname{part_r} is not set, @pname{part_r} is considered to be @pname{n} (unbounded).
  *
  * @return A uniformly random ordered partition of @pname{n} with values in @tt{[@pname{part_l}, @pname{part_r}]}.
  *
@@ -554,7 +554,7 @@ namespace tgen::math {
  * auto part = tgen::math::partition(10, 2, 3);
  * ```
  *
- * @fn gen_partition(int n, int part_l = 1, int part_r = -1);
+ * @fn gen_partition(int n, int part_l = 1, std::optional<int> part_r = std::nullopt);
  */
 
 
@@ -572,7 +572,7 @@ namespace tgen::math {
  * @tt{@pname{part_l} >= 0}.
  *
  * Partition is ordered (so technically a composition). That is, @tt{(1, 1, 2) != (1, 2, 1)}.
- * If @tt{@pname{part_r} = -1}, @pname{part_r} is considered to be @pname{n} (unbounded).
+ * If @pname{part_r} is not set, @pname{part_r} is considered to be @pname{n} (unbounded).
  *
  * @return A uniformly random ordered partition of @pname{n} with length @pname{k} and values
  * in @tt{[@pname{part_l}, @pname{part_r}]}.
@@ -593,7 +593,7 @@ namespace tgen::math {
  * auto part = tgen::math::partition_fixed_size(10, 4, 2, 3);
  * ```
  *
- * @fn gen_partition_fixed_size(int n, int k, int part_l = 0, int part_r = -1);
+ * @fn gen_partition_fixed_size(int n, int k, int part_l = 0, std::optional<int> part_r = std::nullopt);
  */
 
 };

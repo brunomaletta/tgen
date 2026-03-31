@@ -49,32 +49,28 @@ struct sequence_test {
 };
 
 TEST(sequence_test, constructor_size_zero) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(0, 1, 10),
 							 "sequence: size must be positive");
 }
 
 TEST(sequence_test, constructor_invalid_range) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 2, 1),
 							 "sequence: value range must be valid");
 }
 
 TEST(sequence_test, constructor_empty_set) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, {}),
 							 "sequence: value set must be non-empty");
 }
 
 TEST(sequence_test, gen_no_restrictions) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	auto s = tgen::sequence<int>(10, 1, 10);
 
@@ -86,8 +82,7 @@ TEST(sequence_test, gen_no_restrictions) {
 }
 
 TEST(sequence_test, gen_no_restrictions_corners) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	{
 		auto v = tgen::sequence<int>(1, 1, 10).gen();
@@ -105,8 +100,7 @@ TEST(sequence_test, gen_no_restrictions_corners) {
 }
 
 TEST(sequence_test, set_invalid_idx) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(-1, 5),
 							 "sequence: index must be valid");
@@ -115,32 +109,28 @@ TEST(sequence_test, set_invalid_idx) {
 }
 
 TEST(sequence_test, set_range_invalid_value) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(3, 20),
 							 "sequence: value must be in the defined range");
 }
 
 TEST(sequence_test, set_range_twice) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(3, 5).fix(3, 6),
 							 "sequence: must not set to two different values");
 }
 
 TEST(sequence_test, set_value_set_invalid) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, {5, 10, 15}).fix(3, 3),
 							 "sequence: value must be in the set of values");
 }
 
 TEST(sequence_test, set_value_set_twice) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, {5, 10, 15}).fix(3, 5).fix(3, 10),
@@ -148,24 +138,21 @@ TEST(sequence_test, set_value_set_twice) {
 }
 
 TEST(sequence_test, set_twice_valid) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	tgen::sequence<int>(10, 1, 10).fix(3, 5).fix(3, 5);
 	tgen::sequence<int>(10, {5, 10, 15}).fix(3, 5).fix(3, 5);
 }
 
 TEST(sequence_test, equal_invalid) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(-1, 5),
 							 "sequence: index must be valid");
 }
 
 TEST(sequence_test, instance_ops) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	tgen::sequence<int>::instance inst = {4, 1, 3, 2};
 
@@ -194,8 +181,7 @@ TEST(sequence_test, instance_ops) {
 }
 
 TEST(sequence_test, gen_with_set) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		int n = 10, num_op = tgen::next(1, 5);
@@ -215,8 +201,7 @@ TEST(sequence_test, gen_with_set) {
 }
 
 TEST(sequence_test, gen_with_equal) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		int n = 10;
@@ -231,8 +216,7 @@ TEST(sequence_test, gen_with_equal) {
 }
 
 TEST(sequence_test, gen_with_equal_range) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		std::vector<std::pair<int, int>> equals;
@@ -258,8 +242,7 @@ TEST(sequence_test, gen_with_equal_range) {
 }
 
 TEST(sequence_test, gen_with_distinct) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		int n = 5;
@@ -280,8 +263,7 @@ TEST(sequence_test, gen_with_distinct) {
 }
 
 TEST(sequence_test, gen_with_all_invalid) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 1, 10).fix(0, 5).equal(0, 1).fix(1, 6).gen(),
@@ -319,8 +301,7 @@ TEST(sequence_test, gen_with_all_invalid) {
 }
 
 TEST(sequence_test, gen_with_all_complex) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::sequence<int>(10, 1, 10)
@@ -358,8 +339,7 @@ TEST(sequence_test, gen_with_all_complex) {
 }
 
 TEST(sequence_test, gen_two_distincts_one_set) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		int n = 5;
@@ -382,8 +362,7 @@ TEST(sequence_test, gen_two_distincts_one_set) {
 }
 
 TEST(sequence_test, gen_with_all) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	{
 		sequence_test test(10, 1, 10);
@@ -417,8 +396,7 @@ TEST(sequence_test, gen_with_all) {
 }
 
 TEST(sequence_test, gen_uniform) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	check_generator_uniform(tgen::sequence<int>(5, 0, 1), 1 << 5);
 	check_generator_uniform(tgen::sequence<int>(5, 0, 1).fix(0, 1), 1 << 4);
@@ -438,8 +416,7 @@ TEST(sequence_test, gen_uniform) {
 }
 
 TEST(sequence_test, gen_until_not_found) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 0, 1).fix(0, 1).gen_until(
 								 [](const auto &inst) {
@@ -452,8 +429,7 @@ TEST(sequence_test, gen_until_not_found) {
 }
 
 TEST(sequence_test, gen_until) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		auto inst = tgen::sequence<int>(10, 0, 1).fix(0, 1).gen_until(
@@ -470,8 +446,7 @@ TEST(sequence_test, gen_until) {
 }
 
 TEST(sequence_test, gen_list) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	auto insts = tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1).gen_list(5);
 	for (auto &inst : insts.to_std()) {
@@ -481,8 +456,7 @@ TEST(sequence_test, gen_list) {
 }
 
 TEST(sequence_test, unique) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	auto insts =
 		tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1).unique().gen_list(5);
@@ -498,8 +472,7 @@ TEST(sequence_test, unique) {
 }
 
 TEST(sequence_test, sequence_choose) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	std::vector<int> v(10);
 	for (int &i : v)

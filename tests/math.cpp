@@ -80,8 +80,7 @@ inline const std::vector<uint64_t> &highly_composites() {
 }
 
 TEST(math_test, is_prime) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int n = -10; n < 2; ++n)
 		EXPECT_EQ(tgen::math::is_prime(n), false);
@@ -98,8 +97,7 @@ TEST(math_test, is_prime) {
 }
 
 TEST(math_test, factor) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	using vec = std::vector<uint64_t>;
 
@@ -121,8 +119,7 @@ TEST(math_test, factor) {
 }
 
 TEST(math_test, factor_by_prime) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	using vec = std::vector<std::pair<uint64_t, int>>;
 
@@ -150,8 +147,7 @@ TEST(math_test, factor_by_prime) {
 }
 
 TEST(math_test, modular_inverse_invalid) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::modular_inverse(0, 5),
@@ -164,8 +160,7 @@ TEST(math_test, modular_inverse_invalid) {
 }
 
 TEST(math_test, modular_inverse) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_EQ(tgen::math::modular_inverse(1, 2), 1);
 	EXPECT_EQ(tgen::math::modular_inverse(5, 6), 5);
@@ -173,8 +168,7 @@ TEST(math_test, modular_inverse) {
 }
 
 TEST(math_test, totient) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::totient(0),
 							 "math: totient(0) is undefined");
@@ -189,8 +183,7 @@ TEST(math_test, totient) {
 }
 
 TEST(math_test, gen_prime_no_prime) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_prime(2, 1),
 							 "math: there is no prime in range [2, 1]");
@@ -203,8 +196,7 @@ TEST(math_test, gen_prime_no_prime) {
 }
 
 TEST(math_test, gen_prime) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		auto p = tgen::math::gen_prime(0, largest_number_64);
@@ -223,16 +215,14 @@ TEST(math_test, gen_prime) {
 }
 
 TEST(math_test, gen_prime_uniform) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	check_function_uniform(tgen::math::gen_prime, 25, 0, 100);
 	check_function_uniform(tgen::math::gen_prime, 168, 0, 1000);
 }
 
 TEST(math_test, prime_from) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::prime_from(largest_number_64 - 57),
 							 "math: invalid bound");
@@ -250,8 +240,7 @@ TEST(math_test, prime_from) {
 }
 
 TEST(math_test, prime_upto) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::prime_upto(1),
 							 "math: there is no prime up to 1");
@@ -268,8 +257,7 @@ TEST(math_test, prime_upto) {
 }
 
 TEST(math_test, num_divisors) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::num_divisors(0),
 							 "math: number to factor must be positive");
@@ -281,8 +269,7 @@ TEST(math_test, num_divisors) {
 }
 
 TEST(math_test, gen_divisor_count) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_divisor_count(1, 10, -1),
 							 "math: divisor count must be prime");
@@ -308,8 +295,7 @@ TEST(math_test, gen_divisor_count) {
 }
 
 TEST(math_test, gen_divisor_count_uniform) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	check_function_uniform(tgen::math::gen_divisor_count, 25, 0, 100, 2);
 	check_function_uniform(tgen::math::gen_divisor_count, 11, 0, 1000, 3);
@@ -317,15 +303,13 @@ TEST(math_test, gen_divisor_count_uniform) {
 }
 
 TEST(math_test, prime_gaps) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_EQ(tgen::math::prime_gaps(), prime_gaps());
 }
 
 TEST(math_test, prime_gap_upto) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	using pair = std::pair<uint64_t, uint64_t>;
 
@@ -353,15 +337,13 @@ TEST(math_test, prime_gap_upto) {
 }
 
 TEST(math_test, highly_composites) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_EQ(tgen::math::highly_composites(), highly_composites());
 }
 
 TEST(math_test, highly_composite_upto) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::highly_composite_upto(0),
@@ -377,8 +359,7 @@ TEST(math_test, highly_composite_upto) {
 }
 
 TEST(math_test, gen_congruent_invalid) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::gen_congruent(1, 0, 0, 2),
@@ -412,8 +393,7 @@ TEST(math_test, gen_congruent_invalid) {
 }
 
 TEST(math_test, gen_congruent) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	using vec = std::vector<uint64_t>;
 
@@ -427,10 +407,11 @@ TEST(math_test, gen_congruent) {
 	EXPECT_TRUE(tgen::math::gen_even(0, largest_number_64) % 2 == 0);
 	EXPECT_TRUE(tgen::math::gen_odd(0, largest_number_64) % 2 == 1);
 	EXPECT_TRUE(tgen::math::gen_congruent(0, largest_number_64, 1, 3) % 3 == 1);
-	EXPECT_EQ(tgen::math::gen_congruent(
-				  1, largest_number_64, {1, 1},
-				  {largest_prime_64, tgen::math::prime_upto(largest_prime_64)}),
-			  1);
+	EXPECT_EQ(
+		tgen::math::gen_congruent(
+			1, largest_number_64, {1, 1},
+			{largest_prime_64, tgen::math::prime_upto(largest_prime_64 - 1)}),
+		1);
 
 	for (int i = 0; i < 100; ++i) {
 		vec primes, rems;
@@ -446,8 +427,7 @@ TEST(math_test, gen_congruent) {
 }
 
 TEST(math_test, gen_congruent_uniform) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	auto func = [](uint64_t l, uint64_t r, std::vector<uint64_t> rems,
 				   std::vector<uint64_t> mods) {
@@ -461,15 +441,13 @@ TEST(math_test, gen_congruent_uniform) {
 }
 
 TEST(math_test, fft_mod) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_EQ(tgen::math::FFT_MOD, fft_mod);
 }
 
 TEST(math_test, fibonacci) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	auto fib = tgen::math::fibonacci();
 
@@ -480,8 +458,7 @@ TEST(math_test, fibonacci) {
 }
 
 TEST(math_test, gen_partition_invalid) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(0, 1, 2),
 							 "math: invalid parameters to gen_partition");
@@ -505,15 +482,15 @@ TEST(math_test, gen_partition_invalid) {
 }
 
 TEST(math_test, gen_partition) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
-	auto test_partition = [&](int n, int part_l = 1, int part_r = -1) {
+	auto test_partition = [&](int n, int part_l = 1,
+							  std::optional<int> part_r = std::nullopt) {
 		auto part = tgen::math::gen_partition(n, part_l, part_r);
 		for (int i : part) {
 			EXPECT_TRUE(part_l <= i);
-			if (part_r != -1) {
-				EXPECT_TRUE(i <= part_r);
+			if (part_r) {
+				EXPECT_TRUE(i <= *part_r);
 			}
 		}
 		EXPECT_EQ(std::accumulate(part.begin(), part.end(), 0), n);
@@ -539,17 +516,15 @@ TEST(math_test, gen_partition) {
 }
 
 TEST(math_test, gen_partition_uniform) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
-	check_function_uniform(tgen::math::gen_partition, 512, 10, 1, -1);
+	check_function_uniform(tgen::math::gen_partition, 512, 10, 1, std::nullopt);
 	check_function_uniform(tgen::math::gen_partition, 7, 10, 2, 3);
 	check_function_uniform(tgen::math::gen_partition, 266, 100, 13, 15);
 }
 
 TEST(math_test, gen_partition_fixed_size_invalid) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::gen_partition_fixed_size(1, 0),
@@ -569,16 +544,16 @@ TEST(math_test, gen_partition_fixed_size_invalid) {
 }
 
 TEST(math_test, gen_partition_fixed_size) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	auto test_partition_fixed_size = [&](int n, int k, int part_l = 0,
-										 int part_r = -1) {
+										 std::optional<int> part_r =
+											 std::nullopt) {
 		auto part = tgen::math::gen_partition_fixed_size(n, k, part_l, part_r);
 		for (int i : part) {
 			EXPECT_TRUE(part_l <= i);
-			if (part_r != -1) {
-				EXPECT_TRUE(i <= part_r);
+			if (part_r) {
+				EXPECT_TRUE(i <= *part_r);
 			}
 		}
 		EXPECT_EQ(part.size(), k);
@@ -610,13 +585,12 @@ TEST(math_test, gen_partition_fixed_size) {
 }
 
 TEST(math_test, gen_partition_fixed_size_uniform) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	check_function_uniform(tgen::math::gen_partition_fixed_size, 66, 10, 3, 0,
-						   -1);
+						   std::nullopt);
 	check_function_uniform(tgen::math::gen_partition_fixed_size, 36, 10, 3, 1,
-						   -1);
+						   std::nullopt);
 	check_function_uniform(tgen::math::gen_partition_fixed_size, 381, 100, 5,
 						   18, 22);
 }

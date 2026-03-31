@@ -934,6 +934,19 @@ inline void register_gen(int argc, char **argv) {
 	_detail::registered = true;
 }
 
+// Registers generator by initializing rnd with a given seed.
+inline void register_gen(std::optional<long long> seed = std::nullopt) {
+	if (seed)
+		_detail::rng.seed(*seed);
+	else
+		_detail::rng.seed();
+
+	_detail::pos_opts.clear();
+	_detail::named_opts.clear();
+
+	_detail::registered = true;
+}
+
 /****************
  *              *
  *   SEQUENCE   *
@@ -2236,13 +2249,14 @@ inline const std::vector<uint64_t> &fibonacci() {
 // O(n).
 // 0 < n.
 // 0 < part_l.
-inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
-	if (part_r == -1)
+inline std::vector<int>
+gen_partition(int n, int part_l = 1, std::optional<int> part_r = std::nullopt) {
+	if (!part_r)
 		part_r = n;
-	part_r = std::min(part_r, n);
+	part_r = std::min(*part_r, n);
 	tgen_ensure(n > 0 and part_l > 0,
 				"math: invalid parameters to gen_partition");
-	tgen_ensure(part_l <= n and part_r > 0, "math: no such partition");
+	tgen_ensure(part_l <= n and *part_r > 0, "math: no such partition");
 
 	// dp[i] = log(numbers of ways to add to i).
 	std::vector<long double> dp(n + 1, _detail::LOG_ZERO);
@@ -2251,8 +2265,8 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 	for (int i = 1; i <= n; ++i) {
 		if (i >= part_l)
 			window = _detail::add_log_space(window, dp[i - part_l]);
-		if (i >= part_r + 1)
-			window = _detail::sub_log_space(window, dp[i - part_r - 1]);
+		if (i >= *part_r + 1)
+			window = _detail::sub_log_space(window, dp[i - *part_r - 1]);
 		dp[i] = window;
 	}
 	tgen_ensure(dp[n] >= 0, "math: no such partition");
@@ -2266,7 +2280,7 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 	int sum = n;
 	while (sum > 0) {
 		// Will generate a number such that what remains is in [l, r].
-		int l = std::max(0, sum - part_r), r = sum - part_l;
+		int l = std::max(0, sum - *part_r), r = sum - part_l;
 		tgen::_detail::tgen_ensure_against_bug(r >= 0,
 											   "math: r < 0 in gen_partition");
 
@@ -2298,25 +2312,26 @@ inline std::vector<int> gen_partition(int n, int part_l = 1, int part_r = -1) {
 }
 
 // Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
-// O(n) time/memory if part_r = -1, O(n * k) time/memory otherwise.
+// O(n) time/memory if part_r is not set, O(n * k) time/memory otherwise.
 // 0 < k <= n.
 // 0 <= part_l.
-inline std::vector<int> gen_partition_fixed_size(int n, int k, int part_l = 0,
-												 int part_r = -1) {
-	if (part_r == -1)
+inline std::vector<int>
+gen_partition_fixed_size(int n, int k, int part_l = 0,
+						 std::optional<int> part_r = std::nullopt) {
+	if (!part_r)
 		part_r = n;
-	part_r = std::min(part_r, n);
+	part_r = std::min(*part_r, n);
 	tgen_ensure(0 < k and k <= n and part_l >= 0,
 				"math: invalid parameters to gen_partition_fixed_size");
 	tgen_ensure(static_cast<long long>(k) * part_l <= n and
-					n <= static_cast<long long>(k) * part_r,
+					n <= static_cast<long long>(k) * (*part_r),
 				"math: no such partition");
 
 	// What we need to distribute to the parts.
 	int s = n - k * part_l;
 
 	std::vector<int> part(k);
-	if (part_r == n) {
+	if (*part_r == n) {
 		// Stars and bars - O(n).
 		std::vector<int> cuts = {-1};
 
@@ -2334,7 +2349,7 @@ inline std::vector<int> gen_partition_fixed_size(int n, int k, int part_l = 0,
 			part[i] = cuts[i + 1] - cuts[i] - 1;
 	} else {
 		// DP with log trick - O(nk).
-		int u = part_r - part_l;
+		int u = *part_r - part_l;
 
 		// dp[i][j] = log(#ways to fill i parts with sum j)
 		std::vector<std::vector<long double>> dp(

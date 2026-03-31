@@ -143,3 +143,19 @@ TEST(opts_test, opt_positional) {
 
 	EXPECT_EQ(tgen::opt<int>(0), -10);
 }
+
+TEST(opts_test, register_gen_with_seed) {
+	// Fake reset registered status.
+	tgen::_detail::registered = false;
+	tgen::register_gen(42);
+
+	EXPECT_TRUE(tgen::_detail::registered);
+}
+
+TEST(opts_test, register_gen_with_default_seed) {
+	// Fake reset registered status.
+	tgen::_detail::registered = false;
+	tgen::register_gen();
+
+	EXPECT_TRUE(tgen::_detail::registered);
+}

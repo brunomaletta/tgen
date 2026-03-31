@@ -167,4 +167,36 @@ namespace tgen {
  * @fn register_gen(int argc, char **argv);
  */
 
+
+/**
+ * @ingroup opts
+ * @brief Sets up the generator without arguments.
+ *
+ * @param seed Seed for the random number generator.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * #include "tgen.h"
+ *
+ * int main() {
+ *     // Register generator with seed 42.
+ *     tgen::register_gen(42);
+ * }
+ * ```
+ *
+ * Or even:
+ *
+ * ```cpp
+ * #include "tgen.h"
+ *
+ * int main() {
+ *     // Register generator with default seed.
+ *     tgen::register_gen();
+ * }
+ * ```
+ *
+ * @fn register_gen(std::optional<long long> seed = std::nullopt);
+ */
+
 };

@@ -6,16 +6,14 @@
 #include <vector>
 
 TEST(permutation_test, constructor_size_zero) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(0),
 							 "permutation: size must be positive");
 }
 
 TEST(permutation_test, fix_invalid_index) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(5).fix(-1, 0),
 							 "permutation: index must be valid");
@@ -24,8 +22,7 @@ TEST(permutation_test, fix_invalid_index) {
 }
 
 TEST(permutation_test, cycles_invalid) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::permutation(5).cycles({4}),
@@ -33,8 +30,7 @@ TEST(permutation_test, cycles_invalid) {
 }
 
 TEST(permutation_test, instance_invalid) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	std::vector<int> invalid = {1, 2};
 	EXPECT_THROW_TGEN_PREFIX(
@@ -47,8 +43,7 @@ TEST(permutation_test, instance_invalid) {
 }
 
 TEST(permutation_test, instance_ops) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	tgen::permutation::instance inst = {1, 0, 2};
 
@@ -78,8 +73,7 @@ TEST(permutation_test, instance_ops) {
 }
 
 TEST(permutation_test, gen_invalid) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::permutation(5).fix(0, 1).fix(0, 2).gen(),
@@ -90,8 +84,7 @@ TEST(permutation_test, gen_invalid) {
 }
 
 TEST(permutation_test, gen_without_cycles) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		int n = 10, num_op = tgen::next(1, 5);
@@ -117,8 +110,7 @@ TEST(permutation_test, gen_without_cycles) {
 }
 
 TEST(permutation_test, gen_with_cycles) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		int n = 10;
@@ -150,8 +142,7 @@ TEST(permutation_test, gen_with_cycles) {
 }
 
 TEST(permutation_test, gen_uniform) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	check_generator_uniform(tgen::permutation(4), 24);
 	check_generator_uniform(tgen::permutation(5).fix(0, 3).fix(1, 2), 6);

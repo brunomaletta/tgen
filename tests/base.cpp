@@ -6,8 +6,7 @@
 #include <algorithm>
 
 TEST(base_test, unique) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	tgen::unique g([]() { return tgen::next(1, 10); });
 	std::set<int> st;
@@ -22,8 +21,7 @@ TEST(base_test, unique) {
 }
 
 TEST(base_test, unique_gen_list) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	tgen::unique g([]() { return tgen::next(1, 10); });
 	std::vector<int> values = g.gen_list(5).to_std();
@@ -37,8 +35,7 @@ TEST(base_test, unique_gen_list) {
 }
 
 TEST(base_test, unique_gen_all) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	tgen::unique g([]() { return tgen::next(1, 10); });
 	std::vector<int> values = g.gen_all().to_std();
@@ -53,8 +50,7 @@ TEST(base_test, unique_gen_all) {
 }
 
 TEST(base_test, print_scalar) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	testing::internal::CaptureStdout();
 	std::cout << tgen::print(10);
@@ -66,8 +62,7 @@ TEST(base_test, print_scalar) {
 }
 
 TEST(base_test, print_pair) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	testing::internal::CaptureStdout();
 	std::cout << tgen::print(std::pair<std::string, double>("str", 0.1));
@@ -79,8 +74,7 @@ TEST(base_test, print_pair) {
 }
 
 TEST(base_test, print_tuple) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	testing::internal::CaptureStdout();
 	std::cout << tgen::print(
@@ -94,8 +88,7 @@ TEST(base_test, print_tuple) {
 }
 
 TEST(base_test, print_1d_container) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	testing::internal::CaptureStdout();
 	std::cout << tgen::print({1, 2, 3});
@@ -119,8 +112,7 @@ TEST(base_test, print_1d_container) {
 }
 
 TEST(base_test, print_2d_container) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	testing::internal::CaptureStdout();
 	std::cout << tgen::println({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
@@ -168,16 +160,14 @@ TEST(base_test, print_2d_container) {
 }
 
 TEST(base_test, next_invalid_range) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::next<int>(2, 1),
 							 "range for `next` bust be valid");
 }
 
 TEST(base_test, next_val) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		auto n = tgen::next(10);
@@ -189,8 +179,7 @@ TEST(base_test, next_val) {
 }
 
 TEST(base_test, next_range) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		auto n = tgen::next(10, 20);
@@ -201,8 +190,7 @@ TEST(base_test, next_range) {
 }
 
 TEST(base_test, next_by_distribution) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		auto n = tgen::next_by_distribution({1, 2, 3});
@@ -213,8 +201,7 @@ TEST(base_test, next_by_distribution) {
 }
 
 TEST(base_test, shuffle) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	std::vector<int> v(10);
 	for (int &i : v)
@@ -230,8 +217,7 @@ TEST(base_test, shuffle) {
 }
 
 TEST(base_test, shuffled) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	std::vector<int> a = tgen::shuffled(std::vector<int>({1, 2, 3}));
 	std::string b = tgen::shuffled(std::string("str"));
@@ -240,8 +226,7 @@ TEST(base_test, shuffled) {
 }
 
 TEST(base_test, any) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	std::vector<int> v(10);
 	for (int &i : v)
@@ -254,8 +239,7 @@ TEST(base_test, any) {
 }
 
 TEST(base_test, any_by_distribution) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	std::vector<int> v(3);
 	for (int &i : v)
@@ -270,8 +254,7 @@ TEST(base_test, any_by_distribution) {
 }
 
 TEST(base_test, choose_invalid_ammount) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	std::vector<int> v(10);
 	for (int &i : v)
@@ -282,8 +265,7 @@ TEST(base_test, choose_invalid_ammount) {
 }
 
 TEST(base_test, choose) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	std::vector<int> v(10);
 	for (int &i : v)
@@ -302,8 +284,7 @@ TEST(base_test, choose) {
 }
 
 TEST(base_test, unique_range_generate_too_many_values) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	tgen::unique_range d(1, 10);
 	for (int i = 0; i < 10; ++i)
@@ -313,8 +294,7 @@ TEST(base_test, unique_range_generate_too_many_values) {
 }
 
 TEST(base_test, unique_range) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	tgen::unique_range d(1, 10);
 	std::set<int> s;
@@ -332,8 +312,7 @@ TEST(base_test, unique_range) {
 }
 
 TEST(base_test, unique_container) {
-	auto argv = get_argv({"./executable"});
-	tgen::register_gen(argv.size() - 1, argv.data());
+	tgen::register_gen();
 
 	std::vector<int> v(10);
 	for (int &i : v)
