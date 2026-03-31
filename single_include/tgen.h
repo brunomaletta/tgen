@@ -170,37 +170,22 @@ template <typename> inline constexpr bool dependent_false_v = false;
  */
 
 // Generates unique instances of a function.
-template <typename Func> struct unique {
+template <typename Func, typename... Args> struct unique {
 	Func func_;
-	std::any seen_any_; // Holds std::set<T>.
+	std::tuple<Args...> args_;
+	using T = std::invoke_result_t<Func &, Args &...>;
+	std::set<T> seen_;
 
-	explicit unique(Func func) : func_(std::move(func)) {}
-
-	// Fetches the set of seen values for the given arguments.
-	template <typename... Args> auto &get_seen() {
-		using T = std::invoke_result_t<Func &, Args...>;
-
-		if (!seen_any_.has_value())
-			seen_any_ = std::set<T>();
-
-		if (seen_any_.type() != typeid(std::set<T>))
-			throw _detail::error(
-				"tgen: unique: generation called with different types");
-
-		return *std::any_cast<std::set<T>>(&seen_any_);
-	}
+	unique(Func func, Args... args)
+		: func_(std::move(func)), args_(std::move(args)...) {}
 
 	// Generates unique instance and inserts it if `insert` is true.
 	// Returns the instance if found, otherwise returns std::nullopt.
-	template <typename... Args>
-	auto generate_unique(bool insert, Args &&...args) {
-		using T = std::invoke_result_t<Func &, Args...>;
-		auto &seen = get_seen<Args...>();
-
-		for (int i = 0; i < 84 * std::max<size_t>(1, seen.size()); ++i) {
-			T x = std::invoke(func_, std::forward<Args>(args)...);
-			if (insert ? seen.insert(x).second : seen.count(x) == 0)
-				return std::optional<T>(x);
+	auto generate_unique(bool insert) {
+		for (int i = 0; i < 84 * std::max<size_t>(1, seen_.size()); ++i) {
+			T val = std::apply(func_, args_);
+			if (insert ? seen_.insert(val).second : seen_.count(val) == 0)
+				return std::optional<T>(val);
 		}
 
 		// Not found.
@@ -212,43 +197,34 @@ template <typename Func> struct unique {
 	// with uniform probability with time O(T) and you call the function k
 	// times, then runs in O(T * log^2(k)) amortized expected time. Incorrectly
 	// reports that there are no more unique instances with probability < 1e-18.
-	template <typename... Args> auto gen(Args &&...args) {
-		auto val = generate_unique(true, std::forward<Args>(args)...);
+	auto gen() {
+		auto val = generate_unique(true);
 		if (val)
 			return *val;
 
 		throw _detail::error("no more unique values");
 	}
-	template <typename U, typename... Args>
-	auto gen(std::initializer_list<U> il, Args &&...args) {
-		return gen(std::vector<U>(il.begin(), il.end()),
-				   std::forward<Args>(args)...);
+	template <typename U> auto gen(std::initializer_list<U> il) {
+		return gen(std::vector<U>(il));
 	}
 
 	// Generates a list of unique instances.
-	template <typename... Args> auto gen_list(int size, Args &&...args) {
-		using T = std::invoke_result_t<Func &, Args...>;
-
+	auto gen_list(int size) {
 		std::vector<T> res;
 		for (int i = 0; i < size; ++i)
-			res.push_back(gen(std::forward<Args>(args)...));
+			res.push_back(gen());
 
 		return res;
 	}
 
 	// Checks if there are no more unique instances.
-	template <typename... Args> bool empty(Args &&...args) {
-		return generate_unique(false, std::forward<Args>(args)...) ==
-			   std::nullopt;
-	}
+	bool empty() { return generate_unique(false) == std::nullopt; }
 
 	// Generates all unique instances.
-	template <typename... Args> auto gen_all(Args &&...args) {
-		using T = std::invoke_result_t<Func &, Args...>;
-
+	auto gen_all() {
 		std::vector<T> res;
 		while (true) {
-			auto val = generate_unique(true, std::forward<Args>(args)...);
+			auto val = generate_unique(true);
 			if (val)
 				res.push_back(*val);
 			else
@@ -257,6 +233,8 @@ template <typename Func> struct unique {
 		return res;
 	}
 };
+template <typename Func, typename... Args>
+unique(Func, Args...) -> unique<Func, Args...>;
 
 // Base struct for generators.
 template <typename Gen> struct gen_base {
@@ -293,11 +271,17 @@ template <typename Gen> struct gen_base {
 	}
 
 	// Unique for generator.
-	auto unique() const {
+	template <typename... Args> auto unique(Args &&...args) const {
 		return tgen::unique(
-			[self = self()](auto &&...args) mutable -> decltype(auto) {
-				return self.gen(std::forward<decltype(args)>(args)...);
-			});
+			[self = self()](auto &&...inner_args) mutable -> decltype(auto) {
+				return self.gen(
+					std::forward<decltype(inner_args)>(inner_args)...);
+			},
+			std::forward<Args>(args)...);
+	}
+	template <typename T, typename... Args>
+	auto unique(std::initializer_list<T> il, Args &&...args) const {
+		return unique(std::vector<T>(il), std::forward<Args>(args)...);
 	}
 
 	// Nice error for `out << generator`.
@@ -363,7 +347,7 @@ struct print {
 	template <typename T>
 	print(const std::initializer_list<T> &il, char sep = ' ') {
 		std::ostringstream oss;
-		write(oss, std::vector<T>(il.begin(), il.end()), sep);
+		write(oss, std::vector<T>(il), sep);
 		s_ = oss.str();
 	}
 	template <typename T>
@@ -500,8 +484,7 @@ size_t next_by_distribution(const std::vector<T> &distribution) {
 }
 template <typename T>
 size_t next_by_distribution(const std::initializer_list<T> &distribution) {
-	return next_by_distribution(
-		std::vector<T>(distribution.begin(), distribution.end()));
+	return next_by_distribution(std::vector<T>(distribution));
 }
 
 // Shuffles [first, last) inplace uniformly, for RandomAccessIterator.
@@ -540,7 +523,7 @@ template <typename C,
 }
 template <typename T>
 [[nodiscard]] std::vector<T> shuffled(const std::initializer_list<T> &il) {
-	return shuffled(std::vector<T>(il.begin(), il.end()));
+	return shuffled(std::vector<T>(il));
 }
 
 // Shuffles sequential generator instance uniformly.
@@ -569,7 +552,7 @@ typename C::value_type any(const C &container) {
 	return any(container.begin(), container.end());
 }
 template <typename T> T any(const std::initializer_list<T> &il) {
-	return any(std::vector<T>(il.begin(), il.end()));
+	return any(std::vector<T>(il));
 }
 
 // Returns a random element from sequential generator instance uniformly.
@@ -596,21 +579,18 @@ template <typename C, typename T,
 typename C::value_type
 any_by_distribution(const C &container,
 					const std::initializer_list<T> &distribution) {
-	return any_by_distribution(
-		container, std::vector<T>(distribution.begin(), distribution.end()));
+	return any_by_distribution(container, std::vector<T>(distribution));
 }
 template <typename T, typename U>
 T any_by_distribution(const std::initializer_list<T> &il,
 					  const std::vector<U> &distribution) {
-	return any_by_distribution(std::vector<T>(il.begin(), il.end()),
-							   distribution);
+	return any_by_distribution(std::vector<T>(il), distribution);
 }
 template <typename T, typename U>
 T any_by_distribution(const std::initializer_list<T> &il,
 					  const std::initializer_list<U> &distribution) {
-	return any_by_distribution(
-		std::vector<T>(il.begin(), il.end()),
-		std::vector<U>(distribution.begin(), distribution.end()));
+	return any_by_distribution(std::vector<T>(il),
+							   std::vector<U>(distribution));
 }
 
 // Returns inst[i] with probability proportional to distribution[i].
@@ -628,8 +608,7 @@ template <typename Inst, typename T,
 typename Inst::value_type
 any_by_distribution(const Inst &inst,
 					const std::initializer_list<T> &distribution) {
-	return any_by_distribution(
-		inst, std::vector<T>(distribution.begin(), distribution.end()));
+	return any_by_distribution(inst, std::vector<T>(distribution));
 }
 
 // Chooses k values uniformly from container, as in a subsequence of size k.
@@ -652,7 +631,7 @@ C choose(int k, const C &container) {
 }
 template <typename T>
 std::vector<T> choose(int k, const std::initializer_list<T> &il) {
-	return choose(k, std::vector<T>(il.begin(), il.end()));
+	return choose(k, std::vector<T>(il));
 }
 
 // Chooses k values uniformly from sequential generator instance, as in a
@@ -718,7 +697,7 @@ template <typename T> struct distinct_container {
 		: list_(container.begin(), container.end()),
 		  idx_(0, static_cast<int>(container.size()) - 1) {}
 	distinct_container(const std::initializer_list<T> &il)
-		: distinct_container(std::vector<T>(il.begin(), il.end())) {}
+		: distinct_container(std::vector<T>(il)) {}
 
 	// Returns the number of distinct elements left to generate.
 	size_t size() const { return idx_.size(); }
@@ -1034,8 +1013,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		std::vector<T> vec_;			 // Sequence.
 
 		instance(const std::vector<T> &vec) : vec_(vec) {}
-		instance(const std::initializer_list<T> &il)
-			: vec_(il.begin(), il.end()) {}
+		instance(const std::initializer_list<T> &il) : vec_(il) {}
 
 		// Fetches size.
 		int size() const { return vec_.size(); }
@@ -1459,7 +1437,7 @@ struct permutation : gen_base<permutation> {
 			}
 		}
 		instance(const std::initializer_list<int> &il)
-			: instance(std::vector<int>(il.begin(), il.end())) {}
+			: instance(std::vector<int>(il)) {}
 
 		// Fetches size.
 		int size() const { return vec_.size(); }
