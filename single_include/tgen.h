@@ -3088,13 +3088,12 @@ inline std::set<long long> get_hash_hack_multipliers() {
 
 } // namespace _detail
 
-// Returns a list of multipliers for unordered_map/set to force collisions.
+// Returns a list of integers for unordered_map/set to force collisions.
 // O(size).
 inline std::vector<long long> unordered_hack(int size) {
 	std::set<long long> multipliers = _detail::get_hash_hack_multipliers();
 	long long mult = 1;
 	std::set<long long>::iterator it = multipliers.begin();
-	std::cout << "multipliers: " << print(multipliers) << std::endl;
 
 	std::vector<long long> list;
 	while (static_cast<int>(list.size()) < size) {
