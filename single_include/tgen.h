@@ -163,6 +163,43 @@ inline std::mt19937 rng;
 // Used to return false in compile time only if evaluated.
 template <typename> inline constexpr bool dependent_false_v = false;
 
+/*
+ * C++ version types.
+ */
+
+// Global C++ version value (0 means unknown).
+struct cpp_value {
+	int version_;
+
+	cpp_value(std::optional<int> version = std::nullopt)
+		: version_(version ? *version : 0) {
+		if (version) {
+			tgen_ensure(*version == 17 or *version == 20 or *version == 23,
+						"unsupported C++ version (use 17, 20, 23)");
+		}
+	}
+};
+inline cpp_value cpp;
+
+/*
+ * Compiler types.
+ */
+
+// Kinds of compilers.
+enum class compiler_kind { gcc, clang, unknown };
+
+// Global compiler value.
+struct compiler_value {
+	compiler_kind kind_;
+	int major_;
+	int minor_;
+
+	compiler_value(compiler_kind kind = compiler_kind::unknown, int major = 0,
+				   int minor = 0)
+		: kind_(kind), major_(major), minor_(minor) {}
+};
+inline compiler_value compiler;
+
 } // namespace _detail
 
 /*
@@ -312,6 +349,10 @@ template <typename Inst> struct gen_instance_base {
 		return self().to_std() < rhs.to_std();
 	}
 };
+
+/*
+ * Type compile-time detection.
+ */
 
 // Detects associative containers.
 template <typename T, typename = void>
@@ -777,7 +818,106 @@ unique_container(const C &) -> unique_container<typename C::value_type>;
  * For example, for "10 -n=20 str" positional option 1 is the string "str".
  */
 
+/*
+ * C++ version selection.
+ */
+
+// Sets C++ version.
+inline void set_cpp_version(int version) {
+	_detail::cpp = _detail::cpp_value(version);
+}
+
+/*
+ * Compiler selection.
+ */
+
+// GCC compiler type.
+inline _detail::compiler_value gcc(int major = 0, int minor = 0) {
+	return {_detail::compiler_kind::gcc, major, minor};
+}
+
+// Clang compiler type.
+inline _detail::compiler_value clang(int major = 0, int minor = 0) {
+	return {_detail::compiler_kind::clang, major, minor};
+}
+
+// Sets compiler.
+inline void set_compiler(_detail::compiler_value compiler) {
+	_detail::compiler.kind_ = compiler.kind_;
+	_detail::compiler.major_ = compiler.major_;
+	_detail::compiler.minor_ = compiler.minor_;
+}
+
 namespace _detail {
+
+// Processes special opt flags.
+// Returns true if the key is a special opt flag.
+inline bool process_special_opt_flags(std::string &key) {
+	// Checks for gen::CPP=17|20|23
+	if (key.find("tgen::CPP:") == 0) {
+		int prefix_len = std::string("tgen::CPP:").size();
+		tgen_ensure(static_cast<int>(key.size()) == prefix_len + 2 and
+						std::isdigit(key[prefix_len]) and
+						std::isdigit(key[prefix_len + 1]),
+					"invalid CPP format");
+		int version = std::stoi(key.substr(prefix_len, 2));
+		set_cpp_version(version);
+		return true;
+	}
+
+	// Checks for tgen::(GCC|CLANG) or
+	// tgen::(GCC|CLANG):(version|version.minor).
+	_detail::compiler_kind kind;
+	size_t prefix_len = 0;
+
+	if (key.find("tgen::GCC") == 0) {
+		kind = _detail::compiler_kind::gcc;
+		prefix_len = std::string("tgen::GCC").size();
+	} else if (key.find("tgen::CLANG") == 0) {
+		kind = _detail::compiler_kind::clang;
+		prefix_len = std::string("tgen::CLANG").size();
+	} else {
+		return false;
+	}
+
+	if (key.size() == prefix_len) {
+		set_compiler(compiler_value(kind, 0, 0));
+		return true;
+	}
+
+	tgen_ensure(key[prefix_len] == ':', "invalid compiler format");
+	++prefix_len; // for ':'.
+
+	std::string inside = key.substr(prefix_len, key.size() - prefix_len);
+	int major = 0, minor = 0;
+
+	size_t dot = inside.find('.');
+	if (dot == std::string::npos) {
+		tgen_ensure(!inside.empty() and
+						std::all_of(inside.begin(), inside.end(), ::isdigit),
+					"invalid compiler version");
+		major = std::stoi(inside);
+	} else {
+		std::string maj = inside.substr(0, dot);
+		std::string min = inside.substr(dot + 1);
+
+		tgen_ensure(!maj.empty() and
+						std::all_of(maj.begin(), maj.end(), ::isdigit) and
+						maj.size() <= 3,
+					"invalid compiler major version");
+		tgen_ensure(!min.empty() and
+						std::all_of(min.begin(), min.end(), ::isdigit) and
+						min.size() <= 3,
+					"invalid compiler minor version");
+
+		major = std::stoi(maj);
+		minor = std::stoi(min);
+	}
+
+	set_compiler(compiler_value(kind, major, minor));
+
+	return true;
+}
 
 inline std::vector<std::string>
 	pos_opts; // Dictionary containing the positional parsed opts.
@@ -812,6 +952,9 @@ inline void parse_opts(int argc, char **argv) {
 	// map. Starting from 1 to ignore the name of the executable.
 	for (int i = 1; i < argc; ++i) {
 		std::string key(argv[i]);
+
+		if (process_special_opt_flags(key))
+			continue;
 
 		if (key[0] == '-') {
 			tgen_ensure(key.size() > 1,
@@ -2911,5 +3054,60 @@ struct str : gen_base<str> {
 		return instance(str);
 	}
 };
+
+/*********************
+ *                   *
+ *   MISCELLANEOUS   *
+ *                   *
+ *********************/
+
+namespace misc {
+
+namespace _detail {
+
+// Tried to find correct multipliers for unordered_map/set to force collisions.
+// O(1).
+inline std::set<long long> get_hash_hack_multipliers() {
+	std::set<long long> multipliers = {85229};
+
+	// Codeforces GCC GNU G++17 7.3.0 case.
+	bool codeforces_gcc_case = true;
+	if (tgen::_detail::cpp.version_ != 0 and tgen::_detail::cpp.version_ != 17)
+		codeforces_gcc_case = false;
+	if (tgen::_detail::compiler.kind_ !=
+			tgen::_detail::compiler_kind::unknown and
+		tgen::_detail::compiler.kind_ != tgen::_detail::compiler_kind::gcc)
+		codeforces_gcc_case = false;
+	if (tgen::_detail::compiler.major_ > 7)
+		codeforces_gcc_case = false;
+	if (codeforces_gcc_case)
+		multipliers.insert(107897);
+
+	return multipliers;
+}
+
+} // namespace _detail
+
+// Returns a list of multipliers for unordered_map/set to force collisions.
+// O(size).
+inline std::vector<long long> unordered_hack(int size) {
+	std::set<long long> multipliers = _detail::get_hash_hack_multipliers();
+	long long mult = 1;
+	std::set<long long>::iterator it = multipliers.begin();
+	std::cout << "multipliers: " << print(multipliers) << std::endl;
+
+	std::vector<long long> list;
+	while (static_cast<int>(list.size()) < size) {
+		list.push_back(mult * (*it));
+		++it;
+		if (it == multipliers.end()) {
+			it = multipliers.begin();
+			++mult;
+		}
+	}
+	return list;
+}
+
+} // namespace misc
 
 } // namespace tgen

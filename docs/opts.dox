@@ -199,4 +199,59 @@ namespace tgen {
  * @fn register_gen(std::optional<long long> seed = std::nullopt);
  */
 
+
+/**
+ * @ingroup opts
+ * @brief Sets C++ version.
+ *
+ * @param version The C++ version (17, 20, or 23).
+ *
+ * This can be used by some functions to find counter testcases for specific systems.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sets as C++17.
+ * tgen::set_cpp_version(17);
+ * ```
+ *
+ * This can also be set by command argument:
+ * - @tt{./executable tgen::CPP:20}: equivalent to @tt{tgen::set_cpp_version(20)}.
+ *
+ * @fn set_cpp_version(int version);
+ */
+
+
+/**
+ * @ingroup opts
+ * @brief Sets compiler.
+ *
+ * @param compiler The compiler (@tt{@namespace{tgen}::@type{gcc}(...)} or @tt{@namespace{tgen}::@type{clang}(...)}).
+ *
+ * This can be used by some functions to find counter testcases for specific systems.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Sets as GCC (version unspecified).
+ * tgen::set_compiler(tgen::gcc());
+ *
+ * // Sets as GCC 15.
+ * tgen::set_compiler(tgen::gcc(15));
+ *
+ * // Sets as GCC 15.2.
+ * tgen::set_compiler(tgen::gcc(15, 2));
+ *
+ * // Sets as clang (version unspecified).
+ * tgen::set_compiler(tgen::clang());
+ * ```
+ *
+ * This can also be set by command argument:
+ * - @tt{./executable tgen::GCC}: equivalent to @tt{tgen::set_compiler(tgen::gcc())}.
+ * - @tt{./executable tgen::GCC:15}: equivalent to @tt{tgen::set_compiler(tgen::gcc(15))}.
+ * - @tt{./executable tgen::GCC:15.2}: equivalent to @tt{tgen::set_compiler(tgen::gcc(15, 2))}.
+ *
+ * @fn set_compiler(_detail::compiler_value compiler);
+ */
+
 };

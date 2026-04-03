@@ -16,7 +16,6 @@ The first thing is to [register the generator](https://brunomaletta.github.io/tg
 There are:
 
 - [Base operations](https://brunomaletta.github.io/tgen/group__base.html)
-  - [Generator operations](https://brunomaletta.github.io/tgen/group__generator__op.html)
   - [Generator instance operations](https://brunomaletta.github.io/tgen/group__generator__instance__op.html)
 - [Math operations](https://brunomaletta.github.io/tgen/group__math.html)
 

@@ -9,11 +9,6 @@ all: lint doc test
 clean:
 	-rm -f test sample examples/sample_debug
 
-sample:
-	@g++ -std=c++17 examples/all.cpp -I $(SRC_DIR) -o sample
-	@-./sample
-	@rm -f sample
-
 .PHONY: doc clean-doc
 
 doc: clean-doc
@@ -66,6 +61,17 @@ test_asan:
 	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -o test -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow
 	-./test
 	rm -f test
+
+sample:
+	@g++ -std=c++17 examples/all.cpp -I $(SRC_DIR) -o sample
+	@-./sample
+	@rm -f sample
+
+unordered:
+	g++ -std=c++17 examples/unordered_set.cpp -I $(SRC_DIR) -o sample -O2
+
+unordered_clang:
+	clang++ -std=c++17 examples/unordered_set.cpp -I $(SRC_DIR) -o sample -O2
 
 sample_debug:
 	g++ -g examples/all.cpp -o examples/sample_debug
