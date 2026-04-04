@@ -694,7 +694,7 @@ namespace tgen {
  *
  * #### Complexity
  *
- * @tt{O(T * log^2(k))} amortized expected, if the function runs in @tt{O(T)} time
+ * @tt{O(T * log k + log^2 k)} amortized expected, if the function runs in @tt{O(T)} time
  * and @tt{k} unique values have been generated.
  *
  * #### Examples
