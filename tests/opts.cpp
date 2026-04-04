@@ -159,3 +159,38 @@ TEST(opts_test, register_gen_with_default_seed) {
 
 	EXPECT_TRUE(tgen::_detail::registered);
 }
+
+TEST(opts_test, set_cpp_version) {
+	tgen::register_gen();
+	tgen::set_cpp_version(17);
+
+	EXPECT_EQ(tgen::_detail::cpp.version_, 17);
+}
+
+TEST(opts_test, set_compiler) {
+	tgen::register_gen();
+
+	tgen::set_compiler(tgen::gcc());
+	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::gcc().kind_);
+
+	tgen::set_compiler(tgen::clang());
+	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::clang().kind_);
+
+	tgen::set_compiler(tgen::gcc(17));
+	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::gcc(17).kind_);
+	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::gcc(17).major_);
+
+	tgen::set_compiler(tgen::clang(17));
+	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::clang(17).kind_);
+	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::clang(17).major_);
+
+	tgen::set_compiler(tgen::gcc(17, 2));
+	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::gcc(17, 2).kind_);
+	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::gcc(17, 2).major_);
+	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::gcc(17, 2).minor_);
+
+	tgen::set_compiler(tgen::clang(17, 2));
+	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::clang(17, 2).kind_);
+	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::clang(17, 2).major_);
+	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::clang(17, 2).minor_);
+}

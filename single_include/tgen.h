@@ -3091,6 +3091,7 @@ inline std::set<long long> get_hash_hack_multipliers() {
 // Returns a list of integers for unordered_map/set to force collisions.
 // O(size).
 inline std::vector<long long> unordered_hack(int size) {
+	tgen_ensure(size > 0, "misc: unordered_hack: size must be positive");
 	std::set<long long> multipliers = _detail::get_hash_hack_multipliers();
 	long long mult = 1;
 	std::set<long long>::iterator it = multipliers.begin();

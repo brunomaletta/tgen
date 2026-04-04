@@ -18,7 +18,7 @@ namespace tgen {
  * @param size Size of the list.
  *
  * Creates hack for both @tt{@namespace{std}::unordered_set} and @tt{@namespace{std}::unordered_map},
- * forcing quadratic behavior. The hack might not be effective due to differences in @tt{C++} implementation.
+ * forcing quadratic behavior. The hack might not be effective due to differences in @tt{C++} implementations.
  *
  * @note This function benefits from @ref tgen::set_compiler and @ref tgen::set_cpp_version information.
  *
@@ -30,7 +30,7 @@ namespace tgen {
  *
  * ```cpp
  * // Creates values that force collision.
- * std::vector<long long> = tgen::misc::unordered_hack(1e6);
+ * std::vector<long long> hack = tgen::misc::unordered_hack(1e6);
  * ```
  *
  * @fn std::vector<long long> misc::unordered_hack(int size);
