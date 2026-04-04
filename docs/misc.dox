@@ -36,4 +36,27 @@ namespace tgen {
  * @fn std::vector<long long> misc::unordered_hack(int size);
  */
 
+
+ /**
+ * @ingroup misc
+ * @brief Generates a random valid parenthesis sequence.
+ *
+ * @param size Size of the sequence.
+ *
+ * Generates a uniformly random parenthesis sequence.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{size})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints a random parenthesis sequence of size 10.
+ * std::cout << tgen::misc::gen_parenthesis(10) << std::endl;
+ * ```
+ *
+ * @fn std::string misc::gen_parenthesis(int size);
+ */
+
 };

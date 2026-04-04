@@ -138,6 +138,12 @@ TEST(base_test, print_2d_container) {
 							 ',');
 	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1,2\n3,4"));
 
+	// Complex container 2.
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print(std::map<std::string, int>({{"ab", 2}, {"c", 4}}),
+							 ',');
+	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("ab,2\nc,4"));
+
 	// Complex container 3.
 	testing::internal::CaptureStdout();
 	std::cout << tgen::print(std::vector<std::tuple<char, int, double>>(

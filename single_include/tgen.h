@@ -109,11 +109,25 @@ inline void ensure_registered() {
 // Detects containers != std::string.
 template <typename T, typename = void> struct is_container : std::false_type {};
 template <typename T>
-struct is_container<T, std::void_t<typename T::value_type,
-								   decltype(std::begin(std::declval<T>())),
-								   decltype(std::end(std::declval<T>()))>>
+struct is_container<T,
+					std::void_t<typename std::remove_reference_t<T>::value_type,
+								decltype(std::begin(std::declval<T>())),
+								decltype(std::end(std::declval<T>()))>>
 	: std::true_type {};
-template <> struct is_container<std::string> : std::false_type {};
+// Exclude all basic_string variants
+template <typename Char, typename Traits, typename Alloc>
+struct is_container<std::basic_string<Char, Traits, Alloc>> : std::false_type {
+};
+template <typename Char, typename Traits, typename Alloc>
+struct is_container<const std::basic_string<Char, Traits, Alloc>>
+	: std::false_type {};
+template <typename Char, typename Traits, typename Alloc>
+struct is_container<std::basic_string<Char, Traits, Alloc> &>
+	: std::false_type {};
+template <typename Char, typename Traits, typename Alloc>
+struct is_container<const std::basic_string<Char, Traits, Alloc> &>
+	: std::false_type {};
+
 // Detects std::pair.
 template <typename T> struct is_pair : std::false_type {};
 template <typename A, typename B>
@@ -131,7 +145,9 @@ struct is_scalar
 template <typename T>
 struct is_container_multiline
 	: std::bool_constant<is_container<T>::value and
-						 !is_scalar<typename T::value_type>::value> {};
+						 !is_scalar<typename std::remove_cv_t<
+							 std::remove_reference_t<T>>::value_type>::value> {
+};
 // Detects complex std::pair.
 template <typename T> struct is_pair_multiline : std::false_type {};
 template <typename A, typename B>
@@ -3122,6 +3138,49 @@ inline std::vector<long long> unordered_hack(int size) {
 		}
 	}
 	return list;
+}
+
+// Generates a random balanced parentheses sequence with k '(' and k ')'.
+// Valid meanst that for no prefix there are more ')' than '('.
+// O(size).
+inline std::string gen_parenthesis(int size) {
+	tgen_ensure(size > 0 and size % 2 == 0,
+				"misc: parenthesis: size must a positive even number");
+
+	int k = size / 2;
+	std::string s;
+	int open = 0, close = 0;
+
+	for (int i = 0; i < size; ++i) {
+		if (open == k) {
+			s += ')';
+			++close;
+			continue;
+		}
+		if (open == close) {
+			s += '(';
+			++open;
+			continue;
+		}
+
+		long long a = k - open, b = k - close, h = open - close;
+
+		// Probability of placing '(':
+		// P('(') = (k - open) * (bal + 1) / (rem)
+		// Derived from ballot numbers ratio.
+		long long num = a * (h + 2);
+		long long den = (a + b) * (h + 1);
+
+		if (next<long long>(1, den) <= num) {
+			s += '(';
+			++open;
+		} else {
+			s += ')';
+			++close;
+		}
+	}
+
+	return s;
 }
 
 } // namespace misc

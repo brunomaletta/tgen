@@ -132,4 +132,16 @@ int main(int argc, char **argv) {
 		<< tgen::permutation(3).cycles({1, 2}).unique().gen_all().separator(
 			   '\n')
 		<< std::endl;
+
+	// Prints some random parenthesis sequences.
+	std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_list(5)
+			  << std::endl;
+
+	// Computes how many of these there are.
+	std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_all().size()
+			  << std::endl;
+
+	std::cout
+		<< tgen::_detail::is_pair_multiline<std::pair<std::string, int>>::value
+		<< std::endl;
 }

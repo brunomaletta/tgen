@@ -87,6 +87,7 @@ template <typename F, typename... Args>
 void check_function_uniform(F func, int num_elements, Args... args) {
 	using T = std::invoke_result_t<F, Args...>;
 	int repeats = 3, count_fail = 0;
+	std::map<T, int> example_counts;
 	for (int i = 0; i < repeats; ++i) {
 		long long num_tests = std::max(1000, 20 * num_elements);
 
@@ -94,8 +95,12 @@ void check_function_uniform(F func, int num_elements, Args... args) {
 		for (long long j = 0; j < num_tests; ++j)
 			counts[func(args...)]++;
 
-		if (!check_uniform(counts, num_elements, num_tests))
+		if (!check_uniform(counts, num_elements, num_tests)) {
 			++count_fail;
+			example_counts = counts;
+		}
 	}
-	EXPECT_TRUE(count_fail < repeats) << "Distribution not uniform";
+	EXPECT_TRUE(count_fail < repeats)
+		<< "Distribution not uniform. Example counts:\n"
+		<< tgen::print(example_counts);
 }
