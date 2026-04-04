@@ -369,6 +369,10 @@ TEST(math_test, gen_congruent_invalid) {
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::gen_congruent(0, 10, {0, 1}, {2}),
 		"math: number of remainders and mods must be the same");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_congruent(0, 10,
+													   std::vector<uint64_t>{},
+													   std::vector<uint64_t>{}),
+							 "math: must have at least one congruence");
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::gen_congruent(2, 5, {1, 1}, {2, 3}),
 		"math: there is no congruent number in range [2, 5]");
@@ -448,6 +452,10 @@ TEST(math_test, congruent_from_invalid) {
 								   std::vector<uint64_t>{2, 6}),
 		"math: number of remainders and mods must be the same");
 	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::congruent_from(0, std::vector<uint64_t>{},
+								   std::vector<uint64_t>{}),
+		"math: must have at least one congruence");
+	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::congruent_from(0, std::vector<uint64_t>{5, 1},
 								   std::vector<uint64_t>{2, 6}),
 		"math: remainder must be smaller than the mod");
@@ -491,6 +499,10 @@ TEST(math_test, congruent_upto_invalid) {
 		tgen::math::congruent_upto(0, std::vector<uint64_t>{5, 1, 1},
 								   std::vector<uint64_t>{2, 6}),
 		"math: number of remainders and mods must be the same");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::congruent_upto(0, std::vector<uint64_t>{},
+								   std::vector<uint64_t>{}),
+		"math: must have at least one congruence");
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::congruent_upto(0, std::vector<uint64_t>{5, 1},
 								   std::vector<uint64_t>{2, 6}),

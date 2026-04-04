@@ -699,8 +699,8 @@ namespace tgen {
  *
  * Reference:
  * - <a href="https://arxiv.org/abs/1211.0303">Lorenz, William Andrew, and Yann Ponty. "Non-redundant random
- *    generation algorithms for weighted context-free grammars." Theoretical Computer Science 502 (2013): 177-194</a>
- *   : Theorem 3.2.
+ *    generation algorithms for weighted context-free grammars." Theoretical Computer Science 502 (2013):
+ *    177-194</a>: Theorem 3.2.
  *
  * #### Examples
  *

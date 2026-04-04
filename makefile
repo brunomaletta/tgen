@@ -63,7 +63,7 @@ test_asan:
 	rm -f test
 
 sample:
-	@g++ -std=c++17 examples/all.cpp -I $(SRC_DIR) -o sample
+	g++ -std=c++17 examples/all.cpp -I $(SRC_DIR) -o sample
 	@-./sample
 	@rm -f sample
 

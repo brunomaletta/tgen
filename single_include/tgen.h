@@ -1853,6 +1853,8 @@ namespace math {
 
 namespace _detail {
 
+inline int popcount(uint64_t x) { return __builtin_popcountll(x); }
+
 inline int ctzll(uint64_t x) {
 	// Mistery code found on the internet.
 	// Uses de Brujin sequence.
@@ -2361,6 +2363,7 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 		throw _detail::there_is_no_in_range_error("congruent number", l, r);
 	tgen_ensure(rems.size() == mods.size(),
 				"math: number of remainders and mods must be the same");
+	tgen_ensure(rems.size() > 0, "math: must have at least one congruence");
 
 	_detail::crt crt;
 	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
@@ -2408,6 +2411,7 @@ inline uint64_t congruent_from(uint64_t l, std::vector<uint64_t> rems,
 							   std::vector<uint64_t> mods) {
 	tgen_ensure(rems.size() == mods.size(),
 				"math: number of remainders and mods must be the same");
+	tgen_ensure(rems.size() > 0, "math: must have at least one congruence");
 
 	_detail::crt crt;
 	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
@@ -2455,6 +2459,7 @@ inline uint64_t congruent_upto(uint64_t r, std::vector<uint64_t> rems,
 							   std::vector<uint64_t> mods) {
 	tgen_ensure(rems.size() == mods.size(),
 				"math: number of remainders and mods must be the same");
+	tgen_ensure(rems.size() > 0, "math: must have at least one congruence");
 
 	_detail::crt crt;
 	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
@@ -2987,6 +2992,64 @@ std::string regex_format(const std::string &s, Args &&...args) {
 	}
 }
 
+// Computes polynomial hash of a string.
+// O(|s|).
+inline int hash_string(const std::string &s, int base, int mod) {
+	long long h = 0;
+	for (char c : s)
+		h = (h * base + c - 'a' + 1) % mod;
+	return h;
+}
+
+// Estimates the length of the string to very likely have a collision.
+inline int estimate_length(int alphabet_size, int mod) {
+	// Magic constants.
+	double base_len = 2.5 * std::log(std::sqrt(static_cast<double>(mod)));
+	double scale = std::log(static_cast<double>(alphabet_size)) / std::log(2.0);
+	double adjusted = base_len / std::max(1.0, scale * 0.7);
+
+	return static_cast<int>(std::ceil(adjusted));
+}
+
+// Collides two strings to have the same polynomial hash.
+// O(sqrt(mod) log(mod)) with high probability.
+inline std::pair<std::string, std::string>
+birthday_attack(const std::vector<std::string> &alphabet, int base, int mod) {
+	tgen_ensure(0 < base and base < mod,
+				"birthday_attack: base must be in (0, mod)");
+	std::map<uint64_t, std::vector<int>> seen;
+	int length = estimate_length(alphabet.size(), mod);
+
+	while (true) {
+		std::vector<int> seq(length);
+
+		std::string s;
+		s.reserve(length * alphabet[0].size());
+
+		for (int i = 0; i < length; i++) {
+			seq[i] = next<int>(0, alphabet.size() - 1);
+			s += alphabet[seq[i]];
+		}
+
+		int h = hash_string(s, base, mod);
+
+		auto it = seen.find(h);
+		if (it != seen.end() and it->second != seq) {
+			std::string a, b;
+
+			for (int x : it->second)
+				a += alphabet[x];
+			for (int x : seq)
+				b += alphabet[x];
+
+			if (a != b)
+				return {a, b};
+		}
+
+		seen[h] = seq;
+	}
+}
+
 } // namespace _detail
 
 struct str : gen_base<str> {
@@ -3162,6 +3225,7 @@ struct str : gen_base<str> {
 	}
 
 	// Fetches prefix of length n of the string "abacabadabacabae...".
+	// O(n).
 	static instance abacaba(int n) {
 		tgen_ensure(n > 0, "str: size must be positive");
 		std::string str = "a";
@@ -3175,6 +3239,59 @@ struct str : gen_base<str> {
 		}
 		return instance(str);
 	}
+
+	// Two strings that have same polynomial hash for any base, for
+	// mod = power of 2 up to 2^64.
+	// Thue–Morse.
+	// O(1).
+	static std::pair<instance, instance> unsigned_polynomial_hash_hack() {
+		std::string a, b;
+		int size = 1 << 10;
+		for (int i = 0; i < size; ++i) {
+			a += 'a' + math::_detail::popcount(i) % 2;
+			b += 'a' + ('b' - a[i]);
+		}
+		return {instance(a), instance(b)};
+	}
+
+	// Collides two strings to have the same polynomial hash.
+	// O(sqrt(mod) log(mod)) with high probability.
+	// 0 < base < mod.
+	static std::pair<instance, instance>
+	polynomial_hash_hack(int alphabet_size, int base, int mod) {
+		tgen_ensure(alphabet_size > 1,
+					"str: alphabet size must be greater than 1");
+		tgen_ensure(0 < base and base < mod, "str: base must be in (0, mod)");
+
+		std::vector<std::string> alphabet(alphabet_size);
+		for (int i = 0; i < alphabet_size; ++i)
+			alphabet[i] = std::string(1, 'a' + i);
+		std::iota(alphabet.begin(), alphabet.end(), 'a');
+		return _detail::birthday_attack(alphabet, base, mod);
+	}
+
+	// Collides two strings to have the same polynomial hash for multiple bases
+	// and mods (up to 2 pairs).
+	// O(sqrt(mod) log^2 (mod)) with high probability,
+	// with mod = max(mod_1, mod_2).
+	static std::pair<instance, instance>
+	polynomial_hash_hack(int alphabet_size, std::vector<int> bases,
+						 std::vector<int> mods) {
+		tgen_ensure(bases.size() == mods.size(),
+					"str: bases and mods must have the same size");
+		tgen_ensure(bases.size() > 0,
+					"str: must have at least one (base, mod) pair");
+		tgen_ensure(bases.size() <= 2, "str: multi-hash hack only supported "
+									   "for up to 2 (base, mod) pairs");
+
+		std::vector<std::string> alphabet(alphabet_size);
+		for (int i = 0; i < alphabet_size; ++i)
+			alphabet[i] = std::string(1, 'a' + i);
+		auto [S1, T1] = _detail::birthday_attack(alphabet, bases[0], mods[0]);
+		if (bases.size() == 1)
+			return {S1, T1};
+		return _detail::birthday_attack({S1, T1}, bases[1], mods[1]);
+	}
 };
 
 /*********************
@@ -3187,8 +3304,8 @@ namespace misc {
 
 namespace _detail {
 
-// Tried to find correct multipliers for unordered_map/set to force collisions.
-// O(1).
+// Tried to find correct multipliers for unordered_map/set to force
+// collisions. O(1).
 inline std::set<long long> get_hash_hack_multipliers() {
 	std::set<long long> multipliers = {85229};
 

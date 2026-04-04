@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 	std::cout << l << " " << r << " " << r - l << std::endl;
 
 	// Prints a random even number in [1, 10].
-	std::cout << tgen::math::gen_even(1, 10) << std::endl;
+	std::cout << tgen::math::gen_congruent(1, 10, 0, 2) << std::endl;
 
 	// Prints a random partition of 10.
 	std::cout << tgen::println(tgen::math::gen_partition(10));
@@ -141,7 +141,10 @@ int main(int argc, char **argv) {
 	std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_all().size()
 			  << std::endl;
 
-	std::cout
-		<< tgen::_detail::is_pair_multiline<std::pair<std::string, int>>::value
-		<< std::endl;
+	// Prints two strings that force polynomial hash collision for multiple
+	// bases and mods.
+	std::cout << tgen::print(tgen::str::polynomial_hash_hack(
+								 26, {31, 33}, {(int)1e9 + 7, (int)1e9 + 9}),
+							 '\n')
+			  << std::endl;
 }
