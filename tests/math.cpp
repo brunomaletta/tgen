@@ -364,6 +364,8 @@ TEST(math_test, gen_congruent_invalid) {
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::gen_congruent(1, 0, 0, 2),
 		"math: there is no congruent number in range [1, 0]");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_congruent(0, 10, 3, 2),
+							 "math: remainder must be smaller than the mod");
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::math::gen_congruent(0, 10, {0, 1}, {2}),
 		"math: number of remainders and mods must be the same");
@@ -404,8 +406,6 @@ TEST(math_test, gen_congruent) {
 			EXPECT_TRUE(val % mods[i] == rems[i]);
 	};
 
-	EXPECT_TRUE(tgen::math::gen_even(0, largest_number_64) % 2 == 0);
-	EXPECT_TRUE(tgen::math::gen_odd(0, largest_number_64) % 2 == 1);
 	EXPECT_TRUE(tgen::math::gen_congruent(0, largest_number_64, 1, 3) % 3 == 1);
 	EXPECT_EQ(
 		tgen::math::gen_congruent(
@@ -438,6 +438,94 @@ TEST(math_test, gen_congruent_uniform) {
 						   std::vector<uint64_t>{2});
 	check_function_uniform(func, 16, 0, 99, std::vector<uint64_t>{0, 1},
 						   std::vector<uint64_t>{2, 3});
+}
+
+TEST(math_test, congruent_from_invalid) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::congruent_from(0, std::vector<uint64_t>{5, 1, 1},
+								   std::vector<uint64_t>{2, 6}),
+		"math: number of remainders and mods must be the same");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::congruent_from(0, std::vector<uint64_t>{5, 1},
+								   std::vector<uint64_t>{2, 6}),
+		"math: remainder must be smaller than the mod");
+}
+
+TEST(math_test, congruent_from) {
+	tgen::register_gen();
+
+	EXPECT_EQ(tgen::math::congruent_from(0, std::vector<uint64_t>{0},
+										 std::vector<uint64_t>{2}),
+			  0);
+	EXPECT_EQ(tgen::math::congruent_from(0, std::vector<uint64_t>{0, 1},
+										 std::vector<uint64_t>{2, 3}),
+			  4);
+	EXPECT_EQ(tgen::math::congruent_from(5, std::vector<uint64_t>{0, 1},
+										 std::vector<uint64_t>{2, 3}),
+			  10);
+	EXPECT_EQ(
+		tgen::math::congruent_from(
+			1, std::vector<uint64_t>{1, 1},
+			std::vector<uint64_t>{largest_prime_64, tgen::math::prime_upto(
+														largest_prime_64 - 1)}),
+		1);
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::congruent_from(0, std::vector<uint64_t>{0, 1},
+								   std::vector<uint64_t>{2, 6}),
+		"math: there is no congruent number from 0");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::congruent_from(
+			2, std::vector<uint64_t>{1, 1},
+			std::vector<uint64_t>{largest_prime_64, tgen::math::prime_upto(
+														largest_prime_64 - 1)}),
+		"math: congruent number does not exist or is too large");
+}
+
+TEST(math_test, congruent_upto_invalid) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::congruent_upto(0, std::vector<uint64_t>{5, 1, 1},
+								   std::vector<uint64_t>{2, 6}),
+		"math: number of remainders and mods must be the same");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::congruent_upto(0, std::vector<uint64_t>{5, 1},
+								   std::vector<uint64_t>{2, 6}),
+		"math: remainder must be smaller than the mod");
+}
+
+TEST(math_test, congruent_upto) {
+	tgen::register_gen();
+
+	EXPECT_EQ(tgen::math::congruent_upto(0, std::vector<uint64_t>{0},
+										 std::vector<uint64_t>{2}),
+			  0);
+	EXPECT_EQ(tgen::math::congruent_upto(4, std::vector<uint64_t>{0, 1},
+										 std::vector<uint64_t>{2, 3}),
+			  4);
+	EXPECT_EQ(tgen::math::congruent_upto(10, std::vector<uint64_t>{0, 1},
+										 std::vector<uint64_t>{2, 3}),
+			  10);
+	EXPECT_EQ(
+		tgen::math::congruent_upto(
+			2, std::vector<uint64_t>{1, 1},
+			std::vector<uint64_t>{largest_prime_64, tgen::math::prime_upto(
+														largest_prime_64 - 1)}),
+		1);
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::congruent_upto(0, std::vector<uint64_t>{0, 1},
+								   std::vector<uint64_t>{2, 6}),
+		"math: there is no congruent number up to 0");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::congruent_upto(
+			2, std::vector<uint64_t>{3, 3},
+			std::vector<uint64_t>{largest_prime_64, tgen::math::prime_upto(
+														largest_prime_64 - 1)}),
+		"math: there is no congruent number up to 2");
 }
 
 TEST(math_test, fft_mod) {

@@ -1,6 +1,6 @@
 #include "../single_include/tgen.h"
 
-namespace tgen {
+namespace tgen::misc {
 
 /**
  * @defgroup misc Miscellaneous
@@ -33,7 +33,7 @@ namespace tgen {
  * std::vector<long long> hack = tgen::misc::unordered_hack(1e6);
  * ```
  *
- * @fn std::vector<long long> misc::unordered_hack(int size);
+ * @fn std::vector<long long> unordered_hack(int size);
  */
 
 
@@ -56,7 +56,7 @@ namespace tgen {
  * std::cout << tgen::misc::gen_parenthesis(10) << std::endl;
  * ```
  *
- * @fn std::string misc::gen_parenthesis(int size);
+ * @fn std::string gen_parenthesis(int size);
  */
 
 };

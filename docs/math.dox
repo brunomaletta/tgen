@@ -422,7 +422,7 @@ namespace tgen::math {
  *
  * #### Complexity
  *
- * @tt{O(1)}.
+ * @tt{O(log @pname{r})}.
  *
  * #### Examples
  *
@@ -437,42 +437,112 @@ namespace tgen::math {
 
 /**
  * @ingroup math
- * @brief Generates random even number in a given range.
+ * @brief Computes smallest congruent from given value.
  *
- * @param l Left endpoint of range.
- * @param r Right endpoint of range.
+ * @param l Bound.
+ * @param rems Remainders.
+ * @param mods Mods.
  *
- * Equivalent to @tt{tgen::math::gen_congruent(@pname{l}, @pname{r}, {0}, {2})}.
+ * @pre
+ * @tt{|@pname{rems}| = |@pname{mods}|}. <br>
+ * @tt{@pname{rems}[i] < @pname{mods}[i]}.
  *
- * @return Uniformly random even number in @tt{[@pname{l}, @pname{r}]}.
+ * @return Smallest congruent larger than of equal to @pname{l}.
  *
- * @throws std::runtime_error if there is no such number.
+ * @throws std::runtime_error if there is no such number or if it does not fit in @primitive{uint64_t}.
  *
  * #### Complexity
  *
- * @tt{O(log @pname{r})}.
+ * @tt{O(|@pname{mods}| + log(lcm))}, if @tt{lcm} is the least common multiple of the mods.
  *
  * #### Examples
  *
  * ```cpp
- * // Prints random two-digit even number.
- * std::cout << tgen::math::gen_even(10, 99) << std::endl;
+ * // Prints congruent from 10.
+ * std::cout << tgen::math::congruent_from(10, {0, 1}, {2, 3}) << std::endl;
  * ```
  *
- * @fn gen_even(uint64_t l, uint64_t r);
+ * @fn congruent_from(uint64_t l, std::vector<uint64_t> rems, std::vector<uint64_t> mods);
  */
 
 
 /**
  * @ingroup math
- * @brief Generates random odd number in a given range.
+ * @brief Computes smallest congruent from given value.
  *
- * @param l Left endpoint of range.
- * @param r Right endpoint of range.
+ * @param l Bound.
+ * @param rem Remainder.
+ * @param mod Mod.
  *
- * Equivalent to @tt{tgen::math::gen_congruent(@pname{l}, @pname{r}, {1}, {2})}.
+ * @pre
+ * @tt{@pname{rem} < @pname{mod}}.
  *
- * @return Uniformly random odd number in @tt{[@pname{l}, @pname{r}]}.
+ * Equivalent to @tt{tgen::math::congruent_from(@pname{l}, {@pname{rem}}, {@pname{mod}})}.
+ *
+ * @return Smallest congruent larger than of equal to @pname{l}.
+ *
+ * @throws std::runtime_error if there is no such number or if it does not fit in @primitive{uint64_t}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(log @pname{mod})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints even number from 10.
+ * std::cout << tgen::math::congruent_from(10, 0, 2) << std::endl;
+ * ```
+ *
+ * @fn congruent_from(uint64_t l, uint64_t rem, uint64_t mod);
+ */
+
+
+/**
+ * @ingroup math
+ * @brief Computes largest congruent up to given value.
+ *
+ * @param r Bound.
+ * @param rems Remainders.
+ * @param mods Mods.
+ *
+ * @pre
+ * @tt{|@pname{rems}| = |@pname{mods}|}. <br>
+ * @tt{@pname{rems}[i] < @pname{mods}[i]}.
+ *
+ * @return Largest congruent smaller than of equal to @pname{r}.
+ *
+ * @throws std::runtime_error if there is no such number.
+ *
+ * #### Complexity
+ *
+ * @tt{O(|@pname{mods}| + log @pname{r})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints congruent up to 1e3.
+ * std::cout << tgen::math::congruent_upto(1e3, {0, 1}, {2, 3}) << std::endl;
+ * ```
+ *
+ * @fn congruent_upto(uint64_t r, std::vector<uint64_t> rems, std::vector<uint64_t> mods);
+ */
+
+
+/**
+ * @ingroup math
+ * @brief Computes largest congruent up to given value.
+ *
+ * @param r Bound.
+ * @param rem Remainder.
+ * @param mod Mod.
+ *
+ * @pre
+ * @tt{@pname{rem} < @pname{mod}}.
+ *
+ * Equivalent to @tt{tgen::math::congruent_upto(@pname{l}, {@pname{rem}}, {@pname{mod}})}.
+ *
+ * @return Largest congruent smaller than of equal to @pname{r}.
  *
  * @throws std::runtime_error if there is no such number.
  *
@@ -483,11 +553,11 @@ namespace tgen::math {
  * #### Examples
  *
  * ```cpp
- * // Prints random two-digit odd number.
- * std::cout << tgen::math::gen_odd(10, 99) << std::endl;
+ * // Prints odd number up to 1e3.
+ * std::cout << tgen::math::congruent_upto(1e3, 1, 2) << std::endl;
  * ```
  *
- * @fn gen_odd(uint64_t l, uint64_t r);
+ * @fn congruent_upto(uint64_t r, uint64_t rem, uint64_t mod);
  */
 
 

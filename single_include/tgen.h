@@ -1945,6 +1945,11 @@ std::runtime_error there_is_no_in_range_error(const std::string &type, T l,
 								"]");
 }
 template <typename T>
+std::runtime_error there_is_no_from_error(const std::string &type, T r) {
+	return tgen::_detail::error("math: there is no " + type + " from " +
+								std::to_string(r));
+}
+template <typename T>
 std::runtime_error there_is_no_upto_error(const std::string &type, T r) {
 	return tgen::_detail::error("math: there is no " + type + " up to " +
 								std::to_string(r));
@@ -2363,18 +2368,18 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 					"math: remainder must be smaller than the mod");
 		crt = crt * _detail::crt(rems[i], mods[i]);
 
-		if (crt.a == -1 or crt.m > r) {
+		if (crt.a == -1)
+			throw _detail::there_is_no_in_range_error("congruent number", l, r);
+		if (crt.m > r) {
 			if (!(l <= crt.a and crt.a <= r))
 				throw _detail::there_is_no_in_range_error("congruent number", l,
 														  r);
 
-			bool valid_candidate = true;
 			for (int j = 0; j < static_cast<int>(rems.size()); ++j)
 				if (crt.a % mods[j] != rems[j])
-					valid_candidate = false;
-			if (valid_candidate)
-				return crt.a;
-			throw _detail::there_is_no_in_range_error("congruent number", l, r);
+					throw _detail::there_is_no_in_range_error(
+						"congruent number", l, r);
+			return crt.a;
 		}
 	}
 
@@ -2387,7 +2392,7 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 	return crt.a + next(k_min, k_max) * crt.m;
 }
 
-// O(1).
+// O(log r).
 // rem < mod.
 inline uint64_t gen_congruent(uint64_t l, uint64_t r, uint64_t rem,
 							  uint64_t mod) {
@@ -2395,14 +2400,99 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r, uint64_t rem,
 						 std::vector<uint64_t>({mod}));
 }
 
-// O(log r).
-inline uint64_t gen_even(uint64_t l, uint64_t r) {
-	return gen_congruent(l, r, 0, 2);
+// Firsr congruent number >= l.
+// O(|mods| + log r).
+// |rems| = |mods|.
+// rems_i < mods_i.
+inline uint64_t congruent_from(uint64_t l, std::vector<uint64_t> rems,
+							   std::vector<uint64_t> mods) {
+	tgen_ensure(rems.size() == mods.size(),
+				"math: number of remainders and mods must be the same");
+
+	_detail::crt crt;
+	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
+		tgen_ensure(rems[i] < mods[i],
+					"math: remainder must be smaller than the mod");
+		crt = crt * _detail::crt(rems[i], mods[i]);
+
+		if (crt.a == -1)
+			throw _detail::there_is_no_from_error("congruent number", l);
+		if (crt.m > std::numeric_limits<uint64_t>::max()) {
+			if (crt.a < l)
+				throw tgen::_detail::error(
+					"math: congruent number does not exist or is too large");
+
+			for (int j = 0; j < static_cast<int>(rems.size()); ++j)
+				if (crt.a % mods[j] != rems[j])
+					throw tgen::_detail::error("math: congruent number does "
+											   "not exist or is too large");
+			return crt.a;
+		}
+	}
+
+	uint64_t k = 0;
+	if (crt.a < l)
+		k = ((l - crt.a) + crt.m - 1) / crt.m;
+	__int128 result = crt.a + k * crt.m;
+
+	if (result > std::numeric_limits<uint64_t>::max())
+		throw tgen::_detail::error("math: congruent number is too large");
+	return static_cast<uint64_t>(result);
 }
 
-// O(log r).
-inline uint64_t gen_odd(uint64_t l, uint64_t r) {
-	return gen_congruent(l, r, 1, 2);
+// O(log l)
+// rem < mod.
+inline uint64_t congruent_from(uint64_t l, uint64_t rem, uint64_t mod) {
+	return congruent_from(l, std::vector<uint64_t>{rem},
+						  std::vector<uint64_t>{mod});
+}
+
+// First congruent number <= r.
+// O(|mods| + log r).
+// |rems| = |mods|.
+// rems_i < mods_i.
+inline uint64_t congruent_upto(uint64_t r, std::vector<uint64_t> rems,
+							   std::vector<uint64_t> mods) {
+	tgen_ensure(rems.size() == mods.size(),
+				"math: number of remainders and mods must be the same");
+
+	_detail::crt crt;
+	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
+		tgen_ensure(rems[i] < mods[i],
+					"math: remainder must be smaller than the mod");
+
+		crt = crt * _detail::crt(rems[i], mods[i]);
+
+		if (crt.a == -1)
+			throw _detail::there_is_no_upto_error("congruent number", r);
+		if (crt.m > r) {
+			if (!(crt.a <= r))
+				throw _detail::there_is_no_upto_error("congruent number", r);
+
+			for (int j = 0; j < static_cast<int>(rems.size()); ++j)
+				if (crt.a % mods[j] != rems[j])
+					throw _detail::there_is_no_upto_error("congruent number",
+														  r);
+			return crt.a;
+		}
+	}
+
+	if (crt.a > r)
+		throw _detail::there_is_no_upto_error("congruent number", r);
+
+	uint64_t k = (r - crt.a) / crt.m;
+	__int128 result = crt.a + k * crt.m;
+
+	if (result < 0)
+		throw _detail::there_is_no_upto_error("congruent number", r);
+	return static_cast<uint64_t>(result);
+}
+
+// O(log r)
+// rem < mod.
+inline uint64_t congruent_upto(uint64_t r, uint64_t rem, uint64_t mod) {
+	return congruent_upto(r, std::vector<uint64_t>{rem},
+						  std::vector<uint64_t>{mod});
 }
 
 // Mod used for FFT/NTT.
@@ -2462,8 +2552,8 @@ gen_partition(int n, int part_l = 1, std::optional<int> part_r = std::nullopt) {
 		int nxt_sum = std::min(sum, r);
 		long double random = next<long double>(0, 1);
 
-		// We generate a value X (log space), and then choose nxt_sum such that
-		// dp_pref[nxt_sum-1] < X <= dp_pref[nxt_sum].
+		// We generate a value X (log space), and then choose nxt_sum such
+		// that dp_pref[nxt_sum-1] < X <= dp_pref[nxt_sum].
 
 		// Math hack:
 		// Let A = pref[l-1], B = pref[r], U = rand().
