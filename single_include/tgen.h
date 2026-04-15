@@ -23,7 +23,6 @@
 #pragma once
 
 #include <algorithm>
-#include <any>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -33,11 +32,9 @@
 #include <random>
 #include <set>
 #include <sstream>
-#include <stack>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
-#include <typeindex>
 #include <vector>
 
 namespace tgen {
@@ -90,9 +87,11 @@ complex_restrictions_error(const std::string &type,
 }
 inline void tgen_ensure_against_bug(bool cond, const std::string &msg = "") {
 	if (!cond) {
-		std::cerr << "tgen: " << msg << std::endl;
-		throw std::runtime_error(
-			"tgen: THERE IS A BUG IN TGEN; PLEASE CONTACT MAINTAINERS");
+		std::string error_msg;
+		if (!msg.empty())
+			error_msg = "tgen: " + msg + "\n";
+		error_msg += "tgen: THERE IS A BUG IN TGEN; PLEASE CONTACT MAINTAINERS";
+		throw std::runtime_error(error_msg);
 	}
 }
 
