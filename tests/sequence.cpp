@@ -442,7 +442,7 @@ TEST(sequence_test, gen_until) {
 TEST(sequence_test, gen_list) {
 	tgen::register_gen();
 
-	auto insts = tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1).gen_list(5);
+	auto insts = tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1).gen_seq(5);
 	for (auto &inst : insts.to_std()) {
 		EXPECT_TRUE(inst[0] == 1);
 		EXPECT_EQ(inst[0], inst[1]);
@@ -453,7 +453,7 @@ TEST(sequence_test, unique) {
 	tgen::register_gen();
 
 	auto insts =
-		tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1).unique().gen_list(5);
+		tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1).unique().gen_seq(5);
 	for (auto &inst : insts.to_std()) {
 		EXPECT_TRUE(inst[0] == 1);
 		EXPECT_EQ(inst[0], inst[1]);

@@ -471,7 +471,7 @@ namespace tgen {
 
 
 /**
- * @brief Generates a list of several unique values.
+ * @brief Generates a sequence of several unique values.
  *
  * @return A uniformly random @ref tgen::sequence::instance with @pname{size}
  *         unique values from the range.
@@ -486,10 +486,10 @@ namespace tgen {
  *
  * ```cpp
  * // Prints 3 distinct numbers from 1 to 10, uniformly at random.
- * std::cout << tgen::unique_range(1, 10).gen_list(3) << std::endl;
+ * std::cout << tgen::unique_range(1, 10).gen_seq(3) << std::endl;
  * ```
  *
- * @fn unique_range::gen_list(int size);
+ * @fn unique_range::gen_seq(int size);
  */
 
 
@@ -602,7 +602,7 @@ namespace tgen {
 
 
 /**
- * @brief Generates a list of several unique elements.
+ * @brief Generates a sequence of several unique elements.
  *
  * @return A uniformly random @ref tgen::sequence::instance with @pname{size}
  *         unique elements from the container.
@@ -618,10 +618,10 @@ namespace tgen {
  * ```cpp
  * // Prints 3 distinct elements from s, uniformly at random.
  * std::set<int> s = {1, 2, 5, 7, 9};
- * std::cout << tgen::unique_container(s).gen_list(3) << std::endl;
+ * std::cout << tgen::unique_container(s).gen_seq(3) << std::endl;
  * ```
  *
- * @fn unique_container::gen_list(int size);
+ * @fn unique_container::gen_seq(int size);
  */
 
 
@@ -725,7 +725,7 @@ namespace tgen {
 
 
 /**
- * @brief Generates a list of several unique values.
+ * @brief Generates a sequence of several unique values.
  *
  * @param size Size of the list to be generated.
  *
@@ -742,10 +742,10 @@ namespace tgen {
  *
  * ```cpp
  * // Prints 10 random unique strings.
- * std::cout << tgen::str("[a-z]{5}").unique().gen_list(10) << std::endl;
+ * std::cout << tgen::str("[a-z]{5}").unique().gen_seq(10) << std::endl;
  * ```
  *
- * @fn unique::gen_list(int size);
+ * @fn unique::gen_seq(int size);
  */
 
 
@@ -804,7 +804,7 @@ namespace tgen {
 
 
 /**
- * @brief Generates a list of several generation calls.
+ * @brief Generates a sequence of several generation calls.
  *
  * @tparam Gen Automatically set to the given type.
  *
@@ -822,10 +822,10 @@ namespace tgen {
  *
  * ```cpp
  * // Creates unique generator of strings of size n.
- * tgen::unique g = tgen::str("[a-z]{%d}", n).gen_list();
+ * tgen::unique g = tgen::str("[a-z]{%d}", n).gen_seq();
  * ```
  *
- * @fn gen_base::gen_list(int size, Args &&...args) const;
+ * @fn gen_base::gen_seq(int size, Args &&...args) const;
  */
 
 

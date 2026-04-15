@@ -282,8 +282,8 @@ template <typename Func, typename... Args> struct unique {
 		return gen(std::vector<U>(il));
 	}
 
-	// Generates a list of unique instances.
-	auto gen_list(int size) {
+	// Generates a sequence of unique instances.
+	auto gen_seq(int size) {
 		std::vector<T> res;
 		for (int i = 0; i < size; ++i)
 			res.push_back(gen());
@@ -324,7 +324,7 @@ unique(Func, Args...) -> unique<Func, Args...>;
 template <typename Gen> struct gen_base {
 	const Gen &self() const { return *static_cast<const Gen *>(this); }
 
-	template <typename... Args> auto gen_list(int size, Args &&...args) const {
+	template <typename... Args> auto gen_seq(int size, Args &&...args) const {
 		std::vector<typename Gen::instance> res;
 
 		for (int i = 0; i < size; ++i)
@@ -815,9 +815,9 @@ template <typename T> struct unique_range {
 		return vi + l_;
 	}
 
-	// Generates a list of unique values.
+	// Generates a sequence of unique values.
 	// O(size * log(n)).
-	auto gen_list(int size) {
+	auto gen_seq(int size) {
 		std::vector<T> res;
 		for (int i = 0; i < size; ++i)
 			res.push_back(gen());
@@ -854,9 +854,9 @@ template <typename T> struct unique_container {
 	// O(log n).
 	T gen() { return list_[idx_.gen()]; }
 
-	// Generates a list of unique values.
+	// Generates a sequence of unique values.
 	// O(size * log(n)).
-	auto gen_list(int size) {
+	auto gen_seq(int size) {
 		std::vector<T> res;
 		for (int i = 0; i < size; ++i)
 			res.push_back(gen());
@@ -2823,7 +2823,7 @@ struct regex_node {
 	regex_node(int left_bound, int right_bound, regex_node &child)
 		: pattern_("REP"), left_bound_(left_bound), right_bound_(right_bound) {
 		log_space_num_ways_ = math::_detail::LOG_ZERO;
-		for (int i = left_bound; i <= right_bound; i++)
+		for (int i = left_bound; i <= right_bound; ++i)
 			log_space_num_ways_ = math::_detail::add_log_space(
 				log_space_num_ways_, i * child.log_space_num_ways_);
 
@@ -2864,7 +2864,7 @@ inline regex_node parse_regex(std::string regex) {
 	regex_state cur;
 	std::vector<regex_state> stack;
 
-	for (size_t i = 0; i < regex.size(); i++) {
+	for (size_t i = 0; i < regex.size(); ++i) {
 		char c = regex[i];
 
 		if (c == '(') {
@@ -3073,7 +3073,7 @@ birthday_attack(const std::vector<std::string> &alphabet, int base, int mod) {
 		std::string s;
 		s.reserve(length * alphabet[0].size());
 
-		for (int i = 0; i < length; i++) {
+		for (int i = 0; i < length; ++i) {
 			seq[i] = next<int>(0, alphabet.size() - 1);
 			s += alphabet[seq[i]];
 		}

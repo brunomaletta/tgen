@@ -109,13 +109,13 @@ int main(int argc, char **argv) {
 			  << std::endl;
 
 	// Prints 5 random distinct numbers in [1, 10].
-	std::cout << tgen::unique_range(1, 10).gen_list(5) << std::endl;
+	std::cout << tgen::unique_range(1, 10).gen_seq(5) << std::endl;
 
 	// Prints 3 random unique strings of length 5.
-	std::cout << tgen::str("[ab]{5}").unique().gen_list(3) << std::endl;
+	std::cout << tgen::str("[ab]{5}").unique().gen_seq(3) << std::endl;
 
 	// Prints 3 random unique primes in [1, 10].
-	std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_list(3)
+	std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_seq(3)
 			  << std::endl;
 
 	// Prints a random perfect matching of K_10.
@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
 		<< std::endl;
 
 	// Prints some random parenthesis sequences.
-	std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_list(5)
+	std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_seq(5)
 			  << std::endl;
 
 	// Computes how many of these there are.

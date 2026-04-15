@@ -9,7 +9,6 @@ int main(int argc, char **argv) {
 	int q = tgen::opt<int>("q", 10);
 
 	std::cout << n << " " << q << std::endl;
-	std::cout << tgen::pair<int>(1, n).leq().unique().gen_list(q).separator(
-					 '\n')
+	std::cout << tgen::pair<int>(1, n).leq().unique().gen_seq(q).separator('\n')
 			  << std::endl;
 }
