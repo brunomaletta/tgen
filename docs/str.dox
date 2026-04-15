@@ -78,7 +78,7 @@ namespace tgen {
 
 
  /**
- * @brief Creates string generator define by size and range of characters.
+ * @brief Creates string generator defined by size and range of characters.
  *
  * @param size Size of the string.
  * @param value_l Left endpoint of character range.
@@ -99,7 +99,7 @@ namespace tgen {
 
 
  /**
- * @brief Creates string generator define by character set.
+ * @brief Creates string generator defined by character set.
  *
  * @param size Size of the string.
  * @param chars Character set.
@@ -118,7 +118,7 @@ namespace tgen {
 
 
  /**
- * @brief Creates string generator define by regex.
+ * @brief Creates string generator defined by regex.
  *
  * @param regex Regex.
  * @param args Arguments for the regex.
@@ -364,7 +364,7 @@ namespace tgen {
  * @return A @tt{@namespace{std}::pair<@ref instance, @ref instance>} with the colided strings.
  *
  * Reference:
- * - <a href="https://codeforces.com/blog/entry/4898">On the mathematics behind rolling hashes and anti-hash
+ * - <a href="https://codeforces.com/blog/entry/60442">On the mathematics behind rolling hashes and anti-hash
  *   tests</a>: Thue–Morse sequence: Hashing with unsigned overflow (p = 2^64, q arbitrary).
 
  *
@@ -394,12 +394,12 @@ namespace tgen {
  * @tt{0 < @pname{base} < @pname{mod}}
  *
  * Computes two strings that have the same polynomial hash for given base and mod. <br>
- * Characters are in @tt{[a, a + @pname{alphabet_size})}.
+ * Characters are in @tt{[a, a + @pname{alphabet_size})}. The larger the alphabet, the smaller the colided strings.
  *
  * @return A @tt{@namespace{std}::pair<@ref instance, @ref instance>} with the colided strings.
  *
  * Reference:
- * - <a href="https://codeforces.com/blog/entry/4898">On the mathematics behind rolling hashes and anti-hash
+ * - <a href="https://codeforces.com/blog/entry/60442">On the mathematics behind rolling hashes and anti-hash
  *   tests</a>: Composition-attack: Multiple hashes
  *
  * #### Complexity
@@ -430,7 +430,7 @@ namespace tgen {
  *
  * Computes two strings that have the same polynomial hash for given bases and mods,
  * up to 2 (base, mod) pairs. <br>
- * Characters are in @tt{[a, a + @pname{alphabet_size})}.
+ * Characters are in @tt{[a, a + @pname{alphabet_size})}. The larger the alphabet, the smaller the colided strings.
  *
  * @return A @tt{@namespace{std}::pair<@ref instance, @ref instance>} with the colided strings.
  *
@@ -463,8 +463,7 @@ namespace tgen {
  *
  * Instance of a string.
  *
- * It can be deterministically operated upon (see @ref generator_instance_op for random operations) 
- * and printed through @tt{@namespace{std}::cout}.
+ * It can be deterministically operated upon and printed through @tt{@namespace{std}::cout}.
  *
  * @struct str::instance;
  */

@@ -147,6 +147,12 @@ dl.section.note dt::before {
 }
 
 
+/* ===== Warning ===== */
+dl.section.warning dt::before {
+    content: "⚠ ";
+}
+
+
 
 /* Return‑type column: give it a preferred width and cap it */
 td.memItemLeft {

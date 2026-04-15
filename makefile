@@ -70,6 +70,9 @@ sample:
 unordered:
 	g++ -std=c++17 examples/unordered_set.cpp -I $(SRC_DIR) -o sample -O2
 
+range_queries:
+	g++ -std=c++17 examples/range_queries.cpp -I $(SRC_DIR) -o sample -O2
+
 unordered_clang:
 	clang++ -std=c++17 examples/unordered_set.cpp -I $(SRC_DIR) -o sample -O2
 

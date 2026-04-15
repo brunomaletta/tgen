@@ -82,6 +82,15 @@ TEST(opts_test, has_opt_named) {
 	tgen::register_gen(argv.size() - 1, argv.data());
 
 	EXPECT_EQ(tgen::has_opt("n"), true);
+	EXPECT_EQ(tgen::has_opt("m"), false);
+}
+
+TEST(opts_test, has_opt_named_char) {
+	auto argv = get_argv({"./executable", "-n", "10"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	EXPECT_EQ(tgen::has_opt('n'), true);
+	EXPECT_EQ(tgen::has_opt('m'), false);
 }
 
 TEST(opts_test, has_opt_positional) {
@@ -121,6 +130,14 @@ TEST(opts_test, opt_named) {
 
 	EXPECT_EQ(tgen::opt<int>("n"), 10);
 	EXPECT_EQ(tgen::opt<bool>("m"), true);
+}
+
+TEST(opts_test, opt_named_char) {
+	auto argv = get_argv({"./executable", "-n", "10", "-10", "-m", "true"});
+	tgen::register_gen(argv.size() - 1, argv.data());
+
+	EXPECT_EQ(tgen::opt<int>('n'), 10);
+	EXPECT_EQ(tgen::opt<bool>('m'), true);
 }
 
 TEST(opts_test, opt_named_default) {

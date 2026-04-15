@@ -147,4 +147,8 @@ int main(int argc, char **argv) {
 								 26, {31, 33}, {(int)1e9 + 7, (int)1e9 + 9}),
 							 '\n')
 			  << std::endl;
+
+	// Prints all pairs (a, b) in [1, 3] with a <= b.
+	std::cout << tgen::pair<int>(1, 3).leq().unique().gen_all().separator('\n')
+			  << std::endl;
 }

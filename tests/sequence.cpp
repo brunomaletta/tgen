@@ -17,17 +17,20 @@ struct sequence_test {
 
 	sequence_test(int n, int l_, int r_) : l(l_), r(r_), s(n, l, r) {}
 
-	void fix(int idx, int val) {
+	sequence_test &fix(int idx, int val) {
 		s.fix(idx, val);
 		defs.emplace_back(idx, val);
+		return *this;
 	}
-	void equal(int idx_1, int idx_2) {
+	sequence_test &equal(int idx_1, int idx_2) {
 		s.equal(idx_1, idx_2);
 		equals.emplace_back(idx_1, idx_2);
+		return *this;
 	}
-	void distinct(std::set<int> indices) {
+	sequence_test &distinct(std::set<int> indices) {
 		s.distinct(indices);
 		distincts.push_back(indices);
+		return *this;
 	}
 
 	void check() {
@@ -364,35 +367,26 @@ TEST(sequence_test, gen_two_distincts_one_set) {
 TEST(sequence_test, gen_with_all) {
 	tgen::register_gen();
 
-	{
-		sequence_test test(10, 1, 10);
-		test.distinct({0, 1});
-		test.distinct({1, 2, 3});
-		test.distinct({3, 4});
-		test.fix(1, 1);
-		test.fix(3, 2);
-
-		test.check();
-	}
-	{
-		sequence_test test(10, 1, 10);
-		test.equal(0, 1);
-		test.equal(1, 2);
-		test.distinct({0, 5, 6});
-		test.fix(6, 10);
-
-		test.check();
-	}
-	{
-		sequence_test test(10, 1, 10);
-		test.equal(0, 1);
-		test.equal(1, 2);
-		test.distinct({0, 5, 6});
-		test.fix(5, 10);
-		test.fix(6, 9);
-
-		test.check();
-	}
+	sequence_test(10, 1, 10)
+		.distinct({0, 1})
+		.distinct({1, 2, 3})
+		.distinct({3, 4})
+		.fix(1, 1)
+		.fix(3, 2)
+		.check();
+	sequence_test(10, 1, 10)
+		.equal(0, 1)
+		.equal(1, 2)
+		.distinct({0, 5, 6})
+		.fix(6, 10)
+		.check();
+	sequence_test(10, 1, 10)
+		.equal(0, 1)
+		.equal(1, 2)
+		.distinct({0, 5, 6})
+		.fix(5, 10)
+		.fix(6, 9)
+		.check();
 }
 
 TEST(sequence_test, gen_uniform) {

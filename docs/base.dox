@@ -210,6 +210,8 @@ namespace tgen {
  * @return @tt{i} in @tt{[0, @pname{distribution}.size()-]} with probability proportional to
  *         @tt{@pname{distribution}[i]}.
  *
+ * @warning Assumes that the sum of @pname{distribution} fits in type @tt{T}.
+ *
  * #### Complexity
  *
  * @tt{O(|@pname{distribution}|)}.
@@ -340,6 +342,8 @@ namespace tgen {
  *
  * @return For @tt{i} in @tt{[0, @pname{container}.size()-1]}, @tt{@pname{container}[i]} with probability
  *         proportional to @tt{@pname{distribution}[i]}.
+ *
+ * @warning Assumes that the sum of @pname{distribution} fits in type @tt{T}.
  *
  * #### Complexity
  *

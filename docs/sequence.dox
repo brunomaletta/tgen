@@ -4,7 +4,7 @@ namespace tgen {
 
 /**
  * @defgroup sequence Sequences
- * @brief Generation of sequences.
+ * @brief Generation of sequences for integral types.
  *
  * Its instances have the properties:
  * - @tt{tgen::is_sequential}
@@ -81,7 +81,7 @@ namespace tgen {
 
 
 /**
- * @brief Creates sequence generator define by size and range of values.
+ * @brief Creates sequence generator defined by size and range of values.
  *
  * @param size Size of the sequence.
  * @param value_l Left endpoint of value range.
@@ -102,7 +102,7 @@ namespace tgen {
 
 
 /**
- * @brief Creates sequence generator define by value set.
+ * @brief Creates sequence generator defined by value set.
  *
  * @param size Size of the sequence.
  * @param values Value set.
@@ -419,7 +419,7 @@ namespace tgen {
 /**
  * @brief Prints the instance to a @texttt{@namespace{std}::@type{ostream}}.
  *
- * The values are printed with one space as a separator,
+ * The values are printed with one space as a separator by default,
  * and with no end of line.
  *
  * #### Examples

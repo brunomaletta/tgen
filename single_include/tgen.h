@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <any>
 #include <functional>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <optional>
@@ -48,6 +49,10 @@ namespace tgen {
  **************************/
 
 namespace _detail {
+
+// Type aliases.
+using u128 = unsigned __int128;
+using i128 = __int128;
 
 /*
  * Error handling.
@@ -461,10 +466,29 @@ struct print {
 			write_tuple(os, val, sep);
 		else if constexpr (_detail::is_container<T>::value)
 			write_container(os, val, sep);
+		else if constexpr (std::is_same_v<T, _detail::i128> or
+						   std::is_same_v<T, _detail::u128>)
+			write_128_number(os, val);
 		else
 			os << val;
 	}
 
+	// Writes 128 bit number.
+	template <typename T> void write_128_number(std::ostream &os, T num) {
+		static const long long BASE = 1e18;
+
+		if (num < 0) {
+			os << '-';
+			num = -num;
+		}
+
+		if (num >= BASE) {
+			write_128_number(os, num / BASE);
+			os << std::setw(18) << std::setfill('0')
+			   << static_cast<long long>(num % BASE);
+		} else
+			os << static_cast<long long>(num);
+	}
 	// Writes container, checking separator.
 	template <typename C>
 	void write_container(std::ostream &os, const C &container, char sep = ' ') {
@@ -551,6 +575,29 @@ template <typename T> T next(T l, T r) {
 		throw _detail::error("invalid type for next (" +
 							 std::string(typeid(T).name()) + ")");
 }
+
+namespace _detail {
+
+// Random 128 bit number in [0, total).
+// O(1) expected.
+inline u128 next128(u128 total) {
+	tgen_ensure(total > 0, "next128: total must be positive");
+
+	// Largest multiple of total less than 2^128
+	u128 limit = (u128(-1) / total) * total;
+
+	while (true) {
+		// Generate uniform 128-bit random number
+		u128 r = ((u128)next<uint64_t>(0, std::numeric_limits<uint64_t>::max())
+				  << 64) |
+				 next<uint64_t>(0, std::numeric_limits<uint64_t>::max());
+
+		if (r < limit)
+			return r % total;
+	}
+}
+
+} // namespace _detail
 
 // Returns i with probability proportional to distribution[i].
 template <typename T>
@@ -899,14 +946,14 @@ inline bool process_special_opt_flags(std::string &key) {
 
 	// Checks for tgen::(GCC|CLANG) or
 	// tgen::(GCC|CLANG):(version|version.minor).
-	_detail::compiler_kind kind;
+	compiler_kind kind;
 	size_t prefix_len = 0;
 
 	if (key.find("tgen::GCC") == 0) {
-		kind = _detail::compiler_kind::gcc;
+		kind = compiler_kind::gcc;
 		prefix_len = std::string("tgen::GCC").size();
 	} else if (key.find("tgen::CLANG") == 0) {
-		kind = _detail::compiler_kind::clang;
+		kind = compiler_kind::clang;
 		prefix_len = std::string("tgen::CLANG").size();
 	} else {
 		return false;
@@ -975,8 +1022,7 @@ template <typename T> T get_opt(const std::string &value) {
 	} catch (...) {
 	}
 
-	throw _detail::error("invalid value `" + value + "` for type " +
-						 typeid(T).name());
+	throw error("invalid value `" + value + "` for type " + typeid(T).name());
 }
 
 inline void parse_opts(int argc, char **argv) {
@@ -993,7 +1039,7 @@ inline void parse_opts(int argc, char **argv) {
 						"invalid opt (" + std::string(argv[i]) + ")");
 			if ('0' <= key[1] and key[1] <= '9') {
 				// This case is a positional negative number argument
-				_detail::pos_opts.push_back(key);
+				pos_opts.push_back(key);
 				continue;
 			}
 
@@ -1001,7 +1047,7 @@ inline void parse_opts(int argc, char **argv) {
 			key = key.substr(1);
 		} else {
 			// This case is a positional argument that does not start with '-'
-			_detail::pos_opts.push_back(key);
+			pos_opts.push_back(key);
 			continue;
 		}
 
@@ -1026,15 +1072,15 @@ inline void parse_opts(int argc, char **argv) {
 			tgen_ensure(!key.empty() and !value.empty(),
 						"expected non-empty key/value in opt (" +
 							std::string(argv[1]));
-			tgen_ensure(_detail::named_opts.count(key) == 0,
+			tgen_ensure(named_opts.count(key) == 0,
 						"cannot have repeated keys");
-			_detail::named_opts[key] = value;
+			named_opts[key] = value;
 		} else {
 			// This is the '--key value' case.
-			tgen_ensure(_detail::named_opts.count(key) == 0,
+			tgen_ensure(named_opts.count(key) == 0,
 						"cannot have repeated keys");
 			tgen_ensure(argv[i + 1], "value cannot be empty");
-			_detail::named_opts[key] = std::string(argv[i + 1]);
+			named_opts[key] = std::string(argv[i + 1]);
 			++i;
 		}
 	}
@@ -1054,28 +1100,32 @@ inline void set_seed(int argc, char **argv) {
 		}
 	}
 	std::seed_seq seq(seed.begin(), seed.end());
-	_detail::rng.seed(seq);
+	rng.seed(seq);
 }
 
 } // namespace _detail
 
 // Returns true if there is an opt at a given index.
 inline bool has_opt(std::size_t index) {
-	tgen::_detail::ensure_registered();
+	_detail::ensure_registered();
 	return 0 <= index and index < _detail::pos_opts.size();
 }
 
 // Returns true if there is an opt with a given key.
 inline bool has_opt(const std::string &key) {
-	tgen::_detail::ensure_registered();
+	_detail::ensure_registered();
 	return _detail::named_opts.count(key) != 0;
+}
+template <typename K>
+std::enable_if_t<std::is_same_v<K, char>, bool> has_opt(K key) {
+	return has_opt(std::string(1, key));
 }
 
 // Returns the parsed opt by a given index. If no opts with the given index are
 // found, returns the given default_value.
 template <typename T>
 T opt(size_t index, std::optional<T> default_value = std::nullopt) {
-	tgen::_detail::ensure_registered();
+	_detail::ensure_registered();
 	if (!has_opt(index)) {
 		if (default_value)
 			return *default_value;
@@ -1089,13 +1139,18 @@ T opt(size_t index, std::optional<T> default_value = std::nullopt) {
 // found, returns the given default_value.
 template <typename T>
 T opt(const std::string &key, std::optional<T> default_value = std::nullopt) {
-	tgen::_detail::ensure_registered();
+	_detail::ensure_registered();
 	if (!has_opt(key)) {
 		if (default_value)
 			return *default_value;
 		throw _detail::error("cannot find key with key " + key);
 	}
 	return _detail::get_opt<T>(_detail::named_opts[key]);
+}
+template <typename T, typename K>
+std::enable_if_t<std::is_same_v<K, char>, T>
+opt(K key, std::optional<T> default_value = std::nullopt) {
+	return opt<T>(std::string(1, key), default_value);
 }
 
 // Registers generator by initializing rnd and parsing opts.
@@ -1130,6 +1185,8 @@ inline void register_gen(std::optional<long long> seed = std::nullopt) {
 
 /*
  * Sequence generator.
+ *
+ * Sequence of integral types.
  */
 
 template <typename T> struct sequence : gen_base<sequence<T>> {
@@ -1853,6 +1910,8 @@ namespace math {
 
 namespace _detail {
 
+using namespace tgen::_detail;
+
 inline int popcount(uint64_t x) { return __builtin_popcountll(x); }
 
 inline int ctzll(uint64_t x) {
@@ -1867,7 +1926,7 @@ inline int ctzll(uint64_t x) {
 }
 
 inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t m) {
-	return static_cast<unsigned __int128>(a) * b % m;
+	return static_cast<u128>(a) * b % m;
 }
 
 // O(log n).
@@ -1932,7 +1991,7 @@ inline std::vector<uint64_t> factor(uint64_t n) {
 		return {};
 	if (is_prime(n))
 		return {n};
-	uint64_t d = _detail::pollard_rho(n);
+	uint64_t d = pollard_rho(n);
 	std::vector<uint64_t> l = factor(d), r = factor(n / d);
 	l.insert(l.end(), r.begin(), r.end());
 	return l;
@@ -1942,33 +2001,30 @@ inline std::vector<uint64_t> factor(uint64_t n) {
 template <typename T>
 std::runtime_error there_is_no_in_range_error(const std::string &type, T l,
 											  T r) {
-	return tgen::_detail::error("math: there is no " + type + " in range [" +
-								std::to_string(l) + ", " + std::to_string(r) +
-								"]");
+	return error("math: there is no " + type + " in range [" +
+				 std::to_string(l) + ", " + std::to_string(r) + "]");
 }
 template <typename T>
 std::runtime_error there_is_no_from_error(const std::string &type, T r) {
-	return tgen::_detail::error("math: there is no " + type + " from " +
-								std::to_string(r));
+	return error("math: there is no " + type + " from " + std::to_string(r));
 }
 template <typename T>
 std::runtime_error there_is_no_upto_error(const std::string &type, T r) {
-	return tgen::_detail::error("math: there is no " + type + " up to " +
-								std::to_string(r));
+	return error("math: there is no " + type + " up to " + std::to_string(r));
 }
 
 // O(log mod).
 // 0 < a < mod.
 // gcd(a, mod) = 1.
-inline __int128 modular_inverse_128(__int128 a, __int128 mod) {
+inline i128 modular_inverse_128(i128 a, i128 mod) {
 	tgen_ensure(0 < a and a < mod,
 				"math: remainder must be positive and smaller than the mod");
 
-	__int128 t = 0, new_t = 1;
-	__int128 r = mod, new_r = a;
+	i128 t = 0, new_t = 1;
+	i128 r = mod, new_r = a;
 
 	while (new_r != 0) {
-		__int128 q = r / new_r;
+		i128 q = r / new_r;
 
 		auto tmp_t = t - q * new_t;
 		t = new_t;
@@ -2018,11 +2074,9 @@ inline std::optional<uint64_t> expo(uint64_t base, uint64_t exp,
 }
 
 // O(log n log k).
-// 0 <= n.
 // 0 < k.
 inline uint64_t kth_root_floor(uint64_t n, uint64_t k) {
-	tgen::_detail::tgen_ensure_against_bug(k > 0 and n >= 0,
-										   "math: values must be valid");
+	tgen_ensure_against_bug(k > 0, "math: value must be valid");
 	if (k == 1 or n <= 1)
 		return n;
 
@@ -2042,13 +2096,13 @@ inline uint64_t kth_root_floor(uint64_t n, uint64_t k) {
 
 // gcd(a, b).
 // O(log a).
-inline __int128 gcd128(__int128 a, __int128 b) {
+inline i128 gcd128(i128 a, i128 b) {
 	if (a < 0)
 		a = -a;
 	if (b < 0)
 		b = -b;
 	while (b != 0) {
-		__int128 t = a % b;
+		i128 t = a % b;
 		a = b;
 		b = t;
 	}
@@ -2058,9 +2112,9 @@ inline __int128 gcd128(__int128 a, __int128 b) {
 // min(2^64, a*b).
 // O(log a).
 // a, b >= 0.
-inline __int128 mul_saturate(__int128 a, __int128 b) {
+inline i128 mul_saturate(i128 a, i128 b) {
 	tgen_ensure(a >= 0 and b >= 0);
-	static const __int128 LIMIT = (__int128)1 << 64;
+	static const i128 LIMIT = static_cast<i128>(1) << 64;
 	if (a == 0 or b == 0)
 		return 0;
 	if (a > LIMIT / b)
@@ -2069,7 +2123,7 @@ inline __int128 mul_saturate(__int128 a, __int128 b) {
 }
 
 struct crt {
-	using T = __int128;
+	using T = i128;
 	T a, m;
 
 	crt() : a(0), m(1) {}
@@ -2094,13 +2148,11 @@ struct crt {
 		if (k < 0)
 			k += m2;
 
-		k = static_cast<unsigned __int128>(k) * inv % m2;
+		k = static_cast<u128>(k) * inv % m2;
 
 		T lcm = mul_saturate(m, m2);
 
-		T res = (a + static_cast<T>((static_cast<unsigned __int128>(k) * m) %
-									lcm)) %
-				lcm;
+		T res = (a + static_cast<T>((static_cast<u128>(k) * m) % lcm)) % lcm;
 		if (res < 0)
 			res += lcm;
 
@@ -2423,13 +2475,13 @@ inline uint64_t congruent_from(uint64_t l, std::vector<uint64_t> rems,
 			throw _detail::there_is_no_from_error("congruent number", l);
 		if (crt.m > std::numeric_limits<uint64_t>::max()) {
 			if (crt.a < l)
-				throw tgen::_detail::error(
+				throw _detail::error(
 					"math: congruent number does not exist or is too large");
 
 			for (int j = 0; j < static_cast<int>(rems.size()); ++j)
 				if (crt.a % mods[j] != rems[j])
-					throw tgen::_detail::error("math: congruent number does "
-											   "not exist or is too large");
+					throw _detail::error("math: congruent number does "
+										 "not exist or is too large");
 			return crt.a;
 		}
 	}
@@ -2437,10 +2489,10 @@ inline uint64_t congruent_from(uint64_t l, std::vector<uint64_t> rems,
 	uint64_t k = 0;
 	if (crt.a < l)
 		k = ((l - crt.a) + crt.m - 1) / crt.m;
-	__int128 result = crt.a + k * crt.m;
+	_detail::i128 result = crt.a + k * crt.m;
 
 	if (result > std::numeric_limits<uint64_t>::max())
-		throw tgen::_detail::error("math: congruent number is too large");
+		throw _detail::error("math: congruent number is too large");
 	return static_cast<uint64_t>(result);
 }
 
@@ -2486,7 +2538,7 @@ inline uint64_t congruent_upto(uint64_t r, std::vector<uint64_t> rems,
 		throw _detail::there_is_no_upto_error("congruent number", r);
 
 	uint64_t k = (r - crt.a) / crt.m;
-	__int128 result = crt.a + k * crt.m;
+	_detail::i128 result = crt.a + k * crt.m;
 
 	if (result < 0)
 		throw _detail::there_is_no_upto_error("congruent number", r);
@@ -2551,8 +2603,8 @@ gen_partition(int n, int part_l = 1, std::optional<int> part_r = std::nullopt) {
 	while (sum > 0) {
 		// Will generate a number such that what remains is in [l, r].
 		int l = std::max(0, sum - *part_r), r = sum - part_l;
-		tgen::_detail::tgen_ensure_against_bug(r >= 0,
-											   "math: r < 0 in gen_partition");
+		_detail::tgen_ensure_against_bug(r >= 0,
+										 "math: r < 0 in gen_partition");
 
 		int nxt_sum = std::min(sum, r);
 		long double random = next<long double>(0, 1);
@@ -2646,7 +2698,7 @@ gen_partition_fixed_size(int n, int k, int part_l = 0,
 			for (int j = 0; j <= u and j <= left_to_distribute; ++j)
 				log_total = _detail::add_log_space(
 					log_total, dp[i - 1][left_to_distribute - j]);
-			tgen::_detail::tgen_ensure_against_bug(
+			_detail::tgen_ensure_against_bug(
 				log_total != _detail::LOG_ZERO,
 				"math: total == 0 in gen_partition_fixed_size");
 
@@ -2685,10 +2737,6 @@ gen_partition_fixed_size(int n, int k, int part_l = 0,
  *   STRING   *
  *            *
  **************/
-
-/*
- * String generator.
- */
 
 namespace _detail {
 
@@ -3052,6 +3100,10 @@ birthday_attack(const std::vector<std::string> &alphabet, int base, int mod) {
 
 } // namespace _detail
 
+/*
+ * String generator.
+ */
+
 struct str : gen_base<str> {
 	std::optional<sequence<char>> seq_; // Sequence of characters.
 	std::optional<_detail::regex_node>
@@ -3294,6 +3346,321 @@ struct str : gen_base<str> {
 	}
 };
 
+/************
+ *          *
+ *   PAIR   *
+ *          *
+ ************/
+
+namespace _detail {
+
+// Generates pair first == second.
+// O(1).
+template <typename T> std::pair<T, T> gen_eq(T L1, T R1, T L2, T R2) {
+	T L = std::max(L1, L2);
+	T R = std::min(R1, R2);
+
+	tgen_ensure(L <= R, "pair: no valid values to generate");
+	T x = next<T>(L, R);
+	return {x, x};
+}
+
+// Returns {R1-L1+1, R2-L2+1}.
+template <typename T>
+std::pair<u128, u128> get_n_and_m(T L1, T R1, T L2, T R2) {
+	u128 n = static_cast<i128>(R1) - L1 + 1;
+	u128 m = static_cast<i128>(R2) - L2 + 1;
+	return {n, m};
+}
+
+// Returns first + first+1 + ... + last,
+// num_term terms. Avoids overflow.
+static u128 pos_arith_sum(u128 first, u128 last, u128 num_terms) {
+	u128 x = first + last, y = num_terms;
+
+	// x * y / 2, avoiding overflow.
+	if (x % 2 == 0)
+		x /= 2;
+	else
+		y /= 2;
+
+	return x * y;
+}
+
+// Generates pair first != second.
+// O(1) expected.
+template <typename T> std::pair<T, T> gen_neq(T L1, T R1, T L2, T R2) {
+	auto [n, m] = get_n_and_m(L1, R1, L2, R2);
+
+	T L_intersect = std::max(L1, L2);
+	T R_intersect = std::min(R1, R2);
+	u128 inter = static_cast<i128>(R_intersect) - L_intersect + 1;
+
+	u128 total = n * m - inter;
+	tgen_ensure(total > 0, "pair: no valid values to generate");
+
+	// Runs O(1) expected times in the worst case.
+	T a, b;
+	do {
+		a = next<T>(L1, R1);
+		b = next<T>(L2, R2);
+	} while (a == b);
+
+	return {a, b};
+}
+
+// For lt, splits 'second' into two regions:
+// 1) second <= R1 -> number of 'first' is (second - L1)
+// 2) second >  R1 -> number of 'first' is (R1 - L1 + 1)
+// Returns {count_region1, count_region2}.
+// O(1).
+template <typename T>
+std::pair<u128, u128> count_lt_regions(T L1, T R1, T L2, T R2) {
+	auto [n, m] = get_n_and_m(L1, R1, L2, R2);
+
+	// 'second' must be >= L1 + 1.
+	i128 L_second = std::max<i128>(L2, static_cast<i128>(L1) + 1);
+	i128 R_second = R2;
+
+	// Split point for 'second'.
+	i128 split = std::min<i128>(R_second, R1);
+
+	// Region 1: b in [L_second, split].
+	u128 len1 = std::max<i128>(0, split - L_second + 1);
+
+	u128 count_region1 = 0;
+	if (len1 > 0) {
+		// For b in [L_second, split], there are (b - L1) ways.
+		i128 first = L_second - L1;
+		i128 last = split - L1;
+
+		// Arithmetic series first + (first + 1) + ... + last, len1 terms.
+		count_region1 = pos_arith_sum(first, last, len1);
+	}
+
+	// Region 2: b > R1.
+	// For b in [R1+1, R_second], there are 'n' ways.
+	i128 L_second_region2 = std::max(L_second, static_cast<i128>(R1) + 1);
+
+	u128 len2 = std::max<i128>(0, R_second - L_second_region2 + 1);
+	u128 count_region2 = len2 * n;
+
+	return {count_region1, count_region2};
+}
+
+// Generates pair first < second.
+// O(log(R1 - L1 + 1) + log(R2 - L2 + 1)).
+template <typename T> std::pair<T, T> gen_lt(T L1, T R1, T L2, T R2) {
+	auto [n, m] = get_n_and_m(L1, R1, L2, R2);
+
+	// 'second' needs to be at least L1 + 1 to have a valid value for
+	// 'first'.
+	i128 L_second = std::max<i128>(L2, static_cast<i128>(L1) + 1);
+	i128 R_second = R2;
+
+	// Splits 'second' into two regions:
+	// 1) b <= R1 -> number of 'first' is (b - L1);
+	// 2) b >  R1 -> number of 'first' is (R1 - L1 + 1).
+	i128 split = std::min<i128>(R_second, R1);
+
+	auto [count_region1, count_region2] = count_lt_regions(L1, R1, L2, R2);
+	u128 total = count_region1 + count_region2;
+	tgen_ensure(total > 0, "pair: no valid values to generate");
+
+	u128 k = _detail::next128(total);
+	if (k < count_region1) {
+		// Region 1: invert arithmetic series.
+
+		// For b in [L_second, split].
+		u128 len1 = std::max<i128>(0, split - L_second + 1);
+
+		// We consider b in [L_second, L_second + d].
+		// Each b contributes (b - L1) = base + (b - L_second).
+		// So we sum: base + (base+1) + ... + (base+d)
+		// d in [0, len1).
+
+		i128 base = L_second - L1;
+		i128 lo = 0, hi = static_cast<i128>(len1) - 1;
+
+		while (lo < hi) {
+			i128 mid = lo + (hi - lo) / 2;
+
+			if (pos_arith_sum(base, base + mid, mid + 1) <= k)
+				lo = mid + 1;
+			else
+				hi = mid;
+		}
+		i128 d = lo;
+
+		// Subtracts prefix sum with d-1 terms from k.
+		if (d > 0)
+			k -= pos_arith_sum(base, base + d - 1, d);
+
+		return {L1 + static_cast<T>(k), L_second + d};
+	} else {
+		// Region 2: uniform block of size n.
+		k -= count_region1;
+
+		// For b in [R1+1, R_second], there are 'n' ways.
+		i128 L_second_region2 = std::max(L_second, static_cast<i128>(R1) + 1);
+
+		return {L1 + static_cast<T>(k % n),
+				L_second_region2 + static_cast<T>(k / n)};
+	}
+}
+
+// Generates pair first > second.
+// O(log(R1 - L1 + 1) + log(R2 - L2 + 1)).
+template <typename T> std::pair<T, T> gen_gt(T L1, T R1, T L2, T R2) {
+	auto [first, second] = gen_lt(L2, R2, L1, R1);
+	return {second, first};
+}
+
+// Generates pair first <= second.
+// O(log(R1 - L1 + 1) + log(R2 - L2 + 1)).
+template <typename T> std::pair<T, T> gen_leq(T L1, T R1, T L2, T R2) {
+	// Counts how many pairs are there with first = second.
+	i128 L_intersect = std::max(L1, L2);
+	i128 R_intersect = std::min(R1, R2);
+	u128 eq_count = std::max<i128>(0, R_intersect - L_intersect + 1);
+
+	// Counts how many pairs are there with first < second.
+	auto [lt_region1, lt_region2] = count_lt_regions(L1, R1, L2, R2);
+	u128 lt_count = lt_region1 + lt_region2;
+
+	u128 total = eq_count + lt_count;
+	tgen_ensure(total > 0, "pair: no valid values to generate");
+
+	if (_detail::next128(total) < eq_count)
+		return gen_eq(L1, R1, L2, R2);
+	return gen_lt(L1, R1, L2, R2);
+}
+
+// Generates pair first >= second.
+// O(log(R1 - L1 + 1) + log(R2 - L2 + 1)).
+template <typename T> std::pair<T, T> gen_geq(T L1, T R1, T L2, T R2) {
+	auto [first, second] = gen_leq(L2, R2, L1, R1);
+	return {second, first};
+}
+
+}; // namespace _detail
+
+/*
+ * Pair generator.
+ *
+ * Pairs of integral types.
+ */
+
+template <typename T> struct pair : gen_base<pair<T>> {
+	std::pair<T, T> first_, second_; // Range of first and second values.
+	// Type of restriction.
+	enum class restriction_type { eq, neq, lt, gt, leq, geq, unspecified };
+	restriction_type type_ = restriction_type::unspecified;
+
+	// Creates a pair with random values in [first_l, first_r] and [second_l,
+	// second_r].
+	pair(T first_l, T first_r, T second_l, T second_r)
+		: first_(first_l, first_r), second_(second_l, second_r) {
+		tgen_ensure(first_l <= first_r, "pair: first range must be valid");
+		tgen_ensure(second_l <= second_r, "pair: second range must be valid");
+	}
+
+	// Creates a pair with random values in [both_l, both_r].
+	pair(T both_l, T both_r) : pair(both_l, both_r, both_l, both_r) {}
+
+	// Restricts pair for first = second.
+	pair &eq() {
+		type_ = restriction_type::eq;
+		return *this;
+	}
+
+	// Restricts pair for first != second.
+	pair &neq() {
+		type_ = restriction_type::neq;
+		return *this;
+	}
+
+	// Restricts pair for first < second.
+	pair &lt() {
+		type_ = restriction_type::lt;
+		return *this;
+	}
+
+	// Restricts pair for first > second.
+	pair &gt() {
+		type_ = restriction_type::gt;
+		return *this;
+	}
+
+	// Restricts pair for first <= second.
+	pair &leq() {
+		type_ = restriction_type::leq;
+		return *this;
+	}
+
+	// Restricts pair for first >= second.
+	pair &geq() {
+		type_ = restriction_type::geq;
+		return *this;
+	}
+
+	// Pair instance.
+	struct instance : gen_instance_base<instance> {
+		using value_type = T;
+		using std_type = std::pair<T, T>;
+
+		std::pair<T, T> pair_;
+		char sep_;
+
+		instance(const std::pair<T, T> &pair) : pair_(pair), sep_(' ') {}
+		instance(const T &first, const T &second)
+			: pair_(first, second), sep_(' ') {}
+
+		T first() const { return pair_.first; }
+		T second() const { return pair_.second; }
+
+		// Sets the separator for the pair, for printing.
+		instance &separator(char sep) {
+			sep_ = sep;
+			return *this;
+		}
+
+		// Prints to std::ostream, separated by space.
+		friend std::ostream &operator<<(std::ostream &out,
+										const instance &inst) {
+			return out << inst.pair_.first << inst.sep_ << inst.pair_.second;
+		}
+
+		// Gets a std::pair representing the instance.
+		std::pair<T, T> to_std() const { return pair_; }
+	};
+
+	// Generates a random pair.
+	// O(log(R1 - L1 + 1) + log(R2 - L2 + 1)).
+	instance gen() const {
+		T L1 = first_.first, R1 = first_.second;
+		T L2 = second_.first, R2 = second_.second;
+
+		switch (type_) {
+		case restriction_type::unspecified:
+			return {next<T>(L1, R1), next<T>(L2, R2)};
+		case restriction_type::eq:
+			return _detail::gen_eq<T>(L1, R1, L2, R2);
+		case restriction_type::neq:
+			return _detail::gen_neq<T>(L1, R1, L2, R2);
+		case restriction_type::lt:
+			return _detail::gen_lt<T>(L1, R1, L2, R2);
+		case restriction_type::gt:
+			return _detail::gen_gt<T>(L1, R1, L2, R2);
+		case restriction_type::leq:
+			return _detail::gen_leq<T>(L1, R1, L2, R2);
+		case restriction_type::geq:
+			return _detail::gen_geq<T>(L1, R1, L2, R2);
+		}
+		throw _detail::error("pair: unknown restriction type");
+	}
+};
+
 /*********************
  *                   *
  *   MISCELLANEOUS   *
@@ -3304,6 +3671,8 @@ namespace misc {
 
 namespace _detail {
 
+using namespace tgen::_detail;
+
 // Tried to find correct multipliers for unordered_map/set to force
 // collisions. O(1).
 inline std::set<long long> get_hash_hack_multipliers() {
@@ -3311,13 +3680,12 @@ inline std::set<long long> get_hash_hack_multipliers() {
 
 	// Codeforces GCC GNU G++17 7.3.0 case.
 	bool codeforces_gcc_case = true;
-	if (tgen::_detail::cpp.version_ != 0 and tgen::_detail::cpp.version_ != 17)
+	if (cpp.version_ != 0 and cpp.version_ != 17)
 		codeforces_gcc_case = false;
-	if (tgen::_detail::compiler.kind_ !=
-			tgen::_detail::compiler_kind::unknown and
-		tgen::_detail::compiler.kind_ != tgen::_detail::compiler_kind::gcc)
+	if (compiler.kind_ != compiler_kind::unknown and
+		compiler.kind_ != compiler_kind::gcc)
 		codeforces_gcc_case = false;
-	if (tgen::_detail::compiler.major_ > 7)
+	if (compiler.major_ > 7)
 		codeforces_gcc_case = false;
 	if (codeforces_gcc_case)
 		multipliers.insert(107897);

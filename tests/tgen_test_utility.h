@@ -66,6 +66,7 @@ bool check_uniform(const std::map<T, int> &counts, int num_elements,
 template <typename Gen>
 void check_generator_uniform(const Gen &gen, int num_elements) {
 	int repeats = 3, count_fail = 0;
+	std::map<typename Gen::instance::std_type, int> example_counts;
 	for (int i = 0; i < repeats; ++i) {
 		long long num_tests = std::max(1000, 20 * num_elements);
 
@@ -75,8 +76,13 @@ void check_generator_uniform(const Gen &gen, int num_elements) {
 
 		if (!check_uniform(counts, num_elements, num_tests))
 			++count_fail;
+
+		example_counts = counts;
 	}
-	EXPECT_TRUE(count_fail < repeats) << "Distribution not uniform";
+	EXPECT_TRUE(count_fail < repeats)
+		<< "Distribution not uniform\nNum elements: " << num_elements
+		<< "\nCounts:\n"
+		<< tgen::print(example_counts);
 }
 
 // Checks if a function `func(args)` returns a random element, out of
@@ -101,6 +107,7 @@ void check_function_uniform(F func, int num_elements, Args... args) {
 		}
 	}
 	EXPECT_TRUE(count_fail < repeats)
-		<< "Distribution not uniform. Example counts:\n"
+		<< "Distribution not uniform\nNum elements: " << num_elements
+		<< "\nCounts:\n"
 		<< tgen::print(example_counts);
 }

@@ -1,0 +1,326 @@
+#include "../single_include/tgen.h"
+
+namespace tgen {
+
+/**
+ * @defgroup pair Pairs
+ * @brief Generation of pairs of integral types.
+ *
+ * ### Examples
+ *
+ * Prints 10 different pairs of values from 1 to n, with first <= second.
+ *
+ * ```cpp
+ * std::cout <<
+ *     tgen::pair<int>(1, n).leq().unique().gen_list(10).separator('\n') << std::endl;
+ * ```
+ */
+
+
+
+
+
+ /**
+ * @ingroup pair
+ * @brief Pair generator.
+ *
+ * Defines a set of pairs, subject to restrictions.
+ *
+ * A uniformly random @tt{tgen::pair::instance}
+ * from this set of pairs (that satisfies the restrictions) can be
+ * generated with @tt{tgen::pair::gen}.
+ *
+ * @struct pair;
+ */
+
+
+/**
+ * @brief Creates pair generator defined by range of values for first and second.
+ *
+ * @param first_l Left endpoint of value range for first.
+ * @param first_r Right endpoint of value range for first.
+ * @param second_l Left endpoint of value range for second.
+ * @param second_r Right endpoint of value range for second.
+ *
+ * Defines a generator of pairs with first in @tt{[@pname{first_l}, @pname{first_r}]}
+ * and second in @tt{[@pname{second_l}, @pname{second_r}]}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Pairs of ints with first in [5, 10] and second in [10, 20].
+ * auto pair_gen = tgen::pair<int>(5, 10, 10, 20);
+ * ```
+ *
+ * @fn pair::pair(T first_l, T first_r, T second_l, T second_r);
+ */
+
+
+/**
+ * @brief Creates pair generator defined by range of values for both first and second.
+ *
+ * @param both_l Left endpoint of value range for first and second.
+ * @param both_r Right endpoint of value range for first and second;
+ *
+ * Defines a generator of pairs with first in @tt{[@pname{both_l}, @pname{both_r}]}
+ * and second in @tt{[@pname{both_l}, @pname{both_r}]}.
+ *
+ * Equivalent to @tt{@ref tgen::pair::pair(@pname{both_l}, @pname{both_r}, @pname{both_l}, @pname{borh_r})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Pairs of ints with values in [10, 20].
+ * auto pair_gen = tgen::pair<int>(10, 20);
+ * ```
+ *
+ * @fn pair::pair(T both_l, T both_r);
+ */
+
+
+/**
+ * @brief Restricts generator s.t. first is equal to second.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Pairs of values in [10, 20] with first = second.
+ * auto pair_gen = tgen::pair<int>(10, 20).eq();
+ * ```
+ *
+ * @fn pair::eq();
+ */
+
+
+/**
+ * @brief Restricts generator s.t. first is not equal to second.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Pairs of values in [10, 20] with first = second.
+ * auto pair_gen = tgen::pair<int>(10, 20).neq();
+ * ```
+ *
+ * @fn pair::neq();
+ */
+
+
+/**
+ * @brief Restricts generator s.t. first is less than second.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Pairs of values in [10, 20] with first < second.
+ * auto pair_gen = tgen::pair<int>(10, 20).lt();
+ * ```
+ *
+ * @fn pair::lt();
+ */
+
+
+/**
+ * @brief Restricts generator s.t. first is greater than second.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Pairs of values in [10, 20] with first > second.
+ * auto pair_gen = tgen::pair<int>(10, 20).gt();
+ * ```
+ *
+ * @fn pair::gt();
+ */
+
+
+/**
+ * @brief Restricts generator s.t. first is less than or equal to second.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Pairs of values in [10, 20] with first <= second.
+ * auto pair_gen = tgen::pair<int>(10, 20).leq();
+ * ```
+ *
+ * @fn pair::leq();
+ */
+
+
+/**
+ * @brief Restricts generator s.t. first is greater than or equal to second.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Pairs of values in [10, 20] with first >= second.
+ * auto pair_gen = tgen::pair<int>(10, 20).geq();
+ * ```
+ *
+ * @fn pair::geq();
+ */
+
+
+/**
+ * @brief Generates a random instance from the set of valid pairs.
+ *
+ * @return A uniformly random @tt{tgen::pair::instance} from the set of valid pairs, given the added restrictions.
+ *
+ * @throws std::runtime_error if there is no valid pair satisfying all added restrictions.
+ *
+ * #### Complexity
+ *
+ * @tt{O(log(@pname{first_r} - @pname{first_l}) + log(@pname{second_r} - @pname{second_l}))}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Generates and prints a random pair of values in [10, 20] with first <= second.
+ * auto inst = tgen::sequence<int>(10, 20).leq().gen();
+ * std::cout << inst << std::endl;
+ * ```
+ *
+ * @fn pair::gen() const;
+ */
+
+
+
+
+
+/**
+ * @ingroup pair
+ * @brief Pair instance.
+ *
+ * Instance of a pair.
+ *
+ * It can be deterministically operated upon and printed through @tt{@namespace{std}::cout}.
+ *
+ * @struct pair::instance;
+ */
+
+
+/**
+ * @brief Creates a pair instance from a @texttt{@namespace{std}::@type{pair}}.
+ *
+ * @param pair The @texttt{@namespace{std}::@type{pair}} representing the instance.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Creates and prints an instance from a std::pair.
+ * std::pair<int, int> p = {2, 3};
+ * tgen::pair<int>::instance inst(p);
+ * std::cout << inst << std::endl; // Prints "2 3".
+ * ```
+ *
+ * @fn pair::instance::instance(const std::pair<T, T>& vec);
+ */
+
+
+/**
+ * @brief Creates a pair instance from first and second values.
+ *
+ * @param first First element of the pair.
+ * @param second Second element of the pair.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Creates and prints an instance {2, 3}.
+ * tgen::pair<int>::instance inst(2, 3);
+ * std::cout << inst << std::endl; // Prints "2 3".
+ * ```
+ *
+ * @fn pair::instance::instance(const T &first, const T &second);
+ */
+
+
+/**
+ * @brief Returns the first element of a pair instance.
+ *
+ * @return The first element of the pair.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints the first element of a pair.
+ * tgen::pair<int>::instance inst = {2, 3};
+ * std::cout << inst.first() << std::endl; // Prints "2".
+ * ```
+ *
+ * @fn pair::instance::first();
+ */
+
+
+/**
+ * @brief Returns the second element of a pair instance.
+ *
+ * @return The second element of the pair.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints the second element of a pair.
+ * tgen::pair<int>::instance inst = {2, 3};
+ * std::cout << inst.second() << std::endl; // Prints "3".
+ * ```
+ *
+ * @fn pair::instance::second();
+ */
+
+
+/**
+ * @brief Sets separator for printing.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints an instance, separated by comma.
+ * tgen::pair<int>::instance inst = {2, 3};
+ * std::cout << inst.separator(',') << std::endl; // Prints "2,3".
+ * ```
+ *
+ * @fn pair::instance::separator(char sep);
+ */
+
+
+/**
+ * @brief Prints the instance to a @texttt{@namespace{std}::@type{ostream}}.
+ *
+ * The values are printed with one space as a separator by default,
+ * and with no end of line.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints an instance.
+ * std::cout <<
+ *     tgen::pair<int>::instance({2, 3}) << std::endl; // Prints "2 3".
+ * ```
+ *
+ * @fn pair::instance::operator<<(std::ostream &out, const instance &inst);
+ */
+
+
+/**
+ * @brief Converts the instance to a @texttt{@namespace{std}::@type{pair}}.
+ *
+ * @return A @texttt{@namespace{std}::@type{pair}} representing the instance.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Converts instant to std::pair.
+ * std::pair<int, int> p = tgen::pair<int>::instance({2, 3}).to_std();
+ * // p = {2, 3}.
+ * ```
+ *
+ * @fn pair::instance::to_std() const;
+ */
+
+};

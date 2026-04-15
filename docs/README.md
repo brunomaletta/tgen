@@ -22,6 +22,7 @@ There are:
 
 and operations for specific data types:
 
+- [Pairs](https://brunomaletta.github.io/tgen/group__pair.html)
 - [Sequences](https://brunomaletta.github.io/tgen/group__sequence.html)
 - [Permutations](https://brunomaletta.github.io/tgen/group__permutation.html)
 - [Strings](https://brunomaletta.github.io/tgen/group__str.html)

@@ -132,8 +132,7 @@ namespace tgen {
  *
  * Instance of a permutation.
  *
- * It can be deterministically operated upon (see @ref generator_instance_op for random operations) 
- * and printed through @tt{@namespace{std}::cout}.
+ * It can be deterministically operated upon and printed through @tt{@namespace{std}::cout}.
  *
  * @struct permutation::instance;
  */
@@ -317,7 +316,7 @@ namespace tgen {
 /**
  * @brief Prints the instance to a @texttt{@namespace{std}::@type{ostream}}.
  *
- * The values are printed with one space as a separator,
+ * The values are printed with one space as a separator by default,
  * and with no end of line.
  *
  * #### Examples
