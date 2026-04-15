@@ -63,6 +63,8 @@ bool check_uniform(const std::map<T, int> &counts, int num_elements,
 // Checks if the generator is uniform, assuming there are `num_elements`
 // possible instances. If the generator is uniform, the probability of the test
 // failing is at most 1e-27.
+// If the generator is not uniform, the test will usually fail,
+// but no strict guarantee is made (depends on how biased it is).
 template <typename Gen>
 void check_generator_uniform(const Gen &gen, int num_elements) {
 	int repeats = 3, count_fail = 0;
@@ -89,6 +91,8 @@ void check_generator_uniform(const Gen &gen, int num_elements) {
 // `num_elements` possible values. Assumes the return value of `func` has
 // operator <. If the function is uniform, the probability of the test failing
 // is at most 1e-27.
+// If the function is not uniform, the test will usually fail,
+// but no strict guarantee is made (depends on how biased it is).
 template <typename F, typename... Args>
 void check_function_uniform(F func, int num_elements, Args... args) {
 	using T = std::invoke_result_t<F, Args...>;
