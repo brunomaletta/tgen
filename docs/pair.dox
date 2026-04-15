@@ -214,7 +214,7 @@ namespace tgen {
  * std::cout << inst << std::endl; // Prints "2 3".
  * ```
  *
- * @fn pair::instance::instance(const std::pair<T, T>& vec);
+ * @fn pair::instance::instance(const std::pair<T, T>& pair);
  */
 
 

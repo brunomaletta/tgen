@@ -330,8 +330,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	document.querySelectorAll(".tgen-return").forEach(highlightType);
 	// apply to parameter types
 	document.querySelectorAll(".paramtype").forEach(highlightType);
-	// apply to parameter names
-	document.querySelectorAll(".paramname").forEach(highlightType);
 
 	// apply to after params: for example "int f() const" -> apply to "const"
 	document.querySelectorAll(".memproto table.memname > tbody > tr:first-child > td:last-child")
@@ -510,10 +508,30 @@ document.addEventListener('DOMContentLoaded', function() {
 			link.replaceWith(document.createTextNode(text));
 		});
 	}
+	// Removes links for function parameters in docs.
+	function unlinkParamsInSignatures(root = document) {
+		root.querySelectorAll("td.memItemRight a.el").forEach(link => {
+			if (link.closest("#nav-tree")) return;
+
+			const td = link.closest("td.memItemRight");
+			if (!td) return;
+
+			// skip function name (first link in the cell)
+			const firstLink = td.querySelector("a.el");
+			if (link === firstLink) return;
+
+			const span = document.createElement("span");
+			span.className = "paramname";
+			span.textContent = link.textContent;
+
+			link.replaceWith(span);
+		});
+	}
 	// run once after load
 	window.addEventListener("load", () => {
 		const root = document.getElementById("doc-content");
 		unlinkNames(root);
+		unlinkParamsInSignatures(root);
 	});
 	// run whenever doxygen dynamically updates DOM
 	const observer = new MutationObserver(mutations => {
