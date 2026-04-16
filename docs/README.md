@@ -5,7 +5,7 @@
 
 # Overview
 
-@tt{tgen} is a @tt{C++} library to help you generate random stuff, useful for testcase generation (such as [jngen](https://github.com/ifsmirnov/jngen) or [testlib](https://github.com/MikeMirzayanov/testlib)). The code is in a single file [tgen.h](https://github.com/brunomaletta/tgen/blob/main/src/tgen.h), that should be added to your directory.
+@tt{tgen} is a @tt{C++} library to help you generate random stuff, useful for testcase generation (such as [jngen](https://github.com/ifsmirnov/jngen) or [testlib](https://github.com/MikeMirzayanov/testlib)). The code is in a single file [tgen.h](https://github.com/brunomaletta/tgen/blob/main/single_include/tgen.h), that should be added to your directory.
 
 ```cpp
 #include "tgen.h"
@@ -23,32 +23,32 @@ There are:
 and operations for specific data types:
 
 - [Pairs](https://brunomaletta.github.io/tgen/group__pair.html)
-- [Sequences](https://brunomaletta.github.io/tgen/group__sequence.html)
+- [Lists](https://brunomaletta.github.io/tgen/group__list.html)
 - [Permutations](https://brunomaletta.github.io/tgen/group__permutation.html)
 - [Strings](https://brunomaletta.github.io/tgen/group__str.html)
 
 ### Type generators and instances
 
-All data types specified above define a **generator**, that when called upon will generate a uniformly random **instance** with the given constraints. Let's see an example with @tt{tgen::sequence}:
+All data types specified above define a **generator**, that when called upon will generate a uniformly random **instance** with the given constraints. Let's see an example with @tt{tgen::list}:
 
 ```cpp
-tgen::sequence<int> seq_gen = tgen::sequence<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/100);
+tgen::list<int> seq_gen = tgen::list<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/100);
 ```
 
-This will create a sequence generator representing the set of all sequences with 10 values from 1 to 100.
+This will create a list generator representing the set of all lists with 10 values from 1 to 100.
 
 Every generator of type @tt{@type{Gen}} has a method @tt{gen()}, that returns a @tt{@type{Gen}\::instance} representing an element chosen uniformly at random from the set of all valid elements from the current state of the generator. A @tt{@type{Gen}\::instance} can be fed to @tt{@namespace{std}\::cout} to be printed.
 
-In our example, we can call @tt{gen()} to generate and print a random sequence of 10 elements from 1 to 100.
+In our example, we can call @tt{gen()} to generate and print a random list of 10 elements from 1 to 100.
 
 ```cpp
 std::cout << seq_gen.gen() << std::endl;
 ```
 
-The nice thing is that we can add restrictions (specific to each type) to the generator, shrinking the set of valid arrays. For example, we can add the restriction that the first and second elements of the sequence have to be the same.
+The nice thing is that we can add restrictions (specific to each type) to the generator, shrinking the set of valid arrays. For example, we can add the restriction that the first and second elements of the list have to be the same.
 
 ```cpp
-tgen::sequence<int>::instance inst = seq_gen.equal(/*idx_1=*/0, /*idx_2=*/1).gen();
+tgen::list<int>::instance inst = seq_gen.equal(/*idx_1=*/0, /*idx_2=*/1).gen();
 ```
 
 The returned instance can also be modified by some deterministic operations (specific to each type).
@@ -67,7 +67,7 @@ Combining everything into one line:
 
 ```cpp
 std::cout << tgen::any(
-	tgen::sequence<int>(10, 1, 100)
+	tgen::list<int>(10, 1, 100)
 	.equal(0, 1)
 	.gen()
 	.reverse()
@@ -100,14 +100,14 @@ Random 20 distinct values from 1 to 100.
 
 ```cpp
 std::cout <<
-    tgen::sequence<int>(20, 1, 100).distinct().gen() << std::endl;
+    tgen::list<int>(20, 1, 100).distinct().gen() << std::endl;
 // "67 96 80 11 46 52 42 2 93 1 28 3 48 82 90 99 53 98 94 88"
 ```
 
 Random Palindrome of length 7.
 
 ```cpp
-auto s = tgen::sequence<int>(7, 0, 9);
+auto s = tgen::list<int>(7, 0, 9);
 for (int i = 0; i <= 2; ++i) s.equal(i, 6-i);
 std::cout << s.gen() << std::endl;
 // "3 1 9 6 9 1 3"
@@ -117,7 +117,7 @@ Random 3 runs of 4 equal numbers. Values between runs are distinct.
 
 ```cpp
 std::cout <<
-    tgen::sequence<int>(12, 1, 10)
+    tgen::list<int>(12, 1, 10)
     .equal_range(0, 3).equal_range(4, 7).equal_range(8, 11)
     .distinct({0, 4, 8}).gen() << std::endl;
 // "3 3 3 3 2 2 2 2 9 9 9 9"
@@ -126,7 +126,7 @@ std::cout <<
 Random DNA sequence of length 8 with no equal adjacent values.
 
 ```cpp
-auto s2 = tgen::sequence(8, {'A','C','G','T'});
+auto s2 = tgen::list(8, {'A','C','G','T'});
 for (int i = 1; i < 8; i++) s2.different(i-1, i);
 std::cout << s2.gen() << std::endl;
 // "T C T G T G A C"
@@ -136,7 +136,7 @@ Random binary sequence of length 10 with 5 1's that start with 1.
 
 ```cpp
 std::cout <<
-    tgen::sequence<int>(10, 0, 1)
+    tgen::list<int>(10, 0, 1)
     .fix(0, 1)
     .gen_until([](const auto& inst) {
         auto vec = inst.to_std();

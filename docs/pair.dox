@@ -177,7 +177,7 @@ namespace tgen {
  *
  * ```cpp
  * // Generates and prints a random pair of values in [10, 20] with first <= second.
- * auto inst = tgen::sequence<int>(10, 20).leq().gen();
+ * auto inst = tgen::pair<int>(10, 20).leq().gen();
  * std::cout << inst << std::endl;
  * ```
  *

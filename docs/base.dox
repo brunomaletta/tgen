@@ -471,9 +471,9 @@ namespace tgen {
 
 
 /**
- * @brief Generates a sequence of several unique values.
+ * @brief Generates a list of several unique values.
  *
- * @return A uniformly random @ref tgen::sequence::instance with @pname{size}
+ * @return A uniformly random @ref tgen::list::instance with @pname{size}
  *         unique values from the range.
  *
  * @throws std::runtime_error if there are not enough values to generate.
@@ -486,17 +486,17 @@ namespace tgen {
  *
  * ```cpp
  * // Prints 3 distinct numbers from 1 to 10, uniformly at random.
- * std::cout << tgen::unique_range(1, 10).gen_seq(3) << std::endl;
+ * std::cout << tgen::unique_range(1, 10).gen_list(3) << std::endl;
  * ```
  *
- * @fn unique_range::gen_seq(int size);
+ * @fn unique_range::gen_list(int size);
  */
 
 
 /**
  * @brief Generates all unique values left to generate.
  *
- * @return A uniformly random @ref tgen::sequence::instance with all
+ * @return A uniformly random @ref tgen::list::instance with all
  *         unique values from the range that have not been generated yet.
  *
  * #### Complexity
@@ -602,9 +602,9 @@ namespace tgen {
 
 
 /**
- * @brief Generates a sequence of several unique elements.
+ * @brief Generates a list of several unique elements.
  *
- * @return A uniformly random @ref tgen::sequence::instance with @pname{size}
+ * @return A uniformly random @ref tgen::list::instance with @pname{size}
  *         unique elements from the container.
  *
  * @throws std::runtime_error if there are not enough elements to generate.
@@ -618,17 +618,17 @@ namespace tgen {
  * ```cpp
  * // Prints 3 distinct elements from s, uniformly at random.
  * std::set<int> s = {1, 2, 5, 7, 9};
- * std::cout << tgen::unique_container(s).gen_seq(3) << std::endl;
+ * std::cout << tgen::unique_container(s).gen_list(3) << std::endl;
  * ```
  *
- * @fn unique_container::gen_seq(int size);
+ * @fn unique_container::gen_list(int size);
  */
 
 
 /**
  * @brief Generates all unique elements left to generate.
  *
- * @return A uniformly random @ref tgen::sequence::instance with all
+ * @return A uniformly random @ref tgen::list::instance with all
  *         unique elements from the container that have not been generated yet.
  *
  * #### Complexity
@@ -725,11 +725,11 @@ namespace tgen {
 
 
 /**
- * @brief Generates a sequence of several unique values.
+ * @brief Generates a list of several unique values.
  *
  * @param size Size of the list to be generated.
  *
- * @return A uniformly random @ref tgen::sequence::instance with @pname{size}
+ * @return A uniformly random @ref tgen::list::instance with @pname{size}
  *         unique values from the function with the given arguments.
  *
  * @throws std::runtime_error if there are not enough values to generate.
@@ -742,10 +742,10 @@ namespace tgen {
  *
  * ```cpp
  * // Prints 10 random unique strings.
- * std::cout << tgen::str("[a-z]{5}").unique().gen_seq(10) << std::endl;
+ * std::cout << tgen::str("[a-z]{5}").unique().gen_list(10) << std::endl;
  * ```
  *
- * @fn unique::gen_seq(int size);
+ * @fn unique::gen_list(int size);
  */
 
 
@@ -773,7 +773,7 @@ namespace tgen {
 /**
  * @brief Generates all unique values left to generate.
  *
- * @return A uniformly random @ref tgen::sequence::instance with all
+ * @return A uniformly random @ref tgen::list::instance with all
  *         unique values from the function with the given arguments
  *         that have not been generated yet.
  *
@@ -804,14 +804,14 @@ namespace tgen {
 
 
 /**
- * @brief Generates a sequence of several generation calls.
+ * @brief Generates a list of several generation calls.
  *
  * @tparam Gen Automatically set to the given type.
  *
  * @param size Size of the list to be generated.
  * @param args Arguments for the @tt{tgen::@type{Gen}::gen} call.
  *
- * @return A @ref tgen::sequence::instance with @pname{size}
+ * @return A @ref tgen::list::instance with @pname{size}
  *         calls to @tt{tgen::@type{gen}::gen(@pname{args}...)}.
  *
  * #### Complexity
@@ -822,10 +822,10 @@ namespace tgen {
  *
  * ```cpp
  * // Creates unique generator of strings of size n.
- * tgen::unique g = tgen::str("[a-z]{%d}", n).gen_seq();
+ * tgen::unique g = tgen::str("[a-z]{%d}", n).gen_list();
  * ```
  *
- * @fn gen_base::gen_seq(int size, Args &&...args) const;
+ * @fn gen_base::gen_list(int size, Args &&...args) const;
  */
 
 
@@ -859,9 +859,9 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints a sequence of 10 distinct ints from 1 to 10 such that the first element is larger than the last.
+ * // Prints a list of 10 distinct ints from 1 to 10 such that the first element is larger than the last.
  * std::cout <<
- *     tgen::sequence<int>(10, 1, 10)
+ *     tgen::list<int>(10, 1, 10)
  *         .distinct()
  *         .gen_until([](const auto &seq) { return seq[0] < seq[9]; }, 100)
  * 	 << std::endl;
@@ -974,9 +974,9 @@ namespace tgen {
 
 /**
  * @ingroup generator_instance_op
- * @brief Shuffles a sequence instance.
+ * @brief Shuffles a list instance.
  *
- * @tparam Inst Sequence instance type, deduced automatically. Must be a `tgen::sequence::instance`.
+ * @tparam Inst List instance type, deduced automatically. Must be a `tgen::list::instance`.
  *
  * @param inst The instance to shuffle.
  *
@@ -988,7 +988,7 @@ namespace tgen {
  *
  * ```cpp
  * // Shuffles and prints an instance.
- * tgen::sequence<int>::instance inst = {3, 1, 2};
+ * tgen::list<int>::instance inst = {3, 1, 2};
  * tgen::shuffle(inst);
  * ```
  *
@@ -998,9 +998,9 @@ namespace tgen {
 
 /**
  * @ingroup generator_instance_op
- * @brief Shuffles a sequence instance.
+ * @brief Shuffles a list instance.
  *
- * @tparam Inst Sequence instance type, deduced automatically. Must be a `tgen::sequence::instance`.
+ * @tparam Inst List instance type, deduced automatically. Must be a `tgen::list::instance`.
  *
  * @param inst The original instance.
  *
@@ -1014,7 +1014,7 @@ namespace tgen {
  *
  * ```cpp
  * // Shuffles and prints an instance.
- * tgen::sequence<int>::instance inst = {3, 1, 2};
+ * tgen::list<int>::instance inst = {3, 1, 2};
  * std::cout << tgen::shuffled(inst) << std::endl;
  * ```
  *
@@ -1024,9 +1024,9 @@ namespace tgen {
 
 /**
  * @ingroup generator_instance_op
- * @brief Choses a random element from the sequence instance.
+ * @brief Choses a random element from the list instance.
  *
- * @tparam Inst Sequence instance type, deduced automatically. Must be a `tgen::sequence::instance`.
+ * @tparam Inst List instance type, deduced automatically. Must be a `tgen::list::instance`.
  *
  * @param inst The original instance.
  *
@@ -1040,7 +1040,7 @@ namespace tgen {
  *
  * ```cpp
  * // Prints a random element from v.
- * tgen::sequence<int>::instance inst = {3, 1, 2};
+ * tgen::list<int>::instance inst = {3, 1, 2};
  * std::cout << tgen::any(inst) << std::endl;
  * ```
  *
@@ -1050,9 +1050,9 @@ namespace tgen {
 
 /**
  * @ingroup generator_instance_op
- * @brief Choses a random element from the sequence instance.
+ * @brief Choses a random element from the list instance.
  *
- * @tparam Inst Sequence instance type, deduced automatically. Must be a `tgen::sequence::instance`.
+ * @tparam Inst List instance type, deduced automatically. Must be a `tgen::list::instance`.
  *
  * @param inst The instance to choose from.
  * @param distribution The probability distribution.
@@ -1067,7 +1067,7 @@ namespace tgen {
  *
  * ```cpp
  * // Prints a random element from instance with given odds.
- * tgen::sequence<int>::instance inst = {3, 1, 2};
+ * tgen::list<int>::instance inst = {3, 1, 2};
  * std::cout << tgen::any_by_distribution(inst, {1, 2, 3}) << std::endl;
  * ```
  *
@@ -1077,14 +1077,14 @@ namespace tgen {
 
 /**
  * @ingroup generator_instance_op
- * @brief Chooses some values from the sequence instance, as in a subsequence of fixed length.
+ * @brief Chooses some values from the list instance, as in a sublist of fixed length.
  *
- * @tparam Inst Sequence instance type, deduced automatically. Must be a `tgen::sequence::instance`.
+ * @tparam Inst List instance type, deduced automatically. Must be a `tgen::list::instance`.
  *
- * @param k The size of the subsequence.
+ * @param k The size of the sublist.
  * @param inst The original instance.
  *
- * @return A uniformly random subsequence of length @pname{k}.
+ * @return A uniformly random sublist of length @pname{k}.
  *
  * #### Complexity
  *
@@ -1094,7 +1094,7 @@ namespace tgen {
  *
  * ```cpp
  * // Prints a subsequenec of length 2 from v.
- * tgen::sequence<int>::instance inst = {3, 1, 2};
+ * tgen::list<int>::instance inst = {3, 1, 2};
  * std::cout << tgen::choose(2, inst) << std::endl;
  * ```
  *
@@ -1122,7 +1122,7 @@ namespace tgen {
 
 
 /**
- * @brief If type is a sequence-like @tt{tgen} generator instance.
+ * @brief If type is a list-like @tt{tgen} generator instance.
  *
  * @struct is_sequential;
  */

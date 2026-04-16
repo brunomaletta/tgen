@@ -44,7 +44,7 @@ std::cout << tgen::math::gen_prime(1, 1e6) << std::endl;
 
 ```cpp
 // Generates 20 distincts two-digit numbers.
-std::cout << tgen::sequence<int>(20, 10, 99).distinct().gen() << std::endl;
+std::cout << tgen::list<int>(20, 10, 99).distinct().gen() << std::endl;
 ```
 
 No loops. No backtracking. No custom generator code.

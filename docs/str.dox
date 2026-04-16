@@ -573,7 +573,7 @@ namespace tgen {
  *
  * ```cpp
  * // Sets an instance to lowercase and prints it.
- * tgen::sequence<int>::instance inst = "abC";
+ * tgen::str<int>::instance inst = "abC";
  * std::cout << inst.lowercase() << std::endl; // Prints "ABC".
  * ```
  *
@@ -592,7 +592,7 @@ namespace tgen {
  *
  * ```cpp
  * // Sets an instance to uppercase and prints it.
- * tgen::sequence<int>::instance inst = "abC";
+ * tgen::str<int>::instance inst = "abC";
  * std::cout << inst.uppercase() << std::endl; // Prints "abc".
  * ```
  *

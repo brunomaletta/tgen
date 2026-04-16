@@ -8,26 +8,26 @@
 #include <utility>
 #include <vector>
 
-struct sequence_test {
+struct list_test {
 	int l, r;
-	tgen::sequence<int> s;
+	tgen::list<int> s;
 	std::vector<std::pair<int, int>> defs;
 	std::vector<std::pair<int, int>> equals;
 	std::vector<std::set<int>> distincts;
 
-	sequence_test(int n, int l_, int r_) : l(l_), r(r_), s(n, l, r) {}
+	list_test(int n, int l_, int r_) : l(l_), r(r_), s(n, l, r) {}
 
-	sequence_test &fix(int idx, int val) {
+	list_test &fix(int idx, int val) {
 		s.fix(idx, val);
 		defs.emplace_back(idx, val);
 		return *this;
 	}
-	sequence_test &equal(int idx_1, int idx_2) {
+	list_test &equal(int idx_1, int idx_2) {
 		s.equal(idx_1, idx_2);
 		equals.emplace_back(idx_1, idx_2);
 		return *this;
 	}
-	sequence_test &distinct(std::set<int> indices) {
+	list_test &distinct(std::set<int> indices) {
 		s.distinct(indices);
 		distincts.push_back(indices);
 		return *this;
@@ -51,31 +51,31 @@ struct sequence_test {
 	}
 };
 
-TEST(sequence_test, constructor_size_zero) {
+TEST(list_test, constructor_size_zero) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(0, 1, 10),
-							 "sequence: size must be positive");
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(0, 1, 10),
+							 "list: size must be positive");
 }
 
-TEST(sequence_test, constructor_invalid_range) {
+TEST(list_test, constructor_invalid_range) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 2, 1),
-							 "sequence: value range must be valid");
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, 2, 1),
+							 "list: value range must be valid");
 }
 
-TEST(sequence_test, constructor_empty_set) {
+TEST(list_test, constructor_empty_set) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, {}),
-							 "sequence: value set must be non-empty");
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, {}),
+							 "list: value set must be non-empty");
 }
 
-TEST(sequence_test, gen_no_restrictions) {
+TEST(list_test, gen_no_restrictions) {
 	tgen::register_gen();
 
-	auto s = tgen::sequence<int>(10, 1, 10);
+	auto s = tgen::list<int>(10, 1, 10);
 
 	for (int i = 0; i < 100; ++i) {
 		auto v = s.gen();
@@ -84,85 +84,85 @@ TEST(sequence_test, gen_no_restrictions) {
 	}
 }
 
-TEST(sequence_test, gen_no_restrictions_corners) {
+TEST(list_test, gen_no_restrictions_corners) {
 	tgen::register_gen();
 
 	{
-		auto v = tgen::sequence<int>(1, 1, 10).gen();
+		auto v = tgen::list<int>(1, 1, 10).gen();
 		EXPECT_TRUE(1 <= v[0] and v[0] <= 10);
 	}
 	{
-		auto v = tgen::sequence<int>(1, 1, 1).gen();
+		auto v = tgen::list<int>(1, 1, 1).gen();
 		EXPECT_TRUE(v[0] == 1);
 	}
 	{
-		auto v = tgen::sequence<int>(10, 1, 1).gen();
+		auto v = tgen::list<int>(10, 1, 1).gen();
 		for (int i = 0; i < 10; ++i)
 			EXPECT_TRUE(v[i] == 1);
 	}
 }
 
-TEST(sequence_test, set_invalid_idx) {
+TEST(list_test, set_invalid_idx) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(-1, 5),
-							 "sequence: index must be valid");
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(10, 5),
-							 "sequence: index must be valid");
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, 1, 10).fix(-1, 5),
+							 "list: index must be valid");
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, 1, 10).fix(10, 5),
+							 "list: index must be valid");
 }
 
-TEST(sequence_test, set_range_invalid_value) {
+TEST(list_test, set_range_invalid_value) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(3, 20),
-							 "sequence: value must be in the defined range");
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, 1, 10).fix(3, 20),
+							 "list: value must be in the defined range");
 }
 
-TEST(sequence_test, set_range_twice) {
+TEST(list_test, set_range_twice) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(3, 5).fix(3, 6),
-							 "sequence: must not set to two different values");
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, 1, 10).fix(3, 5).fix(3, 6),
+							 "list: must not set to two different values");
 }
 
-TEST(sequence_test, set_value_set_invalid) {
+TEST(list_test, set_value_set_invalid) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, {5, 10, 15}).fix(3, 3),
-							 "sequence: value must be in the set of values");
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, {5, 10, 15}).fix(3, 3),
+							 "list: value must be in the set of values");
 }
 
-TEST(sequence_test, set_value_set_twice) {
+TEST(list_test, set_value_set_twice) {
 	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::sequence<int>(10, {5, 10, 15}).fix(3, 5).fix(3, 10),
-		"sequence: must not set to two different values");
+		tgen::list<int>(10, {5, 10, 15}).fix(3, 5).fix(3, 10),
+		"list: must not set to two different values");
 }
 
-TEST(sequence_test, set_twice_valid) {
+TEST(list_test, set_twice_valid) {
 	tgen::register_gen();
 
-	tgen::sequence<int>(10, 1, 10).fix(3, 5).fix(3, 5);
-	tgen::sequence<int>(10, {5, 10, 15}).fix(3, 5).fix(3, 5);
+	tgen::list<int>(10, 1, 10).fix(3, 5).fix(3, 5);
+	tgen::list<int>(10, {5, 10, 15}).fix(3, 5).fix(3, 5);
 }
 
-TEST(sequence_test, equal_invalid) {
+TEST(list_test, equal_invalid) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 1, 10).fix(-1, 5),
-							 "sequence: index must be valid");
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, 1, 10).fix(-1, 5),
+							 "list: index must be valid");
 }
 
-TEST(sequence_test, instance_ops) {
+TEST(list_test, instance_ops) {
 	tgen::register_gen();
 
-	tgen::sequence<int>::instance inst = {4, 1, 3, 2};
+	tgen::list<int>::instance inst = {4, 1, 3, 2};
 
 	EXPECT_EQ(inst.size(), 4);
 	EXPECT_EQ(inst[2], 3);
 
-	tgen::sequence<int>::instance extra = {5, 6};
+	tgen::list<int>::instance extra = {5, 6};
 	inst = inst + extra;
 	EXPECT_EQ(inst.to_std(), std::vector<int>({4, 1, 3, 2, 5, 6}));
 
@@ -183,7 +183,7 @@ TEST(sequence_test, instance_ops) {
 			  std::string("1,2,3,4,5,6"));
 }
 
-TEST(sequence_test, gen_with_set) {
+TEST(list_test, gen_with_set) {
 	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
@@ -193,7 +193,7 @@ TEST(sequence_test, gen_with_set) {
 			set_idx[j] = 1;
 		tgen::shuffle(set_idx.begin(), set_idx.end());
 
-		sequence_test test(n, 1, n);
+		list_test test(n, 1, n);
 
 		for (int j = 0; j < num_op; ++j)
 			if (set_idx[j])
@@ -203,12 +203,12 @@ TEST(sequence_test, gen_with_set) {
 	}
 }
 
-TEST(sequence_test, gen_with_equal) {
+TEST(list_test, gen_with_equal) {
 	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		int n = 10;
-		sequence_test test(n, 1, n);
+		list_test test(n, 1, n);
 
 		int q = tgen::next(1, 2 * n);
 		for (int j = 0; j < q; ++j)
@@ -218,7 +218,7 @@ TEST(sequence_test, gen_with_equal) {
 	}
 }
 
-TEST(sequence_test, gen_with_equal_range) {
+TEST(list_test, gen_with_equal_range) {
 	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
@@ -229,7 +229,7 @@ TEST(sequence_test, gen_with_equal_range) {
 			equals.emplace_back(tgen::next(0, n - 1), tgen::next(0, n - 1));
 		tgen::shuffle(equals.begin(), equals.end());
 
-		auto s = tgen::sequence<int>(n, 1, n);
+		auto s = tgen::list<int>(n, 1, n);
 		for (auto &[a, b] : equals) {
 			if (b < a)
 				std::swap(a, b);
@@ -244,12 +244,12 @@ TEST(sequence_test, gen_with_equal_range) {
 	}
 }
 
-TEST(sequence_test, gen_with_distinct) {
+TEST(list_test, gen_with_distinct) {
 	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		int n = 5;
-		sequence_test test(n, 1, n);
+		list_test test(n, 1, n);
 
 		int q = 2;
 		for (int j = 0; j < q; ++j) {
@@ -265,88 +265,81 @@ TEST(sequence_test, gen_with_distinct) {
 	}
 }
 
-TEST(sequence_test, gen_with_all_invalid) {
+TEST(list_test, gen_with_all_invalid) {
 	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::sequence<int>(10, 1, 10).fix(0, 5).equal(0, 1).fix(1, 6).gen(),
-		"sequence: invalid sequence (contradicting restrictions)");
+		tgen::list<int>(10, 1, 10).fix(0, 5).equal(0, 1).fix(1, 6).gen(),
+		"list: invalid list (contradicting restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::sequence<int>(10, 1, 10)
-			.fix(0, 5)
-			.fix(1, 5)
-			.different(0, 1)
-			.gen(),
-		"sequence: invalid sequence (contradicting restrictions)");
+		tgen::list<int>(10, 1, 10).fix(0, 5).fix(1, 5).different(0, 1).gen(),
+		"list: invalid list (contradicting restrictions)");
 
-	EXPECT_THROW_TGEN_PREFIX(
-		tgen::sequence<int>(10, 1, 9).distinct().gen(),
-		"sequence: invalid sequence (contradicting restrictions)");
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, 1, 9).distinct().gen(),
+							 "list: invalid list (contradicting restrictions)");
 
-	EXPECT_THROW_TGEN_PREFIX(
-		tgen::sequence<int>(10, 1, 10)
-			.fix(0, 1)
-			.fix(2, 1)
-			.distinct({0, 1, 2})
-			.gen(),
-		"sequence: invalid sequence (contradicting restrictions)");
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, 1, 10)
+								 .fix(0, 1)
+								 .fix(2, 1)
+								 .distinct({0, 1, 2})
+								 .gen(),
+							 "list: invalid list (contradicting restrictions)");
 
-	EXPECT_THROW_TGEN_PREFIX(
-		tgen::sequence<int>(10, 0, 2)
-			.equal(0, 1)
-			.equal(2, 3)
-			.fix(0, 0)
-			.fix(2, 1)
-			.distinct({0, 2, 3})
-			.gen(),
-		"sequence: invalid sequence (contradicting restrictions)");
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, 0, 2)
+								 .equal(0, 1)
+								 .equal(2, 3)
+								 .fix(0, 0)
+								 .fix(2, 1)
+								 .distinct({0, 2, 3})
+								 .gen(),
+							 "list: invalid list (contradicting restrictions)");
 }
 
-TEST(sequence_test, gen_with_all_complex) {
+TEST(list_test, gen_with_all_complex) {
 	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::sequence<int>(10, 1, 10)
+		tgen::list<int>(10, 1, 10)
 			.distinct({0, 1, 2})
 			.distinct({2, 3, 4})
 			.distinct({4, 5, 0})
 			.gen(),
-		"sequence: cannot represent sequence (complex restrictions)");
+		"list: cannot represent list (complex restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::sequence<int>(10, 1, 10)
+		tgen::list<int>(10, 1, 10)
 			.distinct({0, 1})
 			.distinct({1, 2})
 			.fix(0, 5)
 			.fix(2, 6)
 			.gen(),
-		"sequence: cannot represent sequence (complex restrictions)");
+		"list: cannot represent list (complex restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::sequence<int>(10, 1, 10)
+		tgen::list<int>(10, 1, 10)
 			.distinct({0, 1})
 			.distinct({0, 1})
 			.distinct({0, 1})
 			.gen(),
-		"sequence: cannot represent sequence (complex restrictions)");
+		"list: cannot represent list (complex restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::sequence<int>(10, 1, 10)
+		tgen::list<int>(10, 1, 10)
 			.distinct({0, 1})
 			.distinct({1, 2, 3})
 			.distinct({3, 4})
 			.equal(0, 4)
 			.gen(),
-		"sequence: cannot represent sequence (complex restrictions)");
+		"list: cannot represent list (complex restrictions)");
 }
 
-TEST(sequence_test, gen_two_distincts_one_set) {
+TEST(list_test, gen_two_distincts_one_set) {
 	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		int n = 5;
-		sequence_test test(n, 1, n);
+		list_test test(n, 1, n);
 
 		int q = 2;
 		for (int j = 0; j < q; ++j) {
@@ -364,23 +357,23 @@ TEST(sequence_test, gen_two_distincts_one_set) {
 	}
 }
 
-TEST(sequence_test, gen_with_all) {
+TEST(list_test, gen_with_all) {
 	tgen::register_gen();
 
-	sequence_test(10, 1, 10)
+	list_test(10, 1, 10)
 		.distinct({0, 1})
 		.distinct({1, 2, 3})
 		.distinct({3, 4})
 		.fix(1, 1)
 		.fix(3, 2)
 		.check();
-	sequence_test(10, 1, 10)
+	list_test(10, 1, 10)
 		.equal(0, 1)
 		.equal(1, 2)
 		.distinct({0, 5, 6})
 		.fix(6, 10)
 		.check();
-	sequence_test(10, 1, 10)
+	list_test(10, 1, 10)
 		.equal(0, 1)
 		.equal(1, 2)
 		.distinct({0, 5, 6})
@@ -389,30 +382,30 @@ TEST(sequence_test, gen_with_all) {
 		.check();
 }
 
-TEST(sequence_test, gen_uniform) {
+TEST(list_test, gen_uniform) {
 	tgen::register_gen();
 
-	check_generator_uniform(tgen::sequence<int>(5, 0, 1), 1 << 5);
-	check_generator_uniform(tgen::sequence<int>(5, 0, 1).fix(0, 1), 1 << 4);
-	check_generator_uniform(tgen::sequence<int>(5, 0, 1).equal(0, 1), 1 << 4);
-	check_generator_uniform(tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1),
+	check_generator_uniform(tgen::list<int>(5, 0, 1), 1 << 5);
+	check_generator_uniform(tgen::list<int>(5, 0, 1).fix(0, 1), 1 << 4);
+	check_generator_uniform(tgen::list<int>(5, 0, 1).equal(0, 1), 1 << 4);
+	check_generator_uniform(tgen::list<int>(5, 0, 1).fix(0, 1).equal(0, 1),
 							1 << 3);
-	check_generator_uniform(
-		tgen::sequence<int>(5, 0, 1).equal(0, 1).equal(1, 2), 1 << 3);
-	check_generator_uniform(tgen::sequence<int>(3, 1, 3).distinct(), 6);
-	check_generator_uniform(tgen::sequence<int>(5, 1, 5).distinct({0, 1, 2}),
+	check_generator_uniform(tgen::list<int>(5, 0, 1).equal(0, 1).equal(1, 2),
+							1 << 3);
+	check_generator_uniform(tgen::list<int>(3, 1, 3).distinct(), 6);
+	check_generator_uniform(tgen::list<int>(5, 1, 5).distinct({0, 1, 2}),
 							60 * 5 * 5);
 	check_generator_uniform(
-		tgen::sequence<int>(5, 1, 5).distinct({0, 1, 2}).equal(1, 4), 60 * 5);
+		tgen::list<int>(5, 1, 5).distinct({0, 1, 2}).equal(1, 4), 60 * 5);
 	check_generator_uniform(
-		tgen::sequence<int>(5, 1, 5).distinct({0, 1, 2}).equal(1, 4).fix(4, 3),
+		tgen::list<int>(5, 1, 5).distinct({0, 1, 2}).equal(1, 4).fix(4, 3),
 		12 * 5);
 }
 
-TEST(sequence_test, gen_until_not_found) {
+TEST(list_test, gen_until_not_found) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::sequence<int>(10, 0, 1).fix(0, 1).gen_until(
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, 0, 1).fix(0, 1).gen_until(
 								 [](const auto &inst) {
 									 auto vec = inst.to_std();
 									 return std::accumulate(vec.begin(),
@@ -422,11 +415,11 @@ TEST(sequence_test, gen_until_not_found) {
 							 "could not generate instance matching predicate");
 }
 
-TEST(sequence_test, gen_until) {
+TEST(list_test, gen_until) {
 	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
-		auto inst = tgen::sequence<int>(10, 0, 1).fix(0, 1).gen_until(
+		auto inst = tgen::list<int>(10, 0, 1).fix(0, 1).gen_until(
 			[](const auto &inst2) {
 				auto vec = inst2.to_std();
 				return std::accumulate(vec.begin(), vec.end(), 0) == 5;
@@ -439,21 +432,21 @@ TEST(sequence_test, gen_until) {
 	}
 }
 
-TEST(sequence_test, gen_list) {
+TEST(list_test, gen_list) {
 	tgen::register_gen();
 
-	auto insts = tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1).gen_seq(5);
+	auto insts = tgen::list<int>(5, 0, 1).fix(0, 1).equal(0, 1).gen_list(5);
 	for (auto &inst : insts.to_std()) {
 		EXPECT_TRUE(inst[0] == 1);
 		EXPECT_EQ(inst[0], inst[1]);
 	}
 }
 
-TEST(sequence_test, unique) {
+TEST(list_test, unique) {
 	tgen::register_gen();
 
 	auto insts =
-		tgen::sequence<int>(5, 0, 1).fix(0, 1).equal(0, 1).unique().gen_seq(5);
+		tgen::list<int>(5, 0, 1).fix(0, 1).equal(0, 1).unique().gen_list(5);
 	for (auto &inst : insts.to_std()) {
 		EXPECT_TRUE(inst[0] == 1);
 		EXPECT_EQ(inst[0], inst[1]);
@@ -461,23 +454,22 @@ TEST(sequence_test, unique) {
 
 	auto vec = insts.to_std();
 	EXPECT_EQ(
-		std::set<tgen::sequence<int>::instance>(vec.begin(), vec.end()).size(),
-		5);
+		std::set<tgen::list<int>::instance>(vec.begin(), vec.end()).size(), 5);
 }
 
-TEST(sequence_test, sequence_choose) {
+TEST(list_test, list_choose) {
 	tgen::register_gen();
 
 	std::vector<int> v(10);
 	for (int &i : v)
 		i = tgen::next(1, 10);
-	tgen::sequence<int>::instance inst(v);
+	tgen::list<int>::instance inst(v);
 
 	for (int i = 0; i < 100; ++i) {
 		int k = tgen::next<int>(1, v.size());
 		auto subseq = tgen::choose(k, inst);
 		int idx = 0;
-		// Tests if subseq is a subsequence of inst.
+		// Tests if subseq is a sublist of inst.
 		for (int j = 0; j < inst.size(); ++j)
 			if (idx < subseq.size() and subseq[idx] == inst[j])
 				++idx;

@@ -9,7 +9,7 @@
 TEST(str_test, constructor_size_zero) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::str(0), "sequence: size must be positive");
+	EXPECT_THROW_TGEN_PREFIX(tgen::str(0), "list: size must be positive");
 }
 
 TEST(str_test, constructor_regex_empty) {

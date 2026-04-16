@@ -3,8 +3,8 @@
 namespace tgen {
 
 /**
- * @defgroup sequence Sequences
- * @brief Generation of sequences for integral types.
+ * @defgroup list Lists
+ * @brief Generation of lists for integral types.
  *
  * Its instances have the properties:
  * - @tt{tgen::is_sequential}
@@ -16,14 +16,14 @@ namespace tgen {
  * 
  * ```cpp
  * std::cout <<
- *     tgen::sequence<int>(20, 1, 100).distinct().gen() << std::endl;
+ *     tgen::list<int>(20, 1, 100).distinct().gen() << std::endl;
  * // "67 96 80 11 46 52 42 2 93 1 28 3 48 82 90 99 53 98 94 88"
  * ```
  * 
  * Random Palindrome of length 7.
  * 
  * ```cpp
- * auto s = tgen::sequence<int>(7, 0, 9);
+ * auto s = tgen::list<int>(7, 0, 9);
  * for (int i = 0; i <= 2; ++i) s.equal(i, 6-i);
  * std::cout << s.gen() << std::endl;
  * // "3 1 9 6 9 1 3"
@@ -33,7 +33,7 @@ namespace tgen {
  * 
  * ```cpp
  * std::cout <<
- *     tgen::sequence<int>(12, 1, 10)
+ *     tgen::list<int>(12, 1, 10)
  *     .equal_range(0, 3).equal_range(4, 7).equal_range(8, 11)
  *     .distinct({0, 4, 8}).gen() << std::endl;
  * // "3 3 3 3 2 2 2 2 9 9 9 9"
@@ -42,7 +42,7 @@ namespace tgen {
  * Random DNA sequence of length 8 with no equal adjacent values.
  * 
  * ```cpp
- * auto s2 = tgen::sequence(8, {'A','C','G','T'});
+ * auto s2 = tgen::list(8, {'A','C','G','T'});
  * for (int i = 1; i < 8; i++) s2.different(i-1, i);
  * std::cout << s2.gen() << std::endl;
  * // "T C T G T G A C"
@@ -52,7 +52,7 @@ namespace tgen {
  * 
  * ```cpp
  * std::cout <<
- *     tgen::sequence<int>(10, 0, 1)
+ *     tgen::list<int>(10, 0, 1)
  *     .fix(0, 1)
  *     .gen_until([](const auto& inst) {
  *         auto vec = inst.to_std();
@@ -67,56 +67,56 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence
- * @brief Sequence generator.
+ * @ingroup list
+ * @brief List generator.
  *
- * Defines a set of sequences, subject to restrictions.
+ * Defines a set of lists, subject to restrictions.
  *
- * A uniformly random @tt{tgen::sequence::instance}
- * from this set of sequences (that satisfies the restrictions) can be
- * generated with @tt{tgen::sequence::gen}.
+ * A uniformly random @tt{tgen::list::instance}
+ * from this set of lists (that satisfies the restrictions) can be
+ * generated with @tt{tgen::list::gen}.
  *
- * @struct sequence;
+ * @struct list;
  */
 
 
 /**
- * @brief Creates sequence generator defined by size and range of values.
+ * @brief Creates list generator defined by size and range of values.
  *
- * @param size Size of the sequence.
+ * @param size Size of the list.
  * @param value_l Left endpoint of value range.
  * @param value_r Right endpoint of value range.
  *
- * Defines a generator of sequences of length @pname{size} with values in
+ * Defines a generator of lists of length @pname{size} with values in
  * @tt{[@pname{value_l}, @pname{value_r}]}.
  *
  * #### Examples
  *
  * ```cpp
- * // Sequences of 10 ints from 1 to 100.
- * auto seq_gen = tgen::sequence<int>(10, 1, 100);
+ * // Lists of 10 ints from 1 to 100.
+ * auto seq_gen = tgen::list<int>(10, 1, 100);
  * ```
  *
- * @fn sequence::sequence(int size, T value_l, T value_r);
+ * @fn list::list(int size, T value_l, T value_r);
  */
 
 
 /**
- * @brief Creates sequence generator defined by value set.
+ * @brief Creates list generator defined by value set.
  *
- * @param size Size of the sequence.
+ * @param size Size of the list.
  * @param values Value set.
  *
- * Defines a generator of sequences of length @pname{size} with values in @pname{values}.
+ * Defines a generator of lists of length @pname{size} with values in @pname{values}.
  *
  * #### Examples
  *
  * ```cpp
- * // Sequences of 10 ints that are either 3, 6, or 9.
- * auto seq_gen = tgen::sequence<int>(10, {3, 6, 9});
+ * // Lists of 10 ints that are either 3, 6, or 9.
+ * auto seq_gen = tgen::list<int>(10, {3, 6, 9});
  * ```
  *
- * @fn sequence::sequence(int size, std::set<T> values);
+ * @fn list::list(int size, std::set<T> values);
  */
 
 
@@ -131,11 +131,11 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sequences of 10 ints from 1 to 5 that start with 1.
- * auto seq_gen = tgen::sequence<int>(10, 1, 5).fix(0, 1);
+ * // Lists of 10 ints from 1 to 5 that start with 1.
+ * auto seq_gen = tgen::list<int>(10, 1, 5).fix(0, 1);
  * ```
  *
- * @fn sequence::fix(int idx, T value);
+ * @fn list::fix(int idx, T value);
  */
 
 
@@ -148,11 +148,11 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sequences of 10 ints from 1 to 5 that start and end with the same value.
- * auto seq_gen = tgen::sequence<int>(10, 1, 5).equal(0, 9);
+ * // Lists of 10 ints from 1 to 5 that start and end with the same value.
+ * auto seq_gen = tgen::list<int>(10, 1, 5).equal(0, 9);
  * ```
  *
- * @fn sequence::equal(int idx_1, int idx_2);
+ * @fn list::equal(int idx_1, int idx_2);
  */
 
 
@@ -165,11 +165,11 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sequences of 10 ints from 1 to 5 with the first half all equal.
- * auto seq_gen = tgen::sequence<int>(10, 1, 5).equal_range(0, 4);
+ * // Lists of 10 ints from 1 to 5 with the first half all equal.
+ * auto seq_gen = tgen::list<int>(10, 1, 5).equal_range(0, 4);
  * ```
  *
- * @fn sequence::equal_range(int left, int right);
+ * @fn list::equal_range(int left, int right);
  */
 
 
@@ -180,11 +180,11 @@ namespace tgen {
  *
  * @note Generation might fail if restrictions are considered to be too complex!
  *       The restrictions are considered too complex if the following condition does not hold.
- *       Consider the graph defined with vertices as the @tt{tgen::sequence::distinct} sets added,
+ *       Consider the graph defined with vertices as the @tt{tgen::list::distinct} sets added,
  *       and there is an edge between two vertices if they share an index. Note that you need
  *       to consider indices (directed or indirectly) connected by equality restrictions as
  *       being the same. This resulting graph must be a acyclic. Moreover, for every tree in this
- *       graph, all of its indices with a @tt{tgen::sequence::set} operation must be covered by a single
+ *       graph, all of its indices with a @tt{tgen::list::set} operation must be covered by a single
  *       distinct restriction set.
  *
  * @throws std::runtime_error if generation fails.
@@ -192,11 +192,11 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sequences of 10 ints from 1 to 5 with the first half distinct.
- * auto seq_gen = tgen::sequence<int>(10, 1, 5).distinct({0, 1, 2, 3, 4});
+ * // Lists of 10 ints from 1 to 5 with the first half distinct.
+ * auto seq_gen = tgen::list<int>(10, 1, 5).distinct({0, 1, 2, 3, 4});
  * ```
  *
- * @fn sequence::distinct(std::set<int> indices);
+ * @fn list::distinct(std::set<int> indices);
  */
 
 
@@ -206,44 +206,44 @@ namespace tgen {
  * @param idx_1 First index.
  * @param idx_2 Second index.
  *
- * Equivalent to @tt{tgen::sequence::distinct({idx_1, idx_2})}.
+ * Equivalent to @tt{tgen::list::distinct({idx_1, idx_2})}.
  *
  * #### Examples
  *
  * ```cpp
- * // Sequences of 10 ints from 1 to 5 with the first and last values different.
- * auto seq_gen = tgen::sequence<int>(10, 1, 5).different(0, 9);
+ * // Lists of 10 ints from 1 to 5 with the first and last values different.
+ * auto seq_gen = tgen::list<int>(10, 1, 5).different(0, 9);
  * ```
  *
- * @fn sequence::different(int idx_1, int idx_2);
+ * @fn list::different(int idx_1, int idx_2);
  */
 
 
 /**
  * @brief Restricts generator s.t. all values are distinct.
  *
- * Equivalent to @tt{tgen::sequence::distinct({0, 1, ... size-1})}.
+ * Equivalent to @tt{tgen::list::distinct({0, 1, ... size-1})}.
  *
- * @note If you add this restriction, do not add another `tgen::sequence::distinct` restriction! Generation might fail otherwise.
+ * @note If you add this restriction, do not add another `tgen::list::distinct` restriction! Generation might fail otherwise.
  *
  * #### Examples
  *
  * ```cpp
- * // Sequences of 5 distinct ints from 1 to 5.
- * auto seq_gen = tgen::sequence<int>(5, 1, 5).distinct();
+ * // Lists of 5 distinct ints from 1 to 5.
+ * auto seq_gen = tgen::list<int>(5, 1, 5).distinct();
  * ```
  *
- * @fn sequence::distinct();
+ * @fn list::distinct();
  */
 
 
 /**
- * @brief Generates a random instance from the set of valid sequences.
+ * @brief Generates a random instance from the set of valid lists.
  *
- * @return A uniformly random @tt{tgen::sequence::instance} from the set of valid sequences, given the added restrictions.
+ * @return A uniformly random @tt{tgen::list::instance} from the set of valid lists, given the added restrictions.
  *
- * @throws std::runtime_error if there is no valid sequence satisfying all added restrictions,
- *         or if the added restrictions are considered to be too complex (see @tt{tgen::sequence::distinct}).
+ * @throws std::runtime_error if there is no valid list satisfying all added restrictions,
+ *         or if the added restrictions are considered to be too complex (see @tt{tgen::list::distinct}).
  *
  * #### Complexity
  *
@@ -252,12 +252,12 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Generates and prints a random sequence of 5 ints from 1 to 5.
- * auto inst = tgen::sequence<int>(5, 1, 5).gen();
+ * // Generates and prints a random list of 5 ints from 1 to 5.
+ * auto inst = tgen::list<int>(5, 1, 5).gen();
  * std::cout << inst << std::endl;
  * ```
  *
- * @fn sequence::gen() const;
+ * @fn list::gen() const;
  */
 
 
@@ -265,20 +265,20 @@ namespace tgen {
 
 
 /**
- * @ingroup sequence
- * @brief Sequence instance.
+ * @ingroup list
+ * @brief List instance.
  *
- * Instance of a sequence.
+ * Instance of a list.
  *
  * It can be deterministically operated upon (see @ref generator_instance_op for random operations) 
  * and printed through @tt{@namespace{std}::cout}.
  *
- * @struct sequence::instance;
+ * @struct list::instance;
  */
 
 
 /**
- * @brief Creates a sequence instance from a @texttt{@namespace{std}::@type{vector}}.
+ * @brief Creates a list instance from a @texttt{@namespace{std}::@type{vector}}.
  *
  * @param vec The @texttt{@namespace{std}::@type{vector}} representing the instance.
  *
@@ -287,7 +287,7 @@ namespace tgen {
  * ```cpp
  * // Creates and prints an instance from a std::vector.
  * std::vector<int> v = {1, 2, 3};
- * tgen::sequence<int>::instance inst(v);
+ * tgen::list<int>::instance inst(v);
  * std::cout << inst << std::endl; // Prints "1 2 3".
  * 
  * // Also works with std::initializer_list<T>.
@@ -295,24 +295,24 @@ namespace tgen {
  * std::cout << inst << std::endl; // Prints "5 4".
  * ```
  *
- * @fn sequence::instance::instance(const std::vector<T>& vec);
+ * @fn list::instance::instance(const std::vector<T>& vec);
  */
 
 
 /**
- * @brief Returns the size of the sequence instance.
+ * @brief Returns the size of the list instance.
  *
- * @return The size (number of elements) of the sequence instance.
+ * @return The size (number of elements) of the list instance.
  *
  * #### Examples
  *
  * ```cpp
  * // Prints the size of an instance.
- * tgen::sequence<int>::instance inst = {1, 2, 3};
+ * tgen::list<int>::instance inst = {1, 2, 3};
  * std::cout << inst.size() << std::endl; // Prints "3".
  * ```
  *
- * @fn sequence::instance::size();
+ * @fn list::instance::size();
  */
 
 
@@ -327,12 +327,12 @@ namespace tgen {
  *
  * ```cpp
  * // Changes and prints a position of an instance.
- * tgen::sequence<int>::instance inst = {1, 2, 3};
+ * tgen::list<int>::instance inst = {1, 2, 3};
  * ++inst[1];
  * std::cout << inst[1] << std::endl; // Prints "3".
  * ```
  *
- * @fn sequence::instance::operator[](int idx);
+ * @fn list::instance::operator[](int idx);
  */
 
 
@@ -347,11 +347,11 @@ namespace tgen {
  *
  * ```cpp
  * // Sorts and prints an instance.
- * tgen::sequence<int>::instance inst = {3, 1, 2};
+ * tgen::list<int>::instance inst = {3, 1, 2};
  * std::cout << inst.sort() << std::endl; // Prints "1 2 3".
  * ```
  *
- * @fn sequence::instance::sort();
+ * @fn list::instance::sort();
  */
 
 
@@ -366,11 +366,11 @@ namespace tgen {
  *
  * ```cpp
  * // Reverses and prints an instance.
- * tgen::sequence<int>::instance inst = {3, 1, 2};
+ * tgen::list<int>::instance inst = {3, 1, 2};
  * std::cout << inst.reverse() << std::endl; // Prints "2 1 3".
  * ```
  *
- * @fn sequence::instance::reverse();
+ * @fn list::instance::reverse();
  */
 
 
@@ -385,11 +385,11 @@ namespace tgen {
  *
  * ```cpp
  * // Prints an instance, separated by commas.
- * tgen::sequence<int>::instance inst = {3, 1, 2};
+ * tgen::list<int>::instance inst = {3, 1, 2};
  * std::cout << inst.separator(',') << std::endl; // Prints "3,1,2".
  * ```
  *
- * @fn sequence::instance::separator(char sep);
+ * @fn list::instance::separator(char sep);
  */
 
 
@@ -408,11 +408,11 @@ namespace tgen {
  *
  * ```cpp
  * // Concatenates and prints two instances.
- * tgen::sequence<int> s = tgen::sequence<int>(5, 1, 5).distinct();
+ * tgen::list<int> s = tgen::list<int>(5, 1, 5).distinct();
  * std::cout << s.gen() + s.gen() << std::endl;
  * ```
  *
- * @fn sequence::instance::operator+(const instance& rhs);
+ * @fn list::instance::operator+(const instance& rhs);
  */
 
 
@@ -426,10 +426,10 @@ namespace tgen {
  *
  * ```cpp
  * // Prints an instance.
- * std::cout << tgen::sequence<int>::instance({3, 1, 2}) << std::endl; // Prints "3 1 2".
+ * std::cout << tgen::list<int>::instance({3, 1, 2}) << std::endl; // Prints "3 1 2".
  * ```
  *
- * @fn sequence::instance::operator<<(std::ostream &out, const instance &inst);
+ * @fn list::instance::operator<<(std::ostream &out, const instance &inst);
  */
 
 
@@ -443,11 +443,11 @@ namespace tgen {
  * ```cpp
  * // Convoluted way to reverse a vector.
  * std::vector<int> v = {3, 1, 2};
- * v = tgen::sequence<int>::instance(v).reverse().to_std();
+ * v = tgen::list<int>::instance(v).reverse().to_std();
  * // v = {2, 1, 3}.
  * ```
  *
- * @fn sequence::instance::to_std() const;
+ * @fn list::instance::to_std() const;
  */
 
 };

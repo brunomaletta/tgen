@@ -167,7 +167,7 @@ struct is_tuple_multiline<std::tuple<Ts...>>
  * Properties of custom types.
  */
 
-// If type is sequence-like.
+// If type is sequential (list-like).
 using is_sequential_tag = void;
 
 // If it makes sense to have a subset of the type.
@@ -227,7 +227,7 @@ inline compiler_value compiler;
  */
 
 // Needed for return type of some functions.
-template <typename T> struct sequence;
+template <typename T> struct list;
 
 // Generates unique instances of a function.
 template <typename Func, typename... Args> struct unique {
@@ -282,13 +282,13 @@ template <typename Func, typename... Args> struct unique {
 		return gen(std::vector<U>(il));
 	}
 
-	// Generates a sequence of unique instances.
-	auto gen_seq(int size) {
+	// Generates a list of unique instances.
+	auto gen_list(int size) {
 		std::vector<T> res;
 		for (int i = 0; i < size; ++i)
 			res.push_back(gen());
 
-		return typename sequence<T>::instance(res);
+		return typename list<T>::instance(res);
 	}
 
 	// Checks if there are no more unique instances.
@@ -306,7 +306,7 @@ template <typename Func, typename... Args> struct unique {
 			else
 				break;
 		}
-		return typename sequence<T>::instance(res);
+		return typename list<T>::instance(res);
 	}
 
 	// Nice error for `out << unique`.
@@ -324,14 +324,14 @@ unique(Func, Args...) -> unique<Func, Args...>;
 template <typename Gen> struct gen_base {
 	const Gen &self() const { return *static_cast<const Gen *>(this); }
 
-	template <typename... Args> auto gen_seq(int size, Args &&...args) const {
+	template <typename... Args> auto gen_list(int size, Args &&...args) const {
 		std::vector<typename Gen::instance> res;
 
 		for (int i = 0; i < size; ++i)
 			res.push_back(static_cast<const Gen *>(this)->gen(
 				std::forward<Args>(args)...));
 
-		return typename sequence<typename Gen::instance>::instance(res);
+		return typename list<typename Gen::instance>::instance(res);
 	}
 
 	// Calls the generator until predicate is true.
@@ -815,13 +815,13 @@ template <typename T> struct unique_range {
 		return vi + l_;
 	}
 
-	// Generates a sequence of unique values.
+	// Generates a list of unique values.
 	// O(size * log(n)).
-	auto gen_seq(int size) {
+	auto gen_list(int size) {
 		std::vector<T> res;
 		for (int i = 0; i < size; ++i)
 			res.push_back(gen());
-		return typename sequence<T>::instance(res);
+		return typename list<T>::instance(res);
 	}
 
 	// Generates all unique values.
@@ -830,7 +830,7 @@ template <typename T> struct unique_range {
 		std::vector<T> res;
 		while (size() > 0)
 			res.push_back(gen());
-		return typename sequence<T>::instance(res);
+		return typename list<T>::instance(res);
 	}
 };
 
@@ -854,13 +854,13 @@ template <typename T> struct unique_container {
 	// O(log n).
 	T gen() { return list_[idx_.gen()]; }
 
-	// Generates a sequence of unique values.
+	// Generates a list of unique values.
 	// O(size * log(n)).
-	auto gen_seq(int size) {
+	auto gen_list(int size) {
 		std::vector<T> res;
 		for (int i = 0; i < size; ++i)
 			res.push_back(gen());
-		return typename sequence<T>::instance(res);
+		return typename list<T>::instance(res);
 	}
 
 	// Generates all unique values.
@@ -869,7 +869,7 @@ template <typename T> struct unique_container {
 		std::vector<T> res;
 		while (size() > 0)
 			res.push_back(gen());
-		return typename sequence<T>::instance(res);
+		return typename list<T>::instance(res);
 	}
 };
 template <typename C>
@@ -1176,20 +1176,20 @@ inline void register_gen(std::optional<long long> seed = std::nullopt) {
 	_detail::registered = true;
 }
 
-/****************
- *              *
- *   SEQUENCE   *
- *              *
- ****************/
+/************
+ *          *
+ *   LIST   *
+ *          *
+ ************/
 
 /*
- * Sequence generator.
+ * List generator.
  *
- * Sequence of integral types.
+ * List of integral types.
  */
 
-template <typename T> struct sequence : gen_base<sequence<T>> {
-	int size_;			  // Size of sequence.
+template <typename T> struct list : gen_base<list<T>> {
+	int size_;			  // Size of list.
 	T value_l_, value_r_; // Range of defined values.
 	std::set<T> values_;  // Set of values. If empty, use range. if not,
 						  // represents the possible values, and the range
@@ -1201,21 +1201,20 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 	std::vector<std::set<int>>
 		distinct_restrictions_; // All distinct restrictions.
 
-	// Creates generator for sequences of size 'size', with random T in [l, r].
-	sequence(int size, T value_l, T value_r)
+	// Creates generator for lists of size 'size', with random T in [l, r].
+	list(int size, T value_l, T value_r)
 		: size_(size), value_l_(value_l), value_r_(value_r), neigh_(size) {
-		tgen_ensure(size_ > 0, "sequence: size must be positive");
-		tgen_ensure(value_l_ <= value_r_,
-					"sequence: value range must be valid");
+		tgen_ensure(size_ > 0, "list: size must be positive");
+		tgen_ensure(value_l_ <= value_r_, "list: value range must be valid");
 		for (int i = 0; i < size_; ++i)
 			val_range_.emplace_back(value_l_, value_r_);
 	}
 
-	// Creates sequence with value set.
-	sequence(int size, std::set<T> values)
+	// Creates list with value set.
+	list(int size, std::set<T> values)
 		: size_(size), values_(values), neigh_(size) {
-		tgen_ensure(size_ > 0, "sequence: size must be positive");
-		tgen_ensure(!values.empty(), "sequence: value set must be non-empty");
+		tgen_ensure(size_ > 0, "list: size must be positive");
+		tgen_ensure(!values.empty(), "list: value set must be non-empty");
 		value_l_ = 0, value_r_ = values.size() - 1;
 		for (int i = 0; i < size_; ++i)
 			val_range_.emplace_back(value_l_, value_r_);
@@ -1224,36 +1223,36 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 			value_idx_in_set_[value] = idx++;
 	}
 
-	// Restricts sequences for sequence[idx] = value.
-	sequence &fix(int idx, T value) {
-		tgen_ensure(0 <= idx and idx < size_, "sequence: index must be valid");
+	// Restricts lists for list[idx] = value.
+	list &fix(int idx, T value) {
+		tgen_ensure(0 <= idx and idx < size_, "list: index must be valid");
 		if (values_.size() == 0) {
 			auto &[left, right] = val_range_[idx];
 			if (left == right and value_l_ != value_r_) {
 				tgen_ensure(left == value,
-							"sequence: must not set to two different values");
+							"list: must not set to two different values");
 			} else {
 				tgen_ensure(left <= value and value <= right,
-							"sequence: value must be in the defined range");
+							"list: value must be in the defined range");
 			}
 			left = right = value;
 		} else {
 			tgen_ensure(values_.count(value),
-						"sequence: value must be in the set of values");
+						"list: value must be in the set of values");
 			auto &[left, right] = val_range_[idx];
 			int new_val = value_idx_in_set_[value];
 			tgen_ensure(left <= new_val and new_val <= right,
-						"sequence: must not set to two different values");
+						"list: must not set to two different values");
 			left = right = new_val;
 		}
 		return *this;
 	}
 
-	// Restricts sequences for sequence[idx_1] = sequence[idx_2].
-	sequence &equal(int idx_1, int idx_2) {
+	// Restricts lists for list[idx_1] = list[idx_2].
+	list &equal(int idx_1, int idx_2) {
 		tgen_ensure(0 <= std::min(idx_1, idx_2) and
 						std::max(idx_1, idx_2) < size_,
-					"sequence: indices must be valid");
+					"list: indices must be valid");
 		if (idx_1 == idx_2)
 			return *this;
 
@@ -1262,38 +1261,38 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		return *this;
 	}
 
-	// Restricts sequences for sequence[left..right] to have all equal values.
-	sequence &equal_range(int left, int right) {
+	// Restricts lists for list[left..right] to have all equal values.
+	list &equal_range(int left, int right) {
 		tgen_ensure(0 <= left and left <= right and right < size_,
-					"sequence: range indices bust be valid");
+					"list: range indices bust be valid");
 		for (int i = left; i < right; ++i)
 			equal(i, i + 1);
 		return *this;
 	}
 
-	// Restricts sequences for sequence[S] to be distinct, for given subset S of
+	// Restricts lists for list[S] to be distinct, for given subset S of
 	// indices.
 	// You can not add two of these restrictions with intersection.
-	sequence &distinct(std::set<int> indices) {
+	list &distinct(std::set<int> indices) {
 		if (!indices.empty())
 			distinct_restrictions_.push_back(indices);
 		return *this;
 	}
 
-	// Restricts sequences for sequence[idx_1] != sequence[idx_2].
-	sequence &different(int idx_1, int idx_2) {
+	// Restricts lists for list[idx_1] != list[idx_2].
+	list &different(int idx_1, int idx_2) {
 		std::set<int> indices = {idx_1, idx_2};
 		return distinct(indices);
 	}
 
-	// Restricts sequences with distinct elements.
-	sequence &distinct() {
+	// Restricts lists with distinct elements.
+	list &distinct() {
 		std::vector<int> indices(size_);
 		std::iota(indices.begin(), indices.end(), 0);
 		return distinct(std::set<int>(indices.begin(), indices.end()));
 	}
 
-	// Sequence instance.
+	// List instance.
 	// Operations on an instance are not random.
 	struct instance : gen_instance_base<instance> {
 		using tgen_is_sequential_tag = _detail::is_sequential_tag;
@@ -1301,7 +1300,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 
 		using value_type = T;			 // Value type, for templates.
 		using std_type = std::vector<T>; // std type for instance.
-		std::vector<T> vec_;			 // Sequence.
+		std::vector<T> vec_;			 // list.
 		char sep_;						 // Separator for printing.
 
 		instance(const std::vector<T> &vec) : vec_(vec), sep_(' ') {}
@@ -1314,12 +1313,12 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		// Fetches position idx.
 		T &operator[](int idx) {
 			tgen_ensure(0 <= idx and idx < size(),
-						"sequence: instance: index out of bounds");
+						"list: instance: index out of bounds");
 			return vec_[idx];
 		}
 		const T &operator[](int idx) const {
 			tgen_ensure(0 <= idx and idx < size(),
-						"sequence: instance: index out of bounds");
+						"list: instance: index out of bounds");
 			return vec_[idx];
 		}
 
@@ -1330,14 +1329,14 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 			return *this;
 		}
 
-		// Reverses sequence.
+		// Reverses list.
 		// O(n).
 		instance &reverse() {
 			std::reverse(vec_.begin(), vec_.end());
 			return *this;
 		}
 
-		// Sets the separator for the sequence, for printing.
+		// Sets the separator for the list, for printing.
 		// O(1).
 		instance &separator(char sep) {
 			sep_ = sep;
@@ -1377,11 +1376,11 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		// We generate our numbers in the range [0, num_available) with
 		// num_available = (r-l+1)-(forbidden_values.size()), and then map them
 		// to the correct range. We will run k steps of Fisher–Yates, using a
-		// map to store a virtual sequence that starts with a[i] = i.
+		// map to store a virtual list that starts with a[i] = i.
 		T num_available = (value_r_ - value_l_ + 1) - forbidden_values.size();
 		if (num_available < k)
 			throw _detail::complex_restrictions_error(
-				"sequence", "not enough distinct values");
+				"list", "not enough distinct values");
 		std::map<T, T> virtual_list;
 		std::vector<T> gen_list;
 		for (int i = 0; i < k; ++i) {
@@ -1418,7 +1417,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		return gen_list;
 	}
 
-	// Generates sequence instance.
+	// Generates list instance.
 	// O(n log n).
 	instance gen() const {
 		std::vector<T> vec(size_);
@@ -1467,7 +1466,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 							} else if (new_value != l) {
 								// We found a contradiction
 								throw _detail::contradiction_error(
-									"sequence",
+									"list",
 									"tried to set value to `" +
 										std::to_string(new_value) +
 										"`, but it was already set as `" +
@@ -1507,10 +1506,10 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 						static_cast<uint64_t>(value_l_) >
 					static_cast<uint64_t>(value_r_))
 					throw _detail::contradiction_error(
-						"sequence",
-						"tried to generate " + std::to_string(distinct.size()) +
-							" distinct values, but the maximum is " +
-							std::to_string(value_r_ - value_l_ + 1));
+						"list", "tried to generate " +
+									std::to_string(distinct.size()) +
+									" distinct values, but the maximum is " +
+									std::to_string(value_r_ - value_l_ + 1));
 
 				// Checks if two values in same component are marked as
 				// different.
@@ -1518,8 +1517,8 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 				for (int idx : distinct) {
 					if (comp_ids.count(comp_id[idx]))
 						throw _detail::contradiction_error(
-							"sequence", "tried to set two indices as equal and "
-										"different");
+							"list", "tried to set two indices as equal and "
+									"different");
 					comp_ids.insert(comp_id[idx]);
 
 					distinct_containing_comp_idx[comp_id[idx]].insert(dist_id);
@@ -1532,7 +1531,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 		for (auto &distinct_containing : distinct_containing_comp_idx)
 			if (distinct_containing.size() >= 3)
 				throw _detail::complex_restrictions_error(
-					"sequence",
+					"list",
 					"one index can not be in >= 3 distinct restrictions");
 
 		std::vector<bool> vis_distinct(distinct_restrictions_.size(), false);
@@ -1551,7 +1550,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 					// have been set to the same value
 					if (defined_values.count(vec[idx]))
 						throw _detail::contradiction_error(
-							"sequence",
+							"list",
 							"tried to set two indices as equal and different");
 
 					defined_values.insert(vec[idx]);
@@ -1595,8 +1594,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 						// Cycle found.
 						if (vis_distinct[nxt_distinct])
 							throw _detail::complex_restrictions_error(
-								"sequence",
-								"cycle found in distinct restrictions");
+								"list", "cycle found in distinct restrictions");
 
 						neigh_distinct.insert(nxt_distinct);
 					}
@@ -1614,7 +1612,7 @@ template <typename T> struct sequence : gen_base<sequence<T>> {
 							// distinct restriction in the tree.
 							if (initially_defined_comp_idx[comp_id[idx2]])
 								throw _detail::complex_restrictions_error(
-									"sequence");
+									"list");
 
 							nxt_defined_values.insert(vec[idx2]);
 						}
@@ -1705,7 +1703,7 @@ struct permutation : gen_base<permutation> {
 		tgen_ensure(size_ > 0, "permutation: size must be positive");
 	}
 
-	// Restricts sequences for permutation[idx] = value.
+	// Restricts permutations for permutation[idx] = value.
 	permutation &fix(int idx, int value) {
 		tgen_ensure(0 <= idx and idx < size_,
 					"permutation: index must be valid");
@@ -1713,7 +1711,7 @@ struct permutation : gen_base<permutation> {
 		return *this;
 	}
 
-	// Restricts sequences for permutation to have cycle sizes.
+	// Restricts permutations for permutation to have cycle sizes.
 	permutation &cycles(const std::vector<int> &cycle_sizes) {
 		tgen_ensure(
 			size_ == std::accumulate(cycle_sizes.begin(), cycle_sizes.end(), 0),
@@ -3104,18 +3102,18 @@ birthday_attack(const std::vector<std::string> &alphabet, int base, int mod) {
  */
 
 struct str : gen_base<str> {
-	std::optional<sequence<char>> seq_; // Sequence of characters.
+	std::optional<list<char>> seq_; // List of characters.
 	std::optional<_detail::regex_node>
 		root_; // Root node of the regex tree for the whole string.
 
 	// Creates generator for strings of size 'size', with random characters in
 	// [value_l, value_r].
 	str(int size, char value_l = 'a', char value_r = 'z')
-		: seq_(sequence<char>(size, value_l, value_r)) {}
+		: seq_(list<char>(size, value_l, value_r)) {}
 
 	// Creates generator for strings of size 'size', with random characters in
 	// 'chars'.
-	str(int size, std::set<char> chars) : seq_(sequence<char>(size, chars)) {}
+	str(int size, std::set<char> chars) : seq_(list<char>(size, chars)) {}
 
 	// Creates generator for strings that match the given regex.
 	template <typename... Args> str(const std::string &regex, Args &&...args) {
@@ -3269,7 +3267,7 @@ struct str : gen_base<str> {
 			gen_regex(*root_, ret_str);
 			return instance(ret_str);
 		} else {
-			// Sequence.
+			// List.
 			std::vector<char> vec = seq_->gen().to_std();
 			return instance(std::string(vec.begin(), vec.end()));
 		}

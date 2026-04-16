@@ -7,16 +7,16 @@ int main(int argc, char **argv) {
 	tgen::register_gen(argc, argv);
 
 	// Random 20 distinct values from 1 to 100.
-	std::cout << tgen::sequence<int>(20, 1, 100).distinct().gen() << std::endl;
+	std::cout << tgen::list<int>(20, 1, 100).distinct().gen() << std::endl;
 
 	// Random Palindrome of length 7.
-	auto s1 = tgen::sequence<int>(7, 0, 9);
+	auto s1 = tgen::list<int>(7, 0, 9);
 	for (int i = 0; i <= 2; ++i)
 		s1.equal(i, 6 - i);
 	std::cout << s1.gen() << std::endl;
 
 	// Random 3 runs of 4 equal numbers. Values between runs are distinct.
-	std::cout << tgen::sequence<int>(12, 1, 10)
+	std::cout << tgen::list<int>(12, 1, 10)
 					 .equal_range(0, 3)
 					 .equal_range(4, 7)
 					 .equal_range(8, 11)
@@ -24,14 +24,14 @@ int main(int argc, char **argv) {
 					 .gen()
 			  << std::endl;
 
-	// Random DNA sequence of length 8 with no equal adjacent values.
-	auto s2 = tgen::sequence<char>(8, {'A', 'C', 'G', 'T'});
+	// Random DNA list of length 8 with no equal adjacent values.
+	auto s2 = tgen::list<char>(8, {'A', 'C', 'G', 'T'});
 	for (int i = 1; i < 8; i++)
 		s2.different(i - 1, i);
 	std::cout << s2.gen() << std::endl;
 
-	// Random binary sequence of length 10 with 5 1's that start with 1.
-	std::cout << tgen::sequence<int>(10, 0, 1).fix(0, 1).gen_until(
+	// Random binary list of length 10 with 5 1's that start with 1.
+	std::cout << tgen::list<int>(10, 0, 1).fix(0, 1).gen_until(
 					 [](const auto &inst) {
 						 auto vec = inst.to_std();
 						 return accumulate(vec.begin(), vec.end(), 0) == 5;
@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 
 	// Random swap permutation of size 20.
 	std::cout << tgen::permutation(20)
-					 .cycles(tgen::sequence<int>(19, 1, 2)
+					 .cycles(tgen::list<int>(19, 1, 2)
 								 .fix(0, 1)
 								 .equal_range(0, 17)
 								 .fix(18, 2)
@@ -94,9 +94,9 @@ int main(int argc, char **argv) {
 	// Prints a shuffled set.
 	std::cout << tgen::println(tgen::shuffled(std::set<int>({1, 2, 3})));
 
-	// Prints a shuffled sequence.
+	// Prints a shuffled list.
 	std::cout << tgen::println(
-		tgen::shuffled(tgen::sequence<int>({1, 2, 3}).gen()));
+		tgen::shuffled(tgen::list<int>({1, 2, 3}).gen()));
 
 	// Prints random numbers in [0, 1e30].
 	tgen::str leq1e30("0 | [1-9][0-9]{0,%d} | 10{%d}", 30 - 1, 30);
@@ -109,13 +109,13 @@ int main(int argc, char **argv) {
 			  << std::endl;
 
 	// Prints 5 random distinct numbers in [1, 10].
-	std::cout << tgen::unique_range(1, 10).gen_seq(5) << std::endl;
+	std::cout << tgen::unique_range(1, 10).gen_list(5) << std::endl;
 
 	// Prints 3 random unique strings of length 5.
-	std::cout << tgen::str("[ab]{5}").unique().gen_seq(3) << std::endl;
+	std::cout << tgen::str("[ab]{5}").unique().gen_list(3) << std::endl;
 
 	// Prints 3 random unique primes in [1, 10].
-	std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_seq(3)
+	std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_list(3)
 			  << std::endl;
 
 	// Prints a random perfect matching of K_10.
@@ -133,8 +133,8 @@ int main(int argc, char **argv) {
 			   '\n')
 		<< std::endl;
 
-	// Prints some random parenthesis sequences.
-	std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_seq(5)
+	// Prints some random parenthesis lists.
+	std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_list(5)
 			  << std::endl;
 
 	// Computes how many of these there are.
