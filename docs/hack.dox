@@ -43,9 +43,9 @@ namespace tgen::hack {
  *
  * The expected number of pointer moves are as follows, assuming standard implementations:
  * - For block-based Mo, assuming blocks of size @tt{b} and @tt{@pname{q} >> @pname{n} / b}:
- *   @tt{\Theta(@pname{n}^2 / b + @pname{q} b)}.
+ *   @tt{Theta(@pname{n}^2 / b + @pname{q} b)}.
  * - For Hilbert-based Mo:
- *   @tt{\Theta(@pname{q} sqrt(@pname{n}))}.
+ *   @tt{Theta(@pname{q} sqrt(@pname{n}))}.
  *
  * #### Complexity
  *

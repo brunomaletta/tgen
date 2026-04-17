@@ -83,6 +83,8 @@ namespace tgen {
 /**
  * @brief Creates list generator defined by size and range of values.
  *
+ * @tparam T Integral type to be stored in the list.
+ *
  * @param size Size of the list.
  * @param value_l Left endpoint of value range.
  * @param value_r Right endpoint of value range.
@@ -103,6 +105,8 @@ namespace tgen {
 
 /**
  * @brief Creates list generator defined by value set.
+ *
+ * @tparam T Integral type to be stored in the list.
  *
  * @param size Size of the list.
  * @param values Value set.

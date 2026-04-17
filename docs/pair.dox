@@ -37,6 +37,8 @@ namespace tgen {
 /**
  * @brief Creates pair generator defined by range of values for first and second.
  *
+ * @tparam T Integral type to be stored in the pair.
+ *
  * @param first_l Left endpoint of value range for first.
  * @param first_r Right endpoint of value range for first.
  * @param second_l Left endpoint of value range for second.
@@ -58,6 +60,8 @@ namespace tgen {
 
 /**
  * @brief Creates pair generator defined by range of values for both first and second.
+ *
+ * @tparam T Integral type to be stored in the pair.
  *
  * @param both_l Left endpoint of value range for first and second.
  * @param both_r Right endpoint of value range for first and second;
