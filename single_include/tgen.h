@@ -2891,7 +2891,7 @@ inline regex_node parse_regex(std::string regex) {
 					char a = regex[i], b = regex[i + 2];
 					if (a > b)
 						std::swap(a, b);
-					for (char x = a; x <= b; x++)
+					for (char x = a; x <= b; ++x)
 						chars += x;
 					i += 2;
 				} else
@@ -3658,13 +3658,13 @@ template <typename T> struct pair : gen_base<pair<T>> {
 	}
 };
 
-/*********************
- *                   *
- *   MISCELLANEOUS   *
- *                   *
- *********************/
+/************
+ *          *
+ *   HACK   *
+ *          *
+ ************/
 
-namespace misc {
+namespace hack {
 
 namespace _detail {
 
@@ -3672,7 +3672,7 @@ using namespace tgen::_detail;
 
 // Tried to find correct multipliers for unordered_map/set to force
 // collisions. O(1).
-inline std::set<long long> get_hash_hack_multipliers() {
+inline std::set<long long> std_hash_multipliers() {
 	std::set<long long> multipliers = {85229};
 
 	// Codeforces GCC GNU G++17 7.3.0 case.
@@ -3684,6 +3684,7 @@ inline std::set<long long> get_hash_hack_multipliers() {
 		codeforces_gcc_case = false;
 	if (compiler.major_ > 7)
 		codeforces_gcc_case = false;
+
 	if (codeforces_gcc_case)
 		multipliers.insert(107897);
 
@@ -3694,9 +3695,9 @@ inline std::set<long long> get_hash_hack_multipliers() {
 
 // Returns a list of integers for unordered_map/set to force collisions.
 // O(size).
-inline std::vector<long long> unordered_hack(int size) {
+inline std::vector<long long> std_unordered(int size) {
 	tgen_ensure(size > 0, "misc: unordered_hack: size must be positive");
-	std::set<long long> multipliers = _detail::get_hash_hack_multipliers();
+	std::set<long long> multipliers = _detail::std_hash_multipliers();
 	long long mult = 1;
 	std::set<long long>::iterator it = multipliers.begin();
 
@@ -3711,6 +3712,35 @@ inline std::vector<long long> unordered_hack(int size) {
 	}
 	return list;
 }
+
+// Returns queries that force \Omega(n sqrt n) time
+// for Mo algorithm for offline range queries.
+// This forces the following expected number of pointer moves, assuming standard
+// implementations:
+// For block-based Mo with blocks of size b and q >> n/b:
+//     \Theta(n^2 / b + q*b).
+// For Hilbert-based Mo:
+//     \Theta(q sqrt n).
+// O(n log n).
+inline std::vector<std::pair<int, int>> mo(int n, int q) {
+	std::set<std::pair<int, int>> queries;
+	for (int i = 0; i < n; ++i) {
+		queries.emplace(0, i);
+		queries.emplace(i, i);
+		queries.emplace(i, n - 1);
+	}
+	return unique_container(queries).gen_list(q).to_std();
+}
+
+} // namespace hack
+
+/*********************
+ *                   *
+ *   MISCELLANEOUS   *
+ *                   *
+ *********************/
+
+namespace misc {
 
 // Generates a random balanced parentheses sequence with k '(' and k ')'.
 // Valid meanst that for no prefix there are more ')' than '('.

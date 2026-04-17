@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 	// tgen::set_cpp_version(17);
 	// tgen::set_compiler(tgen::gcc());
 
-	std::vector<long long> vec = tgen::misc::unordered_hack(N);
+	std::vector<long long> vec = tgen::hack::std_unordered(N);
 
 	insert_numbers(vec);
 	for (int i = 0; i < 10; i++)
