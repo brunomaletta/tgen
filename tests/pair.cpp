@@ -91,6 +91,11 @@ TEST(pair_test, instance_ops) {
 
 	EXPECT_EQ(inst.to_std(), std::make_pair(2, 3));
 
+	tgen::pair<tgen::pair<int>::instance>::instance nested = {{1, 2}, {3, 4}};
+	const auto expected =
+		std::make_pair(std::make_pair(1, 2), std::make_pair(3, 4));
+	EXPECT_EQ(nested.to_std(), expected);
+
 	testing::internal::CaptureStdout();
 	std::cout << inst;
 	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("2 3"));

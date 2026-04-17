@@ -1364,7 +1364,16 @@ template <typename T> struct list : gen_base<list<T>> {
 		}
 
 		// Gets a std::vector representing the instance.
-		std::vector<T> to_std() const { return vec_; }
+		auto to_std() const {
+			if constexpr (!is_generator_instance<T>::value) {
+				return vec_;
+			} else {
+				std::vector<typename T::std_type> vec;
+				for (const auto &i : vec_)
+					vec.push_back(i.to_std());
+				return vec;
+			}
+		}
 	};
 
 	// Generates a uniformly random list of k distinct values in `[value_l,
@@ -3629,7 +3638,15 @@ template <typename T> struct pair : gen_base<pair<T>> {
 		}
 
 		// Gets a std::pair representing the instance.
-		std::pair<T, T> to_std() const { return pair_; }
+		auto to_std() const {
+			if constexpr (!is_generator_instance<T>::value) {
+				return pair_;
+			} else {
+				std::pair<typename T::std_type, typename T::std_type> pair(
+					pair_.first.to_std(), pair_.second.to_std());
+				return pair;
+			}
+		}
 	};
 
 	// Generates a random pair.

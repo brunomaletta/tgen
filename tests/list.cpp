@@ -172,6 +172,9 @@ TEST(list_test, instance_ops) {
 	inst.sort();
 	EXPECT_EQ(inst.to_std(), std::vector<int>({1, 2, 3, 4, 5, 6}));
 
+	tgen::list<tgen::list<int>::instance>::instance nested = {{1, 2}, {3}};
+	EXPECT_EQ(nested.to_std(), std::vector<std::vector<int>>({{1, 2}, {3}}));
+
 	testing::internal::CaptureStdout();
 	std::cout << inst;
 	EXPECT_EQ(testing::internal::GetCapturedStdout(),
