@@ -33,7 +33,7 @@ and operations for specific data types:
 All data types specified above define a **generator**, that when called upon will generate a uniformly random **instance** with the given constraints. Let's see an example with @tt{tgen::list}:
 
 ```cpp
-tgen::list<int> list_gen = tgen::list<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/100);
+tgen::list<int> t = tgen::list<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/100);
 ```
 
 This will create a list generator representing the set of all lists with 10 values from 1 to 100.
@@ -43,13 +43,13 @@ Every generator of type @tt{@type{Gen}} has a method @tt{gen()}, that returns a 
 In our example, we can call @tt{gen()} to generate and print a random list of 10 elements from 1 to 100.
 
 ```cpp
-std::cout << list_gen.gen() << std::endl;
+std::cout << t.gen() << std::endl;
 ```
 
 The nice thing is that we can add restrictions (specific to each type) to the generator, shrinking the set of valid arrays. For example, we can add the restriction that the first and second elements of the list have to be the same.
 
 ```cpp
-tgen::list<int>::instance inst = list_gen.equal(/*idx_1=*/0, /*idx_2=*/1).gen();
+tgen::list<int>::instance inst = t.equal(/*idx_1=*/0, /*idx_2=*/1).gen();
 ```
 
 The returned instance can also be modified by some deterministic operations (specific to each type).

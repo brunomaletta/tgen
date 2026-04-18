@@ -3750,6 +3750,25 @@ inline std::vector<std::pair<int, int>> mo(int n, int q) {
 	return unique_container(queries).gen_list(q).to_std();
 }
 
+// Returns list of strings that have a high cost to insert in a std::set.
+// Forces cost \Theta(size log(size))
+// O(size log(size)).
+inline std::vector<std::string> string_set(int size) {
+	std::vector<std::string> list;
+	int k = 0, left = size;
+	while (left > 0) {
+		int cur_size = std::min(left, k + 1);
+		left -= cur_size;
+
+		char right_char = cur_size == k + 1 ? 'b' : 'c';
+		list.push_back(
+			tgen::str("a{%d}%c", cur_size - 1, right_char).gen().to_std());
+
+		k++;
+	}
+	return tgen::shuffled(list);
+}
+
 } // namespace hack
 
 /*********************

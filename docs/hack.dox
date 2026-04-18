@@ -20,14 +20,15 @@ namespace tgen::hack {
 
  /**
  * @ingroup hack
- * @brief List of integers that tries to force collision on @tt{@namespace{std}::unordered_set}.
+ * @brief List of integers that tries to force collision on @tt{@namespace{std}::@type{unordered_set}}.
  *
  * @param size Size of the list.
  *
- * Creates hack for both @tt{@namespace{std}::unordered_set} and @tt{@namespace{std}::unordered_map},
+ * Creates hack for both @tt{@namespace{std}::@type{unordered_set}} and @tt{@namespace{std}::@type{unordered_map}},
  * forcing quadratic behavior. The hack might not be effective due to differences in @tt{C++} implementations.
  *
- * @note This function benefits from @ref tgen::set_compiler and @ref tgen::set_cpp_version information.
+ * @note The hack might not be effective due to differences in C++ implementations. <br>
+ *       This function benefits from tgen::set_compiler and tgen::set_cpp_version information.
  *
  * #### Complexity
  *
@@ -69,6 +70,30 @@ namespace tgen::hack {
  * ```
  *
  * @fn mo(int n, int q);
+ */
+
+
+ /**
+ * @ingroup hack
+ * @brief List of strings that have high cost to insert in a @tt{@namespace{std}::@type{set}}.
+ *
+ * @param size Size of the list.
+ *
+ * Inserting these strings in a @tt{@namespace{std}::@type{set}} takes @tt{Theta(@pname{size} log(@pname{size}))}
+ * time, and that is asymptotically the maximum one can achieve.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{size} log(@pname{size}))}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Creates strings that have high cost to insert in std::set.
+ * std::vector<std::string> hack = tgen::hack::string_set(1e6);
+ * ```
+ *
+ * @fn string_set(int size);
  */
 
 };
