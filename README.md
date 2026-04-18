@@ -31,20 +31,39 @@ There is support for arrays, permutations, maths, and more.
 
 ## ⚡ Quick examples
 
-`tgen` provides two complementary styles:
+`tgen` provides complementary kinds of generation:
 
-- **Operations**: sample and operate on data directly.
+- **Direct generation**: sample and operate on data directly.
 
 ```cpp
-// Generates random prime in [1, 1e6]
-std::cout << tgen::math::gen_prime(1, 1e6) << std::endl;
+// Generates all primes in [1, 10] in order.
+std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_all().sort() << std::endl;
+
+// Generates a random valid parenthesis sequence of size 10.
+std::cout << tgen::misc::gen_parenthesis(10) << std::endl;
 ```
 
-- **Generators**: describe constraints and sample random instances.
+- **Generators**: describe constraints and sample uniformly random instances.
 
 ```cpp
-// Generates 20 distincts two-digit numbers.
-std::cout << tgen::list<int>(20, 10, 99).distinct().gen() << std::endl;
+// Generates 20 random distinct values from 1 to 100.
+std::cout << tgen::list<int>(20, 1, 100).distinct().gen() << std::endl;
+
+// Generates all palindromic DNA sequences of length 3.
+std::cout << tgen::str(3, {'A', 'C', 'G', 'T'}).palindrome().gen_all() << std::endl;
+
+// Generates a random permutation with a single cycle.
+std::cout << tgen::permutation(5).cycles({5}).gen().add_1() << std::endl;
+
+// Generates q distinct range queries.
+std::cout << tgen::pair(1, n).leq().distinct().gen_list(q) << std::endl;
+```
+
+-  **Adversarial generation**: generate worst-case inputs.
+
+```cpp
+// Generates array that forces collision on std::unordered_set.
+std::cout << tgen::print(tgen::hack::std_unordered(1e6)) << std::endl;
 ```
 
 No loops. No backtracking. No custom generator code.
@@ -53,7 +72,11 @@ No loops. No backtracking. No custom generator code.
 
 ## ⚖️ Why not [testlib](https://github.com/MikeMirzayanov/testlib) / [jngen](https://github.com/ifsmirnov/jngen)?
 
-`tgen` works in a similar way as traditional generators, but has support for declarative generation, worst-case sampling, and many useful and powerful helpers.
+`tgen` works in a similar way as traditional generators, but provides:
+- **Declarative generators** to express complex constraints concisely;
+- **Adversarial generation** to create worst-case inputs for known algorithms;
+- **Built-in uniqueness** for duplicate-free, unbiased generation;
+- **Provably uniform sampling** across all supported operations.
 
 ## 📦 Instalation
 

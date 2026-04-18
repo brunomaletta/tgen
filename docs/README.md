@@ -154,22 +154,20 @@ std::cout << tgen::permutation(5).cycles({5}).gen().add_1() << std::endl;
 Inverse of a random odd permutation of size 5.
 
 ```cpp
-std::cout <<
-    tgen::permutation(5)
-        .gen_until([](const auto &perm) { return perm.parity() == -1; }, 100)
-    .inverse()
-  << std::endl;
+std::cout << tgen::permutation(5)
+    .gen_until([](const auto &perm) { return perm.parity() == -1; }, 100)
+    .inverse() << std::endl;
 // "4 2 3 1 0"
 ```
 
-Prints a random prime in @tt{[1, 1e18]}.
+Random prime in @tt{[1, 1e18]}.
 
 ```cpp
 std::cout << tgen::math::gen_prime(1, 1e18) << std::endl;
 // "104297037245455381"
 ```
 
-Prints largest prime gap that fits in @type{uint64_t}.
+Largest prime gap that fits in @type{uint64_t}.
 
 ```cpp
 auto [l, r] = tgen::math::prime_gap_upto(std::numeric_limits<uint64_t>::max());
@@ -177,21 +175,21 @@ std::cout << l << " " << r << " " << r - l << std::endl;
 // "6787988999657777798 6787988999657779306 1508"
 ```
 
-Prints a random partition of 10 into 2 parts in @tt{[3, 7]}.
+Random partition of 10 into 2 parts in @tt{[3, 7]}.
 
 ```cpp
 std::cout << tgen::print(tgen::math::gen_partition_fixed_size(10, 2, 3, 7)) << std::endl;
 // "6 4"
 ```
 
-Prints random numbers in @tt{[0, 1e30]}.
+Random numbers in @tt{[0, 1e30]}.
 
 ```cpp
 std::cout << tgen::str("0 | [1-9][0-9]{0,%d} | 10{%d}", 30 - 1, 30).gen_list(3) << std::endl;
 // "395192209976851520716904879188 507650968099964477977292350849 549612473618635975427061717252"
 ```
 
-Prints a random perfect matching of @tt{K_10}.
+Random perfect matching of @tt{K_10}.
 
 ```cpp
 auto g = tgen::unique([&]() { return tgen::next(0, 9); });
@@ -200,32 +198,31 @@ for (int i = 0; i < 5; ++i)
 // "9,5 3,1 0,4 7,6 8,2 "
 ```
 
-Prints all primes in @tt{[1, 10]}, in order.
+All primes in @tt{[1, 10]}, in order.
 
 ```cpp
 std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_all().sort() << std::endl;
 // "2 3 5 7"
 ```
 
-Prints 5 random square numbers in @tt{[1, 1e4]}.
+5 random square numbers in @tt{[1, 1e4]}.
 
 ```cpp
 std::cout << tgen::unique([&]() {
-                    int x = tgen::next(1, 100);
-                    return x * x;
-                }).gen_list(5)
-            << std::endl;
+    int x = tgen::next(1, 100);
+    return x * x;
+}).gen_list(5) << std::endl;
 // "676 1936 484 3481 9604"
 ```
 
-Prints some random parenthesis sequences.
+Some random parenthesis sequences.
 
 ```cpp
 std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_list(5) << std::endl;
 // "()(()) (())() (()()) ((())) ()()()"
 ```
 
-Prints all pairs @tt{(a, b)} in @tt{[1, 3]} with @tt{a <= b}.
+All pairs @tt{(a, b)} in @tt{[1, 3]} with @tt{a <= b}.
 
 ```cpp
 std::cout << tgen::pair<int>(1, 3).leq().unique().gen_all().separator('|') << std::endl;
