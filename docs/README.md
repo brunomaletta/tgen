@@ -33,7 +33,7 @@ and operations for specific data types:
 All data types specified above define a **generator**, that when called upon will generate a uniformly random **instance** with the given constraints. Let's see an example with @tt{tgen::list}:
 
 ```cpp
-tgen::list<int> seq_gen = tgen::list<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/100);
+tgen::list<int> list_gen = tgen::list<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/100);
 ```
 
 This will create a list generator representing the set of all lists with 10 values from 1 to 100.
@@ -43,13 +43,13 @@ Every generator of type @tt{@type{Gen}} has a method @tt{gen()}, that returns a 
 In our example, we can call @tt{gen()} to generate and print a random list of 10 elements from 1 to 100.
 
 ```cpp
-std::cout << seq_gen.gen() << std::endl;
+std::cout << list_gen.gen() << std::endl;
 ```
 
 The nice thing is that we can add restrictions (specific to each type) to the generator, shrinking the set of valid arrays. For example, we can add the restriction that the first and second elements of the list have to be the same.
 
 ```cpp
-tgen::list<int>::instance inst = seq_gen.equal(/*idx_1=*/0, /*idx_2=*/1).gen();
+tgen::list<int>::instance inst = list_gen.equal(/*idx_1=*/0, /*idx_2=*/1).gen();
 ```
 
 The returned instance can also be modified by some deterministic operations (specific to each type).
@@ -108,10 +108,8 @@ std::cout <<
 Random Palindrome of length 7.
 
 ```cpp
-auto s = tgen::list<int>(7, 0, 9);
-for (int i = 0; i <= 2; ++i) s.equal(i, 6-i);
-std::cout << s.gen() << std::endl;
-// "3 1 9 6 9 1 3"
+std::cout << tgen::str(7, 'a', 'z').palindrome().gen() << std::endl;
+// "iczpzci"
 ```
 
 Random 3 runs of 4 equal numbers. Values between runs are distinct.
@@ -162,4 +160,74 @@ std::cout <<
     .inverse()
   << std::endl;
 // "4 2 3 1 0"
+```
+
+Prints a random prime in @tt{[1, 1e18]}.
+
+```cpp
+std::cout << tgen::math::gen_prime(1, 1e18) << std::endl;
+// "104297037245455381"
+```
+
+Prints largest prime gap that fits in @type{uint64_t}.
+
+```cpp
+auto [l, r] = tgen::math::prime_gap_upto(std::numeric_limits<uint64_t>::max());
+std::cout << l << " " << r << " " << r - l << std::endl;
+// "6787988999657777798 6787988999657779306 1508"
+```
+
+Prints a random partition of 10 into 2 parts in @tt{[3, 7]}.
+
+```cpp
+std::cout << tgen::print(tgen::math::gen_partition_fixed_size(10, 2, 3, 7)) << std::endl;
+// "6 4"
+```
+
+Prints random numbers in @tt{[0, 1e30]}.
+
+```cpp
+std::cout << tgen::str("0 | [1-9][0-9]{0,%d} | 10{%d}", 30 - 1, 30).gen_list(3) << std::endl;
+// "395192209976851520716904879188 507650968099964477977292350849 549612473618635975427061717252"
+```
+
+Prints a random perfect matching of @tt{K_10}.
+
+```cpp
+auto g = tgen::unique([&]() { return tgen::next(0, 9); });
+for (int i = 0; i < 5; ++i)
+    std::cout << g.gen() << "," << g.gen() << " ";
+// "9,5 3,1 0,4 7,6 8,2 "
+```
+
+Prints all primes in @tt{[1, 10]}, in order.
+
+```cpp
+std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_all().sort() << std::endl;
+// "2 3 5 7"
+```
+
+Prints 5 random square numbers in @tt{[1, 1e4]}.
+
+```cpp
+std::cout << tgen::unique([&]() {
+                    int x = tgen::next(1, 100);
+                    return x * x;
+                }).gen_list(5)
+            << std::endl;
+// "676 1936 484 3481 9604"
+```
+
+Prints some random parenthesis sequences.
+
+```cpp
+std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_list(5) << std::endl;
+// "()(()) (())() (()()) ((())) ()()()"
+```
+
+Prints all pairs @tt{(a, b)} in @tt{[1, 3]} with @tt{a <= b}.
+
+```cpp
+std::cout << tgen::pair<int>(1, 3).leq().unique().gen_all().separator('|') << std::endl;
+// "1 3|1 2|3 3|1 1|2 2|2 3"
 ```

@@ -10,10 +10,7 @@ int main(int argc, char **argv) {
 	std::cout << tgen::list<int>(20, 1, 100).distinct().gen() << std::endl;
 
 	// Random Palindrome of length 7.
-	auto s1 = tgen::list<int>(7, 0, 9);
-	for (int i = 0; i <= 2; ++i)
-		s1.equal(i, 6 - i);
-	std::cout << s1.gen() << std::endl;
+	std::cout << tgen::str(7, 'a', 'z').palindrome().gen() << std::endl;
 
 	// Random 3 runs of 4 equal numbers. Values between runs are distinct.
 	std::cout << tgen::list<int>(12, 1, 10)
@@ -102,7 +99,6 @@ int main(int argc, char **argv) {
 	tgen::str leq1e30("0 | [1-9][0-9]{0,%d} | 10{%d}", 30 - 1, 30);
 	std::cout << leq1e30.gen() << " " << leq1e30.gen() << " " << leq1e30.gen()
 			  << std::endl;
-	std::cout << tgen::str("[a-zA-Z]{10}").gen() << std::endl;
 
 	// Prints a random element from {"a", "b", "c"} by distribution {1, 2, 3}.
 	std::cout << tgen::any_by_distribution({"a", "b", "c"}, {1, 2, 3})
@@ -127,13 +123,20 @@ int main(int argc, char **argv) {
 	std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_all().sort()
 			  << std::endl;
 
+	// Prints 5 random square numbers in [1, 1e4].
+	std::cout << tgen::unique([&]() {
+					 int x = tgen::next(1, 100);
+					 return x * x;
+				 }).gen_list(5)
+			  << std::endl;
+
 	// Prints all unique permutations of size 3 and 1 cycles of sizes 1 and 2.
 	std::cout
 		<< tgen::permutation(3).cycles({1, 2}).unique().gen_all().separator(
 			   '\n')
 		<< std::endl;
 
-	// Prints some random parenthesis lists.
+	// Prints some random parenthesis sequences.
 	std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_list(5)
 			  << std::endl;
 

@@ -67,7 +67,7 @@ namespace tgen {
  * Matrices (@tt{container<container<T>>}) are also handleled nicely, printing one
  * row per line.
  *
- * #### Examples
+ * ### Examples
  *
  * ```cpp
  * std::tuple<int, double, std::string> tu = {5, 0.1, "str"};
@@ -110,7 +110,7 @@ namespace tgen {
  *
  * Same as @ref print, but prints on a new line (appending a @tt{\n} at the end).
  *
- * #### Examples
+ * ### Examples
  *
  * ```cpp
  * std::tuple<int, double, std::string> tu = {5, 0.1, "str"};
@@ -393,7 +393,7 @@ namespace tgen {
  * @ingroup base
  * @brief Unique generator for integral ranges.
  *
- * #### Examples
+ * ### Examples
  *
  * ```cpp
  * // Prints 3 distinct numbers from 1 to 10, uniformly at random.
@@ -521,7 +521,7 @@ namespace tgen {
  * @ingroup base
  * @brief Unique generator for containers.
  *
- * #### Examples
+ * ### Examples
  *
  * ```cpp
  * // Prints 3 distinct from the set.
@@ -657,6 +657,21 @@ namespace tgen {
  * ### Examples
  *
  * ```cpp
+ * // Prints 10 random unique strings.
+ * std::cout << tgen::str("[a-z]{5}").unique().gen_list(10) << std::endl;
+ *
+ * // Prints all primes in [1, 10], in order.
+ * std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_all().sort() << std::endl;
+ *
+ * // Prints some random parenthesis lists.
+ * std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_list(5) << std::endl;
+ *
+ * // Prints 5 random square numbers in [1, 1e4].
+ * std::cout << tgen::unique(
+ *     [&]() {
+ *         int x = tgen::next(1, 100);
+ *         return x * x;
+ *     }).gen_list(5) << std::endl;
  * ```
  *
  * @struct unique;
@@ -678,8 +693,14 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
+ * // Generates unique square numbers in [1, 1e4].
+ * auto squares = tgen::unique(
+ *     [&](int l, int r) {
+ *         int x = tgen::next(l, r);
+ *         return x * x;
+ *     }, 1, 1e2);
  * // Generates unique generator for prime numbers in [1, 100].
- * auto g = tgen::unique(gen_prime, 1, 100);
+ * auto primes = tgen::unique(gen_prime, 1, 100);
  * ```
  *
  * @fn unique::unique(Func func, Args... args);
@@ -922,11 +943,6 @@ namespace tgen {
  * @ingroup base
  * @brief Base class for generator instances (should not be instantiated).
  *
- * ### Examples
- *
- * ```cpp
- * ```
- *
  * @struct gen_instance_base;
  */
 
@@ -968,6 +984,12 @@ namespace tgen {
  * ### Examples
  *
  * ```cpp
+ * // Shuffles and prints an instance.
+ * tgen::list<int>::instance inst = {3, 1, 2};
+ * std::cout << tgen::shuffled(inst) << std::endl;
+ *
+ * // Prints a random element from inst.
+ * std::cout << tgen::any(inst) << std::endl;
  * ```
  */
 
@@ -987,7 +1009,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Shuffles and prints an instance.
+ * // Shuffles an instance.
  * tgen::list<int>::instance inst = {3, 1, 2};
  * tgen::shuffle(inst);
  * ```

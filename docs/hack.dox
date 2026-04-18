@@ -5,6 +5,16 @@ namespace tgen::hack {
 /**
  * @defgroup hack Hacks
  * @brief Worse-case generation for specific problems.
+ *
+ * ### Examples
+ *
+ * ```cpp
+ * // Creates values that force collision on std::unordered_set.
+ * std::vector<long long> unord_hack = tgen::hack::std_unordered(1e6);
+ *
+ * // Creates queries that force worst-case for Mo's algorithm.
+ * std::vector<std::pair<int, int>> mo_hack = tgen::hack::mo(1e6, 1e6);
+ * ```
  */
 
 

@@ -5,6 +5,13 @@ namespace tgen::misc {
 /**
  * @defgroup misc Miscellaneous
  * @brief Miscellaneous generation.
+ *
+ * ### Examples
+ *
+ * ```cpp
+ * // Prints a random parenthesis sequence of size 10.
+ * std::cout << tgen::misc::gen_parenthesis(10) << std::endl;
+ * ```
  */
 
 
