@@ -169,8 +169,14 @@ TEST(list_test, instance_ops) {
 	inst.reverse();
 	EXPECT_EQ(inst.to_std(), std::vector<int>({6, 5, 2, 3, 1, 4}));
 
+	tgen::shuffle(inst);
 	inst.sort();
 	EXPECT_EQ(inst.to_std(), std::vector<int>({1, 2, 3, 4, 5, 6}));
+	EXPECT_EQ(inst.to_std(), tgen::shuffled(inst).sort().to_std());
+
+	EXPECT_TRUE(tgen::any(inst) > 0);
+	EXPECT_TRUE(tgen::any_by_distribution(inst, {1, 2, 3, 4, 5, 6}) > 0);
+	EXPECT_EQ(tgen::choose(inst, 3).size(), 3);
 
 	tgen::list<tgen::list<int>::instance>::instance nested = {{1, 2}, {3}};
 	EXPECT_EQ(nested.to_std(), std::vector<std::vector<int>>({{1, 2}, {3}}));
@@ -260,7 +266,7 @@ TEST(list_test, gen_with_distinct) {
 			std::set<int> idx;
 			for (int k = 0; k < n; ++k)
 				idx.insert(k);
-			idx = tgen::choose(sz, idx);
+			idx = tgen::choose(idx, sz);
 			test.distinct(idx);
 		}
 
@@ -350,7 +356,7 @@ TEST(list_test, gen_two_distincts_one_set) {
 			std::set<int> idx;
 			for (int k = 0; k < n; ++k)
 				idx.insert(k);
-			idx = tgen::choose(sz, idx);
+			idx = tgen::choose(idx, sz);
 			test.distinct(idx);
 		}
 
@@ -470,7 +476,7 @@ TEST(list_test, list_choose) {
 
 	for (int i = 0; i < 100; ++i) {
 		int k = tgen::next<int>(1, v.size());
-		auto subseq = tgen::choose(k, inst);
+		auto subseq = tgen::choose(inst, k);
 		int idx = 0;
 		// Tests if subseq is a sublist of inst.
 		for (int j = 0; j < inst.size(); ++j)

@@ -34,6 +34,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <sys/types.h>
 #include <type_traits>
 #include <vector>
 
@@ -582,11 +583,11 @@ namespace _detail {
 inline u128 next128(u128 total) {
 	tgen_ensure(total > 0, "next128: total must be positive");
 
-	// Largest multiple of total less than 2^128
+	// Largest multiple of total less than 2^128.
 	u128 limit = (u128(-1) / total) * total;
 
 	while (true) {
-		// Generate uniform 128-bit random number
+		// Generate uniform 128-bit random number.
 		u128 r = ((u128)next<uint64_t>(0, std::numeric_limits<uint64_t>::max())
 				  << 64) |
 				 next<uint64_t>(0, std::numeric_limits<uint64_t>::max());
@@ -637,19 +638,19 @@ void shuffle(Inst &inst) {
 
 // Shuffles container uniformly.
 // O(|container|).
-template <typename C, std::enable_if_t<!is_associative_container<C>::value and
-										   !is_generator_instance<C>::value,
-									   int> = 0>
-[[nodiscard]] C shuffled(const C &container) {
-	auto new_container = container;
-	shuffle(new_container.begin(), new_container.end());
-	return new_container;
-}
 template <typename C,
-		  std::enable_if_t<is_associative_container<C>::value, int> = 0>
-[[nodiscard]] std::vector<typename C::value_type> shuffled(const C &container) {
-	return shuffled(std::vector<typename C::value_type>(container.begin(),
-														container.end()));
+		  std::enable_if_t<!is_generator_instance<C>::value, int> = 0>
+[[nodiscard]] auto shuffled(const C &container) {
+	if constexpr (is_associative_container<C>::value) {
+		std::vector<typename C::value_type> vec(container.begin(),
+												container.end());
+		shuffle(vec.begin(), vec.end());
+		return vec;
+	} else {
+		auto new_container = container;
+		shuffle(new_container.begin(), new_container.end());
+		return new_container;
+	}
 }
 template <typename T>
 [[nodiscard]] std::vector<T> shuffled(const std::initializer_list<T> &il) {
@@ -729,7 +730,7 @@ template <typename Inst, typename T,
 		  std::enable_if_t<is_sequential<Inst>::value, int> = 0>
 typename Inst::value_type
 any_by_distribution(const Inst &inst, const std::vector<T> &distribution) {
-	tgen_ensure(inst.size() == distribution.size(),
+	tgen_ensure(static_cast<size_t>(inst.size()) == distribution.size(),
 				"inst and distribution must have the same size");
 	return inst[next_by_distribution(distribution)];
 }
@@ -745,7 +746,7 @@ any_by_distribution(const Inst &inst,
 // Returns a copy. O(|container|).
 template <typename C,
 		  std::enable_if_t<!is_generator_instance<C>::value, int> = 0>
-C choose(int k, const C &container) {
+C choose(const C &container, int k) {
 	tgen_ensure(0 < k and k <= static_cast<int>(container.size()),
 				"number of elements to choose must be valid");
 	std::vector<typename C::value_type> new_vec;
@@ -760,8 +761,8 @@ C choose(int k, const C &container) {
 	return new_container;
 }
 template <typename T>
-std::vector<T> choose(int k, const std::initializer_list<T> &il) {
-	return choose(k, std::vector<T>(il));
+std::vector<T> choose(const std::initializer_list<T> &il, int k) {
+	return choose(std::vector<T>(il), k);
 }
 
 // Chooses k values uniformly from sequential generator instance, as in a
@@ -770,7 +771,7 @@ std::vector<T> choose(int k, const std::initializer_list<T> &il) {
 template <typename Inst, std::enable_if_t<is_sequential<Inst>::value and
 											  has_subset_defined<Inst>::value,
 										  int> = 0>
-Inst choose(int k, const Inst &inst) {
+Inst choose(const Inst &inst, int k) {
 	tgen_ensure(0 < k and k <= static_cast<int>(inst.size()),
 				"number of elements to choose must be valid");
 	std::vector<typename Inst::value_type> new_vec;

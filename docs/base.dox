@@ -364,8 +364,8 @@ namespace tgen {
  * @ingroup base
  * @brief Chooses elements from container, as in a subsequence fixed length.
  *
- * @param k Number of elements to be chosen.
  * @param container Container to choose from.
+ * @param k Number of elements to be chosen.
  *
  * Also works with @texttt{@namespace{std}::@type{initializer_list}}.
  *
@@ -382,7 +382,7 @@ namespace tgen {
  * v = tgen::choose(3, v); // Chooses 3 elements from v.
  * ```
  *
- * @fn choose(int k, const C &container);
+ * @fn choose(const C &container, int k);
  */
 
 
@@ -1081,10 +1081,10 @@ namespace tgen {
  *
  * @tparam Inst List instance type, deduced automatically. Must be a `tgen::list::instance`.
  *
- * @param k The size of the sublist.
  * @param inst The original instance.
+ * @param k The size of the sublist.
  *
- * @return A uniformly random sublist of length @pname{k}.
+ * @return A uniformly random subsequence of length @pname{k}.
  *
  * #### Complexity
  *
@@ -1098,7 +1098,7 @@ namespace tgen {
  * std::cout << tgen::choose(2, inst) << std::endl;
  * ```
  *
- * @fn choose(int k, const Inst &inst);
+ * @fn choose(const Inst &inst, int k);
  */
 
 

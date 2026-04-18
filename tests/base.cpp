@@ -266,7 +266,7 @@ TEST(base_test, choose_invalid_ammount) {
 	for (int &i : v)
 		i = tgen::next(1, 100);
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::choose(v.size() + 1, v),
+	EXPECT_THROW_TGEN_PREFIX(tgen::choose(v, v.size() + 1),
 							 "number of elements to choose must be valid");
 }
 
@@ -279,7 +279,7 @@ TEST(base_test, choose) {
 
 	for (int i = 0; i < 100; ++i) {
 		int k = tgen::next<int>(1, v.size());
-		auto subseq = tgen::choose(k, v);
+		auto subseq = tgen::choose(v, k);
 		auto subseq_it = subseq.begin();
 		// Tests if subseq is a subsequence of v.
 		for (int j : v)

@@ -30,7 +30,7 @@ namespace tgen::hack {
  * std::vector<long long> hack = tgen::hack::std_unordered(1e6);
  * ```
  *
- * @fn std::vector<long long> std_unordered(int size);
+ * @fn std_unordered(int size);
  */
 
 

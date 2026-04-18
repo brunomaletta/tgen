@@ -27,7 +27,7 @@ namespace tgen::misc {
  * std::cout << tgen::misc::gen_parenthesis(10) << std::endl;
  * ```
  *
- * @fn std::string gen_parenthesis(int size);
+ * @fn gen_parenthesis(int size);
  */
 
 };
