@@ -76,7 +76,8 @@ No loops. No backtracking. No custom generator code.
 - **Declarative generators** to express complex constraints concisely;
 - **Adversarial generation** to create worst-case inputs for known algorithms;
 - **Built-in uniqueness** for duplicate-free, unbiased generation;
-- **Provably uniform sampling** across all supported operations.
+- **Provably uniform sampling** across all supported operations;
+- **Comprehensive documentation** with many examples.
 
 ## 📦 Instalation
 
