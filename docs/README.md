@@ -16,7 +16,7 @@ The first thing is to [register the generator](https://brunomaletta.github.io/tg
 There are:
 
 - [Base operations](https://brunomaletta.github.io/tgen/group__base.html)
-  - [Generator instance operations](https://brunomaletta.github.io/tgen/group__generator__instance__op.html)
+  - [Generator value operations](https://brunomaletta.github.io/tgen/group__generator__value__op.html)
 - [Math operations](https://brunomaletta.github.io/tgen/group__math.html)
 - [Hacks (worst-case generation)](https://brunomaletta.github.io/tgen/group__hack.html)
 - [Miscellaneous operations](https://brunomaletta.github.io/tgen/group__misc.html)
@@ -28,9 +28,9 @@ and operations for specific data types:
 - [Permutations](https://brunomaletta.github.io/tgen/group__permutation.html)
 - [Strings](https://brunomaletta.github.io/tgen/group__str.html)
 
-### Type generators and instances
+### Type generators and values
 
-All data types specified above define a **generator**, that when called upon will generate a uniformly random **instance** with the given constraints. Let's see an example with @tt{tgen::list}:
+All data types specified above define a **generator**, that when called upon will generate a uniformly random **value** with the given constraints. Let's see an example with @tt{tgen::list}:
 
 ```cpp
 tgen::list<int> t = tgen::list<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/100);
@@ -38,7 +38,7 @@ tgen::list<int> t = tgen::list<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/100)
 
 This will create a list generator representing the set of all lists with 10 values from 1 to 100.
 
-Every generator of type @tt{@type{Gen}} has a method @tt{gen()}, that returns a @tt{@type{Gen}\::instance} representing an element chosen uniformly at random from the set of all valid elements from the current state of the generator. A @tt{@type{Gen}\::instance} can be fed to @tt{@namespace{std}\::cout} to be printed.
+Every generator of type @tt{@type{Gen}} has a method @tt{gen()}, that returns a @tt{@type{Gen}\::value} representing an element chosen uniformly at random from the set of all valid elements from the current state of the generator. A @tt{@type{Gen}\::value} can be fed to @tt{@namespace{std}\::cout} to be printed.
 
 In our example, we can call @tt{gen()} to generate and print a random list of 10 elements from 1 to 100.
 
@@ -49,25 +49,25 @@ std::cout << t.gen() << std::endl;
 The nice thing is that we can add restrictions (specific to each type) to the generator, shrinking the set of valid arrays. For example, we can add the restriction that the first and second elements of the list have to be the same.
 
 ```cpp
-tgen::list<int>::instance inst = t.equal(/*idx_1=*/0, /*idx_2=*/1).gen();
+tgen::list<int>::value inst = t.equal(/*idx_1=*/0, /*idx_2=*/1).gen();
 ```
 
-The returned instance can also be modified by some deterministic operations (specific to each type).
+The returned value can also be modified by some deterministic operations (specific to each type).
 
 ```cpp
 inst.reverse();
 ```
 
-Finally, there can be random operations defined for the type instance.
+Finally, there can be random operations defined for the generator value.
 
 ```cpp
-std::cout << tgen::any(inst) << std::endl;
+std::cout << tgen::pick(inst) << std::endl;
 ```
 
 Combining everything into one line:
 
 ```cpp
-std::cout << tgen::any(
+std::cout << tgen::pick(
 	tgen::list<int>(10, 1, 100)
 	.equal(0, 1)
 	.gen()
@@ -101,7 +101,7 @@ Random 20 distinct values from 1 to 100.
 
 ```cpp
 std::cout <<
-    tgen::list<int>(20, 1, 100).distinct().gen() << std::endl;
+    tgen::list<int>(20, 1, 100).all_different().gen() << std::endl;
 // "67 96 80 11 46 52 42 2 93 1 28 3 48 82 90 99 53 98 94 88"
 ```
 
@@ -112,13 +112,13 @@ std::cout << tgen::str(7, 'a', 'z').palindrome().gen() << std::endl;
 // "iczpzci"
 ```
 
-Random 3 runs of 4 equal numbers. Values between runs are distinct.
+Random 3 runs of 4 equal numbers. Values between runs are different.
 
 ```cpp
 std::cout <<
     tgen::list<int>(12, 1, 10)
     .equal_range(0, 3).equal_range(4, 7).equal_range(8, 11)
-    .distinct({0, 4, 8}).gen() << std::endl;
+    .different({0, 4, 8}).gen() << std::endl;
 // "3 3 3 3 2 2 2 2 9 9 9 9"
 ```
 
@@ -192,7 +192,7 @@ std::cout << tgen::str("0 | [1-9][0-9]{0,%d} | 10{%d}", 30 - 1, 30).gen_list(3) 
 Random perfect matching of @tt{K_10}.
 
 ```cpp
-auto g = tgen::unique([&]() { return tgen::next(0, 9); });
+auto g = tgen::distinct([&]() { return tgen::next(0, 9); });
 for (int i = 0; i < 5; ++i)
     std::cout << g.gen() << "," << g.gen() << " ";
 // "9,5 3,1 0,4 7,6 8,2 "
@@ -201,14 +201,14 @@ for (int i = 0; i < 5; ++i)
 All primes in @tt{[1, 10]}, in order.
 
 ```cpp
-std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_all().sort() << std::endl;
+std::cout << tgen::distinct(tgen::math::gen_prime, 1, 10).gen_all().sort() << std::endl;
 // "2 3 5 7"
 ```
 
 5 random square numbers in @tt{[1, 1e4]}.
 
 ```cpp
-std::cout << tgen::unique([&]() {
+std::cout << tgen::distinct([&]() {
     int x = tgen::next(1, 100);
     return x * x;
 }).gen_list(5) << std::endl;
@@ -218,13 +218,13 @@ std::cout << tgen::unique([&]() {
 Some random parenthesis sequences.
 
 ```cpp
-std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_list(5) << std::endl;
+std::cout << tgen::distinct(tgen::misc::gen_parenthesis, 6).gen_list(5) << std::endl;
 // "()(()) (())() (()()) ((())) ()()()"
 ```
 
 All pairs @tt{(a, b)} in @tt{[1, 3]} with @tt{a <= b}.
 
 ```cpp
-std::cout << tgen::pair<int>(1, 3).leq().unique().gen_all().separator('|') << std::endl;
+std::cout << tgen::pair<int>(1, 3).leq().distinct().gen_all().separator('|') << std::endl;
 // "1 3|1 2|3 3|1 1|2 2|2 3"
 ```

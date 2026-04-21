@@ -101,11 +101,11 @@ int main(int argc, char **argv) {
 			  << std::endl;
 
 	// Prints a random element from {"a", "b", "c"} by distribution {1, 2, 3}.
-	std::cout << tgen::any_by_distribution({"a", "b", "c"}, {1, 2, 3})
+	std::cout << tgen::pick_by_distribution({"a", "b", "c"}, {1, 2, 3})
 			  << std::endl;
 
 	// Prints 5 random distinct numbers in [1, 10].
-	std::cout << tgen::unique_range(1, 10).gen_list(5) << std::endl;
+	std::cout << tgen::distinct_rane(1, 10).gen_list(5) << std::endl;
 
 	// Prints 3 random unique strings of length 5.
 	std::cout << tgen::str("[ab]{5}").unique().gen_list(3) << std::endl;
@@ -154,4 +154,9 @@ int main(int argc, char **argv) {
 	// Prints all pairs (a, b) in [1, 3] with a <= b.
 	std::cout << tgen::pair<int>(1, 3).leq().unique().gen_all().separator('\n')
 			  << std::endl;
+
+	std::cout << tgen::str("-{20}").gen() << std::endl;
+	std::cout << tgen::graph(4, 5).gen().print_nm().add_1().shuffle();
+	std::cout << tgen::str("-{20}").gen() << std::endl;
+	std::cout << tgen::graph<>::k(4);
 }

@@ -6,7 +6,7 @@ namespace tgen {
  * @defgroup str Strings
  * @brief Generation of strings.
  *
- * Its instances have the properties:
+ * Its values have the properties:
  * - @tt{tgen::is_sequential}
  * - @tt{tgen::has_subset_defined}
  *
@@ -69,7 +69,7 @@ namespace tgen {
  *
  * Defines a set of strings, subject to restrictions.
  *
- * A uniformly random @tt{tgen::str::instance}
+ * A uniformly random @tt{tgen::str::value}
  * from this set of strings (that satisfies the restrictions) can be
  * generated with @tt{tgen::str::gen}.
  *
@@ -234,18 +234,18 @@ namespace tgen {
 
 
 /**
- * @brief Restricts generator s.t. all characters in index set are distinct.
+ * @brief Restricts generator s.t. all characters in index set are different.
  *
  * @param indices Index set.
  *
  * @note Generation might fail if restrictions are considered to be too complex!
  *       The restrictions are considered too complex if the following condition does not hold.
- *       Consider the graph defined with vertices as the @tt{tgen::str::distinct} sets added,
+ *       Consider the graph defined with vertices as the @tt{tgen::str::different} sets added,
  *       and there is an edge between two vertices if they share an index. Note that you need
  *       to consider indices (directed or indirectly) connected by equality restrictions as
  *       being the same. This resulting graph must be a acyclic. Moreover, for every tree in this
  *       graph, all of its indices with a @tt{tgen::str::set} operation must be covered by a single
- *       distinct restriction set.
+ *       "different" restriction set.
  *
  * @throws std::runtime_error if the generator was created from
  *         regex (restrictions cannot be added for regex).
@@ -254,10 +254,10 @@ namespace tgen {
  *
  * ```cpp
  * // Strings of 10 lowercase letters with first 3 characters distinct.
- * auto str_gen = tgen::str(10, 'a', 'z').distinct({0, 1, 2});
+ * auto str_gen = tgen::str(10, 'a', 'z').different({0, 1, 2});
  * ```
  *
- * @fn str &str::distinct(std::set<int> indices);
+ * @fn str &str::different(std::set<int> indices);
  */
 
 
@@ -270,7 +270,7 @@ namespace tgen {
  * @throws std::runtime_error if the generator was created from
  *         a regex (restrictions cannot be added for regex).
  *
- * Equivalent to @tt{tgen::str::distinct({idx_1, idx_2})}.
+ * Equivalent to @tt{tgen::str::different({idx_1, idx_2})}.
  *
  * #### Examples
  *
@@ -284,11 +284,12 @@ namespace tgen {
 
 
 /**
- * @brief Restricts generator s.t. all characters are distinct.
+ * @brief Restricts generator s.t. all characters are different.
  *
- * Equivalent to @tt{tgen::str::distinct({0, 1, ... size-1})}.
+ * Equivalent to @tt{tgen::str::different({0, 1, ... size-1})}.
  *
- * @note If you add this restriction, do not add another `tgen::str::distinct` restriction! Generation might fail otherwise.
+ * @note If you add this restriction, do not add another `tgen::str::different` restriction! Generation might
+ *       fail otherwise.
  *
  * @throws std::runtime_error if the generator was created from
  *         a regex (restrictions cannot be added for regex).
@@ -296,18 +297,18 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Strings consisting of 10 distinct lowercase letters.
- * auto s = tgen::str(10, 'a', 'z').distinct();
+ * // Strings consisting of 10 different lowercase letters.
+ * auto s = tgen::str(10, 'a', 'z').all_different();
  * ```
  *
- * @fn str &str::distinct();
+ * @fn str &str::all_different();
  */
 
 
 /**
- * @brief Generates a random instance from the set of valid strings.
+ * @brief Generates a random value from the set of valid strings.
  *
- * @return A uniformly random @tt{tgen::str::instance} satisfying the restrictions,
+ * @return A uniformly random @tt{tgen::str::value} satisfying the restrictions,
  *         or (for regex generators) a random match according to the regex semantics
  *         described in @ref str.
  *
@@ -338,7 +339,7 @@ namespace tgen {
  *
  * @param n Length of the prefix.
  *
- * @return A @tt{tgen::str::instance} with the prefix of length @pname{n} of @tt{"abacabad..."}.
+ * @return A @tt{tgen::str::value} with the prefix of length @pname{n} of @tt{"abacabad..."}.
  *
  * #### Complexity
  *
@@ -361,7 +362,7 @@ namespace tgen {
  * Computes two strings that have the same polynomial hash for any base and power-of-two mod (up to @tt{2^64}). <br>
  * Characters are in @tt{[a, b]}.
  *
- * @return A @tt{@namespace{std}::pair<@ref instance, @ref instance>} with the colided strings.
+ * @return A @tt{@namespace{std}\::pair<@ref value, @ref value>} with the colided strings.
  *
  * Reference:
  * - <a href="https://codeforces.com/blog/entry/60442">On the mathematics behind rolling hashes and anti-hash
@@ -396,7 +397,7 @@ namespace tgen {
  * Computes two strings that have the same polynomial hash for given base and mod. <br>
  * Characters are in @tt{[a, a + @pname{alphabet_size})}. The larger the alphabet, the smaller the colided strings.
  *
- * @return A @tt{@namespace{std}::pair<@ref instance, @ref instance>} with the colided strings.
+ * @return A @tt{@namespace{std}\::pair<@ref value, @ref value>} with the colided strings.
  *
  * Reference:
  * - <a href="https://codeforces.com/blog/entry/60442">On the mathematics behind rolling hashes and anti-hash
@@ -425,14 +426,14 @@ namespace tgen {
  * @param mods Mods.
  *
  * @pre
- * @tt{|@pname{bases}| = |@pname{mods}|}. <br>
+ * @tt{|@pname{bases}| = |@pname{mods}| <= 2}. <br>
  * @tt{0 < @pname{bases}[i] < @pname{mods}[i]}.
  *
  * Computes two strings that have the same polynomial hash for given bases and mods,
  * up to 2 (base, mod) pairs. <br>
  * Characters are in @tt{[a, a + @pname{alphabet_size})}. The larger the alphabet, the smaller the colided strings.
  *
- * @return A @tt{@namespace{std}::pair<@ref instance, @ref instance>} with the colided strings.
+ * @return A @tt{@namespace{std}\::pair<@ref value, @ref value>} with the colided strings.
  *
  * Reference:
  * - <a href="https://codeforces.com/blog/entry/4898">On the mathematics behind rolling hashes and anti-hash
@@ -459,53 +460,51 @@ namespace tgen {
 
 /**
  * @ingroup str
- * @brief String instance.
- *
- * Instance of a string.
+ * @brief String value.
  *
  * It can be deterministically operated upon and printed through @tt{@namespace{std}::cout}.
  *
- * @struct str::instance;
+ * @struct str::value;
  */
 
 
 /**
- * @brief Creates a string instance from a @texttt{@namespace{std}::@type{string}}.
+ * @brief Creates a string value from a @texttt{@namespace{std}::@type{string}}.
  *
- * @param str The @texttt{@namespace{std}::@type{string}} representing the instance.
+ * @param str The @texttt{@namespace{std}::@type{string}} representing the value.
  *
  * #### Examples
  *
  * ```cpp
- * // Creates and prints an instance from a std::string.
+ * // Creates and prints a value from a std::string.
  * std::string s = "aba";
- * tgen::str::instance inst(aba);
+ * tgen::str::value inst(aba);
  * std::cout << inst << std::endl; // Prints "aba".
  * ```
  *
- * @fn str::instance::instance(const std::string &str);
+ * @fn str::value::value(const std::string &str);
  */
 
 
 /**
- * @brief Returns the size of the string instance.
+ * @brief Returns the size of the string value.
  *
- * @return The number of characters in the instance.
+ * @return The number of characters in the value.
  *
  * #### Examples
  *
  * ```cpp
- * // Prints the size of an instance.
- * tgen::str::instance inst = "aba";
+ * // Prints the size of a value.
+ * tgen::str::value inst = "aba";
  * std::cout << inst.size() << std::endl; // Prints "3".
  * ```
  *
- * @fn int str::instance::size() const;
+ * @fn int str::value::size() const;
  */
 
 
 /**
- * @brief Accesses the character at some position of the instance.
+ * @brief Accesses the character at some position of the value.
  *
  * @param idx Index to be accessed.
  *
@@ -514,13 +513,13 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Changes and prints a position of an instance.
- * tgen::str::instance inst = "aba";
+ * // Changes and prints a position of a value.
+ * tgen::str::value inst = "aba";
  * ++inst[1];
  * std::cout << inst[1] << std::endl; // Prints "c".
  * ```
  *
- * @fn char &str::instance::operator[](int idx);
+ * @fn char &str::value::operator[](int idx);
  */
 
 
@@ -534,17 +533,17 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sorts and prints an instance.
- * tgen::str::instance inst = "aba";
+ * // Sorts and prints a value.
+ * tgen::str::value inst = "aba";
  * std::cout << inst.sort() << std::endl; // Prints "aab".
  * ```
  *
- * @fn str::instance::sort();
+ * @fn str::value::sort();
  */
 
 
 /**
- * @brief Reverses the instance.
+ * @brief Reverses the value.
  *
  * #### Complexity
  *
@@ -553,12 +552,12 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Reverses and prints an instance.
- * tgen::str::instance inst = "bac";
+ * // Reverses and prints a value.
+ * tgen::str::value inst = "bac";
  * std::cout << inst.reverse() << std::endl; // Prints "cab".
  * ```
  *
- * @fn str::instance::reverse();
+ * @fn str::value::reverse();
  */
 
 
@@ -572,12 +571,12 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sets an instance to lowercase and prints it.
- * tgen::str<int>::instance inst = "abC";
+ * // Sets a value to lowercase and prints it.
+ * tgen::str<int>::value inst = "abC";
  * std::cout << inst.lowercase() << std::endl; // Prints "ABC".
  * ```
  *
- * @fn str::instance::lowercase();
+ * @fn str::value::lowercase();
  */
 
 
@@ -591,17 +590,17 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sets an instance to uppercase and prints it.
- * tgen::str<int>::instance inst = "abC";
+ * // Sets a value to uppercase and prints it.
+ * tgen::str<int>::value inst = "abC";
  * std::cout << inst.uppercase() << std::endl; // Prints "abc".
  * ```
  *
- * @fn str::instance::uppercase();
+ * @fn str::value::uppercase();
  */
 
 
 /**
- * @brief Concatenates two instances.
+ * @brief Concatenates two values.
  *
  * @param rhs The right-hand side.
  *
@@ -614,46 +613,46 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Concatenates and prints two instances.
- * tgen::str s = tgen::str(5, 'a', 'z').distinct();
+ * // Concatenates and prints two values.
+ * tgen::str s = tgen::str(5, 'a', 'z').all_different();
  * std::cout << s.gen() + s.gen() << std::endl;
  * ```
  *
- * @fn str::instance::operator+(const instance &rhs);
+ * @fn str::value::operator+(const value &rhs);
  */
 
 
 /**
- * @brief Prints the instance to a @texttt{@namespace{std}::@type{ostream}}.
+ * @brief Prints the value to a @texttt{@namespace{std}::@type{ostream}}.
  *
  * The string is printed with no end of line.
  *
  * #### Examples
  *
  * ```cpp
- * // Prints an instance.
- * std::cout << tgen::str::instance("aba") << std::endl; // Prints "aba".
+ * // Prints a value.
+ * std::cout << tgen::str::value("aba") << std::endl; // Prints "aba".
  * ```
  *
- * @fn str::instance::operator<<(std::ostream &out, const instance &inst);
+ * @fn str::value::operator<<(std::ostream &out, const value &inst);
  */
 
 
 /**
- * @brief Converts the instance to a @texttt{@namespace{std}::@type{string}}.
+ * @brief Converts the value to a @texttt{@namespace{std}::@type{string}}.
  *
- * @return A @texttt{@namespace{std}::@type{string}} representing the instance.
+ * @return A @texttt{@namespace{std}::@type{string}} representing the value.
  *
  * #### Examples
  *
  * ```cpp
  * // Convoluted way to reverse a string.
  * std::string s = "bac";
- * s = tgen::str::instance(s).reverse().to_std();
+ * s = tgen::str::value(s).reverse().to_std();
  * // s = "cab".
  * ```
  *
- * @fn str::instance::to_std() const;
+ * @fn str::value::to_std() const;
  */
 
 };

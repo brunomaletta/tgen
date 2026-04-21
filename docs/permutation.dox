@@ -6,7 +6,7 @@ namespace tgen {
  * @defgroup permutation Permutations
  * @brief Generation of permutations.
  *
- * Its instances have the properties:
+ * Its values have the properties:
  * - @tt{tgen::is_sequential}
  *
  * ### Examples
@@ -40,7 +40,7 @@ namespace tgen {
  *
  * Defines a set of permutations, subject to restrictions.
  *
- * A uniformly random @tt{tgen::permutation::instance}
+ * A uniformly random @tt{tgen::permutation::value}
  * from this set of permutations (that satisfies the restrictions) can be
  * generated with @tt{tgen::permutation::gen}.
  *
@@ -68,7 +68,7 @@ namespace tgen {
  * @brief Restricts generator s.t. value at index is fixed.
  *
  * @param idx Index.
- * @param value Value.
+ * @param val Value.
  *
  * #### Examples
  *
@@ -77,7 +77,7 @@ namespace tgen {
  * auto perm_gen = tgen::permutation(10).fix(0, 1);
  * ```
  *
- * @fn permutation::fix(int idx, int value);
+ * @fn permutation::fix(int idx, int val);
  */
 
 
@@ -100,9 +100,9 @@ namespace tgen {
 
 
 /**
- * @brief Generates a random instance from the set of valid permutations.
+ * @brief Generates a random value from the set of valid permutations.
  *
- * @return A uniformly random @tt{tgen::permutation::instance} from the set of valid permutations, given the added restrictions.
+ * @return A uniformly random @tt{tgen::permutation::value} from the set of valid permutations, given the added restrictions.
  *
  * @throws std::runtime_error if there is no valid permutation satisfying all added restrictions.
  *
@@ -128,27 +128,25 @@ namespace tgen {
 /**
  * @ingroup permutation
  *
- * @brief Permutation instance.
- *
- * Instance of a permutation.
+ * @brief Permutation value.
  *
  * It can be deterministically operated upon and printed through @tt{@namespace{std}::cout}.
  *
- * @struct permutation::instance;
+ * @struct permutation::value;
  */
 
 
 /**
- * @brief Creates a permutation instance from a @texttt{@namespace{std}::@type{vector}}.
+ * @brief Creates a permutation value from a @texttt{@namespace{std}::@type{vector}}.
  *
- * @param vec The @texttt{@namespace{std}::@type{vector}} representing the instance.
+ * @param vec The @texttt{@namespace{std}::@type{vector}} representing the value.
  *
  * #### Examples
  *
  * ```cpp
- * // Creates and prints an instance from a std::vector.
+ * // Creates and prints a value from a std::vector.
  * std::vector<int> v = {0, 1, 2};
- * tgen::permutation::instance inst(v);
+ * tgen::permutation::value inst(v);
  * std::cout << inst << std::endl; // Prints "0 1 2".
  *
  * // Also works with conversions, and std::initializer_list<T>.
@@ -156,29 +154,29 @@ namespace tgen {
  * std::cout << inst.add_1() << std::endl; // Prints "2 1".
  * ```
  *
- * @fn permutation::instance::instance(const std::vector<int> &vec);
+ * @fn permutation::value::value(const std::vector<int> &vec);
  */
 
 
 /**
- * @brief Returns the size of the permutation instance.
+ * @brief Returns the size of the permutation value.
  *
- * @return The size (number of elements) of the permutation instance.
+ * @return The size (number of elements) of the permutation value.
  *
  * #### Examples
  *
  * ```cpp
- * // Prints the size of an instance.
- * tgen::permutation::instance inst = {0, 1, 2};
+ * // Prints the size of a value.
+ * tgen::permutation::value inst = {0, 1, 2};
  * std::cout << inst.size() << std::endl; // Prints "3".
  * ```
  *
- * @fn permutation::instance::size();
+ * @fn permutation::value::size();
  */
 
 
 /**
- * @brief Returns the value at some position of the instance.
+ * @brief Returns the value at some position of the value.
  *
  * @param idx Index to be accessed.
  *
@@ -187,12 +185,12 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints a position of an instance.
- * tgen::permutation::instance inst = {2, 0, 1};
+ * // Prints a position of a value.
+ * tgen::permutation::value inst = {2, 0, 1};
  * std::cout << inst[1] << std::endl; // Prints "0".
  * ```
  *
- * @fn permutation::instance::operator[](int idx) const;
+ * @fn permutation::value::operator[](int idx) const;
  */
 
 
@@ -205,16 +203,16 @@ namespace tgen {
  *
  * ```cpp
  * // Prints parity of permutation.
- * tgen::permutation::instance inst = {2, 0, 1};
+ * tgen::permutation::value inst = {2, 0, 1};
  * std::cout << inst.parity() << std::endl; // Prints "1".
  * ```
  *
- * @fn permutation::instance::parity();
+ * @fn permutation::value::parity();
  */
 
 
 /**
- * @brief Sorts the instance in non-decreasing order.
+ * @brief Sorts the value in non-decreasing order.
  *
  * #### Complexity
  *
@@ -223,17 +221,17 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sorts and prints an instance.
- * tgen::permutation::instance inst = {2, 0, 1};
+ * // Sorts and prints a value.
+ * tgen::permutation::value inst = {2, 0, 1};
  * std::cout << inst.sort() << std::endl; // Prints "0 1 2".
  * ```
  *
- * @fn permutation::instance::sort();
+ * @fn permutation::value::sort();
  */
 
 
 /**
- * @brief Reverses the instance.
+ * @brief Reverses the value.
  *
  * #### Complexity
  *
@@ -242,12 +240,12 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Reverses and prints an instance.
- * tgen::permutation::instance inst = {2, 0, 1};
+ * // Reverses and prints a value.
+ * tgen::permutation::value inst = {2, 0, 1};
  * std::cout << inst.reverse() << std::endl; // Prints "1 0 2".
  * ```
  *
- * @fn permutation::instance::reverse();
+ * @fn permutation::value::reverse();
  */
 
 
@@ -264,11 +262,11 @@ namespace tgen {
  *
  * ```cpp
  * // Prints inverse of permutation.
- * tgen::permutation::instance inst = {2, 0, 1};
+ * tgen::permutation::value inst = {2, 0, 1};
  * std::cout << inst.inverse() << std::endl; // Prints "1 2 0".
  * ```
  *
- * @fn permutation::instance::inverse();
+ * @fn permutation::value::inverse();
  */
 
 
@@ -283,11 +281,11 @@ namespace tgen {
  *
  * ```cpp
  * // Prints a permutation, separated by commas.
- * tgen::permutation::instance inst = {2, 0, 1};
+ * tgen::permutation::value inst = {2, 0, 1};
  * std::cout << inst.separator(',') << std::endl; // Prints "2,0,1".
  * ```
  *
- * @fn permutation::instance::separator(char sep);
+ * @fn permutation::value::separator(char sep);
  */
 
 
@@ -305,16 +303,16 @@ namespace tgen {
  *
  * ```cpp
  * // Prints a 1-based permutation.
- * tgen::permutation::instance inst = {2, 0, 1};
+ * tgen::permutation::value inst = {2, 0, 1};
  * std::cout << inst.add_1() << std::endl; // Prints "3 1 2".
  * ```
  *
- * @fn permutation::instance::add_1();
+ * @fn permutation::value::add_1();
  */
 
 
 /**
- * @brief Prints the instance to a @texttt{@namespace{std}::@type{ostream}}.
+ * @brief Prints the value to a @texttt{@namespace{std}::@type{ostream}}.
  *
  * The values are printed with one space as a separator by default,
  * and with no end of line.
@@ -322,29 +320,29 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints an instance.
- * std::cout << tgen::permutation::instance({2, 0, 1}) << std::endl; // Prints "2 0 1".
+ * // Prints a value.
+ * std::cout << tgen::permutation::value({2, 0, 1}) << std::endl; // Prints "2 0 1".
  * ```
  *
- * @fn permutation::instance::operator<<(std::ostream &out, const instance &inst);
+ * @fn permutation::value::operator<<(std::ostream &out, const value &inst);
  */
 
 
 /**
- * @brief Converts the instance to a @texttt{@namespace{std}::@type{vector}}.
+ * @brief Converts the value to a @texttt{@namespace{std}::@type{vector}}.
  *
- * @return A @texttt{@namespace{std}::@type{vector}} representing the instance.
+ * @return A @texttt{@namespace{std}::@type{vector}} representing the value.
  *
  * #### Examples
  *
  * ```cpp
  * // Convoluted way to reverse a permutation.
  * std::vector<int> v = {2, 0, 1};
- * v = tgen::permutation::instance(v).reverse().to_std();
+ * v = tgen::permutation::value(v).reverse().to_std();
  * // v = {2, 1, 3}.
  * ```
  *
- * @fn permutation::instance::to_std();
+ * @fn permutation::value::to_std();
  */
 
 };

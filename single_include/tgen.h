@@ -36,6 +36,7 @@
 #include <string>
 #include <sys/types.h>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace tgen {
@@ -46,7 +47,7 @@ namespace tgen {
  *                        *
  **************************/
 
-namespace _detail {
+namespace detail {
 
 // Type aliases.
 using u128 = unsigned __int128;
@@ -99,7 +100,7 @@ inline void tgen_ensure_against_bug(bool cond, const std::string &msg = "") {
 // Ensures condition is true, with nice debug.
 #define tgen_ensure(cond, ...)                                                 \
 	if (!(cond))                                                               \
-		tgen::_detail::throw_assertion_error(#cond, ##__VA_ARGS__);
+		tgen::detail::throw_assertion_error(#cond, ##__VA_ARGS__);
 
 // Registering checks.
 inline bool registered = false;
@@ -221,7 +222,7 @@ struct compiler_value {
 };
 inline compiler_value compiler;
 
-} // namespace _detail
+} // namespace detail
 
 /*
  * Base classes.
@@ -230,19 +231,19 @@ inline compiler_value compiler;
 // Needed for return type of some functions.
 template <typename T> struct list;
 
-// Generates unique instances of a function.
-template <typename Func, typename... Args> struct unique {
+// Generates distinct values of a function.
+template <typename Func, typename... Args> struct distinct {
 	Func func_;
 	std::tuple<Args...> args_;
 	using T = std::invoke_result_t<Func &, Args &...>;
 	std::set<T> seen_;
 
-	unique(Func func, Args... args)
+	distinct(Func func, Args... args)
 		: func_(std::move(func)), args_(std::move(args)...) {}
 
-	// Generates unique instance and inserts it if `insert` is true.
-	// Returns the instance if found, otherwise returns std::nullopt.
-	auto generate_unique(bool insert) {
+	// Generates distinct value and inserts it if `insert` is true.
+	// Returns the value if found, otherwise returns std::nullopt.
+	auto generate_distinct(bool insert) {
 		for (int i = 0; i < 84 * std::max<int>(1, seen_.size()); ++i) {
 			T val = std::apply(func_, args_);
 			if (insert ? seen_.insert(val).second : seen_.count(val) == 0)
@@ -253,9 +254,9 @@ template <typename Func, typename... Args> struct unique {
 		return std::optional<T>();
 	}
 
-	// Generates a unique instance (i.e., one not returned before).
+	// Generates a distinct value (i.e., one not returned before).
 	//
-	// Assume gen() produces a uniformly random instance in O(T) time.
+	// Assume gen() produces a uniformly random value in O(T) time.
 	// Since duplicates are rejected, the expected number of trials over
 	// k successful generations is:
 	//
@@ -271,82 +272,82 @@ template <typename Func, typename... Args> struct unique {
 	// O(T * log k + log^2 k).
 	//
 	// With extremely small probability (< 1e-18), the algorithm may
-	// incorrectly report that no more unique values exist.
+	// incorrectly report that no more distinct values exist.
 	auto gen() {
-		auto val = generate_unique(true);
+		auto val = generate_distinct(true);
 		if (val)
 			return *val;
 
-		throw _detail::error("no more unique values");
+		throw detail::error("no more distinct values");
 	}
 	template <typename U> auto gen(std::initializer_list<U> il) {
 		return gen(std::vector<U>(il));
 	}
 
-	// Generates a list of unique instances.
+	// Generates a list of distinct values.
 	auto gen_list(int size) {
 		std::vector<T> res;
 		for (int i = 0; i < size; ++i)
 			res.push_back(gen());
 
-		return typename list<T>::instance(res);
+		return typename list<T>::value(res);
 	}
 
-	// Checks if there are no more unique instances.
+	// Checks if there are no more distinct values.
 	// With extremely small probability (< 1e-18), the algorithm may
-	// incorrectly report that there are no more unique values.
-	bool empty() { return generate_unique(false) == std::nullopt; }
+	// incorrectly report that there are no more distinct values.
+	bool empty() { return generate_distinct(false) == std::nullopt; }
 
-	// Generates all unique instances.
+	// Generates all distinct values.
 	auto gen_all() {
 		std::vector<T> res;
 		while (true) {
-			auto val = generate_unique(true);
+			auto val = generate_distinct(true);
 			if (val)
 				res.push_back(*val);
 			else
 				break;
 		}
-		return typename list<T>::instance(res);
+		return typename list<T>::value(res);
 	}
 
-	// Nice error for `out << unique`.
-	friend std::ostream &operator<<(std::ostream &out, const unique &) {
-		static_assert(_detail::dependent_false_v<unique>,
-					  "cannot print a unique generator. Maybe you forgot to "
+	// Nice error for `out << distinct`.
+	friend std::ostream &operator<<(std::ostream &out, const distinct &) {
+		static_assert(detail::dependent_false_v<distinct>,
+					  "cannot print a distinct generator. Maybe you forgot to "
 					  "call `gen()`?");
 		return out;
 	}
 };
 template <typename Func, typename... Args>
-unique(Func, Args...) -> unique<Func, Args...>;
+distinct(Func, Args...) -> distinct<Func, Args...>;
 
 // Base struct for generators.
 template <typename Gen> struct gen_base {
 	const Gen &self() const { return *static_cast<const Gen *>(this); }
 
 	template <typename... Args> auto gen_list(int size, Args &&...args) const {
-		std::vector<typename Gen::instance> res;
+		std::vector<typename Gen::value> res;
 
 		for (int i = 0; i < size; ++i)
 			res.push_back(static_cast<const Gen *>(this)->gen(
 				std::forward<Args>(args)...));
 
-		return typename list<typename Gen::instance>::instance(res);
+		return typename list<typename Gen::value>::value(res);
 	}
 
 	// Calls the generator until predicate is true.
 	template <typename Pred, typename... Args>
 	auto gen_until(Pred predicate, int max_tries, Args &&...args) const {
 		for (int i = 0; i < max_tries; ++i) {
-			typename Gen::instance inst = static_cast<const Gen *>(this)->gen(
+			typename Gen::value inst = static_cast<const Gen *>(this)->gen(
 				std::forward<Args>(args)...);
 
 			if (predicate(inst))
 				return inst;
 		}
 
-		throw _detail::error("could not generate instance matching predicate");
+		throw detail::error("could not generate value matching predicate");
 	}
 	template <typename Pred, typename T, typename... Args>
 	auto gen_until(Pred predicate, int max_tries, std::initializer_list<T> il,
@@ -355,9 +356,9 @@ template <typename Gen> struct gen_base {
 						 std::forward<Args>(args)...);
 	}
 
-	// Unique for generator.
-	template <typename... Args> auto unique(Args &&...args) const {
-		return tgen::unique(
+	// Distinct for generator.
+	template <typename... Args> auto distinct(Args &&...args) const {
+		return tgen::distinct(
 			[self = self()](auto &&...inner_args) mutable -> decltype(auto) {
 				return self.gen(
 					std::forward<decltype(inner_args)>(inner_args)...);
@@ -365,21 +366,21 @@ template <typename Gen> struct gen_base {
 			std::forward<Args>(args)...);
 	}
 	template <typename T, typename... Args>
-	auto unique(std::initializer_list<T> il, Args &&...args) const {
-		return unique(std::vector<T>(il), std::forward<Args>(args)...);
+	auto distinct(std::initializer_list<T> il, Args &&...args) const {
+		return distinct(std::vector<T>(il), std::forward<Args>(args)...);
 	}
 
 	// Nice error for `out << generator`.
 	friend std::ostream &operator<<(std::ostream &out, const gen_base &) {
 		static_assert(
-			_detail::dependent_false_v<gen_base>,
+			detail::dependent_false_v<gen_base>,
 			"cannot print a generator. Maybe you forgot to call `gen()`?");
 		return out;
 	}
 };
 
-// Base class for generator instances.
-template <typename Inst> struct gen_instance_base {
+// Base class for generator values.
+template <typename Inst> struct gen_value_base {
 	const Inst &self() const { return *static_cast<const Inst *>(this); }
 
 	bool operator<(const Inst &rhs) const {
@@ -399,12 +400,12 @@ struct is_associative_container<
 	T, std::void_t<typename T::key_type, typename T::key_compare>>
 	: std::true_type {};
 
-// Detects generator instances.
+// Detects generator values.
 template <typename T>
-struct is_generator_instance
-	: std::is_base_of<gen_instance_base<std::decay_t<T>>, std::decay_t<T>> {};
+struct is_generator_value
+	: std::is_base_of<gen_value_base<std::decay_t<T>>, std::decay_t<T>> {};
 
-// Detects sequential generator instances.
+// Detects sequential generator values.
 template <typename T, typename = void>
 struct is_sequential : std::false_type {};
 template <typename T>
@@ -412,7 +413,7 @@ struct is_sequential<
 	T, std::void_t<typename std::decay_t<T>::tgen_is_sequential_tag>>
 	: std::true_type {};
 
-// Detects generator instances with defined subset.
+// Detects generator values with defined subset.
 template <typename T, typename = void>
 struct has_subset_defined : std::false_type {};
 template <typename T>
@@ -452,8 +453,8 @@ struct print {
 
 	template <typename T>
 	void write(std::ostream &os, const T &val, char sep = ' ') {
-		if constexpr (_detail::is_pair<T>::value) {
-			if constexpr (_detail::is_pair_multiline<T>::value) {
+		if constexpr (detail::is_pair<T>::value) {
+			if constexpr (detail::is_pair_multiline<T>::value) {
 				write(os, val.first, sep);
 				os << '\n';
 				write(os, val.second, sep);
@@ -462,12 +463,12 @@ struct print {
 				os << sep;
 				write(os, val.second);
 			}
-		} else if constexpr (_detail::is_tuple<T>::value)
+		} else if constexpr (detail::is_tuple<T>::value)
 			write_tuple(os, val, sep);
-		else if constexpr (_detail::is_container<T>::value)
+		else if constexpr (detail::is_container<T>::value)
 			write_container(os, val, sep);
-		else if constexpr (std::is_same_v<T, _detail::i128> or
-						   std::is_same_v<T, _detail::u128>)
+		else if constexpr (std::is_same_v<T, detail::i128> or
+						   std::is_same_v<T, detail::u128>)
 			write_128_number(os, val);
 		else
 			os << val;
@@ -496,9 +497,9 @@ struct print {
 
 		for (const auto &e : container) {
 			if (!first)
-				os << (_detail::is_container_multiline<C>::value ? '\n' : sep);
+				os << (detail::is_container_multiline<C>::value ? '\n' : sep);
 			first = false;
-			write(os, e, _detail::is_container_multiline<C>::value ? sep : ' ');
+			write(os, e, detail::is_container_multiline<C>::value ? sep : ' ');
 		}
 	}
 
@@ -508,11 +509,11 @@ struct print {
 						  std::index_sequence<I...>) {
 		bool first = true;
 		((os << (first ? (first = false, "")
-					   : (_detail::is_tuple_multiline<Tuple>::value
+					   : (detail::is_tuple_multiline<Tuple>::value
 							  ? "\n"
 							  : std::string(1, sep))),
 		  write(os, std::get<I>(tp),
-				_detail::is_tuple_multiline<Tuple>::value ? sep : ' ')),
+				detail::is_tuple_multiline<Tuple>::value ? sep : ' ')),
 		 ...);
 	}
 	template <typename T>
@@ -547,38 +548,38 @@ struct println : print {
  * Global random operations.
  */
 
-// Returns a random number in [0, n)
+// Returns a uniformly random number in [0, n)
 // O(1).
 template <typename T> T next(T n) {
-	_detail::ensure_registered();
+	detail::ensure_registered();
 	if constexpr (std::is_integral_v<T>) {
-		tgen_ensure(n >= 1, "value for `next` bust be valid");
-		return std::uniform_int_distribution<T>(0, n - 1)(_detail::rng);
+		tgen_ensure(n >= 1, "value for `next` must be valid");
+		return std::uniform_int_distribution<T>(0, n - 1)(detail::rng);
 	} else if constexpr (std::is_floating_point_v<T>) {
-		tgen_ensure(n >= 0, "value for `next` bust be valid");
-		return std::uniform_real_distribution<T>(0, n)(_detail::rng);
+		tgen_ensure(n >= 0, "value for `next` must be valid");
+		return std::uniform_real_distribution<T>(0, n)(detail::rng);
 	} else
-		throw _detail::error("invalid type for next (" +
-							 std::string(typeid(T).name()) + ")");
+		throw detail::error("invalid type for next (" +
+							std::string(typeid(T).name()) + ")");
 }
 
-// Returns a random number in [l, r].
+// Returns a uniformly random number in [l, r].
 // O(1).
 template <typename T> T next(T l, T r) {
-	_detail::ensure_registered();
-	tgen_ensure(l <= r, "range for `next` bust be valid");
+	detail::ensure_registered();
+	tgen_ensure(l <= r, "range for `next` must be valid");
 	if constexpr (std::is_integral_v<T>)
-		return std::uniform_int_distribution<T>(l, r)(_detail::rng);
+		return std::uniform_int_distribution<T>(l, r)(detail::rng);
 	else if constexpr (std::is_floating_point_v<T>)
-		return std::uniform_real_distribution<T>(l, r)(_detail::rng);
+		return std::uniform_real_distribution<T>(l, r)(detail::rng);
 	else
-		throw _detail::error("invalid type for next (" +
-							 std::string(typeid(T).name()) + ")");
+		throw detail::error("invalid type for next (" +
+							std::string(typeid(T).name()) + ")");
 }
 
-namespace _detail {
+namespace detail {
 
-// Random 128 bit number in [0, total).
+// Uniformly random 128 bit number in [0, total).
 // O(1) expected.
 inline u128 next128(u128 total) {
 	tgen_ensure(total > 0, "next128: total must be positive");
@@ -597,7 +598,7 @@ inline u128 next128(u128 total) {
 	}
 }
 
-} // namespace _detail
+} // namespace detail
 
 // Returns i with probability proportional to distribution[i].
 template <typename T>
@@ -628,7 +629,7 @@ template <typename It> void shuffle(It first, It last) {
 		std::iter_swap(i, first + next(0, static_cast<int>(i - first)));
 }
 
-// Shuffles sequential generator instance uniformly.
+// Shuffles sequential generator value uniformly.
 // O(|inst|).
 template <typename Inst, std::enable_if_t<is_sequential<Inst>::value, int> = 0>
 void shuffle(Inst &inst) {
@@ -638,8 +639,7 @@ void shuffle(Inst &inst) {
 
 // Shuffles container uniformly.
 // O(|container|).
-template <typename C,
-		  std::enable_if_t<!is_generator_instance<C>::value, int> = 0>
+template <typename C, std::enable_if_t<!is_generator_value<C>::value, int> = 0>
 [[nodiscard]] auto shuffled(const C &container) {
 	if constexpr (is_associative_container<C>::value) {
 		std::vector<typename C::value_type> vec(container.begin(),
@@ -657,7 +657,7 @@ template <typename T>
 	return shuffled(std::vector<T>(il));
 }
 
-// Shuffles sequential generator instance uniformly.
+// Shuffles sequential generator value uniformly.
 // O(n).
 template <typename Inst, std::enable_if_t<is_sequential<Inst>::value, int> = 0>
 [[nodiscard]] Inst shuffled(const Inst &inst) {
@@ -668,7 +668,7 @@ template <typename Inst, std::enable_if_t<is_sequential<Inst>::value, int> = 0>
 
 // Returns a random element from [first, last) uniformly.
 // O(1) for random_access_iterator, O(|last - first|) otherwise.
-template <typename It> typename It::value_type any(It first, It last) {
+template <typename It> typename It::value_type pick(It first, It last) {
 	int size = std::distance(first, last);
 	It it = first;
 	std::advance(it, next(0, size - 1));
@@ -677,28 +677,27 @@ template <typename It> typename It::value_type any(It first, It last) {
 
 // Returns a random element from container uniformly.
 // O(1) for random_access_iterator, O(|container|) otherwise.
-template <typename C,
-		  std::enable_if_t<!is_generator_instance<C>::value, int> = 0>
-typename C::value_type any(const C &container) {
-	return any(container.begin(), container.end());
+template <typename C, std::enable_if_t<!is_generator_value<C>::value, int> = 0>
+typename C::value_type pick(const C &container) {
+	return pick(container.begin(), container.end());
 }
-template <typename T> T any(const std::initializer_list<T> &il) {
-	return any(std::vector<T>(il));
+template <typename T> T pick(const std::initializer_list<T> &il) {
+	return pick(std::vector<T>(il));
 }
 
-// Returns a random element from sequential generator instance uniformly.
+// Returns a random element from sequential generator value uniformly.
 // O(1).
 template <typename Inst, std::enable_if_t<is_sequential<Inst>::value, int> = 0>
-typename Inst::value_type any(const Inst &inst) {
+typename Inst::value_type pick(const Inst &inst) {
 	return inst[next<int>(0, inst.size() - 1)];
 }
 
 // Returns container[i] with probability proportional to distribution[i].
 // O(1) for random_access_iterator, O(|container|) otherwise.
 template <typename C, typename T,
-		  std::enable_if_t<!is_generator_instance<C>::value, int> = 0>
-typename C::value_type any_by_distribution(const C &container,
-										   std::vector<T> distribution) {
+		  std::enable_if_t<!is_generator_value<C>::value, int> = 0>
+typename C::value_type pick_by_distribution(const C &container,
+											std::vector<T> distribution) {
 	tgen_ensure(container.size() == distribution.size(),
 				"container and distribution must have the same size");
 	auto it = container.begin();
@@ -706,22 +705,22 @@ typename C::value_type any_by_distribution(const C &container,
 	return *it;
 }
 template <typename C, typename T,
-		  std::enable_if_t<!is_generator_instance<C>::value, int> = 0>
+		  std::enable_if_t<!is_generator_value<C>::value, int> = 0>
 typename C::value_type
-any_by_distribution(const C &container,
-					const std::initializer_list<T> &distribution) {
-	return any_by_distribution(container, std::vector<T>(distribution));
+pick_by_distribution(const C &container,
+					 const std::initializer_list<T> &distribution) {
+	return pick_by_distribution(container, std::vector<T>(distribution));
 }
 template <typename T, typename U>
-T any_by_distribution(const std::initializer_list<T> &il,
-					  const std::vector<U> &distribution) {
-	return any_by_distribution(std::vector<T>(il), distribution);
+T pick_by_distribution(const std::initializer_list<T> &il,
+					   const std::vector<U> &distribution) {
+	return pick_by_distribution(std::vector<T>(il), distribution);
 }
 template <typename T, typename U>
-T any_by_distribution(const std::initializer_list<T> &il,
-					  const std::initializer_list<U> &distribution) {
-	return any_by_distribution(std::vector<T>(il),
-							   std::vector<U>(distribution));
+T pick_by_distribution(const std::initializer_list<T> &il,
+					   const std::initializer_list<U> &distribution) {
+	return pick_by_distribution(std::vector<T>(il),
+								std::vector<U>(distribution));
 }
 
 // Returns inst[i] with probability proportional to distribution[i].
@@ -729,7 +728,7 @@ T any_by_distribution(const std::initializer_list<T> &il,
 template <typename Inst, typename T,
 		  std::enable_if_t<is_sequential<Inst>::value, int> = 0>
 typename Inst::value_type
-any_by_distribution(const Inst &inst, const std::vector<T> &distribution) {
+pick_by_distribution(const Inst &inst, const std::vector<T> &distribution) {
 	tgen_ensure(static_cast<size_t>(inst.size()) == distribution.size(),
 				"inst and distribution must have the same size");
 	return inst[next_by_distribution(distribution)];
@@ -737,15 +736,14 @@ any_by_distribution(const Inst &inst, const std::vector<T> &distribution) {
 template <typename Inst, typename T,
 		  std::enable_if_t<is_sequential<Inst>::value, int> = 0>
 typename Inst::value_type
-any_by_distribution(const Inst &inst,
-					const std::initializer_list<T> &distribution) {
-	return any_by_distribution(inst, std::vector<T>(distribution));
+pick_by_distribution(const Inst &inst,
+					 const std::initializer_list<T> &distribution) {
+	return pick_by_distribution(inst, std::vector<T>(distribution));
 }
 
 // Chooses k values uniformly from container, as in a subsequence of size k.
 // Returns a copy. O(|container|).
-template <typename C,
-		  std::enable_if_t<!is_generator_instance<C>::value, int> = 0>
+template <typename C, std::enable_if_t<!is_generator_value<C>::value, int> = 0>
 C choose(const C &container, int k) {
 	tgen_ensure(0 < k and k <= static_cast<int>(container.size()),
 				"number of elements to choose must be valid");
@@ -765,7 +763,7 @@ std::vector<T> choose(const std::initializer_list<T> &il, int k) {
 	return choose(std::vector<T>(il), k);
 }
 
-// Chooses k values uniformly from sequential generator instance, as in a
+// Chooses k values uniformly from sequential generator value, as in a
 // subsequence of size k.
 // O(n).
 template <typename Inst, std::enable_if_t<is_sequential<Inst>::value and
@@ -786,23 +784,23 @@ Inst choose(const Inst &inst, int k) {
 	return Inst(new_vec);
 }
 
-// Number unique generator for integral types.
-template <typename T> struct unique_range {
+// Number distinct generator for integral types.
+template <typename T> struct distinct_range {
 	T l_, r_;
 	T num_available_;
 	std::map<T, T> virtual_list_;
 
-	// Generator of unique values in [l_, r_].
-	unique_range(T l, T r) : l_(l), r_(r), num_available_(r - l + 1) {}
+	// Generator of distinct values in [l_, r_].
+	distinct_range(T l, T r) : l_(l), r_(r), num_available_(r - l + 1) {}
 
-	// Returns the number of unique values left to generate.
+	// Returns the number of distinct values left to generate.
 	T size() const { return num_available_; }
 
 	// Generates a random value in [l_, r_] that has not been generated yet.
 	// O(log n).
 	T gen() {
 		// One iteration of Fisher–Yates.
-		tgen_ensure(size() > 0, "unique_range: no more values to generate");
+		tgen_ensure(size() > 0, "distinct_range: no more values to generate");
 
 		T i = next<T>(0, size() - 1);
 		T j = size() - 1;
@@ -816,65 +814,65 @@ template <typename T> struct unique_range {
 		return vi + l_;
 	}
 
-	// Generates a list of unique values.
+	// Generates a list of distict values.
 	// O(size * log(n)).
 	auto gen_list(int size) {
 		std::vector<T> res;
 		for (int i = 0; i < size; ++i)
 			res.push_back(gen());
-		return typename list<T>::instance(res);
+		return typename list<T>::value(res);
 	}
 
-	// Generates all unique values.
+	// Generates all distict values.
 	// O(n log(n))
 	auto gen_all() {
 		std::vector<T> res;
 		while (size() > 0)
 			res.push_back(gen());
-		return typename list<T>::instance(res);
+		return typename list<T>::value(res);
 	}
 };
 
-// Unique generator for containers.
-template <typename T> struct unique_container {
+// Distinct generator for containers.
+template <typename T> struct distinct_container {
 	std::vector<T> list_;
-	unique_range<size_t> idx_;
+	distinct_range<size_t> idx_;
 
-	// Creates a unique container generator for the given container.
+	// Creates a distinct container generator for the given container.
 	template <typename C>
-	unique_container(const C &container)
+	distinct_container(const C &container)
 		: list_(container.begin(), container.end()),
 		  idx_(0, static_cast<int>(container.size()) - 1) {}
-	unique_container(const std::initializer_list<T> &il)
-		: unique_container(std::vector<T>(il)) {}
+	distinct_container(const std::initializer_list<T> &il)
+		: distinct_container(std::vector<T>(il)) {}
 
-	// Returns the number of unique elements left to generate.
+	// Returns the number of distinct elements left to generate.
 	size_t size() const { return idx_.size(); }
 
 	// Generates a random element from container uniformly.
 	// O(log n).
 	T gen() { return list_[idx_.gen()]; }
 
-	// Generates a list of unique values.
+	// Generates a list of distinct values.
 	// O(size * log(n)).
 	auto gen_list(int size) {
 		std::vector<T> res;
 		for (int i = 0; i < size; ++i)
 			res.push_back(gen());
-		return typename list<T>::instance(res);
+		return typename list<T>::value(res);
 	}
 
-	// Generates all unique values.
+	// Generates all distinct values.
 	// O(n log(n))
 	auto gen_all() {
 		std::vector<T> res;
 		while (size() > 0)
 			res.push_back(gen());
-		return typename list<T>::instance(res);
+		return typename list<T>::value(res);
 	}
 };
 template <typename C>
-unique_container(const C &) -> unique_container<typename C::value_type>;
+distinct_container(const C &) -> distinct_container<typename C::value_type>;
 
 /************
  *          *
@@ -903,7 +901,7 @@ unique_container(const C &) -> unique_container<typename C::value_type>;
 
 // Sets C++ version.
 inline void set_cpp_version(int version) {
-	_detail::cpp = _detail::cpp_value(version);
+	detail::cpp = detail::cpp_value(version);
 }
 
 /*
@@ -911,23 +909,23 @@ inline void set_cpp_version(int version) {
  */
 
 // GCC compiler type.
-inline _detail::compiler_value gcc(int major = 0, int minor = 0) {
-	return {_detail::compiler_kind::gcc, major, minor};
+inline detail::compiler_value gcc(int major = 0, int minor = 0) {
+	return {detail::compiler_kind::gcc, major, minor};
 }
 
 // Clang compiler type.
-inline _detail::compiler_value clang(int major = 0, int minor = 0) {
-	return {_detail::compiler_kind::clang, major, minor};
+inline detail::compiler_value clang(int major = 0, int minor = 0) {
+	return {detail::compiler_kind::clang, major, minor};
 }
 
 // Sets compiler.
-inline void set_compiler(_detail::compiler_value compiler) {
-	_detail::compiler.kind_ = compiler.kind_;
-	_detail::compiler.major_ = compiler.major_;
-	_detail::compiler.minor_ = compiler.minor_;
+inline void set_compiler(detail::compiler_value compiler) {
+	detail::compiler.kind_ = compiler.kind_;
+	detail::compiler.major_ = compiler.major_;
+	detail::compiler.minor_ = compiler.minor_;
 }
 
-namespace _detail {
+namespace detail {
 
 // Processes special opt flags.
 // Returns true if the key is a special opt flag.
@@ -1103,18 +1101,18 @@ inline void set_seed(int argc, char **argv) {
 	rng.seed(seq);
 }
 
-} // namespace _detail
+} // namespace detail
 
 // Returns true if there is an opt at a given index.
 inline bool has_opt(std::size_t index) {
-	_detail::ensure_registered();
-	return 0 <= index and index < _detail::pos_opts.size();
+	detail::ensure_registered();
+	return 0 <= index and index < detail::pos_opts.size();
 }
 
 // Returns true if there is an opt with a given key.
 inline bool has_opt(const std::string &key) {
-	_detail::ensure_registered();
-	return _detail::named_opts.count(key) != 0;
+	detail::ensure_registered();
+	return detail::named_opts.count(key) != 0;
 }
 template <typename K>
 std::enable_if_t<std::is_same_v<K, char>, bool> has_opt(K key) {
@@ -1125,27 +1123,27 @@ std::enable_if_t<std::is_same_v<K, char>, bool> has_opt(K key) {
 // found, returns the given default_value.
 template <typename T>
 T opt(size_t index, std::optional<T> default_value = std::nullopt) {
-	_detail::ensure_registered();
+	detail::ensure_registered();
 	if (!has_opt(index)) {
 		if (default_value)
 			return *default_value;
-		throw _detail::error("cannot find key with index " +
-							 std::to_string(index));
+		throw detail::error("cannot find key with index " +
+							std::to_string(index));
 	}
-	return _detail::get_opt<T>(_detail::pos_opts[index]);
+	return detail::get_opt<T>(detail::pos_opts[index]);
 }
 
 // Returns the parsed opt by a given key. If no opts with the given key are
 // found, returns the given default_value.
 template <typename T>
 T opt(const std::string &key, std::optional<T> default_value = std::nullopt) {
-	_detail::ensure_registered();
+	detail::ensure_registered();
 	if (!has_opt(key)) {
 		if (default_value)
 			return *default_value;
-		throw _detail::error("cannot find key with key " + key);
+		throw detail::error("cannot find key with key " + key);
 	}
-	return _detail::get_opt<T>(_detail::named_opts[key]);
+	return detail::get_opt<T>(detail::named_opts[key]);
 }
 template <typename T, typename K>
 std::enable_if_t<std::is_same_v<K, char>, T>
@@ -1155,26 +1153,26 @@ opt(K key, std::optional<T> default_value = std::nullopt) {
 
 // Registers generator by initializing rnd and parsing opts.
 inline void register_gen(int argc, char **argv) {
-	_detail::set_seed(argc, argv);
+	detail::set_seed(argc, argv);
 
-	_detail::pos_opts.clear();
-	_detail::named_opts.clear();
-	_detail::parse_opts(argc, argv);
+	detail::pos_opts.clear();
+	detail::named_opts.clear();
+	detail::parse_opts(argc, argv);
 
-	_detail::registered = true;
+	detail::registered = true;
 }
 
 // Registers generator by initializing rnd with a given seed.
 inline void register_gen(std::optional<long long> seed = std::nullopt) {
 	if (seed)
-		_detail::rng.seed(*seed);
+		detail::rng.seed(*seed);
 	else
-		_detail::rng.seed();
+		detail::rng.seed();
 
-	_detail::pos_opts.clear();
-	_detail::named_opts.clear();
+	detail::pos_opts.clear();
+	detail::named_opts.clear();
 
-	_detail::registered = true;
+	detail::registered = true;
 }
 
 /************
@@ -1200,7 +1198,7 @@ template <typename T> struct list : gen_base<list<T>> {
 	std::vector<std::pair<T, T>> val_range_; // Range of values of each index.
 	std::vector<std::vector<int>> neigh_;	 // Adjacency list of equality.
 	std::vector<std::set<int>>
-		distinct_restrictions_; // All distinct restrictions.
+		diff_restrictions_; // All different restrictions.
 
 	// Creates generator for lists of size 'size', with random T in [l, r].
 	list(int size, T value_l, T value_r)
@@ -1220,28 +1218,28 @@ template <typename T> struct list : gen_base<list<T>> {
 		for (int i = 0; i < size_; ++i)
 			val_range_.emplace_back(value_l_, value_r_);
 		int idx = 0;
-		for (T value : values_)
-			value_idx_in_set_[value] = idx++;
+		for (T val : values_)
+			value_idx_in_set_[val] = idx++;
 	}
 
-	// Restricts lists for list[idx] = value.
-	list &fix(int idx, T value) {
+	// Restricts lists for list[idx] = val.
+	list &fix(int idx, T val) {
 		tgen_ensure(0 <= idx and idx < size_, "list: index must be valid");
 		if (values_.size() == 0) {
 			auto &[left, right] = val_range_[idx];
 			if (left == right and value_l_ != value_r_) {
-				tgen_ensure(left == value,
+				tgen_ensure(left == val,
 							"list: must not set to two different values");
 			} else {
-				tgen_ensure(left <= value and value <= right,
+				tgen_ensure(left <= val and val <= right,
 							"list: value must be in the defined range");
 			}
-			left = right = value;
+			left = right = val;
 		} else {
-			tgen_ensure(values_.count(value),
+			tgen_ensure(values_.count(val),
 						"list: value must be in the set of values");
 			auto &[left, right] = val_range_[idx];
-			int new_val = value_idx_in_set_[value];
+			int new_val = value_idx_in_set_[val];
 			tgen_ensure(left <= new_val and new_val <= right,
 						"list: must not set to two different values");
 			left = right = new_val;
@@ -1265,48 +1263,47 @@ template <typename T> struct list : gen_base<list<T>> {
 	// Restricts lists for list[left..right] to have all equal values.
 	list &equal_range(int left, int right) {
 		tgen_ensure(0 <= left and left <= right and right < size_,
-					"list: range indices bust be valid");
+					"list: range indices must be valid");
 		for (int i = left; i < right; ++i)
 			equal(i, i + 1);
 		return *this;
 	}
 
-	// Restricts lists for list[S] to be distinct, for given subset S of
-	// indices.
-	// You can not add two of these restrictions with intersection.
-	list &distinct(std::set<int> indices) {
+	// Restricts lists for list[S] to be different (distinct), for given subset
+	// S of indices. You can not add two of these restrictions with
+	// intersection.
+	list &different(std::set<int> indices) {
 		if (!indices.empty())
-			distinct_restrictions_.push_back(indices);
+			diff_restrictions_.push_back(indices);
 		return *this;
 	}
 
 	// Restricts lists for list[idx_1] != list[idx_2].
 	list &different(int idx_1, int idx_2) {
 		std::set<int> indices = {idx_1, idx_2};
-		return distinct(indices);
+		return different(indices);
 	}
 
-	// Restricts lists with distinct elements.
-	list &distinct() {
+	// Restricts lists with all different elements.
+	list &all_different() {
 		std::vector<int> indices(size_);
 		std::iota(indices.begin(), indices.end(), 0);
-		return distinct(std::set<int>(indices.begin(), indices.end()));
+		return different(std::set<int>(indices.begin(), indices.end()));
 	}
 
-	// List instance.
-	// Operations on an instance are not random.
-	struct instance : gen_instance_base<instance> {
-		using tgen_is_sequential_tag = _detail::is_sequential_tag;
-		using tgen_has_subset_defined_tag = _detail::has_subset_defined_tag;
+	// List value.
+	// Operations on a value are not random.
+	struct value : gen_value_base<value> {
+		using tgen_is_sequential_tag = detail::is_sequential_tag;
+		using tgen_has_subset_defined_tag = detail::has_subset_defined_tag;
 
 		using value_type = T;			 // Value type, for templates.
-		using std_type = std::vector<T>; // std type for instance.
+		using std_type = std::vector<T>; // std type for value.
 		std::vector<T> vec_;			 // list.
 		char sep_;						 // Separator for printing.
 
-		instance(const std::vector<T> &vec) : vec_(vec), sep_(' ') {}
-		instance(const std::initializer_list<T> &il)
-			: instance(std::vector<T>(il)) {}
+		value(const std::vector<T> &vec) : vec_(vec), sep_(' ') {}
+		value(const std::initializer_list<T> &il) : value(std::vector<T>(il)) {}
 
 		// Fetches size.
 		int size() const { return vec_.size(); }
@@ -1314,48 +1311,47 @@ template <typename T> struct list : gen_base<list<T>> {
 		// Fetches position idx.
 		T &operator[](int idx) {
 			tgen_ensure(0 <= idx and idx < size(),
-						"list: instance: index out of bounds");
+						"list: value: index out of bounds");
 			return vec_[idx];
 		}
 		const T &operator[](int idx) const {
 			tgen_ensure(0 <= idx and idx < size(),
-						"list: instance: index out of bounds");
+						"list: value: index out of bounds");
 			return vec_[idx];
 		}
 
 		// Sorts values in non-decreasing order.
 		// O(n log n).
-		instance &sort() {
+		value &sort() {
 			std::sort(vec_.begin(), vec_.end());
 			return *this;
 		}
 
 		// Reverses list.
 		// O(n).
-		instance &reverse() {
+		value &reverse() {
 			std::reverse(vec_.begin(), vec_.end());
 			return *this;
 		}
 
 		// Sets the separator for the list, for printing.
 		// O(1).
-		instance &separator(char sep) {
+		value &separator(char sep) {
 			sep_ = sep;
 			return *this;
 		}
 
-		// Concatenates two instances.
+		// Concatenates two values.
 		// Linear.
-		instance operator+(const instance &rhs) {
+		value operator+(const value &rhs) {
 			std::vector<T> new_vec = vec_;
 			for (int i = 0; i < rhs.size(); ++i)
 				new_vec.push_back(rhs[i]);
-			return instance(new_vec);
+			return value(new_vec);
 		}
 
-		// Prints to std::ostream, separated by spaces.
-		friend std::ostream &operator<<(std::ostream &out,
-										const instance &inst) {
+		// Prints to std::ostream, separated by sep_.
+		friend std::ostream &operator<<(std::ostream &out, const value &inst) {
 			for (int i = 0; i < inst.size(); ++i) {
 				if (i > 0)
 					out << inst.sep_;
@@ -1364,9 +1360,9 @@ template <typename T> struct list : gen_base<list<T>> {
 			return out;
 		}
 
-		// Gets a std::vector representing the instance.
+		// Gets a std::vector representing the value.
 		auto to_std() const {
-			if constexpr (!is_generator_instance<T>::value) {
+			if constexpr (!is_generator_value<T>::value) {
 				return vec_;
 			} else {
 				std::vector<typename T::std_type> vec;
@@ -1389,7 +1385,7 @@ template <typename T> struct list : gen_base<list<T>> {
 		// map to store a virtual list that starts with a[i] = i.
 		T num_available = (value_r_ - value_l_ + 1) - forbidden_values.size();
 		if (num_available < k)
-			throw _detail::complex_restrictions_error(
+			throw detail::complex_restrictions_error(
 				"list", "not enough distinct values");
 		std::map<T, T> virtual_list;
 		std::vector<T> gen_list;
@@ -1405,8 +1401,8 @@ template <typename T> struct list : gen_base<list<T>> {
 
 		// Shifts back to correct range, but there might still be values
 		// that we can not use.
-		for (T &value : gen_list)
-			value += value_l_;
+		for (T &val : gen_list)
+			val += value_l_;
 
 		// Now for every generated value, we shift it by how many forbidden
 		// values are <= to it.
@@ -1427,9 +1423,9 @@ template <typename T> struct list : gen_base<list<T>> {
 		return gen_list;
 	}
 
-	// Generates list instance.
+	// Generates list value.
 	// O(n log n).
-	instance gen() const {
+	value gen() const {
 		std::vector<T> vec(size_);
 		std::vector<bool> defined_idx(
 			size_, false); // For every index, if it has been set in `vec`.
@@ -1475,7 +1471,7 @@ template <typename T> struct list : gen_base<list<T>> {
 								new_value = l;
 							} else if (new_value != l) {
 								// We found a contradiction
-								throw _detail::contradiction_error(
+								throw detail::contradiction_error(
 									"list",
 									"tried to set value to `" +
 										std::to_string(new_value) +
@@ -1506,75 +1502,74 @@ template <typename T> struct list : gen_base<list<T>> {
 				}
 		}
 
-		// Initial parsing of distinct restrictions.
-		std::vector<std::set<int>> distinct_containing_comp_idx(comp_count);
+		// Initial parsing of different restrictions.
+		std::vector<std::set<int>> diff_containing_comp_idx(comp_count);
 		{
 			int dist_id = 0;
-			for (const std::set<int> &distinct : distinct_restrictions_) {
-				// Checks if there are too many distinct values.
-				if (static_cast<uint64_t>(distinct.size() - 1) +
+			for (const std::set<int> &diff : diff_restrictions_) {
+				// Checks if there are too many different values.
+				if (static_cast<uint64_t>(diff.size() - 1) +
 						static_cast<uint64_t>(value_l_) >
 					static_cast<uint64_t>(value_r_))
-					throw _detail::contradiction_error(
+					throw detail::contradiction_error(
 						"list", "tried to generate " +
-									std::to_string(distinct.size()) +
-									" distinct values, but the maximum is " +
+									std::to_string(diff.size()) +
+									" different values, but the maximum is " +
 									std::to_string(value_r_ - value_l_ + 1));
 
 				// Checks if two values in same component are marked as
 				// different.
 				std::set<int> comp_ids;
-				for (int idx : distinct) {
+				for (int idx : diff) {
 					if (comp_ids.count(comp_id[idx]))
-						throw _detail::contradiction_error(
+						throw detail::contradiction_error(
 							"list", "tried to set two indices as equal and "
 									"different");
 					comp_ids.insert(comp_id[idx]);
 
-					distinct_containing_comp_idx[comp_id[idx]].insert(dist_id);
+					diff_containing_comp_idx[comp_id[idx]].insert(dist_id);
 				}
 				++dist_id;
 			}
 		}
 
 		// If some value is in >= 3 sets, then there is a cycle.
-		for (auto &distinct_containing : distinct_containing_comp_idx)
-			if (distinct_containing.size() >= 3)
-				throw _detail::complex_restrictions_error(
+		for (auto &diff_containing : diff_containing_comp_idx)
+			if (diff_containing.size() >= 3)
+				throw detail::complex_restrictions_error(
 					"list",
-					"one index can not be in >= 3 distinct restrictions");
+					"one index can not be in >= 3 'different' restrictions");
 
-		std::vector<bool> vis_distinct(distinct_restrictions_.size(), false);
+		std::vector<bool> vis_diff(diff_restrictions_.size(), false);
 		std::vector<bool> initially_defined_comp_idx(comp_count, false);
 
-		// Fills the value in a tree defined by distinct restrictions.
-		auto define_tree = [&](int distinct_id) {
-			// The set `distinct_restrictions_[distinct_id]` can have some
+		// Fills the value in a tree defined by "different" restrictions.
+		auto define_tree = [&](int diff_id) {
+			// The set `diff_restrictions_[diff_id]` can have some
 			// values that are defined.
 
 			// Generates set of already defined values.
 			std::set<T> defined_values;
-			for (int idx : distinct_restrictions_[distinct_id])
+			for (int idx : diff_restrictions_[diff_id])
 				if (defined_idx[idx]) {
-					// Checks if two values in `distinct_restrictions_[dist_id]`
+					// Checks if two values in `diff_restrictions_[dist_id]`
 					// have been set to the same value
 					if (defined_values.count(vec[idx]))
-						throw _detail::contradiction_error(
+						throw detail::contradiction_error(
 							"list",
 							"tried to set two indices as equal and different");
 
 					defined_values.insert(vec[idx]);
 				}
 
-			// Generates values in this root distinct restriction.
+			// Generates values in this root "different" restriction.
 			{
-				int new_value_count =
-					distinct_restrictions_[distinct_id].size() -
-					static_cast<int>(defined_values.size());
+				int new_value_count = diff_restrictions_[diff_id].size() -
+									  static_cast<int>(defined_values.size());
 				std::vector<T> generated_values =
 					generate_distinct_values(new_value_count, defined_values);
 				auto val_it = generated_values.begin();
-				for (int idx : distinct_restrictions_[distinct_id])
+				for (int idx : diff_restrictions_[diff_id])
 					if (defined_idx[idx]) {
 						// The root can cover these components, but there should
 						// not be any other defined in this tree.
@@ -1585,54 +1580,54 @@ template <typename T> struct list : gen_base<list<T>> {
 					}
 			}
 
-			// BFS on the tree of distinct restrictions.
+			// BFS on the tree of "different" restrictions.
 			std::queue<std::pair<int, int>> q; // {id, parent id}
-			q.emplace(distinct_id, -1);
-			vis_distinct[distinct_id] = true;
+			q.emplace(diff_id, -1);
+			vis_diff[diff_id] = true;
 			while (!q.empty()) {
-				auto [cur_distinct, parent] = q.front();
+				auto [cur_diff, parent] = q.front();
 				q.pop();
 
-				std::set<int> neigh_distinct;
-				for (int idx : distinct_restrictions_[cur_distinct])
-					for (int nxt_distinct :
-						 distinct_containing_comp_idx[comp_id[idx]]) {
-						if (nxt_distinct == cur_distinct or
-							nxt_distinct == parent)
+				std::set<int> neigh_diff;
+				for (int idx : diff_restrictions_[cur_diff])
+					for (int nxt_diff :
+						 diff_containing_comp_idx[comp_id[idx]]) {
+						if (nxt_diff == cur_diff or nxt_diff == parent)
 							continue;
 
 						// Cycle found.
-						if (vis_distinct[nxt_distinct])
-							throw _detail::complex_restrictions_error(
-								"list", "cycle found in distinct restrictions");
+						if (vis_diff[nxt_diff])
+							throw detail::complex_restrictions_error(
+								"list",
+								"cycle found in 'different' restrictions");
 
-						neigh_distinct.insert(nxt_distinct);
+						neigh_diff.insert(nxt_diff);
 					}
 
-				for (int nxt_distinct : neigh_distinct) {
-					vis_distinct[nxt_distinct] = true;
-					q.emplace(nxt_distinct, cur_distinct);
+				for (int nxt_diff : neigh_diff) {
+					vis_diff[nxt_diff] = true;
+					q.emplace(nxt_diff, cur_diff);
 
-					// Generates this distinct restriction.
+					// Generates this "different" restriction.
 					std::set<T> nxt_defined_values;
-					for (int idx2 : distinct_restrictions_[nxt_distinct])
+					for (int idx2 : diff_restrictions_[nxt_diff])
 						if (defined_idx[idx2]) {
 							// There can not be any more defined. This case is
 							// when there are values not coverered by a single
-							// distinct restriction in the tree.
+							// "different" restriction in the tree.
 							if (initially_defined_comp_idx[comp_id[idx2]])
-								throw _detail::complex_restrictions_error(
+								throw detail::complex_restrictions_error(
 									"list");
 
 							nxt_defined_values.insert(vec[idx2]);
 						}
 					int new_value_count =
-						distinct_restrictions_[nxt_distinct].size() -
+						diff_restrictions_[nxt_diff].size() -
 						static_cast<int>(nxt_defined_values.size());
 					std::vector<T> generated_values = generate_distinct_values(
 						new_value_count, nxt_defined_values);
 					auto val_it = generated_values.begin();
-					for (int idx2 : distinct_restrictions_[nxt_distinct])
+					for (int idx2 : diff_restrictions_[nxt_diff])
 						if (!defined_idx[idx2]) {
 							define_comp(comp_id[idx2], *val_it);
 							++val_it;
@@ -1641,41 +1636,41 @@ template <typename T> struct list : gen_base<list<T>> {
 			}
 		};
 
-		// Loops through distinct restrictions, sorts distinct restrictions
-		// by number of defined components (non-increasing). This guarantees
-		// that if there is a valid root (that covers all 'defined'), we find
-		// it.
+		// Loops through "different" restrictions, sorts "different"
+		// restrictions by number of defined components (non-increasing). This
+		// guarantees that if there is a valid root (that covers all 'defined'),
+		// we find it.
 		{
-			std::vector<std::pair<int, int>> defined_cnt_and_distinct_idx;
+			std::vector<std::pair<int, int>> defined_cnt_and_diff_idx;
 			int dist_id = 0;
-			for (const std::set<int> &distinct : distinct_restrictions_) {
+			for (const std::set<int> &diff : diff_restrictions_) {
 				int defined_cnt = 0;
-				for (int idx : distinct)
+				for (int idx : diff)
 					if (defined_idx[idx]) {
 						++defined_cnt;
 						initially_defined_comp_idx[comp_id[idx]] = true;
 					}
-				defined_cnt_and_distinct_idx.emplace_back(defined_cnt, dist_id);
+				defined_cnt_and_diff_idx.emplace_back(defined_cnt, dist_id);
 				++dist_id;
 			}
 
-			std::sort(defined_cnt_and_distinct_idx.rbegin(),
-					  defined_cnt_and_distinct_idx.rend());
-			for (auto [defined_cnt, distinct_idx] :
-				 defined_cnt_and_distinct_idx)
-				if (!vis_distinct[distinct_idx])
-					define_tree(distinct_idx);
+			std::sort(defined_cnt_and_diff_idx.rbegin(),
+					  defined_cnt_and_diff_idx.rend());
+			for (auto [defined_cnt, diff_idx] : defined_cnt_and_diff_idx)
+				if (!vis_diff[diff_idx])
+					define_tree(diff_idx);
 		}
 
-		// Loops through distinct restrictions do define the rest.
-		for (std::size_t dist_id = 0; dist_id < distinct_restrictions_.size();
+		// Loops through "different" restrictions do define the rest.
+		for (std::size_t dist_id = 0; dist_id < diff_restrictions_.size();
 			 ++dist_id)
-			if (!vis_distinct[dist_id])
+			if (!vis_diff[dist_id])
 				define_tree(dist_id);
 
 		// Define final values. These values all should be random in [l, r], and
-		// the distinct restrictions have already been processed. However, there
-		// can be still equality restrictions, so we define entire components.
+		// the "different" restrictions have already been processed. However,
+		// there can be still equality restrictions, so we define entire
+		// components.
 		for (int idx = 0; idx < size_; ++idx)
 			if (!defined_idx[idx])
 				define_comp(comp_id[idx], next<T>(value_l_, value_r_));
@@ -1687,7 +1682,7 @@ template <typename T> struct list : gen_base<list<T>> {
 				val = value_vec[val];
 		}
 
-		return instance(vec);
+		return value(vec);
 	}
 };
 
@@ -1713,11 +1708,11 @@ struct permutation : gen_base<permutation> {
 		tgen_ensure(size_ > 0, "permutation: size must be positive");
 	}
 
-	// Restricts permutations for permutation[idx] = value.
-	permutation &fix(int idx, int value) {
+	// Restricts permutations for permutation[idx] = val.
+	permutation &fix(int idx, int val) {
 		tgen_ensure(0 <= idx and idx < size_,
 					"permutation: index must be valid");
-		defs_.emplace_back(idx, value);
+		defs_.emplace_back(idx, val);
 		return *this;
 	}
 
@@ -1733,34 +1728,32 @@ struct permutation : gen_base<permutation> {
 		return cycles(std::vector<int>(cycle_sizes));
 	}
 
-	// Permutation instance.
-	// Operations on an instance are not random.
-	struct instance : gen_instance_base<instance> {
-		using tgen_is_sequential_tag = _detail::is_sequential_tag;
+	// Permutation value.
+	// Operations on a value are not random.
+	struct value : gen_value_base<value> {
+		using tgen_is_sequential_tag = detail::is_sequential_tag;
 
-		using std_type = std::vector<int>; // std type for instance.
+		using std_type = std::vector<int>; // std type for value.
 		std::vector<int> vec_;			   // Permutation.
 		char sep_;						   // Separator for printing.
 		bool add_1_;					   // If should add 1, for printing.
 
-		instance(const std::vector<int> &vec)
+		value(const std::vector<int> &vec)
 			: vec_(vec), sep_(' '), add_1_(false) {
-			tgen_ensure(!vec_.empty(),
-						"permutation: instance: cannot be empty");
+			tgen_ensure(!vec_.empty(), "permutation: value: cannot be empty");
 			std::vector<bool> vis(vec_.size(), false);
 			for (int i = 0; i < size(); ++i) {
 				tgen_ensure(0 <= vec_[i] and
 								vec_[i] < static_cast<int>(vec_.size()),
-							"permutation: instance: values must be from `0` to "
+							"permutation: value: values must be from `0` to "
 							"`size-1`");
-				tgen_ensure(
-					!vis[vec_[i]],
-					"permutation: instance: cannot have repeated values");
+				tgen_ensure(!vis[vec_[i]],
+							"permutation: value: cannot have repeated values");
 				vis[vec_[i]] = true;
 			}
 		}
-		instance(const std::initializer_list<int> &il)
-			: instance(std::vector<int>(il)) {}
+		value(const std::initializer_list<int> &il)
+			: value(std::vector<int>(il)) {}
 
 		// Fetches size.
 		int size() const { return vec_.size(); }
@@ -1768,7 +1761,7 @@ struct permutation : gen_base<permutation> {
 		// Fetches position idx.
 		const int &operator[](int idx) const {
 			tgen_ensure(0 <= idx and idx < size(),
-						"permutation: instance: index out of bounds");
+						"permutation: value: index out of bounds");
 			return vec_[idx];
 		}
 
@@ -1790,7 +1783,7 @@ struct permutation : gen_base<permutation> {
 
 		// Sorts values in increasign order.
 		// O(n).
-		instance &sort() {
+		value &sort() {
 			for (int i = 0; i < size(); ++i)
 				vec_[i] = i;
 			return *this;
@@ -1798,14 +1791,14 @@ struct permutation : gen_base<permutation> {
 
 		// Reverses permutation.
 		// O(n).
-		instance &reverse() {
+		value &reverse() {
 			std::reverse(vec_.begin(), vec_.end());
 			return *this;
 		}
 
 		// Inverse of the permutation.
 		// O(n).
-		instance &inverse() {
+		value &inverse() {
 			std::vector<int> inv(size());
 			for (int i = 0; i < size(); ++i)
 				inv[vec_[i]] = i;
@@ -1815,21 +1808,20 @@ struct permutation : gen_base<permutation> {
 
 		// Sets the separator, for printing.
 		// O(1).
-		instance &separator(char sep) {
+		value &separator(char sep) {
 			sep_ = sep;
 			return *this;
 		}
 
 		// Sets that should print values 1-based.
 		// O(1).
-		instance &add_1() {
+		value &add_1() {
 			add_1_ = true;
 			return *this;
 		}
 
-		// Prints to std::ostream, separated by spaces.
-		friend std::ostream &operator<<(std::ostream &out,
-										const instance &inst) {
+		// Prints to std::ostream, separated by sep_.
+		friend std::ostream &operator<<(std::ostream &out, const value &inst) {
 			for (int i = 0; i < inst.size(); ++i) {
 				if (i > 0)
 					out << inst.sep_;
@@ -1838,13 +1830,13 @@ struct permutation : gen_base<permutation> {
 			return out;
 		}
 
-		// Gets a std::vector representing the instance.
+		// Gets a std::vector representing the value.
 		std::vector<int> to_std() const { return vec_; }
 	};
 
-	// Generates permutation instance.
+	// Generates permutation value.
 	// O(n).
-	instance gen() const {
+	value gen() const {
 		if (!cycle_sizes_) {
 			// Cycle sizes not specified.
 			std::vector<int> idx_to_val(size_, -1), val_to_idx(size_, -1);
@@ -1903,7 +1895,7 @@ struct permutation : gen_base<permutation> {
 				perm[cycle[i]] = cycle[(i + 1) % cur_size];
 		}
 
-		return instance(perm);
+		return value(perm);
 	}
 };
 
@@ -1915,9 +1907,9 @@ struct permutation : gen_base<permutation> {
 
 namespace math {
 
-namespace _detail {
+namespace detail {
 
-using namespace tgen::_detail;
+using namespace tgen::detail;
 
 inline int popcount(uint64_t x) { return __builtin_popcountll(x); }
 
@@ -1945,7 +1937,7 @@ inline uint64_t expo_mod(uint64_t x, uint64_t y, uint64_t m) {
 	return y % 2 ? mul_mod(x, ans, m) : ans;
 }
 
-} // namespace _detail
+} // namespace detail
 
 // O(log^2 n).
 inline bool is_prime(uint64_t n) {
@@ -1956,15 +1948,15 @@ inline bool is_prime(uint64_t n) {
 	if (n % 2 == 0)
 		return false;
 
-	uint64_t r = _detail::ctzll(n - 1), d = n >> r;
+	uint64_t r = detail::ctzll(n - 1), d = n >> r;
 	// These bases are guaranteed to work for n <= 2^64.
 	for (int a : {2, 325, 9375, 28178, 450775, 9780504, 1795265022}) {
-		uint64_t x = _detail::expo_mod(a, d, n);
+		uint64_t x = detail::expo_mod(a, d, n);
 		if (x == 1 or x == n - 1 or a % n == 0)
 			continue;
 
 		for (uint64_t j = 0; j < r - 1; ++j) {
-			x = _detail::mul_mod(x, x, n);
+			x = detail::mul_mod(x, x, n);
 			if (x == n - 1)
 				break;
 		}
@@ -1974,7 +1966,7 @@ inline bool is_prime(uint64_t n) {
 	return true;
 }
 
-namespace _detail {
+namespace detail {
 
 inline uint64_t pollard_rho(uint64_t n) {
 	if (n == 1 or is_prime(n))
@@ -2199,14 +2191,14 @@ inline long double sub_log_space(long double a, long double b) {
 	return a + log1p(-exp(b - a));
 }
 
-} // namespace _detail
+} // namespace detail
 
 // Sorted.
 // O(n^(1/4) log n) expected.
 // 0 < n.
 inline std::vector<uint64_t> factor(uint64_t n) {
 	tgen_ensure(n > 0, "math: number to factor must be positive");
-	auto factors = _detail::factor(n);
+	auto factors = detail::factor(n);
 	std::sort(factors.begin(), factors.end());
 	return factors;
 }
@@ -2230,7 +2222,7 @@ inline std::vector<std::pair<uint64_t, int>> factor_by_prime(uint64_t n) {
 // 0 < a < mod.
 // gcd(a, mod) = 1.
 inline uint64_t modular_inverse(uint64_t a, uint64_t mod) {
-	return _detail::modular_inverse_128(a, mod);
+	return detail::modular_inverse_128(a, mod);
 }
 
 // O(n^(1/4) log n) expected.
@@ -2283,7 +2275,7 @@ prime_gaps() {
 // O(log r) approximately.
 inline std::pair<uint64_t, uint64_t> prime_gap_upto(uint64_t r) {
 	if (r < 4)
-		throw _detail::there_is_no_upto_error("prime gap", r);
+		throw detail::there_is_no_upto_error("prime gap", r);
 
 	const auto &[P, G] = prime_gaps();
 	for (int i = P.size() - 1;; --i) {
@@ -2345,14 +2337,14 @@ inline uint64_t highly_composite_upto(uint64_t r) {
 		if (highly_composites()[i] <= r)
 			return highly_composites()[i];
 
-	throw _detail::there_is_no_upto_error("highly composite number", r);
+	throw detail::there_is_no_upto_error("highly composite number", r);
 }
 
 // O(log^3 r) expected.
 // Generates a random prime in [l, r].
 inline uint64_t gen_prime(uint64_t l, uint64_t r) {
 	if (r < l or r < 2)
-		throw _detail::there_is_no_in_range_error("prime", l, r);
+		throw detail::there_is_no_in_range_error("prime", l, r);
 	l = std::max<uint64_t>(l, 2);
 	auto [l_gap, r_gap] = prime_gap_upto(r);
 	if (r - l + 1 <= r_gap - l_gap + 1) {
@@ -2363,7 +2355,7 @@ inline uint64_t gen_prime(uint64_t l, uint64_t r) {
 		for (uint64_t i : vals)
 			if (is_prime(i))
 				return i;
-		throw _detail::there_is_no_in_range_error("prime", l, r);
+		throw detail::there_is_no_in_range_error("prime", l, r);
 	}
 
 	uint64_t n;
@@ -2389,7 +2381,7 @@ inline uint64_t prime_upto(uint64_t r) {
 		for (uint64_t i = r; i >= 2; --i)
 			if (is_prime(i))
 				return i;
-	throw _detail::there_is_no_upto_error("prime", r);
+	throw detail::there_is_no_upto_error("prime", r);
 }
 
 // O(n^(1/4) log n) expected.
@@ -2407,9 +2399,9 @@ inline uint64_t gen_divisor_count(uint64_t l, uint64_t r, int divisor_count) {
 	tgen_ensure(divisor_count > 0 and is_prime(divisor_count),
 				"math: divisor count must be prime");
 	int root = divisor_count - 1;
-	uint64_t p = gen_prime(_detail::kth_root_floor(l, root),
-						   _detail::kth_root_floor(r, root));
-	return *_detail::expo(p, root, r);
+	uint64_t p = gen_prime(detail::kth_root_floor(l, root),
+						   detail::kth_root_floor(r, root));
+	return *detail::expo(p, root, r);
 }
 
 // O(|mods| + log r).
@@ -2419,28 +2411,28 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 							  std::vector<uint64_t> rems,
 							  std::vector<uint64_t> mods) {
 	if (l > r)
-		throw _detail::there_is_no_in_range_error("congruent number", l, r);
+		throw detail::there_is_no_in_range_error("congruent number", l, r);
 	tgen_ensure(rems.size() == mods.size(),
 				"math: number of remainders and mods must be the same");
 	tgen_ensure(rems.size() > 0, "math: must have at least one congruence");
 
-	_detail::crt crt;
+	detail::crt crt;
 	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
 		tgen_ensure(rems[i] < mods[i],
 					"math: remainder must be smaller than the mod");
-		crt = crt * _detail::crt(rems[i], mods[i]);
+		crt = crt * detail::crt(rems[i], mods[i]);
 
 		if (crt.a == -1)
-			throw _detail::there_is_no_in_range_error("congruent number", l, r);
+			throw detail::there_is_no_in_range_error("congruent number", l, r);
 		if (crt.m > r) {
 			if (!(l <= crt.a and crt.a <= r))
-				throw _detail::there_is_no_in_range_error("congruent number", l,
-														  r);
+				throw detail::there_is_no_in_range_error("congruent number", l,
+														 r);
 
 			for (int j = 0; j < static_cast<int>(rems.size()); ++j)
 				if (crt.a % mods[j] != rems[j])
-					throw _detail::there_is_no_in_range_error(
-						"congruent number", l, r);
+					throw detail::there_is_no_in_range_error("congruent number",
+															 l, r);
 			return crt.a;
 		}
 	}
@@ -2449,7 +2441,7 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 	uint64_t k_max = (r - crt.a) / crt.m;
 
 	if (k_min > k_max)
-		throw _detail::there_is_no_in_range_error("congruent number", l, r);
+		throw detail::there_is_no_in_range_error("congruent number", l, r);
 
 	return crt.a + next(k_min, k_max) * crt.m;
 }
@@ -2472,23 +2464,23 @@ inline uint64_t congruent_from(uint64_t l, std::vector<uint64_t> rems,
 				"math: number of remainders and mods must be the same");
 	tgen_ensure(rems.size() > 0, "math: must have at least one congruence");
 
-	_detail::crt crt;
+	detail::crt crt;
 	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
 		tgen_ensure(rems[i] < mods[i],
 					"math: remainder must be smaller than the mod");
-		crt = crt * _detail::crt(rems[i], mods[i]);
+		crt = crt * detail::crt(rems[i], mods[i]);
 
 		if (crt.a == -1)
-			throw _detail::there_is_no_from_error("congruent number", l);
+			throw detail::there_is_no_from_error("congruent number", l);
 		if (crt.m > std::numeric_limits<uint64_t>::max()) {
 			if (crt.a < l)
-				throw _detail::error(
+				throw detail::error(
 					"math: congruent number does not exist or is too large");
 
 			for (int j = 0; j < static_cast<int>(rems.size()); ++j)
 				if (crt.a % mods[j] != rems[j])
-					throw _detail::error("math: congruent number does "
-										 "not exist or is too large");
+					throw detail::error("math: congruent number does "
+										"not exist or is too large");
 			return crt.a;
 		}
 	}
@@ -2496,10 +2488,10 @@ inline uint64_t congruent_from(uint64_t l, std::vector<uint64_t> rems,
 	uint64_t k = 0;
 	if (crt.a < l)
 		k = ((l - crt.a) + crt.m - 1) / crt.m;
-	_detail::i128 result = crt.a + k * crt.m;
+	detail::i128 result = crt.a + k * crt.m;
 
 	if (result > std::numeric_limits<uint64_t>::max())
-		throw _detail::error("math: congruent number is too large");
+		throw detail::error("math: congruent number is too large");
 	return static_cast<uint64_t>(result);
 }
 
@@ -2520,35 +2512,34 @@ inline uint64_t congruent_upto(uint64_t r, std::vector<uint64_t> rems,
 				"math: number of remainders and mods must be the same");
 	tgen_ensure(rems.size() > 0, "math: must have at least one congruence");
 
-	_detail::crt crt;
+	detail::crt crt;
 	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
 		tgen_ensure(rems[i] < mods[i],
 					"math: remainder must be smaller than the mod");
 
-		crt = crt * _detail::crt(rems[i], mods[i]);
+		crt = crt * detail::crt(rems[i], mods[i]);
 
 		if (crt.a == -1)
-			throw _detail::there_is_no_upto_error("congruent number", r);
+			throw detail::there_is_no_upto_error("congruent number", r);
 		if (crt.m > r) {
 			if (!(crt.a <= r))
-				throw _detail::there_is_no_upto_error("congruent number", r);
+				throw detail::there_is_no_upto_error("congruent number", r);
 
 			for (int j = 0; j < static_cast<int>(rems.size()); ++j)
 				if (crt.a % mods[j] != rems[j])
-					throw _detail::there_is_no_upto_error("congruent number",
-														  r);
+					throw detail::there_is_no_upto_error("congruent number", r);
 			return crt.a;
 		}
 	}
 
 	if (crt.a > r)
-		throw _detail::there_is_no_upto_error("congruent number", r);
+		throw detail::there_is_no_upto_error("congruent number", r);
 
 	uint64_t k = (r - crt.a) / crt.m;
-	_detail::i128 result = crt.a + k * crt.m;
+	detail::i128 result = crt.a + k * crt.m;
 
 	if (result < 0)
-		throw _detail::there_is_no_upto_error("congruent number", r);
+		throw detail::there_is_no_upto_error("congruent number", r);
 	return static_cast<uint64_t>(result);
 }
 
@@ -2588,14 +2579,14 @@ gen_partition(int n, int part_l = 1, std::optional<int> part_r = std::nullopt) {
 	tgen_ensure(part_l <= n and *part_r > 0, "math: no such partition");
 
 	// dp[i] = log(numbers of ways to add to i).
-	std::vector<long double> dp(n + 1, _detail::LOG_ZERO);
-	dp[0] = _detail::LOG_ONE;
-	long double window = _detail::LOG_ZERO;
+	std::vector<long double> dp(n + 1, detail::LOG_ZERO);
+	dp[0] = detail::LOG_ONE;
+	long double window = detail::LOG_ZERO;
 	for (int i = 1; i <= n; ++i) {
 		if (i >= part_l)
-			window = _detail::add_log_space(window, dp[i - part_l]);
+			window = detail::add_log_space(window, dp[i - part_l]);
 		if (i >= *part_r + 1)
-			window = _detail::sub_log_space(window, dp[i - *part_r - 1]);
+			window = detail::sub_log_space(window, dp[i - *part_r - 1]);
 		dp[i] = window;
 	}
 	tgen_ensure(dp[n] >= 0, "math: no such partition");
@@ -2603,15 +2594,14 @@ gen_partition(int n, int part_l = 1, std::optional<int> part_r = std::nullopt) {
 	// Crazy math tricks ahead.
 	auto dp_pref = dp;
 	for (int i = 1; i <= n; ++i)
-		dp_pref[i] = _detail::add_log_space(dp_pref[i - 1], dp[i]);
+		dp_pref[i] = detail::add_log_space(dp_pref[i - 1], dp[i]);
 
 	std::vector<int> part;
 	int sum = n;
 	while (sum > 0) {
 		// Will generate a number such that what remains is in [l, r].
 		int l = std::max(0, sum - *part_r), r = sum - part_l;
-		_detail::tgen_ensure_against_bug(r >= 0,
-										 "math: r < 0 in gen_partition");
+		detail::tgen_ensure_against_bug(r >= 0, "math: r < 0 in gen_partition");
 
 		int nxt_sum = std::min(sum, r);
 		long double random = next<long double>(0, 1);
@@ -2625,12 +2615,12 @@ gen_partition(int n, int part_l = 1, std::optional<int> part_r = std::nullopt) {
 		//   = log{exp(B) * [exp(A) / exp(B) + U * (1 - exp(A) / exp(B))]}
 		//   = B + log[exp(A - B) + U - U * exp(A - B))]
 		//   = B + log[U + (1 - U) * exp(A - B)].
-		long double val_l = l ? dp_pref[l - 1] : _detail::LOG_ZERO,
+		long double val_l = l ? dp_pref[l - 1] : detail::LOG_ZERO,
 					val_r = dp_pref[r];
 		while (nxt_sum > l and
 			   dp_pref[nxt_sum - 1] >=
-				   val_r + _detail::log_space(random + (1 - random) *
-														   exp(val_l - val_r)))
+				   val_r + detail::log_space(random +
+											 (1 - random) * exp(val_l - val_r)))
 			--nxt_sum;
 
 		part.push_back(sum - nxt_sum);
@@ -2682,31 +2672,30 @@ gen_partition_fixed_size(int n, int k, int part_l = 0,
 
 		// dp[i][j] = log(#ways to fill i parts with sum j)
 		std::vector<std::vector<long double>> dp(
-			k + 1, std::vector<long double>(s + 1, _detail::LOG_ZERO));
-		dp[0][0] = _detail::LOG_ONE;
+			k + 1, std::vector<long double>(s + 1, detail::LOG_ZERO));
+		dp[0][0] = detail::LOG_ONE;
 
 		for (int i = 1; i <= k; ++i) {
 			std::vector<long double> pref = dp[i - 1];
 			for (int j = 1; j <= s; ++j)
-				pref[j] = _detail::add_log_space(pref[j - 1], dp[i - 1][j]);
+				pref[j] = detail::add_log_space(pref[j - 1], dp[i - 1][j]);
 
 			for (int j = 0; j <= s; ++j) {
 				dp[i][j] = pref[j];
 				if (j >= u + 1)
-					dp[i][j] =
-						_detail::sub_log_space(dp[i][j], pref[j - u - 1]);
+					dp[i][j] = detail::sub_log_space(dp[i][j], pref[j - u - 1]);
 			}
 		}
 
 		// Recovers parts backwards.
 		int left_to_distribute = s;
 		for (int i = k; i >= 1; --i) {
-			long double log_total = _detail::LOG_ZERO;
+			long double log_total = detail::LOG_ZERO;
 			for (int j = 0; j <= u and j <= left_to_distribute; ++j)
-				log_total = _detail::add_log_space(
+				log_total = detail::add_log_space(
 					log_total, dp[i - 1][left_to_distribute - j]);
-			_detail::tgen_ensure_against_bug(
-				log_total != _detail::LOG_ZERO,
+			detail::tgen_ensure_against_bug(
+				log_total != detail::LOG_ZERO,
 				"math: total == 0 in gen_partition_fixed_size");
 
 			// Now we choose a number with probability proportional to
@@ -2714,12 +2703,12 @@ gen_partition_fixed_size(int n, int k, int part_l = 0,
 
 			// log(rand() * total) = log(rand()) + log(total).
 			long double random =
-				_detail::log_space(next<long double>(0, 1)) + log_total;
+				detail::log_space(next<long double>(0, 1)) + log_total;
 
-			long double cur_prob = _detail::LOG_ZERO;
+			long double cur_prob = detail::LOG_ZERO;
 			int chosen = 0;
 			for (int j = 0; j <= u and j <= left_to_distribute; ++j) {
-				cur_prob = _detail::add_log_space(
+				cur_prob = detail::add_log_space(
 					cur_prob, dp[i - 1][left_to_distribute - j]);
 				if (random < cur_prob) {
 					chosen = j;
@@ -2745,7 +2734,7 @@ gen_partition_fixed_size(int n, int k, int part_l = 0,
  *            *
  **************/
 
-namespace _detail {
+namespace detail {
 
 /*
  * Regex.
@@ -2791,35 +2780,35 @@ struct regex_node {
 								   // or -1 if not a repetition.
 	double
 		log_space_num_ways_; // Log space number of ways to match the pattern.
-	std::optional<unique_container<char>>
+	std::optional<distinct_container<char>>
 		distinct_; // Distinct generator for the pattern, for [chars].
 
 	// c or [chars].
 	regex_node(const std::string &pattern)
 		: pattern_(pattern), left_bound_(-1), right_bound_(-1) {
 		if (pattern.size() == 1) {
-			log_space_num_ways_ = math::_detail::LOG_ONE;
+			log_space_num_ways_ = math::detail::LOG_ONE;
 			return;
 		}
 		tgen_ensure_against_bug(pattern[0] == '[' and pattern.back() == ']',
 								"str: invalid regex: expected character class");
 		int size = pattern.size() - 2;
-		log_space_num_ways_ = math::_detail::log_space(size);
-		distinct_ = unique_container<char>(pattern.substr(1, size));
+		log_space_num_ways_ = math::detail::log_space(size);
+		distinct_ = distinct_container<char>(pattern.substr(1, size));
 	}
 	// SEQ or OR.
 	regex_node(const std::string &pattern, std::vector<regex_node> &children)
 		: pattern_(pattern), left_bound_(-1), right_bound_(-1) {
 		if (pattern == "SEQ") {
 			// Multiply the number of ways.
-			log_space_num_ways_ = math::_detail::LOG_ONE;
+			log_space_num_ways_ = math::detail::LOG_ONE;
 			for (const auto &child : children)
 				log_space_num_ways_ += child.log_space_num_ways_;
 		} else if (pattern == "OR") {
 			// Add the number of ways.
-			log_space_num_ways_ = math::_detail::LOG_ZERO;
+			log_space_num_ways_ = math::detail::LOG_ZERO;
 			for (const auto &child : children)
-				log_space_num_ways_ = math::_detail::add_log_space(
+				log_space_num_ways_ = math::detail::add_log_space(
 					log_space_num_ways_, child.log_space_num_ways_);
 		} else
 			tgen_ensure_against_bug("str: invalid regex: expected SEQ or OR");
@@ -2830,9 +2819,9 @@ struct regex_node {
 	// REP.
 	regex_node(int left_bound, int right_bound, regex_node &child)
 		: pattern_("REP"), left_bound_(left_bound), right_bound_(right_bound) {
-		log_space_num_ways_ = math::_detail::LOG_ZERO;
+		log_space_num_ways_ = math::detail::LOG_ZERO;
 		for (int i = left_bound; i <= right_bound; ++i)
-			log_space_num_ways_ = math::_detail::add_log_space(
+			log_space_num_ways_ = math::detail::add_log_space(
 				log_space_num_ways_, i * child.log_space_num_ways_);
 
 		children_.push_back(std::move(child));
@@ -2977,14 +2966,14 @@ inline void gen_regex(const regex_node &node, std::string &str) {
 		// Generates a random value W from 0 to num_ways.
 		// log(W) = log(random(0, 1) * num_ways)
 		//        = log(random(0, 1)) + log(num_ways).
-		double log_rand = math::_detail::log_space(next<double>(0, 1)) +
+		double log_rand = math::detail::log_space(next<double>(0, 1)) +
 						  node.log_space_num_ways_;
-		double cur_prob = math::_detail::LOG_ZERO;
+		double cur_prob = math::detail::LOG_ZERO;
 		double child_num_ways = node.children_[0].log_space_num_ways_;
 
 		for (int i = node.left_bound_; i <= node.right_bound_; ++i) {
 			cur_prob =
-				math::_detail::add_log_space(cur_prob, i * child_num_ways);
+				math::detail::add_log_space(cur_prob, i * child_num_ways);
 			if (log_rand <= cur_prob) {
 				for (int j = 0; j < i; ++j)
 					gen_regex(node.children_[0], str);
@@ -3008,13 +2997,13 @@ inline void gen_regex(const regex_node &node, std::string &str) {
 		// Generates a random value W from 0 to num_ways.
 		// log(W) = log(random(0, 1) * num_ways)
 		//        = log(random(0, 1)) + log(num_ways).
-		double log_rand = math::_detail::log_space(next<double>(0, 1)) +
+		double log_rand = math::detail::log_space(next<double>(0, 1)) +
 						  node.log_space_num_ways_;
-		double cur_prob = math::_detail::LOG_ZERO;
+		double cur_prob = math::detail::LOG_ZERO;
 
 		for (const regex_node &child : node.children_) {
-			cur_prob = math::_detail::add_log_space(cur_prob,
-													child.log_space_num_ways_);
+			cur_prob = math::detail::add_log_space(cur_prob,
+												   child.log_space_num_ways_);
 			if (log_rand <= cur_prob) {
 				gen_regex(child, str);
 				return;
@@ -3026,7 +3015,7 @@ inline void gen_regex(const regex_node &node, std::string &str) {
 	}
 
 	// For char, generate the character.
-	_detail::tgen_ensure_against_bug(
+	detail::tgen_ensure_against_bug(
 		node.pattern_.size() == 1,
 		"str: invalid regex: expected single character, but got `" +
 			node.pattern_ + "`");
@@ -3105,7 +3094,7 @@ birthday_attack(const std::vector<std::string> &alphabet, int base, int mod) {
 	}
 }
 
-} // namespace _detail
+} // namespace detail
 
 /*
  * String generator.
@@ -3113,7 +3102,7 @@ birthday_attack(const std::vector<std::string> &alphabet, int base, int mod) {
 
 struct str : gen_base<str> {
 	std::optional<list<char>> seq_; // List of characters.
-	std::optional<_detail::regex_node>
+	std::optional<detail::regex_node>
 		root_; // Root node of the regex tree for the whole string.
 
 	// Creates generator for strings of size 'size', with random characters in
@@ -3129,8 +3118,8 @@ struct str : gen_base<str> {
 	template <typename... Args> str(const std::string &regex, Args &&...args) {
 		tgen_ensure(regex.size() > 0, "str: regex must be non-empty");
 
-		root_ = _detail::parse_regex(
-			_detail::regex_format(regex, std::forward<Args>(args)...));
+		root_ = detail::parse_regex(
+			detail::regex_format(regex, std::forward<Args>(args)...));
 	}
 
 	// Restricts strings for str[idx] = value.
@@ -3158,7 +3147,7 @@ struct str : gen_base<str> {
 	str &palindrome(int left, int right) {
 		tgen_ensure(!root_, "str: cannot add restriction for regex");
 		tgen_ensure(0 <= left and left <= right and right < seq_->size_,
-					"str: range indices bust be valid");
+					"str: range indices must be valid");
 		for (int i = left; i < right - (i - left); ++i)
 			equal(i, right - (i - left));
 		return *this;
@@ -3170,11 +3159,11 @@ struct str : gen_base<str> {
 		return palindrome(0, seq_->size_ - 1);
 	}
 
-	// Restricts strings for str[S] to be distinct, for given subset S of
-	// indices.
-	str &distinct(std::set<int> indices) {
+	// Restricts strings for str[S] to be different (distinct), for given subset
+	// S of indices.
+	str &different(std::set<int> indices) {
 		tgen_ensure(!root_, "str: cannot add restriction for regex");
-		seq_->distinct(indices);
+		seq_->different(indices);
 		return *this;
 	}
 
@@ -3185,25 +3174,24 @@ struct str : gen_base<str> {
 		return *this;
 	}
 
-	// Restricts strings for all values to be distinct.
-	str &distinct() {
+	// Restricts strings for all values to be different.
+	str &all_different() {
 		tgen_ensure(!root_, "str: cannot add restriction for regex");
-		seq_->distinct();
+		seq_->all_different();
 		return *this;
 	}
 
-	// str instance.
-	// Operations on an instance are not random.
-	struct instance : gen_instance_base<instance> {
-		using tgen_is_sequential_tag = _detail::is_sequential_tag;
-		using tgen_has_subset_defined_tag = _detail::has_subset_defined_tag;
+	// str value.
+	struct value : gen_value_base<value> {
+		using tgen_is_sequential_tag = detail::is_sequential_tag;
+		using tgen_has_subset_defined_tag = detail::has_subset_defined_tag;
 
 		using value_type = char;
 		using std_type = std::string;
 		std::string str_;
 
-		instance(const std::string &str) : str_(str) {
-			tgen_ensure(!str_.empty(), "str: instance: cannot be empty");
+		value(const std::string &str) : str_(str) {
+			tgen_ensure(!str_.empty(), "str: value: cannot be empty");
 		}
 
 		// Fetches size.
@@ -3217,27 +3205,27 @@ struct str : gen_base<str> {
 		}
 		const char &operator[](int idx) const {
 			tgen_ensure(0 <= idx and idx < size(),
-						"str: instance: index out of bounds");
+						"str: value: index out of bounds");
 			return str_[idx];
 		}
 
 		// Sorts characters in non-decreasing order.
 		// O(n log n).
-		instance &sort() {
+		value &sort() {
 			std::sort(str_.begin(), str_.end());
 			return *this;
 		}
 
 		// Reverses string.
 		// O(n).
-		instance &reverse() {
+		value &reverse() {
 			std::reverse(str_.begin(), str_.end());
 			return *this;
 		}
 
 		// Lowercases all characters.
 		// O(n).
-		instance &lowercase() {
+		value &lowercase() {
 			for (char &c : str_)
 				c = std::tolower(c);
 			return *this;
@@ -3245,47 +3233,44 @@ struct str : gen_base<str> {
 
 		// Uppercases all characters.
 		// O(n).
-		instance &uppercase() {
+		value &uppercase() {
 			for (char &c : str_)
 				c = std::toupper(c);
 			return *this;
 		}
 
-		// Concatenates two instances.
+		// Concatenates two values.
 		// Linear.
-		instance operator+(const instance &rhs) {
-			return instance(str_ + rhs.str_);
-		}
+		value operator+(const value &rhs) { return value(str_ + rhs.str_); }
 
-		// Prints to std::ostream, separated by spaces.
-		friend std::ostream &operator<<(std::ostream &out,
-										const instance &inst) {
+		// Prints to std::ostream.
+		friend std::ostream &operator<<(std::ostream &out, const value &inst) {
 			return out << inst.str_;
 		}
 
-		// Gets a std::string representing the instance.
+		// Gets a std::string representing the value.
 		std::string to_std() const { return str_; }
 	};
 
-	// Generates str instance.
+	// Generates str value.
 	// If created from restrictions: O(n log n).
 	// If created from regex: expected linear.
-	instance gen() const {
+	value gen() const {
 		if (root_) {
 			// Regex.
 			std::string ret_str;
 			gen_regex(*root_, ret_str);
-			return instance(ret_str);
+			return value(ret_str);
 		} else {
 			// List.
 			std::vector<char> vec = seq_->gen().to_std();
-			return instance(std::string(vec.begin(), vec.end()));
+			return value(std::string(vec.begin(), vec.end()));
 		}
 	}
 
 	// Fetches prefix of length n of the string "abacabadabacabae...".
 	// O(n).
-	static instance abacaba(int n) {
+	static value abacaba(int n) {
 		tgen_ensure(n > 0, "str: size must be positive");
 		std::string str = "a";
 		char c = 'a';
@@ -3296,28 +3281,28 @@ struct str : gen_base<str> {
 				 ++j)
 				str += str[j];
 		}
-		return instance(str);
+		return value(str);
 	}
 
 	// Two strings that have same polynomial hash for any base, for
 	// mod = power of 2 up to 2^64.
 	// Thue–Morse.
 	// O(1).
-	static std::pair<instance, instance> unsigned_polynomial_hash_hack() {
+	static std::pair<value, value> unsigned_polynomial_hash_hack() {
 		std::string a, b;
 		int size = 1 << 10;
 		for (int i = 0; i < size; ++i) {
-			a += 'a' + math::_detail::popcount(i) % 2;
+			a += 'a' + math::detail::popcount(i) % 2;
 			b += 'a' + ('b' - a[i]);
 		}
-		return {instance(a), instance(b)};
+		return {value(a), value(b)};
 	}
 
 	// Collides two strings to have the same polynomial hash.
 	// O(sqrt(mod) log(mod)) with high probability.
 	// 0 < base < mod.
-	static std::pair<instance, instance>
-	polynomial_hash_hack(int alphabet_size, int base, int mod) {
+	static std::pair<value, value> polynomial_hash_hack(int alphabet_size,
+														int base, int mod) {
 		tgen_ensure(alphabet_size > 1,
 					"str: alphabet size must be greater than 1");
 		tgen_ensure(0 < base and base < mod, "str: base must be in (0, mod)");
@@ -3326,16 +3311,16 @@ struct str : gen_base<str> {
 		for (int i = 0; i < alphabet_size; ++i)
 			alphabet[i] = std::string(1, 'a' + i);
 		std::iota(alphabet.begin(), alphabet.end(), 'a');
-		return _detail::birthday_attack(alphabet, base, mod);
+		return detail::birthday_attack(alphabet, base, mod);
 	}
 
 	// Collides two strings to have the same polynomial hash for multiple bases
 	// and mods (up to 2 pairs).
 	// O(sqrt(mod) log^2 (mod)) with high probability,
 	// with mod = max(mod_1, mod_2).
-	static std::pair<instance, instance>
-	polynomial_hash_hack(int alphabet_size, std::vector<int> bases,
-						 std::vector<int> mods) {
+	static std::pair<value, value> polynomial_hash_hack(int alphabet_size,
+														std::vector<int> bases,
+														std::vector<int> mods) {
 		tgen_ensure(bases.size() == mods.size(),
 					"str: bases and mods must have the same size");
 		tgen_ensure(bases.size() > 0,
@@ -3346,10 +3331,10 @@ struct str : gen_base<str> {
 		std::vector<std::string> alphabet(alphabet_size);
 		for (int i = 0; i < alphabet_size; ++i)
 			alphabet[i] = std::string(1, 'a' + i);
-		auto [S1, T1] = _detail::birthday_attack(alphabet, bases[0], mods[0]);
+		auto [S1, T1] = detail::birthday_attack(alphabet, bases[0], mods[0]);
 		if (bases.size() == 1)
 			return {S1, T1};
-		return _detail::birthday_attack({S1, T1}, bases[1], mods[1]);
+		return detail::birthday_attack({S1, T1}, bases[1], mods[1]);
 	}
 };
 
@@ -3359,7 +3344,7 @@ struct str : gen_base<str> {
  *          *
  ************/
 
-namespace _detail {
+namespace detail {
 
 // Generates pair first == second.
 // O(1).
@@ -3474,7 +3459,7 @@ template <typename T> std::pair<T, T> gen_lt(T L1, T R1, T L2, T R2) {
 	u128 total = count_region1 + count_region2;
 	tgen_ensure(total > 0, "pair: no valid values to generate");
 
-	u128 k = _detail::next128(total);
+	u128 k = detail::next128(total);
 	if (k < count_region1) {
 		// Region 1: invert arithmetic series.
 
@@ -3538,7 +3523,7 @@ template <typename T> std::pair<T, T> gen_leq(T L1, T R1, T L2, T R2) {
 	u128 total = eq_count + lt_count;
 	tgen_ensure(total > 0, "pair: no valid values to generate");
 
-	if (_detail::next128(total) < eq_count)
+	if (detail::next128(total) < eq_count)
 		return gen_eq(L1, R1, L2, R2);
 	return gen_lt(L1, R1, L2, R2);
 }
@@ -3550,7 +3535,7 @@ template <typename T> std::pair<T, T> gen_geq(T L1, T R1, T L2, T R2) {
 	return {second, first};
 }
 
-}; // namespace _detail
+}; // namespace detail
 
 /*
  * Pair generator.
@@ -3611,36 +3596,35 @@ template <typename T> struct pair : gen_base<pair<T>> {
 		return *this;
 	}
 
-	// Pair instance.
-	struct instance : gen_instance_base<instance> {
+	// Pair value.
+	struct value : gen_value_base<value> {
 		using value_type = T;
 		using std_type = std::pair<T, T>;
 
 		std::pair<T, T> pair_;
 		char sep_;
 
-		instance(const std::pair<T, T> &pair) : pair_(pair), sep_(' ') {}
-		instance(const T &first, const T &second)
+		value(const std::pair<T, T> &pair) : pair_(pair), sep_(' ') {}
+		value(const T &first, const T &second)
 			: pair_(first, second), sep_(' ') {}
 
 		T first() const { return pair_.first; }
 		T second() const { return pair_.second; }
 
 		// Sets the separator for the pair, for printing.
-		instance &separator(char sep) {
+		value &separator(char sep) {
 			sep_ = sep;
 			return *this;
 		}
 
-		// Prints to std::ostream, separated by space.
-		friend std::ostream &operator<<(std::ostream &out,
-										const instance &inst) {
+		// Prints to std::ostream, separated by sep_.
+		friend std::ostream &operator<<(std::ostream &out, const value &inst) {
 			return out << inst.pair_.first << inst.sep_ << inst.pair_.second;
 		}
 
-		// Gets a std::pair representing the instance.
+		// Gets a std::pair representing the value.
 		auto to_std() const {
-			if constexpr (!is_generator_instance<T>::value) {
+			if constexpr (!is_generator_value<T>::value) {
 				return pair_;
 			} else {
 				std::pair<typename T::std_type, typename T::std_type> pair(
@@ -3652,7 +3636,7 @@ template <typename T> struct pair : gen_base<pair<T>> {
 
 	// Generates a random pair.
 	// O(log(R1 - L1 + 1) + log(R2 - L2 + 1)).
-	instance gen() const {
+	value gen() const {
 		T L1 = first_.first, R1 = first_.second;
 		T L2 = second_.first, R2 = second_.second;
 
@@ -3660,20 +3644,161 @@ template <typename T> struct pair : gen_base<pair<T>> {
 		case restriction_type::unspecified:
 			return {next<T>(L1, R1), next<T>(L2, R2)};
 		case restriction_type::eq:
-			return _detail::gen_eq<T>(L1, R1, L2, R2);
+			return detail::gen_eq<T>(L1, R1, L2, R2);
 		case restriction_type::neq:
-			return _detail::gen_neq<T>(L1, R1, L2, R2);
+			return detail::gen_neq<T>(L1, R1, L2, R2);
 		case restriction_type::lt:
-			return _detail::gen_lt<T>(L1, R1, L2, R2);
+			return detail::gen_lt<T>(L1, R1, L2, R2);
 		case restriction_type::gt:
-			return _detail::gen_gt<T>(L1, R1, L2, R2);
+			return detail::gen_gt<T>(L1, R1, L2, R2);
 		case restriction_type::leq:
-			return _detail::gen_leq<T>(L1, R1, L2, R2);
+			return detail::gen_leq<T>(L1, R1, L2, R2);
 		case restriction_type::geq:
-			return _detail::gen_geq<T>(L1, R1, L2, R2);
+			return detail::gen_geq<T>(L1, R1, L2, R2);
 		}
-		throw _detail::error("pair: unknown restriction type");
+		throw detail::error("pair: unknown restriction type");
 	}
+};
+
+/*************
+ *           *
+ *   GRAPH   *
+ *           *
+ *************/
+/*
+ * Graph generation.
+ *
+ * Graphs have `n` edges and `m` edges. It has vertices indexed from 0 to n-1.
+ * These are labeleted graphs, that is, isomorphism is not taken into account.
+ * VWeight is the type of vertex weights, and EWeight are the type of edge
+ * weights.
+ */
+
+template <typename VWeight = int, typename EWeight = int>
+struct graph : gen_base<graph<VWeight, EWeight>> {
+	int n_, m_;							// Number of vertices and edges.
+	std::set<std::pair<int, int>> edg_; // Edges that were set.
+	bool is_directed_;					// If graph is directed.
+	bool has_self_loops_;				// If self-loops are allowed.
+
+	graph(int n, int m, bool is_directed = false, bool has_self_loops = false)
+		: n_(n), m_(m), is_directed_(is_directed),
+		  has_self_loops_(has_self_loops) {}
+
+	graph &add_edge(int u, int v) {
+		tgen_ensure(0 <= u and u < n_, "vertex index must be valid");
+		tgen_ensure(0 <= v and v < n_, "vertex index must be valid");
+
+		if (!is_directed_ and u > v)
+			std::swap(u, v);
+		edg_.emplace(u, v);
+		return *this;
+	}
+
+	// A graph::value
+	struct value : gen_value_base<value> {
+		int n_, m_;						 // Number of vertices and edges.
+		std::vector<std::set<int>> adj_; // Adjacency list.
+		bool add_1_;	// If should add 1 for printing vertex ids.
+		bool print_nm_; // If should print n and m.
+		bool shuffle_;	// If should shuffle output when printing.
+
+		// Create value from edge n, m, and edge list. The edges are
+		// considered to be directed.
+		value(int n, int m, const std::set<std::pair<int, int>> &edges = {})
+			: n_(n), m_(m), adj_(n_), add_1_(false), print_nm_(false),
+			  shuffle_(false) {
+			for (auto [u, v] : edges) {
+				tgen_ensure(0 <= u and u < n, "graph: value: invalid edge");
+				tgen_ensure(0 <= v and v < n, "graph: value: invalid edge");
+				adj_[u].insert(v);
+			}
+		}
+
+		int n() const { return n_; }
+
+		int m() const { return m_; }
+
+		const std::vector<std::set<int>> &adj() const { return adj_; }
+
+		value &add_1() {
+			add_1_ = true;
+			return *this;
+		}
+
+		value &shuffle() {
+			shuffle_ = true;
+			return *this;
+		}
+
+		value &print_nm() {
+			print_nm_ = true;
+			return *this;
+		}
+
+		// Prints to std::ostream.
+		friend std::ostream &operator<<(std::ostream &out, const value &inst) {
+			if (inst.print_nm_)
+				out << inst.n() << " " << inst.m() << std::endl;
+
+			std::vector<int> print_label(inst.n());
+			std::iota(print_label.begin(), print_label.end(), 0);
+			if (inst.shuffle_)
+				tgen::shuffle(print_label.begin(), print_label.end());
+
+			std::vector<std::pair<int, int>> edges;
+			for (int u = 0; u < inst.n(); ++u)
+				for (int v : inst.adj()[u])
+					edges.emplace_back(u, v);
+			if (inst.shuffle_)
+				tgen::shuffle(edges.begin(), edges.end());
+
+			detail::tgen_ensure_against_bug(edges.size() == inst.m(),
+											"graph: invalid number of edges");
+
+			for (auto [u, v] : edges)
+				out << (print_label[u] + inst.add_1_) << " "
+					<< (print_label[v] + inst.add_1_) << std::endl;
+			;
+
+			return out;
+		}
+
+		std::tuple<int, int, std::vector<std::set<int>>> to_std() {
+			return std::tuple(n_, m_, adj_);
+		}
+	};
+
+	value gen() {
+		tgen::pair gen_repeat(0, n_ - 1);
+		if (has_self_loops_) {
+			if (!is_directed_)
+				gen_repeat.leq();
+		} else {
+			if (is_directed_)
+				gen_repeat.neq();
+			else
+				gen_repeat.lt();
+		}
+		auto edge_gen = gen_repeat.distinct();
+		auto edges = edg_;
+
+		tgen_ensure(edges.size() <= m_, "too many edges were added");
+
+		while (edges.size() < m_) {
+			try {
+				edges.insert(edge_gen.gen().to_std());
+			} catch (std::runtime_error &e) {
+				throw detail::error(
+					std::string("graph: probably enough edges to generate: ") +
+					e.what());
+			}
+		}
+
+		return value(n_, m_, edges);
+	}
+
+	static value k(int n) { return graph(n, n * (n - 1) / 2).gen(); }
 };
 
 /************
@@ -3684,9 +3809,9 @@ template <typename T> struct pair : gen_base<pair<T>> {
 
 namespace hack {
 
-namespace _detail {
+namespace detail {
 
-using namespace tgen::_detail;
+using namespace tgen::detail;
 
 // Tried to find correct multipliers for unordered_map/set to force
 // collisions. O(1).
@@ -3709,13 +3834,13 @@ inline std::set<long long> std_hash_multipliers() {
 	return multipliers;
 }
 
-} // namespace _detail
+} // namespace detail
 
 // Returns a list of integers for unordered_map/set to force collisions.
 // O(size).
 inline std::vector<long long> std_unordered(int size) {
 	tgen_ensure(size > 0, "misc: unordered_hack: size must be positive");
-	std::set<long long> multipliers = _detail::std_hash_multipliers();
+	std::set<long long> multipliers = detail::std_hash_multipliers();
 	long long mult = 1;
 	std::set<long long>::iterator it = multipliers.begin();
 
@@ -3747,11 +3872,11 @@ inline std::vector<std::pair<int, int>> mo(int n, int q) {
 		queries.emplace(i, i);
 		queries.emplace(i, n - 1);
 	}
-	return unique_container(queries).gen_list(q).to_std();
+	return distinct_container(queries).gen_list(q).to_std();
 }
 
 // Returns list of strings that have a high cost to insert in a std::set.
-// Forces cost \Theta(size log(size))
+// Forces cost \Theta(size log(size)).
 // O(size log(size)).
 inline std::vector<std::string> string_set(int size) {
 	std::vector<std::string> list;

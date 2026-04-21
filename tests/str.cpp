@@ -145,14 +145,14 @@ TEST(str_test, add_restriction_after_regex_throws) {
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::str("a").fix(0, 'x'),
 							 "str: cannot add restriction for regex");
-	EXPECT_THROW_TGEN_PREFIX(tgen::str("a").distinct(),
+	EXPECT_THROW_TGEN_PREFIX(tgen::str("a").all_different(),
 							 "str: cannot add restriction for regex");
 }
 
-TEST(str_test, instance_ops) {
+TEST(str_test, value_ops) {
 	tgen::register_gen();
 
-	tgen::str::instance inst = tgen::str("hello").gen();
+	tgen::str::value inst = tgen::str("hello").gen();
 	EXPECT_EQ(inst.size(), 5);
 	EXPECT_EQ(inst[0], 'h');
 	EXPECT_EQ(inst.to_std(), "hello");
@@ -164,19 +164,19 @@ TEST(str_test, instance_ops) {
 	inst.sort();
 	EXPECT_EQ(inst.to_std(), "ehllo");
 
-	tgen::str::instance a = tgen::str("ab").gen();
-	tgen::str::instance b = tgen::str("cd").gen();
+	tgen::str::value a = tgen::str("ab").gen();
+	tgen::str::value b = tgen::str("cd").gen();
 	EXPECT_EQ((a + b).to_std(), "abcd");
 
 	testing::internal::CaptureStdout();
-	std::cout << tgen::str::instance("xyz");
+	std::cout << tgen::str::value("xyz");
 	EXPECT_EQ(testing::internal::GetCapturedStdout(), "xyz");
 }
 
-TEST(str_test, instance_index_out_of_bounds) {
+TEST(str_test, value_index_out_of_bounds) {
 	tgen::register_gen();
 
-	tgen::str::instance inst("ab");
+	tgen::str::value inst("ab");
 	EXPECT_THROW_TGEN_PREFIX(inst[-1], "str: instane: index out of bounds");
 	EXPECT_THROW_TGEN_PREFIX(inst[2], "str: instane: index out of bounds");
 }

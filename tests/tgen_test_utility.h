@@ -42,7 +42,7 @@ template <typename T>
 bool check_uniform(const std::map<T, int> &counts, int num_elements,
 				   int num_tests) {
 	EXPECT_TRUE(static_cast<int>(counts.size()) <= num_elements)
-		<< "Expected at most " << num_elements << " unique instances, but got "
+		<< "Expected at most " << num_elements << " unique values, but got "
 		<< counts.size();
 
 	double expected = double(num_tests) / num_elements;
@@ -61,18 +61,18 @@ bool check_uniform(const std::map<T, int> &counts, int num_elements,
 }
 
 // Checks if the generator is uniform, assuming there are `num_elements`
-// possible instances. If the generator is uniform, the probability of the test
+// possible values. If the generator is uniform, the probability of the test
 // failing is at most 1e-27.
 // If the generator is not uniform, the test will usually fail,
-// but no strict guarantee is made (depends on how biased it is).
+// but no strict guarantee is made (it depends on how biased it is).
 template <typename Gen>
 void check_generator_uniform(const Gen &gen, int num_elements) {
 	int repeats = 3, count_fail = 0;
-	std::map<typename Gen::instance::std_type, int> example_counts;
+	std::map<typename Gen::value::std_type, int> example_counts;
 	for (int i = 0; i < repeats; ++i) {
 		long long num_tests = std::max(1000, 20 * num_elements);
 
-		std::map<typename Gen::instance::std_type, int> counts;
+		std::map<typename Gen::value::std_type, int> counts;
 		for (long long j = 0; j < num_tests; ++j)
 			counts[gen.gen().to_std()]++;
 
@@ -92,7 +92,7 @@ void check_generator_uniform(const Gen &gen, int num_elements) {
 // operator <. If the function is uniform, the probability of the test failing
 // is at most 1e-27.
 // If the function is not uniform, the test will usually fail,
-// but no strict guarantee is made (depends on how biased it is).
+// but no strict guarantee is made (it depends on how biased it is).
 template <typename F, typename... Args>
 void check_function_uniform(F func, int num_elements, Args... args) {
 	using T = std::invoke_result_t<F, Args...>;

@@ -4,7 +4,7 @@ namespace tgen::hack {
 
 /**
  * @defgroup hack Hacks
- * @brief Worse-case generation for specific problems.
+ * @brief Worst-case generation for specific problems.
  *
  * ### Examples
  *
@@ -47,7 +47,7 @@ namespace tgen::hack {
 
  /**
  * @ingroup hack
- * @brief Query list that tries to force asymptotic worse-case for Mo's algorithm.
+ * @brief Query list that tries to force asymptotic worst-case for Mo's algorithm.
  *
  * @param n Size of the array operated upon.
  * @param q Number of queries to be returned.

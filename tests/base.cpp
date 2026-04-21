@@ -5,10 +5,10 @@
 
 #include <algorithm>
 
-TEST(base_test, unique) {
+TEST(base_test, distinct) {
 	tgen::register_gen();
 
-	tgen::unique g([]() { return tgen::next(1, 10); });
+	tgen::distinct g([]() { return tgen::next(1, 10); });
 	std::set<int> st;
 	while (!g.empty()) {
 		int val = g.gen();
@@ -17,13 +17,13 @@ TEST(base_test, unique) {
 	}
 
 	EXPECT_EQ(st.size(), 10);
-	EXPECT_THROW_TGEN_PREFIX(g.gen(), "no more unique values");
+	EXPECT_THROW_TGEN_PREFIX(g.gen(), "no more distinct values");
 }
 
-TEST(base_test, unique_gen_list) {
+TEST(base_test, distinct_gen_list) {
 	tgen::register_gen();
 
-	tgen::unique g([]() { return tgen::next(1, 10); });
+	tgen::distinct g([]() { return tgen::next(1, 10); });
 	std::vector<int> values = g.gen_list(5).to_std();
 	std::set<int> st;
 	for (int val : values) {
@@ -34,10 +34,10 @@ TEST(base_test, unique_gen_list) {
 	EXPECT_EQ(st.size(), 5);
 }
 
-TEST(base_test, unique_gen_all) {
+TEST(base_test, distinct_gen_all) {
 	tgen::register_gen();
 
-	tgen::unique g([]() { return tgen::next(1, 10); });
+	tgen::distinct g([]() { return tgen::next(1, 10); });
 	std::vector<int> values = g.gen_all().to_std();
 	std::set<int> st;
 	for (int val : values) {
@@ -46,7 +46,7 @@ TEST(base_test, unique_gen_all) {
 	}
 
 	EXPECT_EQ(st.size(), 10);
-	EXPECT_THROW_TGEN_PREFIX(g.gen(), "no more unique values");
+	EXPECT_THROW_TGEN_PREFIX(g.gen(), "no more distinct values");
 }
 
 TEST(base_test, print_scalar) {
@@ -169,7 +169,7 @@ TEST(base_test, next_invalid_range) {
 	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::next<int>(2, 1),
-							 "range for `next` bust be valid");
+							 "range for `next` must be valid");
 }
 
 TEST(base_test, next_val) {
@@ -239,7 +239,7 @@ TEST(base_test, any) {
 		i = tgen::next(1, 10);
 
 	for (int i = 0; i < 100; ++i) {
-		int value = tgen::any(v);
+		int value = tgen::pick(v);
 		EXPECT_TRUE(find(v.begin(), v.end(), value) != v.end());
 	}
 }
@@ -252,11 +252,11 @@ TEST(base_test, any_by_distribution) {
 		i = tgen::next(1, 10);
 
 	for (int i = 0; i < 10; ++i) {
-		int value = tgen::any_by_distribution(v, {1, 2, 3});
+		int value = tgen::pick_by_distribution(v, {1, 2, 3});
 		EXPECT_TRUE(find(v.begin(), v.end(), value) != v.end());
 	}
 	check_function_uniform(
-		[]() { return tgen::any_by_distribution({1, 2, 3}, {2, 2, 2}); }, 3);
+		[]() { return tgen::pick_by_distribution({1, 2, 3}, {2, 2, 2}); }, 3);
 }
 
 TEST(base_test, choose_invalid_ammount) {
@@ -289,20 +289,20 @@ TEST(base_test, choose) {
 	}
 }
 
-TEST(base_test, unique_range_generate_too_many_values) {
+TEST(base_test, distinct_range_generate_too_many_values) {
 	tgen::register_gen();
 
-	tgen::unique_range d(1, 10);
+	tgen::distinct_range d(1, 10);
 	for (int i = 0; i < 10; ++i)
 		d.gen();
 	EXPECT_THROW_TGEN_PREFIX(d.gen(),
-							 "unique_range: no more values to generate");
+							 "distinct_range: no more values to generate");
 }
 
-TEST(base_test, unique_range) {
+TEST(base_test, distinct_range) {
 	tgen::register_gen();
 
-	tgen::unique_range d(1, 10);
+	tgen::distinct_range d(1, 10);
 	std::set<int> s;
 	for (int i = 0; i < 10; ++i) {
 		int value = d.gen();
@@ -311,26 +311,26 @@ TEST(base_test, unique_range) {
 		EXPECT_EQ(d.size(), 10 - i - 1);
 	}
 	EXPECT_EQ(s.size(), 10);
-	auto vec = tgen::unique_range(1, 10).gen_all().to_std();
+	auto vec = tgen::distinct_range(1, 10).gen_all().to_std();
 	EXPECT_EQ(std::set<int>(vec.begin(), vec.end()).size(), 10);
-	vec = tgen::unique_range(1, 10).gen_list(5).to_std();
+	vec = tgen::distinct_range(1, 10).gen_list(5).to_std();
 	EXPECT_EQ(std::set<int>(vec.begin(), vec.end()).size(), 5);
 }
 
-TEST(base_test, unique_container) {
+TEST(base_test, distinct_container) {
 	tgen::register_gen();
 
 	std::vector<int> v(10);
 	for (int &i : v)
 		i = tgen::next(1, 100);
-	tgen::unique_container d(v);
+	tgen::distinct_container d(v);
 	for (int i = 0; i < 10; ++i) {
 		int value = d.gen();
 		EXPECT_TRUE(find(v.begin(), v.end(), value) != v.end());
 		EXPECT_EQ(d.size(), v.size() - i - 1);
 	}
-	auto vec = tgen::unique_container(v).gen_all().to_std();
+	auto vec = tgen::distinct_container(v).gen_all().to_std();
 	EXPECT_EQ(vec.size(), 10);
-	vec = tgen::unique_container(v).gen_list(5).to_std();
+	vec = tgen::distinct_container(v).gen_list(5).to_std();
 	EXPECT_EQ(vec.size(), 5);
 }

@@ -46,8 +46,8 @@ template <typename T> struct pair_test {
 		return *this;
 	}
 
-	typename tgen::pair<T>::instance check(int count = 1) {
-		typename tgen::pair<T>::instance p(0, 0);
+	typename tgen::pair<T>::value check(int count = 1) {
+		typename tgen::pair<T>::value p(0, 0);
 		for (int i = 0; i < count; ++i) {
 			p = p_.gen();
 			EXPECT_TRUE(l1_ <= p.first() and p.first() <= r1_);
@@ -81,17 +81,17 @@ TEST(pair_test, invalid_range) {
 							 "pair: second range must be valid");
 }
 
-TEST(pair_test, instance_ops) {
+TEST(pair_test, value_ops) {
 	tgen::register_gen();
 
-	tgen::pair<int>::instance inst = {2, 3};
+	tgen::pair<int>::value inst = {2, 3};
 
 	EXPECT_EQ(inst.first(), 2);
 	EXPECT_EQ(inst.second(), 3);
 
 	EXPECT_EQ(inst.to_std(), std::make_pair(2, 3));
 
-	tgen::pair<tgen::pair<int>::instance>::instance nested = {{1, 2}, {3, 4}};
+	tgen::pair<tgen::pair<int>::value>::value nested = {{1, 2}, {3, 4}};
 	const auto expected =
 		std::make_pair(std::make_pair(1, 2), std::make_pair(3, 4));
 	EXPECT_EQ(nested.to_std(), expected);

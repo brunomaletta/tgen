@@ -12,7 +12,7 @@ namespace tgen {
  *
  * ```cpp
  * std::cout <<
- *     tgen::pair<int>(1, n).leq().unique().gen_list(10).separator('\n') << std::endl;
+ *     tgen::pair<int>(1, n).leq().distinct().gen_list(10).separator('\n') << std::endl;
  * ```
  */
 
@@ -26,7 +26,7 @@ namespace tgen {
  *
  * Defines a set of pairs, subject to restrictions.
  *
- * A uniformly random @tt{tgen::pair::instance}
+ * A uniformly random @tt{tgen::pair::value}
  * from this set of pairs (that satisfies the restrictions) can be
  * generated with @tt{tgen::pair::gen}.
  *
@@ -167,9 +167,9 @@ namespace tgen {
 
 
 /**
- * @brief Generates a random instance from the set of valid pairs.
+ * @brief Generates a random value from the set of valid pairs.
  *
- * @return A uniformly random @tt{tgen::pair::instance} from the set of valid pairs, given the added restrictions.
+ * @return A uniformly random @tt{tgen::pair::value} from the set of valid pairs, given the added restrictions.
  *
  * @throws std::runtime_error if there is no valid pair satisfying all added restrictions.
  *
@@ -194,36 +194,34 @@ namespace tgen {
 
 /**
  * @ingroup pair
- * @brief Pair instance.
- *
- * Instance of a pair.
+ * @brief Pair value.
  *
  * It can be deterministically operated upon and printed through @tt{@namespace{std}::cout}.
  *
- * @struct pair::instance;
+ * @struct pair::value;
  */
 
 
 /**
- * @brief Creates a pair instance from a @texttt{@namespace{std}::@type{pair}}.
+ * @brief Creates a pair value from a @texttt{@namespace{std}::@type{pair}}.
  *
- * @param pair The @texttt{@namespace{std}::@type{pair}} representing the instance.
+ * @param pair The @texttt{@namespace{std}::@type{pair}} representing the value.
  *
  * #### Examples
  *
  * ```cpp
- * // Creates and prints an instance from a std::pair.
+ * // Creates and prints a value from a std::pair.
  * std::pair<int, int> p = {2, 3};
- * tgen::pair<int>::instance inst(p);
+ * tgen::pair<int>::value inst(p);
  * std::cout << inst << std::endl; // Prints "2 3".
  * ```
  *
- * @fn pair::instance::instance(const std::pair<T, T>& pair);
+ * @fn pair::value::value(const std::pair<T, T>& pair);
  */
 
 
 /**
- * @brief Creates a pair instance from first and second values.
+ * @brief Creates a pair value from first and second values.
  *
  * @param first First element of the pair.
  * @param second Second element of the pair.
@@ -231,17 +229,17 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Creates and prints an instance {2, 3}.
- * tgen::pair<int>::instance inst(2, 3);
+ * // Creates and prints a value {2, 3}.
+ * tgen::pair<int>::value inst(2, 3);
  * std::cout << inst << std::endl; // Prints "2 3".
  * ```
  *
- * @fn pair::instance::instance(const T &first, const T &second);
+ * @fn pair::value::value(const T &first, const T &second);
  */
 
 
 /**
- * @brief Returns the first element of a pair instance.
+ * @brief Returns the first element of a pair value.
  *
  * @return The first element of the pair.
  *
@@ -249,16 +247,16 @@ namespace tgen {
  *
  * ```cpp
  * // Prints the first element of a pair.
- * tgen::pair<int>::instance inst = {2, 3};
+ * tgen::pair<int>::value inst = {2, 3};
  * std::cout << inst.first() << std::endl; // Prints "2".
  * ```
  *
- * @fn pair::instance::first();
+ * @fn pair::value::first();
  */
 
 
 /**
- * @brief Returns the second element of a pair instance.
+ * @brief Returns the second element of a pair value.
  *
  * @return The second element of the pair.
  *
@@ -266,11 +264,11 @@ namespace tgen {
  *
  * ```cpp
  * // Prints the second element of a pair.
- * tgen::pair<int>::instance inst = {2, 3};
+ * tgen::pair<int>::value inst = {2, 3};
  * std::cout << inst.second() << std::endl; // Prints "3".
  * ```
  *
- * @fn pair::instance::second();
+ * @fn pair::value::second();
  */
 
 
@@ -284,17 +282,17 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints an instance, separated by comma.
- * tgen::pair<int>::instance inst = {2, 3};
+ * // Prints a value, separated by comma.
+ * tgen::pair<int>::value inst = {2, 3};
  * std::cout << inst.separator(',') << std::endl; // Prints "2,3".
  * ```
  *
- * @fn pair::instance::separator(char sep);
+ * @fn pair::value::separator(char sep);
  */
 
 
 /**
- * @brief Prints the instance to a @texttt{@namespace{std}::@type{ostream}}.
+ * @brief Prints the value to a @texttt{@namespace{std}::@type{ostream}}.
  *
  * The values are printed with one space as a separator by default,
  * and with no end of line.
@@ -302,29 +300,29 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints an instance.
+ * // Prints a value.
  * std::cout <<
- *     tgen::pair<int>::instance({2, 3}) << std::endl; // Prints "2 3".
+ *     tgen::pair<int>::value({2, 3}) << std::endl; // Prints "2 3".
  * ```
  *
- * @fn pair::instance::operator<<(std::ostream &out, const instance &inst);
+ * @fn pair::value::operator<<(std::ostream &out, const value &inst);
  */
 
 
 /**
- * @brief Converts the instance to a @texttt{@namespace{std}::@type{pair}}.
+ * @brief Converts the value to a @texttt{@namespace{std}::@type{pair}}.
  *
- * @return A @texttt{@namespace{std}::@type{pair}} representing the instance.
+ * @return A @texttt{@namespace{std}::@type{pair}} representing the value.
  *
  * #### Examples
  *
  * ```cpp
  * // Converts instant to std::pair.
- * std::pair<int, int> p = tgen::pair<int>::instance({2, 3}).to_std();
+ * std::pair<int, int> p = tgen::pair<int>::value({2, 3}).to_std();
  * // p = {2, 3}.
  * ```
  *
- * @fn pair::instance::to_std() const;
+ * @fn pair::value::to_std() const;
  */
 
 };

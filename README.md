@@ -37,17 +37,17 @@ There is support for arrays, permutations, maths, and more.
 
 ```cpp
 // Generates all primes in [1, 10] in order.
-std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_all().sort() << std::endl;
+std::cout << tgen::distinct(tgen::math::gen_prime, 1, 10).gen_all().sort() << std::endl;
 
 // Generates a random valid parenthesis sequence of size 10.
 std::cout << tgen::misc::gen_parenthesis(10) << std::endl;
 ```
 
-- **Generators**: describe constraints and sample uniformly random instances.
+- **Generators**: describe constraints and sample uniformly random values.
 
 ```cpp
 // Generates 20 random distinct values from 1 to 100.
-std::cout << tgen::list<int>(20, 1, 100).distinct().gen() << std::endl;
+std::cout << tgen::list<int>(20, 1, 100).all_different().gen() << std::endl;
 
 // Generates all palindromic DNA sequences of length 3.
 std::cout << tgen::str(3, {'A', 'C', 'G', 'T'}).palindrome().gen_all() << std::endl;
@@ -75,7 +75,7 @@ No loops. No backtracking. No custom generator code.
 `tgen` works in a similar way as traditional generators, but provides:
 - **Declarative generators** to express complex constraints concisely;
 - **Adversarial generation** to create worst-case inputs for known algorithms;
-- **Built-in uniqueness** for duplicate-free, unbiased generation;
+- **Built-in distinct generation** for duplicate-free, unbiased generation;
 - **Provably uniform sampling** across all supported operations;
 - **Comprehensive documentation** with many examples.
 

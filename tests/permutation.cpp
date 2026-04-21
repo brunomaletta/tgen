@@ -29,23 +29,22 @@ TEST(permutation_test, cycles_invalid) {
 		"permutation: cycle sizes must add up to size of permutation");
 }
 
-TEST(permutation_test, instance_invalid) {
+TEST(permutation_test, value_invalid) {
 	tgen::register_gen();
 
 	std::vector<int> invalid = {1, 2};
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::permutation::instance inst = invalid,
-		"permutation: instance: values must be from `0` to `size-1`");
+		tgen::permutation::value inst = invalid,
+		"permutation: value: values must be from `0` to `size-1`");
 	invalid = {1, 1};
-	EXPECT_THROW_TGEN_PREFIX(
-		tgen::permutation::instance inst = invalid,
-		"permutation: instance: cannot have repeated values");
+	EXPECT_THROW_TGEN_PREFIX(tgen::permutation::value inst = invalid,
+							 "permutation: value: cannot have repeated values");
 }
 
-TEST(permutation_test, instance_ops) {
+TEST(permutation_test, value_ops) {
 	tgen::register_gen();
 
-	tgen::permutation::instance inst = {1, 0, 2};
+	tgen::permutation::value inst = {1, 0, 2};
 
 	EXPECT_EQ(inst.size(), 3);
 	EXPECT_EQ(inst[2], 2);

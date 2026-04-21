@@ -5,7 +5,7 @@
 
 TEST(opts_test, did_not_register_opt) {
 	// Fake reset registered status.
-	tgen::_detail::registered = false;
+	tgen::detail::registered = false;
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::has_opt(0),
 		"tgen was not registered! You should call tgen::register_gen(argc, "
@@ -14,7 +14,7 @@ TEST(opts_test, did_not_register_opt) {
 
 TEST(opts_test, did_not_register_next) {
 	// Fake reset registered status.
-	tgen::_detail::registered = false;
+	tgen::detail::registered = false;
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::next(0, 1),
 		"tgen was not registered! You should call tgen::register_gen(argc, "
@@ -163,102 +163,102 @@ TEST(opts_test, opt_positional) {
 
 TEST(opts_test, register_gen_with_seed) {
 	// Fake reset registered status.
-	tgen::_detail::registered = false;
+	tgen::detail::registered = false;
 	tgen::register_gen(42);
 
-	EXPECT_TRUE(tgen::_detail::registered);
+	EXPECT_TRUE(tgen::detail::registered);
 }
 
 TEST(opts_test, register_gen_with_default_seed) {
 	// Fake reset registered status.
-	tgen::_detail::registered = false;
+	tgen::detail::registered = false;
 	tgen::register_gen();
 
-	EXPECT_TRUE(tgen::_detail::registered);
+	EXPECT_TRUE(tgen::detail::registered);
 }
 
 TEST(opts_test, set_cpp_version) {
 	tgen::register_gen();
 	tgen::set_cpp_version(17);
 
-	EXPECT_EQ(tgen::_detail::cpp.version_, 17);
+	EXPECT_EQ(tgen::detail::cpp.version_, 17);
 }
 
 TEST(opts_test, set_cpp_version_opt) {
 	auto argv = get_argv({"./executable", "tgen::CPP:20"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_EQ(tgen::_detail::cpp.version_, 20);
+	EXPECT_EQ(tgen::detail::cpp.version_, 20);
 }
 
 TEST(opts_test, set_compiler) {
 	tgen::register_gen();
 
 	tgen::set_compiler(tgen::gcc());
-	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::gcc().kind_);
-	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::gcc().major_);
-	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::gcc().minor_);
+	EXPECT_EQ(tgen::detail::compiler.kind_, tgen::gcc().kind_);
+	EXPECT_EQ(tgen::detail::compiler.major_, tgen::gcc().major_);
+	EXPECT_EQ(tgen::detail::compiler.minor_, tgen::gcc().minor_);
 
 	tgen::set_compiler(tgen::clang());
-	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::clang().kind_);
-	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::clang().major_);
-	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::clang().minor_);
+	EXPECT_EQ(tgen::detail::compiler.kind_, tgen::clang().kind_);
+	EXPECT_EQ(tgen::detail::compiler.major_, tgen::clang().major_);
+	EXPECT_EQ(tgen::detail::compiler.minor_, tgen::clang().minor_);
 
 	tgen::set_compiler(tgen::gcc(17));
-	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::gcc(17).kind_);
-	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::gcc(17).major_);
-	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::gcc(17).minor_);
+	EXPECT_EQ(tgen::detail::compiler.kind_, tgen::gcc(17).kind_);
+	EXPECT_EQ(tgen::detail::compiler.major_, tgen::gcc(17).major_);
+	EXPECT_EQ(tgen::detail::compiler.minor_, tgen::gcc(17).minor_);
 
 	tgen::set_compiler(tgen::clang(17));
-	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::clang(17).kind_);
-	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::clang(17).major_);
-	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::clang(17).minor_);
+	EXPECT_EQ(tgen::detail::compiler.kind_, tgen::clang(17).kind_);
+	EXPECT_EQ(tgen::detail::compiler.major_, tgen::clang(17).major_);
+	EXPECT_EQ(tgen::detail::compiler.minor_, tgen::clang(17).minor_);
 
 	tgen::set_compiler(tgen::gcc(17, 2));
-	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::gcc(17, 2).kind_);
-	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::gcc(17, 2).major_);
-	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::gcc(17, 2).minor_);
+	EXPECT_EQ(tgen::detail::compiler.kind_, tgen::gcc(17, 2).kind_);
+	EXPECT_EQ(tgen::detail::compiler.major_, tgen::gcc(17, 2).major_);
+	EXPECT_EQ(tgen::detail::compiler.minor_, tgen::gcc(17, 2).minor_);
 
 	tgen::set_compiler(tgen::clang(17, 2));
-	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::clang(17, 2).kind_);
-	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::clang(17, 2).major_);
-	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::clang(17, 2).minor_);
+	EXPECT_EQ(tgen::detail::compiler.kind_, tgen::clang(17, 2).kind_);
+	EXPECT_EQ(tgen::detail::compiler.major_, tgen::clang(17, 2).major_);
+	EXPECT_EQ(tgen::detail::compiler.minor_, tgen::clang(17, 2).minor_);
 }
 
 TEST(opts_test, set_compiler_opt) {
 	auto argv = get_argv({"./executable", "tgen::GCC"});
 	tgen::register_gen(argv.size() - 1, argv.data());
-	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::gcc().kind_);
-	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::gcc().major_);
-	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::gcc().minor_);
+	EXPECT_EQ(tgen::detail::compiler.kind_, tgen::gcc().kind_);
+	EXPECT_EQ(tgen::detail::compiler.major_, tgen::gcc().major_);
+	EXPECT_EQ(tgen::detail::compiler.minor_, tgen::gcc().minor_);
 
 	argv = get_argv({"./executable", "tgen::CLANG"});
 	tgen::register_gen(argv.size() - 1, argv.data());
-	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::clang().kind_);
-	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::clang().major_);
-	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::clang().minor_);
+	EXPECT_EQ(tgen::detail::compiler.kind_, tgen::clang().kind_);
+	EXPECT_EQ(tgen::detail::compiler.major_, tgen::clang().major_);
+	EXPECT_EQ(tgen::detail::compiler.minor_, tgen::clang().minor_);
 
 	argv = get_argv({"./executable", "tgen::GCC:17"});
 	tgen::register_gen(argv.size() - 1, argv.data());
-	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::gcc(17).kind_);
-	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::gcc(17).major_);
-	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::gcc(17).minor_);
+	EXPECT_EQ(tgen::detail::compiler.kind_, tgen::gcc(17).kind_);
+	EXPECT_EQ(tgen::detail::compiler.major_, tgen::gcc(17).major_);
+	EXPECT_EQ(tgen::detail::compiler.minor_, tgen::gcc(17).minor_);
 
 	argv = get_argv({"./executable", "tgen::CLANG:17"});
 	tgen::register_gen(argv.size() - 1, argv.data());
-	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::clang(17).kind_);
-	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::clang(17).major_);
-	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::clang(17).minor_);
+	EXPECT_EQ(tgen::detail::compiler.kind_, tgen::clang(17).kind_);
+	EXPECT_EQ(tgen::detail::compiler.major_, tgen::clang(17).major_);
+	EXPECT_EQ(tgen::detail::compiler.minor_, tgen::clang(17).minor_);
 
 	argv = get_argv({"./executable", "tgen::GCC:17.2"});
 	tgen::register_gen(argv.size() - 1, argv.data());
-	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::gcc(17, 2).kind_);
-	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::gcc(17, 2).major_);
-	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::gcc(17, 2).minor_);
+	EXPECT_EQ(tgen::detail::compiler.kind_, tgen::gcc(17, 2).kind_);
+	EXPECT_EQ(tgen::detail::compiler.major_, tgen::gcc(17, 2).major_);
+	EXPECT_EQ(tgen::detail::compiler.minor_, tgen::gcc(17, 2).minor_);
 
 	argv = get_argv({"./executable", "tgen::CLANG:17.2"});
 	tgen::register_gen(argv.size() - 1, argv.data());
-	EXPECT_EQ(tgen::_detail::compiler.kind_, tgen::clang(17, 2).kind_);
-	EXPECT_EQ(tgen::_detail::compiler.major_, tgen::clang(17, 2).major_);
-	EXPECT_EQ(tgen::_detail::compiler.minor_, tgen::clang(17, 2).minor_);
+	EXPECT_EQ(tgen::detail::compiler.kind_, tgen::clang(17, 2).kind_);
+	EXPECT_EQ(tgen::detail::compiler.major_, tgen::clang(17, 2).major_);
+	EXPECT_EQ(tgen::detail::compiler.minor_, tgen::clang(17, 2).minor_);
 }

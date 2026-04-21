@@ -6,7 +6,7 @@ namespace tgen {
  * @defgroup list Lists
  * @brief Generation of lists for integral types.
  *
- * Its instances have the properties:
+ * Its values have the properties:
  * - @tt{tgen::is_sequential}
  * - @tt{tgen::has_subset_defined}
  *
@@ -16,7 +16,7 @@ namespace tgen {
  * 
  * ```cpp
  * std::cout <<
- *     tgen::list<int>(20, 1, 100).distinct().gen() << std::endl;
+ *     tgen::list<int>(20, 1, 100).all_different().gen() << std::endl;
  * // "67 96 80 11 46 52 42 2 93 1 28 3 48 82 90 99 53 98 94 88"
  * ```
  * 
@@ -29,13 +29,13 @@ namespace tgen {
  * // "3 1 9 6 9 1 3"
  * ```
  * 
- * Random 3 runs of 4 equal numbers. Values between runs are distinct.
+ * Random 3 runs of 4 equal numbers. Values between runs are different.
  * 
  * ```cpp
  * std::cout <<
  *     tgen::list<int>(12, 1, 10)
  *     .equal_range(0, 3).equal_range(4, 7).equal_range(8, 11)
- *     .distinct({0, 4, 8}).gen() << std::endl;
+ *     .different({0, 4, 8}).gen() << std::endl;
  * // "3 3 3 3 2 2 2 2 9 9 9 9"
  * ```
  * 
@@ -72,7 +72,7 @@ namespace tgen {
  *
  * Defines a set of lists, subject to restrictions.
  *
- * A uniformly random @tt{tgen::list::instance}
+ * A uniformly random @tt{tgen::list::value}
  * from this set of lists (that satisfies the restrictions) can be
  * generated with @tt{tgen::list::gen}.
  *
@@ -128,7 +128,7 @@ namespace tgen {
  * @brief Restricts generator s.t. value at index is fixed.
  *
  * @param idx Index.
- * @param value Value.
+ * @param val Value.
  *
  * @throws std::runtime_error if @pname{value} is not in the value range/set.
  *
@@ -139,7 +139,7 @@ namespace tgen {
  * auto seq_gen = tgen::list<int>(10, 1, 5).fix(0, 1);
  * ```
  *
- * @fn list::fix(int idx, T value);
+ * @fn list::fix(int idx, T val);
  */
 
 
@@ -178,18 +178,18 @@ namespace tgen {
 
 
 /**
- * @brief Restricts generator s.t. all values in index set are distinct.
+ * @brief Restricts generator s.t. all values in index set are different.
  *
  * @param indices Index set.
  *
  * @note Generation might fail if restrictions are considered to be too complex!
  *       The restrictions are considered too complex if the following condition does not hold.
- *       Consider the graph defined with vertices as the @tt{tgen::list::distinct} sets added,
+ *       Consider the graph defined with vertices as the @tt{tgen::list::different} sets added,
  *       and there is an edge between two vertices if they share an index. Note that you need
  *       to consider indices (directed or indirectly) connected by equality restrictions as
  *       being the same. This resulting graph must be a acyclic. Moreover, for every tree in this
  *       graph, all of its indices with a @tt{tgen::list::set} operation must be covered by a single
- *       distinct restriction set.
+ *       "different" restriction set.
  *
  * @throws std::runtime_error if generation fails.
  *
@@ -197,10 +197,10 @@ namespace tgen {
  *
  * ```cpp
  * // Lists of 10 ints from 1 to 5 with the first half distinct.
- * auto seq_gen = tgen::list<int>(10, 1, 5).distinct({0, 1, 2, 3, 4});
+ * auto seq_gen = tgen::list<int>(10, 1, 5).different({0, 1, 2, 3, 4});
  * ```
  *
- * @fn list::distinct(std::set<int> indices);
+ * @fn list::different(std::set<int> indices);
  */
 
 
@@ -210,7 +210,7 @@ namespace tgen {
  * @param idx_1 First index.
  * @param idx_2 Second index.
  *
- * Equivalent to @tt{tgen::list::distinct({idx_1, idx_2})}.
+ * Equivalent to @tt{tgen::list::different({idx_1, idx_2})}.
  *
  * #### Examples
  *
@@ -224,30 +224,31 @@ namespace tgen {
 
 
 /**
- * @brief Restricts generator s.t. all values are distinct.
+ * @brief Restricts generator s.t. all values are different.
  *
- * Equivalent to @tt{tgen::list::distinct({0, 1, ... size-1})}.
+ * Equivalent to @tt{tgen::list::different({0, 1, ... size-1})}.
  *
- * @note If you add this restriction, do not add another `tgen::list::distinct` restriction! Generation might fail otherwise.
+ * @note If you add this restriction, do not add another `tgen::list::different` restriction! Generation might
+ *       fail otherwise.
  *
  * #### Examples
  *
  * ```cpp
- * // Lists of 5 distinct ints from 1 to 5.
- * auto seq_gen = tgen::list<int>(5, 1, 5).distinct();
+ * // Lists of 5 different ints from 1 to 5.
+ * auto seq_gen = tgen::list<int>(5, 1, 5).all_different();
  * ```
  *
- * @fn list::distinct();
+ * @fn list::all_different();
  */
 
 
 /**
- * @brief Generates a random instance from the set of valid lists.
+ * @brief Generates a random value from the set of valid lists.
  *
- * @return A uniformly random @tt{tgen::list::instance} from the set of valid lists, given the added restrictions.
+ * @return A uniformly random @tt{tgen::list::value} from the set of valid lists, given the added restrictions.
  *
  * @throws std::runtime_error if there is no valid list satisfying all added restrictions,
- *         or if the added restrictions are considered to be too complex (see @tt{tgen::list::distinct}).
+ *         or if the added restrictions are considered to be too complex (see @tt{tgen::list::different}).
  *
  * #### Complexity
  *
@@ -270,28 +271,26 @@ namespace tgen {
 
 /**
  * @ingroup list
- * @brief List instance.
+ * @brief List value.
  *
- * Instance of a list.
- *
- * It can be deterministically operated upon (see @ref generator_instance_op for random operations) 
+ * It can be deterministically operated upon (see @ref generator_value_op for random operations) 
  * and printed through @tt{@namespace{std}::cout}.
  *
- * @struct list::instance;
+ * @struct list::value;
  */
 
 
 /**
- * @brief Creates a list instance from a @texttt{@namespace{std}::@type{vector}}.
+ * @brief Creates a list value from a @texttt{@namespace{std}::@type{vector}}.
  *
- * @param vec The @texttt{@namespace{std}::@type{vector}} representing the instance.
+ * @param vec The @texttt{@namespace{std}::@type{vector}} representing the value.
  *
  * #### Examples
  *
  * ```cpp
- * // Creates and prints an instance from a std::vector.
+ * // Creates and prints a value from a std::vector.
  * std::vector<int> v = {1, 2, 3};
- * tgen::list<int>::instance inst(v);
+ * tgen::list<int>::value inst(v);
  * std::cout << inst << std::endl; // Prints "1 2 3".
  * 
  * // Also works with std::initializer_list<T>.
@@ -299,29 +298,29 @@ namespace tgen {
  * std::cout << inst << std::endl; // Prints "5 4".
  * ```
  *
- * @fn list::instance::instance(const std::vector<T>& vec);
+ * @fn list::value::value(const std::vector<T>& vec);
  */
 
 
 /**
- * @brief Returns the size of the list instance.
+ * @brief Returns the size of the list value.
  *
- * @return The size (number of elements) of the list instance.
+ * @return The size (number of elements) of the list value.
  *
  * #### Examples
  *
  * ```cpp
- * // Prints the size of an instance.
- * tgen::list<int>::instance inst = {1, 2, 3};
+ * // Prints the size of a value.
+ * tgen::list<int>::value inst = {1, 2, 3};
  * std::cout << inst.size() << std::endl; // Prints "3".
  * ```
  *
- * @fn list::instance::size();
+ * @fn list::value::size();
  */
 
 
 /**
- * @brief Accesses the value at some position of the instance.
+ * @brief Accesses the value at some position of the value.
  *
  * @param idx Index to be accessed.
  *
@@ -330,18 +329,18 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Changes and prints a position of an instance.
- * tgen::list<int>::instance inst = {1, 2, 3};
+ * // Changes and prints a position of a value.
+ * tgen::list<int>::value inst = {1, 2, 3};
  * ++inst[1];
  * std::cout << inst[1] << std::endl; // Prints "3".
  * ```
  *
- * @fn list::instance::operator[](int idx);
+ * @fn list::value::operator[](int idx);
  */
 
 
 /**
- * @brief Sorts the instance in non-decreasing order.
+ * @brief Sorts the value in non-decreasing order.
  *
  * #### Complexity
  *
@@ -350,17 +349,17 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sorts and prints an instance.
- * tgen::list<int>::instance inst = {3, 1, 2};
+ * // Sorts and prints a value.
+ * tgen::list<int>::value inst = {3, 1, 2};
  * std::cout << inst.sort() << std::endl; // Prints "1 2 3".
  * ```
  *
- * @fn list::instance::sort();
+ * @fn list::value::sort();
  */
 
 
 /**
- * @brief Reverses the instance.
+ * @brief Reverses the value.
  *
  * #### Complexity
  *
@@ -369,12 +368,12 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Reverses and prints an instance.
- * tgen::list<int>::instance inst = {3, 1, 2};
+ * // Reverses and prints a value.
+ * tgen::list<int>::value inst = {3, 1, 2};
  * std::cout << inst.reverse() << std::endl; // Prints "2 1 3".
  * ```
  *
- * @fn list::instance::reverse();
+ * @fn list::value::reverse();
  */
 
 
@@ -388,17 +387,17 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints an instance, separated by commas.
- * tgen::list<int>::instance inst = {3, 1, 2};
+ * // Prints a value, separated by commas.
+ * tgen::list<int>::value inst = {3, 1, 2};
  * std::cout << inst.separator(',') << std::endl; // Prints "3,1,2".
  * ```
  *
- * @fn list::instance::separator(char sep);
+ * @fn list::value::separator(char sep);
  */
 
 
 /**
- * @brief Concatenates two instances.
+ * @brief Concatenates two values.
  *
  * @param rhs The right-hand side.
  *
@@ -411,17 +410,17 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Concatenates and prints two instances.
- * tgen::list<int> s = tgen::list<int>(5, 1, 5).distinct();
+ * // Concatenates and prints two values.
+ * tgen::list<int> s = tgen::list<int>(5, 1, 5).all_different();
  * std::cout << s.gen() + s.gen() << std::endl;
  * ```
  *
- * @fn list::instance::operator+(const instance& rhs);
+ * @fn list::value::operator+(const value& rhs);
  */
 
 
 /**
- * @brief Prints the instance to a @texttt{@namespace{std}::@type{ostream}}.
+ * @brief Prints the value to a @texttt{@namespace{std}::@type{ostream}}.
  *
  * The values are printed with one space as a separator by default,
  * and with no end of line.
@@ -429,29 +428,29 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints an instance.
- * std::cout << tgen::list<int>::instance({3, 1, 2}) << std::endl; // Prints "3 1 2".
+ * // Prints a value.
+ * std::cout << tgen::list<int>::value({3, 1, 2}) << std::endl; // Prints "3 1 2".
  * ```
  *
- * @fn list::instance::operator<<(std::ostream &out, const instance &inst);
+ * @fn list::value::operator<<(std::ostream &out, const value &inst);
  */
 
 
 /**
- * @brief Converts the instance to a @texttt{@namespace{std}::@type{vector}}.
+ * @brief Converts the value to a @texttt{@namespace{std}::@type{vector}}.
  *
- * @return A @texttt{@namespace{std}::@type{vector}} representing the instance.
+ * @return A @texttt{@namespace{std}::@type{vector}} representing the value.
  *
  * #### Examples
  *
  * ```cpp
  * // Convoluted way to reverse a vector.
  * std::vector<int> v = {3, 1, 2};
- * v = tgen::list<int>::instance(v).reverse().to_std();
+ * v = tgen::list<int>::value(v).reverse().to_std();
  * // v = {2, 1, 3}.
  * ```
  *
- * @fn list::instance::to_std() const;
+ * @fn list::value::to_std() const;
  */
 
 };
