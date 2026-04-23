@@ -144,10 +144,12 @@ namespace tgen {
 
 
 /**
- * @brief Restricts generator s.t. values at two indices are the same.
+ * @brief Restricts generator s.t. values at two indices are equal.
  *
  * @param idx_1 First index.
  * @param idx_2 Second index.
+ *
+ * Equivalent to @tt{tgen::list::equal({idx_1, idx_2})}.
  *
  * #### Examples
  *
@@ -161,10 +163,28 @@ namespace tgen {
 
 
 /**
- * @brief Restricts generator s.t. all values at index range are the same.
+ * @brief Restricts generator s.t. all values in index set are equal.
+ *
+ * @param indices Index set.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Lists of 10 ints from 1 to 5 with the first half equal.
+ * auto seq_gen = tgen::list<int>(10, 1, 5).equal({0, 1, 2, 3, 4});
+ * ```
+ *
+ * @fn list::equal(std::set<int> indices);
+ */
+
+
+/**
+ * @brief Restricts generator s.t. all values at index range are equal.
  *
  * @param left Left endpoint of index range (inclusive).
  * @param right Right endpoint of index range (inclusive).
+ *
+ * Equivalent to @tt{tgen::list::equal({left, left+1, ... , right})}.
  *
  * #### Examples
  *
@@ -174,6 +194,22 @@ namespace tgen {
  * ```
  *
  * @fn list::equal_range(int left, int right);
+ */
+
+
+/**
+ * @brief Restricts generator s.t. all values are equal.
+ *
+ * Equivalent to @tt{tgen::list::equal({0, 1, ... size-1})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Lists of 5 equal ints from 1 to 5.
+ * auto seq_gen = tgen::list<int>(5, 1, 5).all_equal();
+ * ```
+ *
+ * @fn list::all_equal();
  */
 
 
@@ -220,6 +256,25 @@ namespace tgen {
  * ```
  *
  * @fn list::different(int idx_1, int idx_2);
+ */
+
+
+/**
+ * @brief Restricts generator s.t. all values at index range are different.
+ *
+ * @param left Left endpoint of index range (inclusive).
+ * @param right Right endpoint of index range (inclusive).
+ *
+ * Equivalent to @tt{tgen::list::different({left, left+1, ... , right})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Lists of 10 ints from 1 to 5 with the first half all different.
+ * auto seq_gen = tgen::list<int>(10, 1, 5).different_range(0, 4);
+ * ```
+ *
+ * @fn list::different_range(int left, int right);
  */
 
 

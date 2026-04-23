@@ -158,12 +158,12 @@ ABBREVIATE_BRIEF       = "The $name class" \
                          an \
                          the
 
-# If the ALWAYSdetailED_SEC and REPEAT_BRIEF tags are both set to YES then
+# If the ALWAYS_DETAILED_SEC and REPEAT_BRIEF tags are both set to YES then
 # Doxygen will generate a detailed section even if there is only a brief
 # description.
 # The default value is: NO.
 
-ALWAYSdetailED_SEC    = NO
+ALWAYS_DETAILED_SEC    = NO
 
 # If the INLINE_INHERITED_MEMB tag is set to YES, Doxygen will show all
 # inherited members of a class in the documentation of that class as if those
@@ -2693,10 +2693,10 @@ UML_LIMIT_NUM_FIELDS   = 10
 
 UML_MAX_EDGE_LABELS    = 10
 
-# If the DOT_UMLdetailS tag is set to NO, Doxygen will show attributes and
-# methods without types and arguments in the UML graphs. If the DOT_UMLdetailS
+# If the DOT_UML_DETAILS tag is set to NO, Doxygen will show attributes and
+# methods without types and arguments in the UML graphs. If the DOT_UML_DETAILS
 # tag is set to YES, Doxygen will add type and arguments for attributes and
-# methods in the UML graphs. If the DOT_UMLdetailS tag is set to NONE, Doxygen
+# methods in the UML graphs. If the DOT_UML_DETAILS tag is set to NONE, Doxygen
 # will not generate fields with class member information in the UML graphs. The
 # class diagrams will look similar to the default class diagrams but using UML
 # notation for the relationships.
@@ -2704,7 +2704,7 @@ UML_MAX_EDGE_LABELS    = 10
 # The default value is: NO.
 # This tag requires that the tag UML_LOOK is set to YES.
 
-DOT_UMLdetailS        = NO
+DOT_UML_DETAILS        = NO
 
 # The DOT_WRAP_THRESHOLD tag can be used to set the maximum number of characters
 # to display on a single line. If the actual line length exceeds this threshold

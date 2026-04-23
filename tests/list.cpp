@@ -12,7 +12,7 @@ struct list_test {
 	int l, r;
 	tgen::list<int> s;
 	std::vector<std::pair<int, int>> defs;
-	std::vector<std::pair<int, int>> equals;
+	std::vector<std::set<int>> equals;
 	std::vector<std::set<int>> distincts;
 
 	list_test(int n, int l_, int r_) : l(l_), r(r_), s(n, l, r) {}
@@ -24,7 +24,12 @@ struct list_test {
 	}
 	list_test &equal(int idx_1, int idx_2) {
 		s.equal(idx_1, idx_2);
-		equals.emplace_back(idx_1, idx_2);
+		equals.push_back({idx_1, idx_2});
+		return *this;
+	}
+	list_test &equal(std::set<int> indices) {
+		s.equal(indices);
+		equals.push_back(indices);
 		return *this;
 	}
 	list_test &different(std::set<int> indices) {
@@ -39,8 +44,15 @@ struct list_test {
 			EXPECT_TRUE(l <= v[i] and v[i] <= r);
 		for (auto [idx, val] : defs)
 			EXPECT_TRUE(v[idx] == val);
-		for (auto [idx_1, idx_2] : equals)
-			EXPECT_TRUE(v[idx_1] == v[idx_2]);
+		for (auto equal : equals) {
+			std::optional<int> val;
+			for (int i : equal) {
+				if (!val)
+					val = v[i];
+				else
+					EXPECT_TRUE(*val == v[i]);
+			}
+		}
 		for (auto distinct : distincts) {
 			std::set<int> vals;
 			for (int i : distinct) {
@@ -225,10 +237,6 @@ TEST(list_test, gen_with_equal) {
 
 		test.check();
 	}
-}
-
-TEST(list_test, gen_with_equal_range) {
-	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
 		std::vector<std::pair<int, int>> equals;
@@ -251,9 +259,26 @@ TEST(list_test, gen_with_equal_range) {
 				EXPECT_EQ(v[k - 1], v[k]);
 		}
 	}
+
+	for (int i = 0; i < 100; ++i) {
+		int n = 5;
+		list_test test(n, 1, n);
+
+		int q = tgen::next(1, 5);
+		for (int j = 0; j < q; ++j) {
+			int sz = tgen::next(1, n);
+			std::set<int> idx;
+			for (int k = 0; k < n; ++k)
+				idx.insert(k);
+			idx = tgen::choose(idx, sz);
+			test.equal(idx);
+		}
+
+		test.check();
+	}
 }
 
-TEST(list_test, gen_with_distinct) {
+TEST(list_test, gen_with_different) {
 	tgen::register_gen();
 
 	for (int i = 0; i < 100; ++i) {
@@ -272,6 +297,9 @@ TEST(list_test, gen_with_distinct) {
 
 		test.check();
 	}
+
+	auto inst = tgen::list<int>(10, 1, 10).equal({0, 3, 4}).gen();
+	EXPECT_TRUE(inst[0] == inst[3] and inst[3] == inst[4]);
 }
 
 TEST(list_test, gen_with_all_invalid) {

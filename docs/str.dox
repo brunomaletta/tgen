@@ -157,10 +157,31 @@ namespace tgen {
 
 
 /**
- * @brief Restricts generator s.t. values at two indices are the same.
+ * @brief Restricts generator s.t. all characters in index set are equal.
+ *
+ * @param indices Index set.
+ *
+ * @throws std::runtime_error if the generator was created from
+ *         a regex (restrictions cannot be added for regex).
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Strings of 10 chars with the first half equal.
+ * auto str_gen = tgen::str(10, 'a', 'z').equal({0, 1, 2, 3, 4});
+ * ```
+ *
+ * @fn str::equal(std::set<int> indices);
+ */
+
+
+/**
+ * @brief Restricts generator s.t. characters at two indices are equal.
  *
  * @param idx_1 First index.
  * @param idx_2 Second index.
+ *
+ * Equivalent to @tt{tgen::str::equal({idx_1, idx_2})}.
  *
  * @throws std::runtime_error if the generator was created from
  *         a regex (restrictions cannot be added for regex).
@@ -177,10 +198,12 @@ namespace tgen {
 
 
 /**
- * @brief Restricts generator s.t. all values at index range are the same.
+ * @brief Restricts generator s.t. all characters at index range are equal.
  *
  * @param left Left endpoint of index range (inclusive).
  * @param right Right endpoint of index range (inclusive).
+ *
+ * Equivalent to @tt{tgen::str::equal({left, left+1, ... , right})}.
  *
  * @throws std::runtime_error if the generator was created from
  *         a regex (restrictions cannot be added for regex).
@@ -188,11 +211,27 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Strings of 10 lowercase letters with a run of 4 equal characters at the start.
- * auto str_gen = tgen::str(10, 'a', 'z').equal_range(0, 3);
+ * // Strings of 10 chars with the first half equal.
+ * auto str_gen = tgen::str(10, 'a', 'z').equal_range(0, 4);
  * ```
  *
  * @fn str &str::equal_range(int left, int right);
+ */
+
+
+/**
+ * @brief Restricts generator s.t. all values are equal.
+ *
+ * Equivalent to @tt{tgen::str::equal({0, 1, ... size-1})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Strings of 5 equal chars from 'a' to 'd'.
+ * auto str_gen = tgen::str(5, 'a', 'd').all_equal();
+ * ```
+ *
+ * @fn str::all_equal();
  */
 
 
@@ -218,6 +257,8 @@ namespace tgen {
 
 /**
  * @brief Restricts generator s.t. string is a palindrome.
+ *
+ * Equivalent to @tt{tgen::str::palindrome(0, size - 1)}.
  *
  * @throws std::runtime_error if the generator was created from
  *         a regex (restrictions cannot be added for regex).
@@ -284,6 +325,25 @@ namespace tgen {
 
 
 /**
+ * @brief Restricts generator s.t. all characters at index range are different.
+ *
+ * @param left Left endpoint of index range (inclusive).
+ * @param right Right endpoint of index range (inclusive).
+ *
+ * Equivalent to @tt{tgen::str::different({left, left+1, ... , right})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Strings of 10 characters with the first half all different.
+ * auto str_gen = tgen::str(10, 'a', 'z').different_range(0, 4);
+ * ```
+ *
+ * @fn str::different_range(int left, int right);
+ */
+
+
+/**
  * @brief Restricts generator s.t. all characters are different.
  *
  * Equivalent to @tt{tgen::str::different({0, 1, ... size-1})}.
@@ -298,7 +358,7 @@ namespace tgen {
  *
  * ```cpp
  * // Strings consisting of 10 different lowercase letters.
- * auto s = tgen::str(10, 'a', 'z').all_different();
+ * auto str_gen tgen::str(10, 'a', 'z').all_different();
  * ```
  *
  * @fn str &str::all_different();

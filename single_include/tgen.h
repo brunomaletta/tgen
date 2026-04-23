@@ -1260,6 +1260,16 @@ template <typename T> struct list : gen_base<list<T>> {
 		return *this;
 	}
 
+	// Restricts lists for list[S] to be equal, for given subset S of indices.
+	list &equal(std::set<int> indices) {
+		if (!indices.empty()) {
+			std::set<int>::iterator beg = indices.begin();
+			for (auto it = std::next(beg); it != indices.end(); ++it)
+				equal(*beg, *it);
+		}
+		return *this;
+	}
+
 	// Restricts lists for list[left..right] to have all equal values.
 	list &equal_range(int left, int right) {
 		tgen_ensure(0 <= left and left <= right and right < size_,
@@ -1268,6 +1278,9 @@ template <typename T> struct list : gen_base<list<T>> {
 			equal(i, i + 1);
 		return *this;
 	}
+
+	// Restricts lists for all equal elements.
+	list &all_equal() { return equal_range(0, size_ - 1); }
 
 	// Restricts lists for list[S] to be different (distinct), for given subset
 	// S of indices. You can not add two of these restrictions with
@@ -1284,7 +1297,16 @@ template <typename T> struct list : gen_base<list<T>> {
 		return different(indices);
 	}
 
-	// Restricts lists with all different elements.
+	// Restricts lists for list[left..right] to have all different values.
+	list &different_range(int left, int right) {
+		tgen_ensure(0 <= left and left <= right and right < size_,
+					"list: range indices must be valid");
+		std::vector<int> indices(right - left + 1);
+		std::iota(indices.begin(), indices.end(), left);
+		return different(std::set<int>(indices.begin(), indices.end()));
+	}
+
+	// Restricts lists for all different elements.
 	list &all_different() {
 		std::vector<int> indices(size_);
 		std::iota(indices.begin(), indices.end(), 0);
@@ -3101,18 +3123,18 @@ birthday_attack(const std::vector<std::string> &alphabet, int base, int mod) {
  */
 
 struct str : gen_base<str> {
-	std::optional<list<char>> seq_; // List of characters.
+	std::optional<list<char>> list_; // List of characters.
 	std::optional<detail::regex_node>
 		root_; // Root node of the regex tree for the whole string.
 
 	// Creates generator for strings of size 'size', with random characters in
 	// [value_l, value_r].
 	str(int size, char value_l = 'a', char value_r = 'z')
-		: seq_(list<char>(size, value_l, value_r)) {}
+		: list_(list<char>(size, value_l, value_r)) {}
 
 	// Creates generator for strings of size 'size', with random characters in
 	// 'chars'.
-	str(int size, std::set<char> chars) : seq_(list<char>(size, chars)) {}
+	str(int size, std::set<char> chars) : list_(list<char>(size, chars)) {}
 
 	// Creates generator for strings that match the given regex.
 	template <typename... Args> str(const std::string &regex, Args &&...args) {
@@ -3125,28 +3147,42 @@ struct str : gen_base<str> {
 	// Restricts strings for str[idx] = value.
 	str &fix(int idx, char character) {
 		tgen_ensure(!root_, "str: cannot add restriction for regex");
-		seq_->fix(idx, character);
+		list_->fix(idx, character);
+		return *this;
+	}
+
+	// Restricts strings for list[S] to be equal, for given subset S of indices.
+	str &equal(std::set<int> indices) {
+		tgen_ensure(!root_, "str: cannot add restriction for regex");
+		list_->equal(indices);
 		return *this;
 	}
 
 	// Restricts strings for str[idx_1] = str[idx_2].
 	str &equal(int idx_1, int idx_2) {
 		tgen_ensure(!root_, "str: cannot add restriction for regex");
-		seq_->equal(idx_1, idx_2);
+		list_->equal(idx_1, idx_2);
 		return *this;
 	}
 
 	// Restricts strings for str[left..right] to have all equal values.
 	str &equal_range(int left, int right) {
 		tgen_ensure(!root_, "str: cannot add restriction for regex");
-		seq_->equal_range(left, right);
+		list_->equal_range(left, right);
+		return *this;
+	}
+
+	// Restricts strings for all equal chars.
+	str &all_equal() {
+		tgen_ensure(!root_, "str: cannot add restriction for regex");
+		list_->all_equal();
 		return *this;
 	}
 
 	// Restricts strings for str[left..right] to be a palindrome.
 	str &palindrome(int left, int right) {
 		tgen_ensure(!root_, "str: cannot add restriction for regex");
-		tgen_ensure(0 <= left and left <= right and right < seq_->size_,
+		tgen_ensure(0 <= left and left <= right and right < list_->size_,
 					"str: range indices must be valid");
 		for (int i = left; i < right - (i - left); ++i)
 			equal(i, right - (i - left));
@@ -3156,28 +3192,35 @@ struct str : gen_base<str> {
 	// Restricts strings for the entire string to be a palindrome.
 	str &palindrome() {
 		tgen_ensure(!root_, "str: cannot add restriction for regex");
-		return palindrome(0, seq_->size_ - 1);
+		return palindrome(0, list_->size_ - 1);
 	}
 
 	// Restricts strings for str[S] to be different (distinct), for given subset
 	// S of indices.
 	str &different(std::set<int> indices) {
 		tgen_ensure(!root_, "str: cannot add restriction for regex");
-		seq_->different(indices);
+		list_->different(indices);
 		return *this;
 	}
 
 	// Restricts strings for str[idx_1] != str[idx_2].
 	str &different(int idx_1, int idx_2) {
 		tgen_ensure(!root_, "str: cannot add restriction for regex");
-		seq_->different(idx_1, idx_2);
+		list_->different(idx_1, idx_2);
 		return *this;
 	}
 
-	// Restricts strings for all values to be different.
+	// Restricts lists for list[left..right] to have all different chars.
+	str &different_range(int left, int right) {
+		tgen_ensure(!root_, "str: cannot add restriction for regex");
+		list_->different_range(left, right);
+		return *this;
+	}
+
+	// Restricts strings for all chars to be different.
 	str &all_different() {
 		tgen_ensure(!root_, "str: cannot add restriction for regex");
-		seq_->all_different();
+		list_->all_different();
 		return *this;
 	}
 
@@ -3263,7 +3306,7 @@ struct str : gen_base<str> {
 			return value(ret_str);
 		} else {
 			// List.
-			std::vector<char> vec = seq_->gen().to_std();
+			std::vector<char> vec = list_->gen().to_std();
 			return value(std::string(vec.begin(), vec.end()));
 		}
 	}
