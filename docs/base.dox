@@ -153,9 +153,9 @@ namespace tgen {
  *
  * @tparam T type to be generated. Should be an arithmetic type: @primitive{int}, @primitive{double}, @primitive{long long}, @primitive{char}, etc.
  *
- * @param n Endpoint of the range.
+ * @param right Endpoint of the range.
  *
- * @return A random number in @tt{[@pname{0}, @pname{n})}, chosen uniformly.
+ * @return A random number in @tt{[0, @pname{right})}, chosen uniformly.
  *
  * #### Complexity
  *
@@ -170,7 +170,7 @@ namespace tgen {
  * bool odds = tgen::next<double>(3) < 1.0;
  * ```
  *
- * @fn next(T n);
+ * @fn next(T right);
  */
 
 
@@ -181,10 +181,10 @@ namespace tgen {
  * @tparam T type to be generated. Should be an arithmetic type: @primitive{int}, @primitive{double},
  *         @primitive{long long}, @primitive{char}, etc.
  *
- * @param l Left endpoint of the range.
- * @param r Light endpoint of the range.
+ * @param left Left endpoint of the range.
+ * @param right Light endpoint of the range.
  *
- * @return A random number in @tt{[@pname{l}, @pname{r}]}, chosen uniformly.
+ * @return A random number in @tt{[@pname{left}, @pname{right}]}, chosen uniformly.
  *
  * #### Complexity
  *
@@ -197,7 +197,7 @@ namespace tgen {
  * int value = tgen::next(1, 10);
  * ```
  *
- * @fn next(T l, T r);
+ * @fn next(T left, T right);
  */
 
 

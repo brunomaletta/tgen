@@ -81,11 +81,11 @@ namespace tgen {
  * @brief Creates string generator defined by size and range of characters.
  *
  * @param size Size of the string.
- * @param value_l Left endpoint of character range.
- * @param value_r Right endpoint of character range.
+ * @param value_left Left endpoint of character range.
+ * @param value_right Right endpoint of character range.
  *
  * Defines a generator of strings of length @pname{size} with characters in
- * @tt{[@pname{value_l}, @pname{value_r}]}.
+ * @tt{[@pname{value_left}, @pname{value_right}]}.
  *
  * #### Examples
  *
@@ -94,7 +94,7 @@ namespace tgen {
  * auto str_gen = tgen::str(10, 'a', 'z');
  * ```
  *
- * @fn str::str(int size, char value_l = 'a', char value_r = 'z');
+ * @fn str::str(int size, char value_left = 'a', char value_right = 'z');
  */
 
 

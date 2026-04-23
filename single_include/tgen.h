@@ -548,16 +548,16 @@ struct println : print {
  * Global random operations.
  */
 
-// Returns a uniformly random number in [0, n)
+// Returns a uniformly random number in [0, right)
 // O(1).
-template <typename T> T next(T n) {
+template <typename T> T next(T right) {
 	detail::ensure_registered();
 	if constexpr (std::is_integral_v<T>) {
-		tgen_ensure(n >= 1, "value for `next` must be valid");
-		return std::uniform_int_distribution<T>(0, n - 1)(detail::rng);
+		tgen_ensure(right >= 1, "value for `next` must be valid");
+		return std::uniform_int_distribution<T>(0, right - 1)(detail::rng);
 	} else if constexpr (std::is_floating_point_v<T>) {
-		tgen_ensure(n >= 0, "value for `next` must be valid");
-		return std::uniform_real_distribution<T>(0, n)(detail::rng);
+		tgen_ensure(right >= 0, "value for `next` must be valid");
+		return std::uniform_real_distribution<T>(0, right)(detail::rng);
 	} else
 		throw detail::error("invalid type for next (" +
 							std::string(typeid(T).name()) + ")");
@@ -565,13 +565,13 @@ template <typename T> T next(T n) {
 
 // Returns a uniformly random number in [l, r].
 // O(1).
-template <typename T> T next(T l, T r) {
+template <typename T> T next(T left, T right) {
 	detail::ensure_registered();
-	tgen_ensure(l <= r, "range for `next` must be valid");
+	tgen_ensure(left <= right, "range for `next` must be valid");
 	if constexpr (std::is_integral_v<T>)
-		return std::uniform_int_distribution<T>(l, r)(detail::rng);
+		return std::uniform_int_distribution<T>(left, right)(detail::rng);
 	else if constexpr (std::is_floating_point_v<T>)
-		return std::uniform_real_distribution<T>(l, r)(detail::rng);
+		return std::uniform_real_distribution<T>(left, right)(detail::rng);
 	else
 		throw detail::error("invalid type for next (" +
 							std::string(typeid(T).name()) + ")");
@@ -1200,9 +1200,11 @@ template <typename T> struct list : gen_base<list<T>> {
 	std::vector<std::set<int>>
 		diff_restrictions_; // All different restrictions.
 
-	// Creates generator for lists of size 'size', with random T in [l, r].
-	list(int size, T value_l, T value_r)
-		: size_(size), value_l_(value_l), value_r_(value_r), neigh_(size) {
+	// Creates generator for lists of size 'size', with random T in [value_left,
+	// value_right].
+	list(int size, T value_left, T value_right)
+		: size_(size), value_l_(value_left), value_r_(value_right),
+		  neigh_(size) {
 		tgen_ensure(size_ > 0, "list: size must be positive");
 		tgen_ensure(value_l_ <= value_r_, "list: value range must be valid");
 		for (int i = 0; i < size_; ++i)
@@ -2294,22 +2296,22 @@ prime_gaps() {
 }
 
 // Returns pair (first_composite_in_gap, last_composite_in_gap).
-// O(log r) approximately.
-inline std::pair<uint64_t, uint64_t> prime_gap_upto(uint64_t r) {
-	if (r < 4)
-		throw detail::there_is_no_upto_error("prime gap", r);
+// O(log(right)) approximately.
+inline std::pair<uint64_t, uint64_t> prime_gap_upto(uint64_t right) {
+	if (right < 4)
+		throw detail::there_is_no_upto_error("prime gap", right);
 
 	const auto &[P, G] = prime_gaps();
 	for (int i = P.size() - 1;; --i) {
-		if (P[i] >= r)
+		if (P[i] >= right)
 			continue;
 
-		uint64_t right = std::min(r, P[i] + G[i] - 1);
+		uint64_t real_right = std::min(right, P[i] + G[i] - 1);
 		uint64_t prev = i > 0 ? G[i - 1] : 0;
-		uint64_t curr = right - P[i];
+		uint64_t curr = real_right - P[i];
 
 		if (curr >= prev)
-			return {P[i] + 1, right};
+			return {P[i] + 1, real_right};
 	}
 }
 
@@ -2353,57 +2355,57 @@ inline const std::vector<uint64_t> &highly_composites() {
 	return highly_composites;
 }
 
-// O(log r) approximately.
-inline uint64_t highly_composite_upto(uint64_t r) {
+// O(log(right)) approximately.
+inline uint64_t highly_composite_upto(uint64_t right) {
 	for (int i = highly_composites().size() - 1; i >= 0; --i)
-		if (highly_composites()[i] <= r)
+		if (highly_composites()[i] <= right)
 			return highly_composites()[i];
 
-	throw detail::there_is_no_upto_error("highly composite number", r);
+	throw detail::there_is_no_upto_error("highly composite number", right);
 }
 
-// O(log^3 r) expected.
-// Generates a random prime in [l, r].
-inline uint64_t gen_prime(uint64_t l, uint64_t r) {
-	if (r < l or r < 2)
-		throw detail::there_is_no_in_range_error("prime", l, r);
-	l = std::max<uint64_t>(l, 2);
-	auto [l_gap, r_gap] = prime_gap_upto(r);
-	if (r - l + 1 <= r_gap - l_gap + 1) {
+// O(log^3 (right)) expected.
+// Generates a random prime in [left, right].
+inline uint64_t gen_prime(uint64_t left, uint64_t right) {
+	if (right < left or right < 2)
+		throw detail::there_is_no_in_range_error("prime", left, right);
+	left = std::max<uint64_t>(left, 2);
+	auto [l_gap, r_gap] = prime_gap_upto(right);
+	if (right - left + 1 <= r_gap - l_gap + 1) {
 		// There might be no primes in the range.
-		std::vector<uint64_t> vals(r - l + 1);
-		iota(vals.begin(), vals.end(), l);
+		std::vector<uint64_t> vals(right - left + 1);
+		iota(vals.begin(), vals.end(), left);
 		shuffle(vals.begin(), vals.end());
 		for (uint64_t i : vals)
 			if (is_prime(i))
 				return i;
-		throw detail::there_is_no_in_range_error("prime", l, r);
+		throw detail::there_is_no_in_range_error("prime", left, right);
 	}
 
 	uint64_t n;
 	do {
-		n = next(l, r);
+		n = next(left, right);
 	} while (!is_prime(n));
 	return n;
 }
 
-// O(log^3 l) expected.
-// l <= 2^64 - 59.
-inline uint64_t prime_from(uint64_t l) {
-	tgen_ensure(l <= std::numeric_limits<uint64_t>::max() - 58,
+// O(log^3 (left)) expected.
+// left <= 2^64 - 59.
+inline uint64_t prime_from(uint64_t left) {
+	tgen_ensure(left <= std::numeric_limits<uint64_t>::max() - 58,
 				"math: invalid bound");
-	for (uint64_t i = std::max<uint64_t>(2, l);; ++i)
+	for (uint64_t i = std::max<uint64_t>(2, left);; ++i)
 		if (is_prime(i))
 			return i;
 }
 
-// O(log^3 r) expected.
-inline uint64_t prime_upto(uint64_t r) {
-	if (r >= 2)
-		for (uint64_t i = r; i >= 2; --i)
+// O(log^3 (right)) expected.
+inline uint64_t prime_upto(uint64_t right) {
+	if (right >= 2)
+		for (uint64_t i = right; i >= 2; --i)
 			if (is_prime(i))
 				return i;
-	throw detail::there_is_no_upto_error("prime", r);
+	throw detail::there_is_no_upto_error("prime", right);
 }
 
 // O(n^(1/4) log n) expected.
@@ -2415,25 +2417,28 @@ inline int num_divisors(uint64_t n) {
 	return divisors;
 }
 
-// O(log(r) log(divisor_count)).
-// divisor_count is prime.
-inline uint64_t gen_divisor_count(uint64_t l, uint64_t r, int divisor_count) {
+// Random number in [left, right] with `divisor_count` divisors.
+// O(log(right) log(divisor_count)).
+// divisor_count must be prime.
+inline uint64_t gen_divisor_count(uint64_t left, uint64_t right,
+								  int divisor_count) {
 	tgen_ensure(divisor_count > 0 and is_prime(divisor_count),
 				"math: divisor count must be prime");
 	int root = divisor_count - 1;
-	uint64_t p = gen_prime(detail::kth_root_floor(l, root),
-						   detail::kth_root_floor(r, root));
-	return *detail::expo(p, root, r);
+	uint64_t p = gen_prime(detail::kth_root_floor(left, root),
+						   detail::kth_root_floor(right, root));
+	return *detail::expo(p, root, right);
 }
 
-// O(|mods| + log r).
+// O(|mods| + log (right)).
 // |rems| = |mods|.
 // rems_i < mods_i.
-inline uint64_t gen_congruent(uint64_t l, uint64_t r,
+inline uint64_t gen_congruent(uint64_t left, uint64_t right,
 							  std::vector<uint64_t> rems,
 							  std::vector<uint64_t> mods) {
-	if (l > r)
-		throw detail::there_is_no_in_range_error("congruent number", l, r);
+	if (left > right)
+		throw detail::there_is_no_in_range_error("congruent number", left,
+												 right);
 	tgen_ensure(rems.size() == mods.size(),
 				"math: number of remainders and mods must be the same");
 	tgen_ensure(rems.size() > 0, "math: must have at least one congruence");
@@ -2445,42 +2450,44 @@ inline uint64_t gen_congruent(uint64_t l, uint64_t r,
 		crt = crt * detail::crt(rems[i], mods[i]);
 
 		if (crt.a == -1)
-			throw detail::there_is_no_in_range_error("congruent number", l, r);
-		if (crt.m > r) {
-			if (!(l <= crt.a and crt.a <= r))
-				throw detail::there_is_no_in_range_error("congruent number", l,
-														 r);
+			throw detail::there_is_no_in_range_error("congruent number", left,
+													 right);
+		if (crt.m > right) {
+			if (!(left <= crt.a and crt.a <= right))
+				throw detail::there_is_no_in_range_error("congruent number",
+														 left, right);
 
 			for (int j = 0; j < static_cast<int>(rems.size()); ++j)
 				if (crt.a % mods[j] != rems[j])
 					throw detail::there_is_no_in_range_error("congruent number",
-															 l, r);
+															 left, right);
 			return crt.a;
 		}
 	}
 
-	uint64_t k_min = crt.a >= l ? 0 : ((l - crt.a) + crt.m - 1) / crt.m;
-	uint64_t k_max = (r - crt.a) / crt.m;
+	uint64_t k_min = crt.a >= left ? 0 : ((left - crt.a) + crt.m - 1) / crt.m;
+	uint64_t k_max = (right - crt.a) / crt.m;
 
 	if (k_min > k_max)
-		throw detail::there_is_no_in_range_error("congruent number", l, r);
+		throw detail::there_is_no_in_range_error("congruent number", left,
+												 right);
 
 	return crt.a + next(k_min, k_max) * crt.m;
 }
 
-// O(log r).
+// O(log (right)).
 // rem < mod.
-inline uint64_t gen_congruent(uint64_t l, uint64_t r, uint64_t rem,
+inline uint64_t gen_congruent(uint64_t left, uint64_t right, uint64_t rem,
 							  uint64_t mod) {
-	return gen_congruent(l, r, std::vector<uint64_t>({rem}),
+	return gen_congruent(left, right, std::vector<uint64_t>({rem}),
 						 std::vector<uint64_t>({mod}));
 }
 
-// Firsr congruent number >= l.
-// O(|mods| + log r).
+// First congruent number >= left.
+// O(|mods| + log (left)).
 // |rems| = |mods|.
 // rems_i < mods_i.
-inline uint64_t congruent_from(uint64_t l, std::vector<uint64_t> rems,
+inline uint64_t congruent_from(uint64_t left, std::vector<uint64_t> rems,
 							   std::vector<uint64_t> mods) {
 	tgen_ensure(rems.size() == mods.size(),
 				"math: number of remainders and mods must be the same");
@@ -2493,9 +2500,9 @@ inline uint64_t congruent_from(uint64_t l, std::vector<uint64_t> rems,
 		crt = crt * detail::crt(rems[i], mods[i]);
 
 		if (crt.a == -1)
-			throw detail::there_is_no_from_error("congruent number", l);
+			throw detail::there_is_no_from_error("congruent number", left);
 		if (crt.m > std::numeric_limits<uint64_t>::max()) {
-			if (crt.a < l)
+			if (crt.a < left)
 				throw detail::error(
 					"math: congruent number does not exist or is too large");
 
@@ -2508,8 +2515,8 @@ inline uint64_t congruent_from(uint64_t l, std::vector<uint64_t> rems,
 	}
 
 	uint64_t k = 0;
-	if (crt.a < l)
-		k = ((l - crt.a) + crt.m - 1) / crt.m;
+	if (crt.a < left)
+		k = ((left - crt.a) + crt.m - 1) / crt.m;
 	detail::i128 result = crt.a + k * crt.m;
 
 	if (result > std::numeric_limits<uint64_t>::max())
@@ -2517,18 +2524,18 @@ inline uint64_t congruent_from(uint64_t l, std::vector<uint64_t> rems,
 	return static_cast<uint64_t>(result);
 }
 
-// O(log l)
+// O(log (left))
 // rem < mod.
-inline uint64_t congruent_from(uint64_t l, uint64_t rem, uint64_t mod) {
-	return congruent_from(l, std::vector<uint64_t>{rem},
+inline uint64_t congruent_from(uint64_t left, uint64_t rem, uint64_t mod) {
+	return congruent_from(left, std::vector<uint64_t>{rem},
 						  std::vector<uint64_t>{mod});
 }
 
-// First congruent number <= r.
-// O(|mods| + log r).
+// Last congruent number <= right.
+// O(|mods| + log (right)).
 // |rems| = |mods|.
 // rems_i < mods_i.
-inline uint64_t congruent_upto(uint64_t r, std::vector<uint64_t> rems,
+inline uint64_t congruent_upto(uint64_t right, std::vector<uint64_t> rems,
 							   std::vector<uint64_t> mods) {
 	tgen_ensure(rems.size() == mods.size(),
 				"math: number of remainders and mods must be the same");
@@ -2542,33 +2549,34 @@ inline uint64_t congruent_upto(uint64_t r, std::vector<uint64_t> rems,
 		crt = crt * detail::crt(rems[i], mods[i]);
 
 		if (crt.a == -1)
-			throw detail::there_is_no_upto_error("congruent number", r);
-		if (crt.m > r) {
-			if (!(crt.a <= r))
-				throw detail::there_is_no_upto_error("congruent number", r);
+			throw detail::there_is_no_upto_error("congruent number", right);
+		if (crt.m > right) {
+			if (!(crt.a <= right))
+				throw detail::there_is_no_upto_error("congruent number", right);
 
 			for (int j = 0; j < static_cast<int>(rems.size()); ++j)
 				if (crt.a % mods[j] != rems[j])
-					throw detail::there_is_no_upto_error("congruent number", r);
+					throw detail::there_is_no_upto_error("congruent number",
+														 right);
 			return crt.a;
 		}
 	}
 
-	if (crt.a > r)
-		throw detail::there_is_no_upto_error("congruent number", r);
+	if (crt.a > right)
+		throw detail::there_is_no_upto_error("congruent number", right);
 
-	uint64_t k = (r - crt.a) / crt.m;
+	uint64_t k = (right - crt.a) / crt.m;
 	detail::i128 result = crt.a + k * crt.m;
 
 	if (result < 0)
-		throw detail::there_is_no_upto_error("congruent number", r);
+		throw detail::there_is_no_upto_error("congruent number", right);
 	return static_cast<uint64_t>(result);
 }
 
 // O(log r)
 // rem < mod.
-inline uint64_t congruent_upto(uint64_t r, uint64_t rem, uint64_t mod) {
-	return congruent_upto(r, std::vector<uint64_t>{rem},
+inline uint64_t congruent_upto(uint64_t right, uint64_t rem, uint64_t mod) {
+	return congruent_upto(right, std::vector<uint64_t>{rem},
 						  std::vector<uint64_t>{mod});
 }
 
@@ -2590,25 +2598,26 @@ inline const std::vector<uint64_t> &fibonacci() {
 // Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
 // O(n).
 // 0 < n.
-// 0 < part_l.
+// 0 < part_left.
 inline std::vector<int>
-gen_partition(int n, int part_l = 1, std::optional<int> part_r = std::nullopt) {
-	if (!part_r)
-		part_r = n;
-	part_r = std::min(*part_r, n);
-	tgen_ensure(n > 0 and part_l > 0,
+gen_partition(int n, int part_left = 1,
+			  std::optional<int> part_right = std::nullopt) {
+	if (!part_right)
+		part_right = n;
+	part_right = std::min(*part_right, n);
+	tgen_ensure(n > 0 and part_left > 0,
 				"math: invalid parameters to gen_partition");
-	tgen_ensure(part_l <= n and *part_r > 0, "math: no such partition");
+	tgen_ensure(part_left <= n and *part_right > 0, "math: no such partition");
 
 	// dp[i] = log(numbers of ways to add to i).
 	std::vector<long double> dp(n + 1, detail::LOG_ZERO);
 	dp[0] = detail::LOG_ONE;
 	long double window = detail::LOG_ZERO;
 	for (int i = 1; i <= n; ++i) {
-		if (i >= part_l)
-			window = detail::add_log_space(window, dp[i - part_l]);
-		if (i >= *part_r + 1)
-			window = detail::sub_log_space(window, dp[i - *part_r - 1]);
+		if (i >= part_left)
+			window = detail::add_log_space(window, dp[i - part_left]);
+		if (i >= *part_right + 1)
+			window = detail::sub_log_space(window, dp[i - *part_right - 1]);
 		dp[i] = window;
 	}
 	tgen_ensure(dp[n] >= 0, "math: no such partition");
@@ -2622,7 +2631,7 @@ gen_partition(int n, int part_l = 1, std::optional<int> part_r = std::nullopt) {
 	int sum = n;
 	while (sum > 0) {
 		// Will generate a number such that what remains is in [l, r].
-		int l = std::max(0, sum - *part_r), r = sum - part_l;
+		int l = std::max(0, sum - *part_right), r = sum - part_left;
 		detail::tgen_ensure_against_bug(r >= 0, "math: r < 0 in gen_partition");
 
 		int nxt_sum = std::min(sum, r);
@@ -2655,24 +2664,24 @@ gen_partition(int n, int part_l = 1, std::optional<int> part_r = std::nullopt) {
 // Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
 // O(n) time/memory if part_r is not set, O(n * k) time/memory otherwise.
 // 0 < k <= n.
-// 0 <= part_l.
+// 0 <= part_left.
 inline std::vector<int>
-gen_partition_fixed_size(int n, int k, int part_l = 0,
-						 std::optional<int> part_r = std::nullopt) {
-	if (!part_r)
-		part_r = n;
-	part_r = std::min(*part_r, n);
-	tgen_ensure(0 < k and k <= n and part_l >= 0,
+gen_partition_fixed_size(int n, int k, int part_left = 0,
+						 std::optional<int> part_right = std::nullopt) {
+	if (!part_right)
+		part_right = n;
+	part_right = std::min(*part_right, n);
+	tgen_ensure(0 < k and k <= n and part_left >= 0,
 				"math: invalid parameters to gen_partition_fixed_size");
-	tgen_ensure(static_cast<long long>(k) * part_l <= n and
-					n <= static_cast<long long>(k) * (*part_r),
+	tgen_ensure(static_cast<long long>(k) * part_left <= n and
+					n <= static_cast<long long>(k) * (*part_right),
 				"math: no such partition");
 
 	// What we need to distribute to the parts.
-	int s = n - k * part_l;
+	int s = n - k * part_left;
 
 	std::vector<int> part(k);
-	if (*part_r == n) {
+	if (*part_right == n) {
 		// Stars and bars - O(n).
 		std::vector<int> cuts = {-1};
 
@@ -2690,7 +2699,7 @@ gen_partition_fixed_size(int n, int k, int part_l = 0,
 			part[i] = cuts[i + 1] - cuts[i] - 1;
 	} else {
 		// DP with log trick - O(nk).
-		int u = *part_r - part_l;
+		int u = *part_right - part_left;
 
 		// dp[i][j] = log(#ways to fill i parts with sum j)
 		std::vector<std::vector<long double>> dp(
@@ -2744,7 +2753,7 @@ gen_partition_fixed_size(int n, int k, int part_l = 0,
 	}
 
 	for (int &i : part)
-		i += part_l;
+		i += part_left;
 	return part;
 }
 
@@ -3128,9 +3137,9 @@ struct str : gen_base<str> {
 		root_; // Root node of the regex tree for the whole string.
 
 	// Creates generator for strings of size 'size', with random characters in
-	// [value_l, value_r].
-	str(int size, char value_l = 'a', char value_r = 'z')
-		: list_(list<char>(size, value_l, value_r)) {}
+	// [value_left, value_right].
+	str(int size, char value_left = 'a', char value_right = 'z')
+		: list_(list<char>(size, value_left, value_right)) {}
 
 	// Creates generator for strings of size 'size', with random characters in
 	// 'chars'.
@@ -3594,14 +3603,17 @@ template <typename T> struct pair : gen_base<pair<T>> {
 
 	// Creates a pair with random values in [first_l, first_r] and [second_l,
 	// second_r].
-	pair(T first_l, T first_r, T second_l, T second_r)
-		: first_(first_l, first_r), second_(second_l, second_r) {
-		tgen_ensure(first_l <= first_r, "pair: first range must be valid");
-		tgen_ensure(second_l <= second_r, "pair: second range must be valid");
+	pair(T first_left, T first_right, T second_left, T second_right)
+		: first_(first_left, first_right), second_(second_left, second_right) {
+		tgen_ensure(first_left <= first_right,
+					"pair: first range must be valid");
+		tgen_ensure(second_left <= second_right,
+					"pair: second range must be valid");
 	}
 
 	// Creates a pair with random values in [both_l, both_r].
-	pair(T both_l, T both_r) : pair(both_l, both_r, both_l, both_r) {}
+	pair(T both_left, T both_right)
+		: pair(both_left, both_right, both_left, both_right) {}
 
 	// Restricts pair for first = second.
 	pair &eq() {

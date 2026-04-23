@@ -39,13 +39,13 @@ namespace tgen {
  *
  * @tparam T Integral type to be stored in the pair.
  *
- * @param first_l Left endpoint of value range for first.
- * @param first_r Right endpoint of value range for first.
- * @param second_l Left endpoint of value range for second.
- * @param second_r Right endpoint of value range for second.
+ * @param first_left Left endpoint of value range for first.
+ * @param first_right Right endpoint of value range for first.
+ * @param second_left Left endpoint of value range for second.
+ * @param second_right Right endpoint of value range for second.
  *
- * Defines a generator of pairs with first in @tt{[@pname{first_l}, @pname{first_r}]}
- * and second in @tt{[@pname{second_l}, @pname{second_r}]}.
+ * Defines a generator of pairs with first in @tt{[@pname{first_left}, @pname{first_right}]}
+ * and second in @tt{[@pname{second_left}, @pname{second_right}]}.
  *
  * #### Examples
  *
@@ -54,7 +54,7 @@ namespace tgen {
  * auto pair_gen = tgen::pair<int>(5, 10, 10, 20);
  * ```
  *
- * @fn pair::pair(T first_l, T first_r, T second_l, T second_r);
+ * @fn pair::pair(T first_left, T first_right, T second_left, T second_right);
  */
 
 
@@ -63,13 +63,13 @@ namespace tgen {
  *
  * @tparam T Integral type to be stored in the pair.
  *
- * @param both_l Left endpoint of value range for first and second.
- * @param both_r Right endpoint of value range for first and second;
+ * @param both_left Left endpoint of value range for first and second.
+ * @param both_right Right endpoint of value range for first and second;
  *
- * Defines a generator of pairs with first in @tt{[@pname{both_l}, @pname{both_r}]}
- * and second in @tt{[@pname{both_l}, @pname{both_r}]}.
+ * Defines a generator of pairs with first in @tt{[@pname{both_left}, @pname{both_right}]}
+ * and second in @tt{[@pname{both_left}, @pname{both_right}]}.
  *
- * Equivalent to @tt{@ref tgen::pair::pair(@pname{both_l}, @pname{both_r}, @pname{both_l}, @pname{borh_r})}.
+ * Equivalent to @tt{tgen::pair::pair(@pname{both_left}, @pname{both_right}, @pname{both_left}, @pname{borh_right})}.
  *
  * #### Examples
  *
@@ -78,7 +78,7 @@ namespace tgen {
  * auto pair_gen = tgen::pair<int>(10, 20);
  * ```
  *
- * @fn pair::pair(T both_l, T both_r);
+ * @fn pair::pair(T both_left, T both_right);
  */
 
 
@@ -175,7 +175,7 @@ namespace tgen {
  *
  * #### Complexity
  *
- * @tt{O(log(@pname{first_r} - @pname{first_l}) + log(@pname{second_r} - @pname{second_l}))}.
+ * @tt{O(log(@pname{first_right} - @pname{first_left}) + log(@pname{second_right} - @pname{second_left}))}.
  *
  * #### Examples
  *

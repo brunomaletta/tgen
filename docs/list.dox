@@ -86,11 +86,11 @@ namespace tgen {
  * @tparam T Integral type to be stored in the list.
  *
  * @param size Size of the list.
- * @param value_l Left endpoint of value range.
- * @param value_r Right endpoint of value range.
+ * @param value_left Left endpoint of value range.
+ * @param value_right Right endpoint of value range.
  *
  * Defines a generator of lists of length @pname{size} with values in
- * @tt{[@pname{value_l}, @pname{value_r}]}.
+ * @tt{[@pname{value_left}, @pname{value_right}]}.
  *
  * #### Examples
  *
@@ -99,7 +99,7 @@ namespace tgen {
  * auto seq_gen = tgen::list<int>(10, 1, 100);
  * ```
  *
- * @fn list::list(int size, T value_l, T value_r);
+ * @fn list::list(int size, T value_left, T value_right);
  */
 
 
