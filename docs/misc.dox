@@ -10,7 +10,7 @@ namespace tgen::misc {
  *
  * ```cpp
  * // Prints a random parenthesis sequence of size 10.
- * std::cout << tgen::misc::gen_parenthesis(10) << std::endl;
+ * std::cout << gen_parenthesis(10) << std::endl;
  * ```
  */
 
@@ -31,7 +31,7 @@ namespace tgen::misc {
  *
  * ```cpp
  * // Prints a random parenthesis sequence of size 10.
- * std::cout << tgen::misc::gen_parenthesis(10) << std::endl;
+ * std::cout << gen_parenthesis(10) << std::endl;
  * ```
  *
  * @fn gen_parenthesis(int size);

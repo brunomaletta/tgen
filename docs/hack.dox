@@ -18,6 +18,131 @@ namespace tgen::hack {
  */
 
 
+/**
+ * @ingroup hack
+ * @brief Returns the prefix of the infinite word "abacabad...".
+ *
+ * @param n Length of the prefix.
+ *
+ * @return A string with the prefix of length @pname{n} of @tt{"abacabad..."}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints "abacaba".
+ * std::cout << tgen::hack::abacaba(7) << std::endl;
+ * ```
+ *
+ * @fn abacaba(int n);
+ */
+
+
+/**
+ * @ingroup hack
+ * @brief Returns two strings that force polynomial hash collision for power-of-two mod.
+ *
+ * Computes two strings that have the same polynomial hash for any base and power-of-two mod (up to @tt{2^64}). <br>
+ * Characters are in @tt{[a, b]}.
+ *
+ * @return A @tt{@namespace{std}\::pair} with the colided strings.
+ *
+ * Reference:
+ * - <a href="https://codeforces.com/blog/entry/60442">On the mathematics behind rolling hashes and anti-hash
+ *   tests</a>: Thue–Morse sequence: Hashing with unsigned overflow (p = 2^64, q arbitrary).
+
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints unsined polynomial hash hack.
+ * std::cout << tgen::print(tgen::hack::unsigned_polynomial_hash_hack()) << std::endl;
+ * ```
+ *
+ * @fn unsigned_polynomial_hash_hack();
+ */
+
+
+/**
+ * @ingroup hack
+ * @brief Returns two strings that force polynomial hash collision given base and mod.
+ *
+ * @param alphabet_size Alphabet size.
+ * @param base Base.
+ * @param mod Mod.
+ *
+ * @pre
+ * @tt{0 < @pname{base} < @pname{mod}}
+ *
+ * Computes two strings that have the same polynomial hash for given base and mod. <br>
+ * Characters are in @tt{[a, a + @pname{alphabet_size})}. The larger the alphabet, the smaller the colided strings.
+ *
+ * @return A @tt{@namespace{std}\::pair} with the colided strings.
+ *
+ * Reference:
+ * - <a href="https://codeforces.com/blog/entry/60442">On the mathematics behind rolling hashes and anti-hash
+ *   tests</a>: Composition-attack: Multiple hashes
+ *
+ * #### Complexity
+ *
+ * @tt{O(sqrt(@pname{mod}) log @pname{mod})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints polynomial hash hack.
+ * std::cout << tgen::print(tgen::hack::polynomial_hash_hack(2, 31, 1e9+7), '\n') << std::endl;
+ * ```
+ *
+ * @fn polynomial_hash_hack(int alphabet_size, int base, int mod);
+ */
+
+
+/**
+ * @ingroup hack
+ * @brief Returns two strings that force polynomial hash collision given bases and mods.
+ *
+ * @param alphabet_size Alphabet size.
+ * @param bases Bases.
+ * @param mods Mods.
+ *
+ * @pre
+ * @tt{|@pname{bases}| = |@pname{mods}| <= 2}. <br>
+ * @tt{0 < @pname{bases}[i] < @pname{mods}[i]}.
+ *
+ * Computes two strings that have the same polynomial hash for given bases and mods,
+ * up to 2 (base, mod) pairs. <br>
+ * Characters are in @tt{[a, a + @pname{alphabet_size})}. The larger the alphabet, the smaller the colided strings.
+ *
+ * @return A @tt{@namespace{std}\::pair} with the colided strings.
+ *
+ * Reference:
+ * - <a href="https://codeforces.com/blog/entry/4898">On the mathematics behind rolling hashes and anti-hash
+ *   tests</a>: Composition-attack: Multiple hashes
+
+ *
+ * #### Complexity
+ *
+ * @tt{O(sqrt(mod) log^2 mod)}, with @tt{mod = max(@pname{mods})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints polynomial hash hack for double hash.
+ * std::cout << tgen::print(tgen::hack::polynomial_hash_hack(2, {31, 33}, {1000000007, 1000000009}), '\n') << std::endl;
+ * ```
+ *
+ * @fn polynomial_hash_hack(int alphabet_size, std::vector<int> bases, std::vector<int> mods);
+ */
+
+
  /**
  * @ingroup hack
  * @brief List of integers that tries to force collision on @tt{@namespace{std}::@type{unordered_set}}.
