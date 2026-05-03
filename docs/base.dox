@@ -149,6 +149,48 @@ namespace tgen {
 
 /**
  * @ingroup base
+ * @brief Printer helper for printing containers or sequantial generator elements as columns.
+ *
+ * If you pass multiple parameters for the printer, it will print the @tt{i}-th element of each
+ * on the @tt{i}-th line.
+ *
+ * ### Examples
+ *
+ * ```cpp
+ * std::vector<int> a = {1, 2};
+ * tgen::list::value b = {3, 4};
+ * std::cout << tgen::print_cols(a, b));
+ * // "1,3\n2,4\n"
+ * ```
+ *
+ * @struct print_cols;
+ */
+
+
+/**
+ * @brief Cretes a printer object that prints as columns.
+ *
+ * @param args Arguments. Each argument should be either a container or a generator value that has @tt{tgen::is_sequential}.
+ *
+ * @fn print_cols::print_cols(const Args &...args);
+ */
+
+
+/**
+ * @brief Prints printer object as columns.
+ *
+ * @param out Stream to print to.
+ * @param pr Printer object.
+ *
+ * @fn print_cols::operator<<(std::ostream &out, const print_cols &pr);
+ */
+
+
+
+
+
+/**
+ * @ingroup base
  * @brief Returns a random number up to value.
  *
  * @tparam T type to be generated. Should be an arithmetic type: @primitive{int}, @primitive{double}, @primitive{long long}, @primitive{char}, etc.
@@ -408,8 +450,8 @@ namespace tgen {
 /**
  * @brief Creates distinct generator for values in given range.
  *
- * @param l Left endpoint of the range.
- * @param r Right endpoint of the range.
+ * @param left Left endpoint of the range.
+ * @param right Right endpoint of the range.
  *
  * The generator will generate values in @tt{[@pname{l}, @pname{r}]}.
  *
@@ -420,7 +462,7 @@ namespace tgen {
  * auto u = tgen::distinct_range(5, 10);
  * ```
  *
- * @fn distinct_range::distinct_range(T l, T r);
+ * @fn distinct_range::distinct_range(T left, T right);
  */
 
 

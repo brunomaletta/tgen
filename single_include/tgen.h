@@ -100,7 +100,7 @@ inline void tgen_ensure_against_bug(bool cond, const std::string &msg = "") {
 // Ensures condition is true, with nice debug.
 #define tgen_ensure(cond, ...)                                                 \
 	if (!(cond))                                                               \
-		tgen::detail::throw_assertion_error(#cond, ##__VA_ARGS__);
+	tgen::detail::throw_assertion_error(#cond, ##__VA_ARGS__)
 
 // Registering checks.
 inline bool registered = false;
@@ -165,6 +165,9 @@ template <typename... Ts>
 struct is_tuple_multiline<std::tuple<Ts...>>
 	: std::bool_constant<(!is_scalar<Ts>::value or ...)> {};
 
+// Used to return false in compile time only if evaluated.
+template <typename> inline constexpr bool dependent_false_v = false;
+
 /*
  * Properties of custom types.
  */
@@ -181,9 +184,6 @@ using has_subset_defined_tag = void;
 
 // The single rng to be used by the library.
 inline std::mt19937 rng;
-
-// Used to return false in compile time only if evaluated.
-template <typename> inline constexpr bool dependent_false_v = false;
 
 /*
  * C++ version types.
@@ -221,6 +221,39 @@ struct compiler_value {
 		: kind_(kind), major_(major), minor_(minor) {}
 };
 inline compiler_value compiler;
+
+/*
+ * Printing.
+ */
+
+// Print view struct for printing either a container or a sequential generator
+// element.
+template <typename T,
+		  bool IsCont = detail::is_container<std::decay_t<T>>::value>
+struct print_cols_view;
+
+// Container.
+template <typename T> struct print_cols_view<T, true> {
+	const T &value;
+	decltype(std::begin(std::declval<const T &>())) it;
+
+	print_cols_view(const T &v) : value(v), it(v.begin()) {}
+
+	std::size_t size() const { return value.size(); }
+	decltype(auto) get(std::size_t) const { return *it; }
+	void advance() { ++it; }
+};
+
+// Sequential generator element.
+template <typename T> struct print_cols_view<T, false> {
+	const T &value;
+
+	print_cols_view(const T &v) : value(v) {}
+
+	std::size_t size() const { return value.size(); }
+	decltype(auto) get(std::size_t i) const { return value[i]; }
+	void advance() {}
+};
 
 } // namespace detail
 
@@ -451,17 +484,17 @@ struct print {
 		s_ = oss.str();
 	}
 
-	template <typename T>
-	void write(std::ostream &os, const T &val, char sep = ' ') {
+	template <typename T> void write(std::ostream &os, const T &val, char sep) {
 		if constexpr (detail::is_pair<T>::value) {
 			if constexpr (detail::is_pair_multiline<T>::value) {
 				write(os, val.first, sep);
 				os << '\n';
 				write(os, val.second, sep);
 			} else {
-				write(os, val.first);
+				// Use space for inner separator.
+				write(os, val.first, ' ');
 				os << sep;
-				write(os, val.second);
+				write(os, val.second, ' ');
 			}
 		} else if constexpr (detail::is_tuple<T>::value)
 			write_tuple(os, val, sep);
@@ -492,7 +525,7 @@ struct print {
 	}
 	// Writes container, checking separator.
 	template <typename C>
-	void write_container(std::ostream &os, const C &container, char sep = ' ') {
+	void write_container(std::ostream &os, const C &container, char sep) {
 		bool first = true;
 
 		for (const auto &e : container) {
@@ -517,7 +550,7 @@ struct print {
 		 ...);
 	}
 	template <typename T>
-	void write_tuple(std::ostream &os, const T &tp, char sep = ' ') {
+	void write_tuple(std::ostream &os, const T &tp, char sep) {
 		write_tuple_impl(os, tp, sep,
 						 std::make_index_sequence<std::tuple_size<T>::value>{});
 	}
@@ -544,6 +577,67 @@ struct println : print {
 	}
 };
 
+// Prints container / sequential generator value on its own column.
+// Example:
+//   A = {1, 2, 3}, B = {4, 2, 5}
+//   print_each(A, B) will print:
+//  "1 4
+//   2 2
+//   3 5
+//",
+//  that is, ir prints the end of the line for all lines.
+template <typename... Args> struct print_cols {
+	std::string s_;
+
+	template <
+		std::enable_if_t<((detail::is_container<std::decay_t<Args>>::value or
+						   is_sequential<std::decay_t<Args>>::value) and
+						  ...),
+						 int> = 0>
+	print_cols(const Args &...args) {
+		std::ostringstream oss;
+		write(oss, args...);
+		s_ = oss.str();
+	}
+
+	void write(std::ostream &os, const Args &...args) {
+		auto views = std::apply(
+			[](const Args &...inner_args) {
+				return std::make_tuple(
+					detail::print_cols_view<decltype(inner_args)>{
+						inner_args}...);
+			},
+			std::forward_as_tuple(args...));
+
+		const std::size_t n = std::get<0>(views).size();
+
+		auto check = [&](const auto &v) {
+			tgen_ensure(v.size() == n, "print_cols: sizes should be the same");
+		};
+		std::apply([&](const auto &...v) { (check(v), ...); }, views);
+
+		for (std::size_t i = 0; i < n; ++i) {
+			bool first = true;
+
+			std::apply(
+				[&](const auto &...v) {
+					((os << (first ? "" : " ") << print(v.get(i)),
+					  first = false),
+					 ...);
+				},
+				views);
+
+			os << '\n';
+
+			std::apply([](auto &...v) { (v.advance(), ...); }, views);
+		}
+	}
+
+	friend std::ostream &operator<<(std::ostream &out, const print_cols &pr) {
+		return out << pr.s_;
+	}
+};
+
 /*
  * Global random operations.
  */
@@ -563,7 +657,7 @@ template <typename T> T next(T right) {
 							std::string(typeid(T).name()) + ")");
 }
 
-// Returns a uniformly random number in [l, r].
+// Returns a uniformly random number in [left, right].
 // O(1).
 template <typename T> T next(T left, T right) {
 	detail::ensure_registered();
@@ -786,18 +880,19 @@ Inst choose(const Inst &inst, int k) {
 
 // Number distinct generator for integral types.
 template <typename T> struct distinct_range {
-	T l_, r_;
+	T left_, right_;
 	T num_available_;
 	std::map<T, T> virtual_list_;
 
-	// Generator of distinct values in [l_, r_].
-	distinct_range(T l, T r) : l_(l), r_(r), num_available_(r - l + 1) {}
+	// Generator of distinct values in [left, right].
+	distinct_range(T left, T right)
+		: left_(left), right_(right), num_available_(right - left + 1) {}
 
 	// Returns the number of distinct values left to generate.
 	T size() const { return num_available_; }
 
-	// Generates a random value in [l_, r_] that has not been generated yet.
-	// O(log n).
+	// Generates a random value in [left_, right_] that has not been generated
+	// yet. O(log n).
 	T gen() {
 		// One iteration of Fisher–Yates.
 		tgen_ensure(size() > 0, "distinct_range: no more values to generate");
@@ -811,7 +906,7 @@ template <typename T> struct distinct_range {
 
 		--num_available_;
 
-		return vi + l_;
+		return vi + left_;
 	}
 
 	// Generates a list of distict values.
@@ -1797,7 +1892,7 @@ struct permutation : gen_base<permutation> {
 
 			for (int i = 0; i < size(); ++i)
 				if (!vis[i]) {
-					cycles++;
+					++cycles;
 					for (int j = i; !vis[j]; j = vec_[j])
 						vis[j] = true;
 				}
@@ -2004,7 +2099,7 @@ inline uint64_t pollard_rho(uint64_t n) {
 		q = mul_mod(prd, x > y ? x - y : y - x, n);
 		if (q != 0)
 			prd = q;
-		x = f(x), y = f(f(y)), t++;
+		x = f(x), y = f(f(y)), ++t;
 	}
 	return std::gcd(prd, n);
 }
@@ -2194,10 +2289,6 @@ inline long double log_space(long double x) {
 
 // Math hack to add two values in log space.
 inline long double add_log_space(long double a, long double b) {
-	if (a == LOG_ZERO)
-		return b;
-	if (b == LOG_ZERO)
-		return a;
 	if (a < b)
 		std::swap(a, b);
 	if (b == LOG_ZERO)
@@ -3623,19 +3714,22 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 		return *this;
 	}
 
-	// A graph::value
+	// A graph::value.
+	// If not directed, only stores edges i -> j such that i < j.
 	struct value : gen_value_base<value> {
 		int n_, m_;						 // Number of vertices and edges.
 		std::vector<std::set<int>> adj_; // Adjacency list.
+		bool is_directed_;				 // If graph is directed.
 		bool add_1_;	// If should add 1 for printing vertex ids.
 		bool print_nm_; // If should print n and m.
 		bool shuffle_;	// If should shuffle output when printing.
 
 		// Create value from edge n, m, and edge list. The edges are
 		// considered to be directed.
-		value(int n, int m, const std::set<std::pair<int, int>> &edges = {})
-			: n_(n), m_(m), adj_(n_), add_1_(false), print_nm_(false),
-			  shuffle_(false) {
+		value(int n, int m, const std::set<std::pair<int, int>> &edges = {},
+			  bool is_directed = false)
+			: n_(n), m_(m), adj_(n_), is_directed_(is_directed), add_1_(false),
+			  print_nm_(false), shuffle_(false) {
 			for (auto [u, v] : edges) {
 				tgen_ensure(0 <= u and u < n, "graph: value: invalid edge");
 				tgen_ensure(0 <= v and v < n, "graph: value: invalid edge");
@@ -3661,6 +3755,30 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 
 		value &print_nm() {
 			print_nm_ = true;
+			return *this;
+		}
+
+		// Self loops are mainteind for complement.
+		value &operator!() {
+			m_ = 0;
+			for (int i = 0; i < n_; ++i) {
+				std::set<int> complement;
+				for (int j = 0; j < n_; ++j) {
+					if (i > j and !is_directed_)
+						break;
+
+					bool add_j = false;
+					if (j == i and adj_[i].count(j))
+						add_j = true;
+					if (j != i and !adj_[i].count(j))
+						add_j = true;
+					if (add_j) {
+						complement.insert(j);
+						++m_;
+					}
+				}
+				std::swap(adj_[i], complement);
+			}
 			return *this;
 		}
 
@@ -3711,9 +3829,10 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 		auto edge_gen = gen_repeat.distinct();
 		auto edges = edg_;
 
-		tgen_ensure(edges.size() <= m_, "too many edges were added");
+		tgen_ensure(static_cast<int>(edges.size()) <= m_,
+					"too many edges were added");
 
-		while (edges.size() < m_) {
+		while (static_cast<int>(edges.size()) < m_) {
 			try {
 				edges.insert(edge_gen.gen().to_std());
 			} catch (std::runtime_error &e) {
@@ -3723,11 +3842,11 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 			}
 		}
 
-		return value(n_, m_, edges);
+		return value(n_, m_, edges, is_directed_);
 	}
-
-	static value k(int n) { return graph(n, n * (n - 1) / 2).gen(); }
 };
+
+inline graph<>::value K(int n) { return graph(n, n * (n - 1) / 2).gen(); }
 
 /************
  *          *
@@ -3939,10 +4058,9 @@ inline std::vector<std::string> string_set(int size) {
 		left -= cur_size;
 
 		char right_char = cur_size == k + 1 ? 'b' : 'c';
-		list.push_back(
-			tgen::str("a{%d}%c", cur_size - 1, right_char).gen().to_std());
+		list.push_back(std::string(cur_size - 1, 'a') + right_char);
 
-		k++;
+		++k;
 	}
 	return tgen::shuffled(list);
 }

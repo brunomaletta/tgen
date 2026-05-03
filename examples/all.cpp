@@ -17,13 +17,13 @@ int main(int argc, char **argv) {
 					 .equal_range(0, 3)
 					 .equal_range(4, 7)
 					 .equal_range(8, 11)
-					 .distinct({0, 4, 8})
+					 .different({0, 4, 8})
 					 .gen()
 			  << std::endl;
 
 	// Random DNA list of length 8 with no equal adjacent values.
 	auto s2 = tgen::list<char>(8, {'A', 'C', 'G', 'T'});
-	for (int i = 1; i < 8; i++)
+	for (int i = 1; i < 8; ++i)
 		s2.different(i - 1, i);
 	std::cout << s2.gen() << std::endl;
 
@@ -105,26 +105,26 @@ int main(int argc, char **argv) {
 			  << std::endl;
 
 	// Prints 5 random distinct numbers in [1, 10].
-	std::cout << tgen::distinct_rane(1, 10).gen_list(5) << std::endl;
+	std::cout << tgen::distinct_range(1, 10).gen_list(5) << std::endl;
 
 	// Prints 3 random unique strings of length 5.
-	std::cout << tgen::str("[ab]{5}").unique().gen_list(3) << std::endl;
+	std::cout << tgen::str("[ab]{5}").distinct().gen_list(3) << std::endl;
 
 	// Prints 3 random unique primes in [1, 10].
-	std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_list(3)
+	std::cout << tgen::distinct(tgen::math::gen_prime, 1, 10).gen_list(3)
 			  << std::endl;
 
 	// Prints a random perfect matching of K_10.
-	auto g = tgen::unique([&]() { return tgen::next(0, 9); });
+	auto g = tgen::distinct([&]() { return tgen::next(0, 9); });
 	for (int i = 0; i < 5; ++i)
 		std::cout << g.gen() << " " << g.gen() << std::endl;
 
 	// Prints all primes in [1, 10], in order.
-	std::cout << tgen::unique(tgen::math::gen_prime, 1, 10).gen_all().sort()
+	std::cout << tgen::distinct(tgen::math::gen_prime, 1, 10).gen_all().sort()
 			  << std::endl;
 
 	// Prints 5 random square numbers in [1, 1e4].
-	std::cout << tgen::unique([&]() {
+	std::cout << tgen::distinct([&]() {
 					 int x = tgen::next(1, 100);
 					 return x * x;
 				 }).gen_list(5)
@@ -132,31 +132,33 @@ int main(int argc, char **argv) {
 
 	// Prints all unique permutations of size 3 and 1 cycles of sizes 1 and 2.
 	std::cout
-		<< tgen::permutation(3).cycles({1, 2}).unique().gen_all().separator(
+		<< tgen::permutation(3).cycles({1, 2}).distinct().gen_all().separator(
 			   '\n')
 		<< std::endl;
 
 	// Prints some random parenthesis sequences.
-	std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_list(5)
+	std::cout << tgen::distinct(tgen::misc::gen_parenthesis, 6).gen_list(5)
 			  << std::endl;
 
 	// Computes how many of these there are.
-	std::cout << tgen::unique(tgen::misc::gen_parenthesis, 6).gen_all().size()
+	std::cout << tgen::distinct(tgen::misc::gen_parenthesis, 6).gen_all().size()
 			  << std::endl;
 
 	// Prints two strings that force polynomial hash collision for multiple
 	// bases and mods.
-	std::cout << tgen::print(tgen::str::polynomial_hash_hack(
+	std::cout << tgen::print(tgen::hack::polynomial_hash_hack(
 								 26, {31, 33}, {(int)1e9 + 7, (int)1e9 + 9}),
 							 '\n')
 			  << std::endl;
 
 	// Prints all pairs (a, b) in [1, 3] with a <= b.
-	std::cout << tgen::pair<int>(1, 3).leq().unique().gen_all().separator('\n')
+	std::cout << tgen::pair<int>(1, 3).leq().distinct().gen_all().separator(
+					 '\n')
 			  << std::endl;
 
 	std::cout << tgen::str("-{20}").gen() << std::endl;
 	std::cout << tgen::graph(4, 5).gen().print_nm().add_1().shuffle();
 	std::cout << tgen::str("-{20}").gen() << std::endl;
-	std::cout << tgen::graph<>::k(4);
+
+	std::cout << !tgen::K(4);
 }

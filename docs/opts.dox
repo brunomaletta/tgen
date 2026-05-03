@@ -159,7 +159,7 @@ namespace tgen {
  * #include "tgen.h"
  *
  * int main(int argc, char** argv) {
- *     // Register generator.
+ *     // Registers generator.
  *     tgen::register_gen(argc, argv);
  * }
  * ```
@@ -180,7 +180,7 @@ namespace tgen {
  * #include "tgen.h"
  *
  * int main() {
- *     // Register generator with seed 42.
+ *     // Registers generator with seed 42.
  *     tgen::register_gen(42);
  * }
  * ```
@@ -191,7 +191,7 @@ namespace tgen {
  * #include "tgen.h"
  *
  * int main() {
- *     // Register generator with default seed.
+ *     // Registers generator with default seed.
  *     tgen::register_gen();
  * }
  * ```
@@ -251,7 +251,7 @@ namespace tgen {
  * - @tt{./executable tgen::GCC:15}: equivalent to @tt{tgen::set_compiler(tgen::gcc(15))}.
  * - @tt{./executable tgen::GCC:15.2}: equivalent to @tt{tgen::set_compiler(tgen::gcc(15, 2))}.
  *
- * @fn set_compiler(_detail::compiler_value compiler);
+ * @fn set_compiler(detail::compiler_value compiler);
  */
 
 };

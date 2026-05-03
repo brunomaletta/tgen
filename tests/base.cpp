@@ -165,6 +165,28 @@ TEST(base_test, print_2d_container) {
 	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2\n3 4"));
 }
 
+TEST(base_test, print_cols) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(std::cout
+								 << tgen::print_cols(std::vector<int>({1, 2}),
+													 std::vector<int>({1})),
+							 "print_cols: sizes should be the same");
+
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print_cols(std::vector<int>({1, 2}),
+								  std::vector<int>({3, 4}));
+	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+			  std::string("1 3\n2 4\n"));
+
+	testing::internal::CaptureStdout();
+	std::cout << tgen::print_cols(std::vector<int>({1, 2}),
+								  std::vector<int>({3, 4}),
+								  tgen::list<int>::value({5, 6}));
+	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+			  std::string("1 3 5\n2 4 6\n"));
+}
+
 TEST(base_test, next_invalid_range) {
 	tgen::register_gen();
 

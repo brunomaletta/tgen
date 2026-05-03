@@ -2991,7 +2991,7 @@ LAYOUT_FILE            = layout.xml
 
 GENERATE_LATEX = NO
 
-EXCLUDE_SYMBOLS = detail::regex_node detail::regex_state math::detail::crt tgen::detail::cpp_value tgen::detail::compiler_value
+EXCLUDE_SYMBOLS = detail
 
 
 CLANG_ASSISTED_PARSING = YES

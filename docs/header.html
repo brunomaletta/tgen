@@ -296,14 +296,18 @@ document.addEventListener('DOMContentLoaded', function() {
 				else if (typeof CPP_KEYWORDS !== "undefined" && CPP_KEYWORDS.has(tok)) {
 					cls = "keyword";
 				}
-				else if (tok === "std") {
+				else if (tok === "std" || tok == "tgen" || tok == "detail") {
 					cls = "namespace";
 				}
 				// heuristic for types: start with uppercase OR common STL-like names
 				else if (/^[A-Z]\w*$/.test(tok)) {
 					cls = "type";
 				}
-				else if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set|unique_ptr|shared_ptr|deque|list)$/.test(tok)) {
+				else if (/^(ostream|vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set|unique_ptr|shared_ptr|deque|list)$/.test(tok)) {
+					cls = "type";
+				}
+				// custom types
+				else if (/^(compiler_value)$/.test(tok)) {
 					cls = "type";
 				}
 				// simple fallback: identifiers that look like types (camelCase / internal capitals)
@@ -354,13 +358,13 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (/^[A-Z]\w*$/.test(tok))
 				return "type";
 
-			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+			if (/^(ostream|vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
 				return "type";
 
 			if (/^(#define|struct|const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
 				return "keyword";
 
-			if (tok === "std")
+			if (tok === "std" || tok == "tgen" || tok == "detail")
 				return "namespace";
 
 			return null;
@@ -420,7 +424,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 
 			// namespace std.
-			if (tok === "std")
+			if (tok === "std" || tok == "tgen" || tok == "detail")
 				return "namespace";
 
 			// DEFAULT VALUE TOKENS
@@ -447,7 +451,11 @@ document.addEventListener('DOMContentLoaded', function() {
 				return "type";
 
 			// STL TYPES
-			if (/^(vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+			if (/^(ostream|vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
+				return "type";
+
+			// CUSTOM TYPES
+			if (/^(compiler_value)$/.test(tok))
 				return "type";
 
 			// IDENTIFIER → parameter name
@@ -486,18 +494,6 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	}
 	document.querySelectorAll("td.memItemRight").forEach(highlightSignature);
-
-	// Hardcoded fix for tgen::Gen::gen_until.
-	document.querySelectorAll(".tgen-name").forEach(span => {
-		span.childNodes.forEach(node => {
-			if (
-				node.nodeType === Node.TEXT_NODE &&
-				node.nodeValue.trim() === "gen_until"
-			) {
-				node.nodeValue = " Gen::gen_until ";
-			}
-		});
-	});
 
 	// Removes links for function names in docs.
 	function unlinkNames(root = document) {

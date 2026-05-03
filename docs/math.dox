@@ -652,7 +652,7 @@ namespace tgen::math {
  *
  * #### Complexity
  *
- * @tt{O(@pname{n})} time/memory if @tt{@pname{part_right} = -1}; <br>
+ * @tt{O(@pname{n})} time/memory if @pname{part_right} is not set; <br>
  * @tt{O(@pname{n} * @pname{k})} time/memory otherwise.
  *
  * #### Examples
