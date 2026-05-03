@@ -155,10 +155,4 @@ int main(int argc, char **argv) {
 	std::cout << tgen::pair<int>(1, 3).leq().distinct().gen_all().separator(
 					 '\n')
 			  << std::endl;
-
-	std::cout << tgen::str("-{20}").gen() << std::endl;
-	std::cout << tgen::graph(4, 5).gen().print_nm().add_1().shuffle();
-	std::cout << tgen::str("-{20}").gen() << std::endl;
-
-	std::cout << !tgen::K(4);
 }

@@ -58,12 +58,16 @@ using i128 = __int128;
  */
 
 inline void throw_assertion_error(const std::string &condition,
-								  const std::string &msg) {
+								  const std::string &msg, const char *file,
+								  int line) {
 	throw std::runtime_error("tgen: " + msg + " (assertion `" + condition +
-							 "` failed)");
+							 "` failed at " + file + ":" +
+							 std::to_string(line) + ")");
 }
-inline void throw_assertion_error(const std::string &condition) {
-	throw std::runtime_error("tgen: assertion `" + condition + "` failed");
+inline void throw_assertion_error(const std::string &condition,
+								  const char *file, int line) {
+	throw std::runtime_error("tgen: assertion `" + condition + "` failed at " +
+							 std::string(file) + ":" + std::to_string(line));
 }
 inline std::runtime_error error(const std::string &msg) {
 	return std::runtime_error("tgen: " + msg);
@@ -100,7 +104,8 @@ inline void tgen_ensure_against_bug(bool cond, const std::string &msg = "") {
 // Ensures condition is true, with nice debug.
 #define tgen_ensure(cond, ...)                                                 \
 	if (!(cond))                                                               \
-	tgen::detail::throw_assertion_error(#cond, ##__VA_ARGS__)
+	tgen::detail::throw_assertion_error(#cond, ##__VA_ARGS__, __FILE__,        \
+										__LINE__)
 
 // Registering checks.
 inline bool registered = false;
@@ -1462,7 +1467,7 @@ template <typename T> struct list : gen_base<list<T>> {
 
 		// Concatenates two values.
 		// Linear.
-		value operator+(const value &rhs) {
+		value operator+(const value &rhs) const {
 			std::vector<T> new_vec = vec_;
 			for (int i = 0; i < rhs.size(); ++i)
 				new_vec.push_back(rhs[i]);
@@ -3326,7 +3331,9 @@ struct str : gen_base<str> {
 
 		// Concatenates two values.
 		// Linear.
-		value operator+(const value &rhs) { return value(str_ + rhs.str_); }
+		value operator+(const value &rhs) const {
+			return value(str_ + rhs.str_);
+		}
 
 		// Prints to std::ostream.
 		friend std::ostream &operator<<(std::ostream &out, const value &inst) {
@@ -3684,15 +3691,15 @@ template <typename T> struct pair : gen_base<pair<T>> {
  *   GRAPH   *
  *           *
  *************/
+
 /*
- * Graph generation.
+ * Graph generator.
  *
  * Graphs have `n` edges and `m` edges. It has vertices indexed from 0 to n-1.
  * These are labeleted graphs, that is, isomorphism is not taken into account.
  * VWeight is the type of vertex weights, and EWeight are the type of edge
  * weights.
  */
-
 template <typename VWeight = int, typename EWeight = int>
 struct graph : gen_base<graph<VWeight, EWeight>> {
 	int n_, m_;							// Number of vertices and edges.
@@ -3700,13 +3707,16 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 	bool is_directed_;					// If graph is directed.
 	bool has_self_loops_;				// If self-loops are allowed.
 
+	// Creates graph generator with `n` vertices and `m` edges.
+	// Additionally, you can set if the graph is directed and if self loop
 	graph(int n, int m, bool is_directed = false, bool has_self_loops = false)
 		: n_(n), m_(m), is_directed_(is_directed),
 		  has_self_loops_(has_self_loops) {}
 
+	// Adds edge bewteen u and v (this edge must be generated).
 	graph &add_edge(int u, int v) {
-		tgen_ensure(0 <= u and u < n_, "vertex index must be valid");
-		tgen_ensure(0 <= v and v < n_, "vertex index must be valid");
+		tgen_ensure(0 <= u and u < n_, "graph: vertex index must be valid");
+		tgen_ensure(0 <= v and v < n_, "graph: vertex index must be valid");
 
 		if (!is_directed_ and u > v)
 			std::swap(u, v);
@@ -3717,19 +3727,28 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 	// A graph::value.
 	// If not directed, only stores edges i -> j such that i < j.
 	struct value : gen_value_base<value> {
-		int n_, m_;						 // Number of vertices and edges.
-		std::vector<std::set<int>> adj_; // Adjacency list.
-		bool is_directed_;				 // If graph is directed.
-		bool add_1_;	// If should add 1 for printing vertex ids.
-		bool print_nm_; // If should print n and m.
-		bool shuffle_;	// If should shuffle output when printing.
+		int n_, m_;							  // Number of vertices and edges.
+		std::vector<std::set<int>> adj_;	  // Adjacency list.
+		std::set<std::pair<int, int>> edges_; // Edge set.
+		std::optional<std::vector<EWeight>>
+			weights_;	   // Weights (in same order as edges_ ).
+		bool is_directed_; // If graph is directed.
+		bool add_1_;	   // If should add 1 for printing vertex ids.
+		bool print_nm_;	   // If should print n and m.
+		std::vector<bool> shuffle_vertex_; // If should shuffle each vertex
+										   // output when printing.
+		bool shuffle_edges_;
 
-		// Create value from edge n, m, and edge list. The edges are
+		// Creates value from `n`, `m`, and edge list. The edges are
 		// considered to be directed.
-		value(int n, int m, const std::set<std::pair<int, int>> &edges = {},
+		value(int n, int m, const std::set<std::pair<int, int>> &edges,
 			  bool is_directed = false)
-			: n_(n), m_(m), adj_(n_), is_directed_(is_directed), add_1_(false),
-			  print_nm_(false), shuffle_(false) {
+			: n_(n), m_(m), adj_(n_), edges_(edges), is_directed_(is_directed),
+			  add_1_(false), print_nm_(false), shuffle_vertex_(n, false),
+			  shuffle_edges_(false) {
+			tgen_ensure(static_cast<int>(edges_.size()) == m,
+						"graph: value: number of edges must be equal to `m`");
+
 			for (auto [u, v] : edges) {
 				tgen_ensure(0 <= u and u < n, "graph: value: invalid edge");
 				tgen_ensure(0 <= v and v < n, "graph: value: invalid edge");
@@ -3737,30 +3756,126 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 			}
 		}
 
+		// Creates value from `n`, `m`, and adjacecy list. The edges are
+		// considered to be directed.
+		value(int n, int m, const std::vector<std::set<int>> &adj,
+			  bool is_directed = false)
+			: n_(n), m_(m), adj_(adj), is_directed_(is_directed), add_1_(false),
+			  print_nm_(false), shuffle_vertex_(n, false),
+			  shuffle_edges_(false) {
+			tgen_ensure(static_cast<int>(adj.size()) == n,
+						"graph: value: size of adjacency list should ne `n`");
+
+			for (int u = 0; u < n; ++u)
+				for (auto v : adj[u]) {
+					tgen_ensure(
+						0 <= v and v < n,
+						"graph: value: vertices must be indexed in [0, n)");
+					edges_.emplace(u, v);
+				}
+			tgen_ensure(static_cast<int>(edges_.size()) == m,
+						"graph: value: number of edges must be equal to `m`");
+		}
+
+		// Fetches number of vertices.
 		int n() const { return n_; }
 
+		// Fetches number of edges.
 		int m() const { return m_; }
 
+		// Fetches if graph is directed;
+		bool is_directed() const { return is_directed_; }
+
+		// Fetches a const ref. to adjacency list.
 		const std::vector<std::set<int>> &adj() const { return adj_; }
 
+		// Fetches a const ref. to edge set.
+		const std::set<std::pair<int, int>> &edges() const { return edges_; }
+
+		// Adds 1 to vertex ids, for printing.
 		value &add_1() {
 			add_1_ = true;
 			return *this;
 		}
 
-		value &shuffle() {
-			shuffle_ = true;
-			return *this;
-		}
-
+		// Prints `n m` on a new line before printing the edges.
 		value &print_nm() {
 			print_nm_ = true;
 			return *this;
 		}
 
+		// Shuffles the graph's vertices and edge order.
+		value &shuffle() {
+			for (int i = 0; i < n(); ++i)
+				shuffle_vertex_[i] = true;
+			shuffle_edges_ = true;
+			return *this;
+		}
+
+		// Shuffles the graph's vertices except `indices`, and edge orders.
+		value &shuffle_except(std::set<int> indices) {
+			auto it = indices.begin();
+			for (int i = 0; i < n(); ++i) {
+				if (it != indices.end() and *it == i) {
+					++it;
+				} else
+					shuffle_vertex_[i] = true;
+			}
+			shuffle_edges_ = true;
+			return *this;
+		}
+
+		// Adds `k` vertices to the graph (labeled n, n+1, ...n+k-1). Updates
+		// `n` accordingly.
+		// O(1).
+		void add_vertices(int k) {
+			n_ += k;
+			adj_.resize(n());
+			shuffle_vertex_.resize(n());
+		}
+
+		// Adds edge (u, v).
+		// Updates `m` accordingly.
+		// O(1) amortized.
+		void add_edge(int u, int v) {
+			bool is_new = adj_[u].count(v) == 0;
+			adj_[u].insert(v);
+			edges_.emplace(u, v);
+			if (is_new)
+				++m_;
+		}
+
+		// Glues the grapg with another rhs at `indices`. That is, idx in
+		// `indices` are considered to be the same vertex.
+		// O(n + m).
+		value &glue(const value &rhs, std::set<int> indices) {
+			std::vector<int> new_id(rhs.n(), -1);
+			int intersection_lt = 0;
+			auto it = indices.begin();
+			for (int i = 0; i < rhs.n(); ++i) {
+				if (it != indices.end() and *it == i) {
+					// Is in intersecion.
+					++intersection_lt;
+					++it;
+					new_id[i] = i;
+				} else {
+					// New id.
+					new_id[i] = n() + i - intersection_lt;
+				}
+			}
+
+			add_vertices(rhs.n() - intersection_lt);
+			for (auto [u, v] : rhs.edges())
+				add_edge(new_id[u], new_id[v]);
+
+			return *this;
+		}
+
 		// Self loops are mainteind for complement.
+		// O(n^2).
 		value &operator!() {
 			m_ = 0;
+			std::set<std::pair<int, int>> compl_edges;
 			for (int i = 0; i < n_; ++i) {
 				std::set<int> complement;
 				for (int j = 0; j < n_; ++j) {
@@ -3774,12 +3889,43 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 						add_j = true;
 					if (add_j) {
 						complement.insert(j);
+						compl_edges.emplace(i, j);
 						++m_;
 					}
 				}
 				std::swap(adj_[i], complement);
 			}
+			std::swap(edges_, compl_edges);
+
 			return *this;
+		}
+		// Concatenates two values.
+		// Linear.
+		value operator+(const value &rhs) const {
+			tgen_ensure(is_directed() == rhs.is_directed(),
+						"value: concatened graphs must have the same "
+						"is_directed value");
+
+			std::set<std::pair<int, int>> edges = edges_;
+			for (auto &[u, v] : rhs.edges())
+				edges.emplace(n() + u, n() + v);
+
+			tgen_ensure(this->edges().size() == m());
+			tgen_ensure(rhs.edges().size() == rhs.m());
+			tgen_ensure(edges.size() == m() + rhs.m());
+
+			value concat(n() + rhs.n(), m() + rhs.m(), edges, is_directed());
+			if (rhs.add_1_)
+				concat.add_1();
+			if (rhs.print_nm_)
+				concat.print_nm();
+			if (rhs.shuffle_edges_)
+				concat.shuffle_edges_ = true;
+			for (int i = 0; i < rhs.n(); ++i)
+				if (rhs.shuffle_vertex_[i])
+					concat.shuffle_vertex_[n() + i] = true;
+
+			return concat;
 		}
 
 		// Prints to std::ostream.
@@ -3787,29 +3933,33 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 			if (inst.print_nm_)
 				out << inst.n() << " " << inst.m() << std::endl;
 
-			std::vector<int> print_label(inst.n());
-			std::iota(print_label.begin(), print_label.end(), 0);
-			if (inst.shuffle_)
-				tgen::shuffle(print_label.begin(), print_label.end());
+			std::vector<int> vtx_label(inst.n()), shuffled_labels;
+			std::iota(vtx_label.begin(), vtx_label.end(), 0);
 
-			std::vector<std::pair<int, int>> edges;
-			for (int u = 0; u < inst.n(); ++u)
-				for (int v : inst.adj()[u])
-					edges.emplace_back(u, v);
-			if (inst.shuffle_)
+			for (int i = 0; i < inst.n(); ++i)
+				if (inst.shuffle_vertex_[i])
+					shuffled_labels.push_back(i);
+			tgen::shuffle(shuffled_labels.begin(), shuffled_labels.end());
+
+			int shuffled_id = 0;
+			for (int i = 0; i < inst.n(); ++i)
+				if (inst.shuffle_vertex_[i])
+					vtx_label[i] = shuffled_labels[shuffled_id++];
+
+			std::vector<std::pair<int, int>> edges(inst.edges().begin(),
+												   inst.edges().end());
+			if (inst.shuffle_edges_)
 				tgen::shuffle(edges.begin(), edges.end());
 
-			detail::tgen_ensure_against_bug(edges.size() == inst.m(),
-											"graph: invalid number of edges");
-
 			for (auto [u, v] : edges)
-				out << (print_label[u] + inst.add_1_) << " "
-					<< (print_label[v] + inst.add_1_) << std::endl;
+				out << (vtx_label[u] + inst.add_1_) << " "
+					<< (vtx_label[v] + inst.add_1_) << std::endl;
 			;
 
 			return out;
 		}
 
+		// Gets a std::tuple<n, m, adj> representing the value.
 		std::tuple<int, int, std::vector<std::set<int>>> to_std() {
 			return std::tuple(n_, m_, adj_);
 		}
@@ -3846,7 +3996,20 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 	}
 };
 
+// Standard graphs.
 inline graph<>::value K(int n) { return graph(n, n * (n - 1) / 2).gen(); }
+inline graph<>::value P(int n) {
+	graph g(n, n - 1);
+	for (int i = 0; i + 1 < n; ++i)
+		g.add_edge(i, i + 1);
+	return g.gen();
+}
+inline graph<>::value C(int n) {
+	graph g(n, n);
+	for (int i = 0; i < n; ++i)
+		g.add_edge(i, (i + 1) % n);
+	return g.gen();
+}
 
 /************
  *          *

@@ -76,6 +76,11 @@ range_queries:
 unordered_clang:
 	clang++ -std=c++17 examples/unordered_set.cpp -I $(SRC_DIR) -o sample -O2
 
+graph:
+	clang++ -std=c++17 examples/graph.cpp -I $(SRC_DIR) -o sample -O2
+	@-./sample
+	@rm -f sample
+
 sample_debug:
 	g++ -g examples/all.cpp -o examples/sample_debug
 

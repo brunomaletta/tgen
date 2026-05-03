@@ -470,7 +470,7 @@ namespace tgen {
  * std::cout << s.gen() + s.gen() << std::endl;
  * ```
  *
- * @fn list::value::operator+(const value& rhs);
+ * @fn list::value::operator+(const value& rhs) const;
  */
 
 
