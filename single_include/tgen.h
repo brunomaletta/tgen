@@ -3727,21 +3727,22 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 	// A graph::value.
 	// If not directed, only stores edges i -> j such that i < j.
 	struct value : gen_value_base<value> {
-		int n_, m_;							  // Number of vertices and edges.
-		std::vector<std::set<int>> adj_;	  // Adjacency list.
-		std::set<std::pair<int, int>> edges_; // Edge set.
-		std::optional<std::vector<EWeight>>
-			weights_;	   // Weights (in same order as edges_ ).
-		bool is_directed_; // If graph is directed.
-		bool add_1_;	   // If should add 1 for printing vertex ids.
-		bool print_nm_;	   // If should print n and m.
+		int n_, m_;						 // Number of vertices and edges.
+		std::vector<std::set<int>> adj_; // Adjacency list.
+		std::vector<std::pair<int, int>> edges_; // Edge set.
+		bool is_directed_;						 // If graph is directed.
+		bool add_1_;	// If should add 1 for printing vertex ids.
+		bool print_nm_; // If should print n and m.
 		std::vector<bool> shuffle_vertex_; // If should shuffle each vertex
 										   // output when printing.
-		bool shuffle_edges_;
+		bool shuffle_edges_; // If should shuffle edges when printing.
+		std::optional<std::vector<VWeight>> vertex_weights_; // Vertex weights.
+		std::optional<std::vector<EWeight>>
+			edge_weights_; // Edge weights (in same order as edges_ ).
 
 		// Creates value from `n`, `m`, and edge list. The edges are
 		// considered to be directed.
-		value(int n, int m, const std::set<std::pair<int, int>> &edges,
+		value(int n, int m, const std::vector<std::pair<int, int>> &edges,
 			  bool is_directed = false)
 			: n_(n), m_(m), adj_(n_), edges_(edges), is_directed_(is_directed),
 			  add_1_(false), print_nm_(false), shuffle_vertex_(n, false),
@@ -3771,7 +3772,7 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 					tgen_ensure(
 						0 <= v and v < n,
 						"graph: value: vertices must be indexed in [0, n)");
-					edges_.emplace(u, v);
+					edges_.emplace_back(u, v);
 				}
 			tgen_ensure(static_cast<int>(edges_.size()) == m,
 						"graph: value: number of edges must be equal to `m`");
@@ -3790,7 +3791,31 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 		const std::vector<std::set<int>> &adj() const { return adj_; }
 
 		// Fetches a const ref. to edge set.
-		const std::set<std::pair<int, int>> &edges() const { return edges_; }
+		const std::vector<std::pair<int, int>> &edges() const { return edges_; }
+
+		// Fetches vertex weights.
+		const std::optional<std::vector<VWeight>> &vertex_weights() const {
+			return vertex_weights_;
+		}
+
+		// Fetches edge weights.
+		const std::optional<std::vector<EWeight>> &edge_weights() const {
+			return edge_weights_;
+		}
+
+		// Sets vertex weights.
+		value &set_vertex_weights(std::vector<VWeight> vertex_weights) {
+			tgen_ensure(vertex_weights.size() == n());
+			vertex_weights_ = vertex_weights;
+			return *this;
+		}
+
+		// Sets edge weights.
+		value &set_edge_weights(std::vector<EWeight> edge_weights) {
+			tgen_ensure(edge_weights.size() == n());
+			edge_weights_ = edge_weights;
+			return *this;
+		}
 
 		// Adds 1 to vertex ids, for printing.
 		value &add_1() {
@@ -3828,21 +3853,55 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 		// Adds `k` vertices to the graph (labeled n, n+1, ...n+k-1). Updates
 		// `n` accordingly.
 		// O(1).
-		void add_vertices(int k) {
+		value &add_vertices(int k, std::optional<std::vector<VWeight>>
+									   new_vertex_weights = std::nullopt) {
 			n_ += k;
 			adj_.resize(n());
 			shuffle_vertex_.resize(n());
+			if (new_vertex_weights) {
+				tgen_ensure(vertex_weights().has_value(),
+							"graph: cannot add weighted vertices to "
+							"vertex-unweighted graph");
+				tgen_ensure(new_vertex_weights->size() == k,
+							"graph: number of vertex weights must be equal "
+							"to number of added vertices");
+
+				vertex_weights_->insert(vertex_weights_->end(),
+										new_vertex_weights->begin(),
+										new_vertex_weights->end());
+			} else
+				tgen_ensure(!vertex_weights().has_value(),
+							"graph: cannot add unweighted vertices to "
+							"vertex-weighted graph");
+
+			return *this;
 		}
 
 		// Adds edge (u, v).
 		// Updates `m` accordingly.
 		// O(1) amortized.
-		void add_edge(int u, int v) {
-			bool is_new = adj_[u].count(v) == 0;
+		value &add_edge(int u, int v, std::optional<EWeight> w = std::nullopt) {
+			tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n(),
+						"graph: value: vertex ids must be valid");
+			if (adj_[u].count(v))
+				return *this;
+
 			adj_[u].insert(v);
-			edges_.emplace(u, v);
-			if (is_new)
-				++m_;
+			edges_.emplace_back(u, v);
+			++m_;
+
+			if (w) {
+				tgen_ensure(edge_weights().has_value(),
+							"graph: cannot add weighted edge to "
+							"edge-unweighted graph");
+
+				edge_weights_->push_back(*w);
+			} else
+				tgen_ensure(!edge_weights().has_value(),
+							"graph: cannot add unweighted edge to "
+							"edge-weighted graph");
+
+			return *this;
 		}
 
 		// Glues the grapg with another rhs at `indices`. That is, idx in
@@ -3875,7 +3934,7 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 		// O(n^2).
 		value &operator!() {
 			m_ = 0;
-			std::set<std::pair<int, int>> compl_edges;
+			std::vector<std::pair<int, int>> compl_edges;
 			for (int i = 0; i < n_; ++i) {
 				std::set<int> complement;
 				for (int j = 0; j < n_; ++j) {
@@ -3889,7 +3948,7 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 						add_j = true;
 					if (add_j) {
 						complement.insert(j);
-						compl_edges.emplace(i, j);
+						compl_edges.emplace_back(i, j);
 						++m_;
 					}
 				}
@@ -3906,13 +3965,9 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 						"value: concatened graphs must have the same "
 						"is_directed value");
 
-			std::set<std::pair<int, int>> edges = edges_;
+			std::vector<std::pair<int, int>> edges = edges_;
 			for (auto &[u, v] : rhs.edges())
-				edges.emplace(n() + u, n() + v);
-
-			tgen_ensure(this->edges().size() == m());
-			tgen_ensure(rhs.edges().size() == rhs.m());
-			tgen_ensure(edges.size() == m() + rhs.m());
+				edges.emplace_back(n() + u, n() + v);
 
 			value concat(n() + rhs.n(), m() + rhs.m(), edges, is_directed());
 			if (rhs.add_1_)
@@ -3924,6 +3979,34 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 			for (int i = 0; i < rhs.n(); ++i)
 				if (rhs.shuffle_vertex_[i])
 					concat.shuffle_vertex_[n() + i] = true;
+
+			if (vertex_weights().has_value()) {
+				tgen_ensure(
+					rhs.vertex_weights().has_value(),
+					"cannot concatenate vertex-unweighted graph to weighted");
+
+				concat.set_vertex_weights(*vertex_weights());
+				concat.vertex_weights_->insert(concat.vertex_weights_->end(),
+											   rhs.vertex_weights()->begin(),
+											   rhs.vertex_weights()->end());
+			} else
+				tgen_ensure(
+					!rhs.vertex_weights().has_value(),
+					"cannot concatenate vertex-weighted graph to unweighted");
+
+			if (edge_weights().has_value()) {
+				tgen_ensure(
+					rhs.edge_weights().has_value(),
+					"cannot concatenate edge-unweighted graph to weighted");
+
+				concat.set_edge_weights(*edge_weights());
+				concat.edge_weights_->insert(concat.edge_weights_->end(),
+											 rhs.edge_weights()->begin(),
+											 rhs.edge_weights()->end());
+			} else
+				tgen_ensure(
+					!rhs.edge_weights().has_value(),
+					"cannot concatenate edge-weighted graph to unweighted");
 
 			return concat;
 		}
@@ -3946,8 +4029,7 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 				if (inst.shuffle_vertex_[i])
 					vtx_label[i] = shuffled_labels[shuffled_id++];
 
-			std::vector<std::pair<int, int>> edges(inst.edges().begin(),
-												   inst.edges().end());
+			std::vector<std::pair<int, int>> edges = inst.edges();
 			if (inst.shuffle_edges_)
 				tgen::shuffle(edges.begin(), edges.end());
 
@@ -3977,14 +4059,14 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 				gen_repeat.lt();
 		}
 		auto edge_gen = gen_repeat.distinct();
-		auto edges = edg_;
+		std::vector<std::pair<int, int>> edges(edg_.begin(), edg_.end());
 
 		tgen_ensure(static_cast<int>(edges.size()) <= m_,
 					"too many edges were added");
 
 		while (static_cast<int>(edges.size()) < m_) {
 			try {
-				edges.insert(edge_gen.gen().to_std());
+				edges.push_back(edge_gen.gen().to_std());
 			} catch (std::runtime_error &e) {
 				throw detail::error(
 					std::string("graph: probably enough edges to generate: ") +
