@@ -378,11 +378,11 @@ template <typename Gen> struct gen_base {
 	template <typename Pred, typename... Args>
 	auto gen_until(Pred predicate, int max_tries, Args &&...args) const {
 		for (int i = 0; i < max_tries; ++i) {
-			typename Gen::value inst = static_cast<const Gen *>(this)->gen(
+			typename Gen::value val = static_cast<const Gen *>(this)->gen(
 				std::forward<Args>(args)...);
 
-			if (predicate(inst))
-				return inst;
+			if (predicate(val))
+				return val;
 		}
 
 		throw detail::error("could not generate value matching predicate");
@@ -418,10 +418,10 @@ template <typename Gen> struct gen_base {
 };
 
 // Base class for generator values.
-template <typename Inst> struct gen_value_base {
-	const Inst &self() const { return *static_cast<const Inst *>(this); }
+template <typename Val> struct gen_value_base {
+	const Val &self() const { return *static_cast<const Val *>(this); }
 
-	bool operator<(const Inst &rhs) const {
+	bool operator<(const Val &rhs) const {
 		return self().to_std() < rhs.to_std();
 	}
 };
@@ -729,11 +729,11 @@ template <typename It> void shuffle(It first, It last) {
 }
 
 // Shuffles sequential generator value uniformly.
-// O(|inst|).
-template <typename Inst, std::enable_if_t<is_sequential<Inst>::value, int> = 0>
-void shuffle(Inst &inst) {
-	for (int i = 0; i < inst.size(); ++i)
-		std::swap(inst[i], inst[next(0, inst.size() - 1)]);
+// O(|val|).
+template <typename Val, std::enable_if_t<is_sequential<Val>::value, int> = 0>
+void shuffle(Val &val) {
+	for (int i = 0; i < val.size(); ++i)
+		std::swap(val[i], val[next(0, val.size() - 1)]);
 }
 
 // Shuffles container uniformly.
@@ -758,11 +758,11 @@ template <typename T>
 
 // Shuffles sequential generator value uniformly.
 // O(n).
-template <typename Inst, std::enable_if_t<is_sequential<Inst>::value, int> = 0>
-[[nodiscard]] Inst shuffled(const Inst &inst) {
-	Inst new_inst = inst;
-	shuffle(new_inst);
-	return new_inst;
+template <typename Val, std::enable_if_t<is_sequential<Val>::value, int> = 0>
+[[nodiscard]] Val shuffled(const Val &val) {
+	Val new_val = val;
+	shuffle(new_val);
+	return new_val;
 }
 
 // Returns a random element from [first, last) uniformly.
@@ -786,9 +786,9 @@ template <typename T> T pick(const std::initializer_list<T> &il) {
 
 // Returns a random element from sequential generator value uniformly.
 // O(1).
-template <typename Inst, std::enable_if_t<is_sequential<Inst>::value, int> = 0>
-typename Inst::value_type pick(const Inst &inst) {
-	return inst[next<int>(0, inst.size() - 1)];
+template <typename Val, std::enable_if_t<is_sequential<Val>::value, int> = 0>
+typename Val::value_type pick(const Val &val) {
+	return val[next<int>(0, val.size() - 1)];
 }
 
 // Returns container[i] with probability proportional to distribution[i].
@@ -822,22 +822,22 @@ T pick_by_distribution(const std::initializer_list<T> &il,
 								std::vector<U>(distribution));
 }
 
-// Returns inst[i] with probability proportional to distribution[i].
+// Returns val[i] with probability proportional to distribution[i].
 // O(1).
-template <typename Inst, typename T,
-		  std::enable_if_t<is_sequential<Inst>::value, int> = 0>
-typename Inst::value_type
-pick_by_distribution(const Inst &inst, const std::vector<T> &distribution) {
-	tgen_ensure(static_cast<size_t>(inst.size()) == distribution.size(),
-				"inst and distribution must have the same size");
-	return inst[next_by_distribution(distribution)];
+template <typename Val, typename T,
+		  std::enable_if_t<is_sequential<Val>::value, int> = 0>
+typename Val::value_type
+pick_by_distribution(const Val &val, const std::vector<T> &distribution) {
+	tgen_ensure(static_cast<size_t>(val.size()) == distribution.size(),
+				"value and distribution must have the same size");
+	return val[next_by_distribution(distribution)];
 }
-template <typename Inst, typename T,
-		  std::enable_if_t<is_sequential<Inst>::value, int> = 0>
-typename Inst::value_type
-pick_by_distribution(const Inst &inst,
+template <typename Val, typename T,
+		  std::enable_if_t<is_sequential<Val>::value, int> = 0>
+typename Val::value_type
+pick_by_distribution(const Val &val,
 					 const std::initializer_list<T> &distribution) {
-	return pick_by_distribution(inst, std::vector<T>(distribution));
+	return pick_by_distribution(val, std::vector<T>(distribution));
 }
 
 // Chooses k values uniformly from container, as in a subsequence of size k.
@@ -865,22 +865,22 @@ std::vector<T> choose(const std::initializer_list<T> &il, int k) {
 // Chooses k values uniformly from sequential generator value, as in a
 // subsequence of size k.
 // O(n).
-template <typename Inst, std::enable_if_t<is_sequential<Inst>::value and
-											  has_subset_defined<Inst>::value,
-										  int> = 0>
-Inst choose(const Inst &inst, int k) {
-	tgen_ensure(0 < k and k <= static_cast<int>(inst.size()),
+template <typename Val, std::enable_if_t<is_sequential<Val>::value and
+											 has_subset_defined<Val>::value,
+										 int> = 0>
+Val choose(const Val &val, int k) {
+	tgen_ensure(0 < k and k <= static_cast<int>(val.size()),
 				"number of elements to choose must be valid");
-	std::vector<typename Inst::value_type> new_vec;
+	std::vector<typename Val::value_type> new_vec;
 	int need = k;
 	for (int i = 0; need > 0; ++i) {
-		int left = inst.size() - i;
+		int left = val.size() - i;
 		if (next(1, left) <= need) {
-			new_vec.push_back(inst[i]);
+			new_vec.push_back(val[i]);
 			need--;
 		}
 	}
-	return Inst(new_vec);
+	return Val(new_vec);
 }
 
 // Number distinct generator for integral types.
@@ -1475,11 +1475,11 @@ template <typename T> struct list : gen_base<list<T>> {
 		}
 
 		// Prints to std::ostream, separated by sep_.
-		friend std::ostream &operator<<(std::ostream &out, const value &inst) {
-			for (int i = 0; i < inst.size(); ++i) {
+		friend std::ostream &operator<<(std::ostream &out, const value &val) {
+			for (int i = 0; i < val.size(); ++i) {
 				if (i > 0)
-					out << inst.sep_;
-				out << inst[i];
+					out << val.sep_;
+				out << val[i];
 			}
 			return out;
 		}
@@ -1945,11 +1945,11 @@ struct permutation : gen_base<permutation> {
 		}
 
 		// Prints to std::ostream, separated by sep_.
-		friend std::ostream &operator<<(std::ostream &out, const value &inst) {
-			for (int i = 0; i < inst.size(); ++i) {
+		friend std::ostream &operator<<(std::ostream &out, const value &val) {
+			for (int i = 0; i < val.size(); ++i) {
 				if (i > 0)
-					out << inst.sep_;
-				out << inst[i] + inst.add_1_;
+					out << val.sep_;
+				out << val[i] + val.add_1_;
 			}
 			return out;
 		}
@@ -2698,7 +2698,7 @@ inline const std::vector<uint64_t> &fibonacci() {
 inline std::vector<int>
 gen_partition(int n, int part_left = 1,
 			  std::optional<int> part_right = std::nullopt) {
-	if (!part_right)
+	if (!part_right.has_value())
 		part_right = n;
 	part_right = std::min(*part_right, n);
 	tgen_ensure(n > 0 and part_left > 0,
@@ -2764,7 +2764,7 @@ gen_partition(int n, int part_left = 1,
 inline std::vector<int>
 gen_partition_fixed_size(int n, int k, int part_left = 0,
 						 std::optional<int> part_right = std::nullopt) {
-	if (!part_right)
+	if (!part_right.has_value())
 		part_right = n;
 	part_right = std::min(*part_right, n);
 	tgen_ensure(0 < k and k <= n and part_left >= 0,
@@ -3290,7 +3290,7 @@ struct str : gen_base<str> {
 		// Fetches position idx.
 		char &operator[](int idx) {
 			tgen_ensure(0 <= idx and idx < size(),
-						"str: instane: index out of bounds");
+						"str: value: index out of bounds");
 			return str_[idx];
 		}
 		const char &operator[](int idx) const {
@@ -3336,8 +3336,8 @@ struct str : gen_base<str> {
 		}
 
 		// Prints to std::ostream.
-		friend std::ostream &operator<<(std::ostream &out, const value &inst) {
-			return out << inst.str_;
+		friend std::ostream &operator<<(std::ostream &out, const value &val) {
+			return out << val.str_;
 		}
 
 		// Gets a std::string representing the value.
@@ -3644,8 +3644,8 @@ template <typename T> struct pair : gen_base<pair<T>> {
 		}
 
 		// Prints to std::ostream, separated by sep_.
-		friend std::ostream &operator<<(std::ostream &out, const value &inst) {
-			return out << inst.pair_.first << inst.sep_ << inst.pair_.second;
+		friend std::ostream &operator<<(std::ostream &out, const value &val) {
+			return out << val.pair_.first << val.sep_ << val.pair_.second;
 		}
 
 		// Gets a std::pair representing the value.
@@ -3700,8 +3700,7 @@ template <typename T> struct pair : gen_base<pair<T>> {
  * VWeight is the type of vertex weights, and EWeight are the type of edge
  * weights.
  */
-template <typename VWeight = int, typename EWeight = int>
-struct graph : gen_base<graph<VWeight, EWeight>> {
+struct graph : gen_base<graph> {
 	int n_, m_;							// Number of vertices and edges.
 	std::set<std::pair<int, int>> edg_; // Edges that were set.
 	bool is_directed_;					// If graph is directed.
@@ -3736,8 +3735,9 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 		std::vector<bool> shuffle_vertex_; // If should shuffle each vertex
 										   // output when printing.
 		bool shuffle_edges_; // If should shuffle edges when printing.
-		std::optional<std::vector<VWeight>> vertex_weights_; // Vertex weights.
-		std::optional<std::vector<EWeight>>
+		std::optional<std::vector<std::string>>
+			vertex_weights_; // Vertex weights.
+		std::optional<std::vector<std::string>>
 			edge_weights_; // Edge weights (in same order as edges_ ).
 
 		// Creates value from `n`, `m`, and edge list. The edges are
@@ -3793,27 +3793,43 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 		// Fetches a const ref. to edge set.
 		const std::vector<std::pair<int, int>> &edges() const { return edges_; }
 
-		// Fetches vertex weights.
-		const std::optional<std::vector<VWeight>> &vertex_weights() const {
+		// Fetches vertex weights as std::string.
+		const std::optional<std::vector<std::string>> &vertex_weights() const {
 			return vertex_weights_;
 		}
 
-		// Fetches edge weights.
-		const std::optional<std::vector<EWeight>> &edge_weights() const {
+		// Fetches edge weights as std::string.
+		const std::optional<std::vector<std::string>> &edge_weights() const {
 			return edge_weights_;
 		}
 
 		// Sets vertex weights.
-		value &set_vertex_weights(std::vector<VWeight> vertex_weights) {
-			tgen_ensure(vertex_weights.size() == n());
-			vertex_weights_ = vertex_weights;
+		template <typename Weight>
+		value &set_vertex_weights(std::vector<Weight> vertex_weights) {
+			tgen_ensure(static_cast<int>(vertex_weights.size()) == n(),
+						"graph: value: must give `n` vertex weights");
+			std::vector<std::string> str_weights;
+			for (Weight &w : vertex_weights) {
+				std::stringstream ss;
+				ss << print(w);
+				str_weights.push_back(ss.str());
+			}
+			vertex_weights_ = str_weights;
 			return *this;
 		}
 
 		// Sets edge weights.
-		value &set_edge_weights(std::vector<EWeight> edge_weights) {
-			tgen_ensure(edge_weights.size() == n());
-			edge_weights_ = edge_weights;
+		template <typename Weight>
+		value &set_edge_weights(std::vector<Weight> edge_weights) {
+			tgen_ensure(static_cast<int>(edge_weights.size()) == m(),
+						"graph: value: must give `m` edge weights");
+			std::vector<std::string> str_weights;
+			for (Weight &w : edge_weights) {
+				std::stringstream ss;
+				ss << print(w);
+				str_weights.push_back(ss.str());
+			}
+			edge_weights_ = str_weights;
 			return *this;
 		}
 
@@ -3853,25 +3869,26 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 		// Adds `k` vertices to the graph (labeled n, n+1, ...n+k-1). Updates
 		// `n` accordingly.
 		// O(1).
-		value &add_vertices(int k, std::optional<std::vector<VWeight>>
+		value &add_vertices(int k, std::optional<std::vector<std::string>>
 									   new_vertex_weights = std::nullopt) {
 			n_ += k;
 			adj_.resize(n());
 			shuffle_vertex_.resize(n());
-			if (new_vertex_weights) {
+			if (new_vertex_weights.has_value()) {
 				tgen_ensure(vertex_weights().has_value(),
-							"graph: cannot add weighted vertices to "
+							"graph: value: cannot add weighted vertices to "
 							"vertex-unweighted graph");
-				tgen_ensure(new_vertex_weights->size() == k,
-							"graph: number of vertex weights must be equal "
-							"to number of added vertices");
+				tgen_ensure(
+					static_cast<int>(new_vertex_weights->size()) == k,
+					"graph: value: number of vertex weights must be equal "
+					"to number of added vertices");
 
 				vertex_weights_->insert(vertex_weights_->end(),
 										new_vertex_weights->begin(),
 										new_vertex_weights->end());
 			} else
 				tgen_ensure(!vertex_weights().has_value(),
-							"graph: cannot add unweighted vertices to "
+							"graph: value: cannot add unweighted vertices to "
 							"vertex-weighted graph");
 
 			return *this;
@@ -3880,7 +3897,8 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 		// Adds edge (u, v).
 		// Updates `m` accordingly.
 		// O(1) amortized.
-		value &add_edge(int u, int v, std::optional<EWeight> w = std::nullopt) {
+		value &add_edge(int u, int v,
+						std::optional<std::string> w = std::nullopt) {
 			tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n(),
 						"graph: value: vertex ids must be valid");
 			if (adj_[u].count(v))
@@ -3892,47 +3910,130 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 
 			if (w) {
 				tgen_ensure(edge_weights().has_value(),
-							"graph: cannot add weighted edge to "
+							"graph: value: cannot add weighted edge to "
 							"edge-unweighted graph");
 
 				edge_weights_->push_back(*w);
 			} else
 				tgen_ensure(!edge_weights().has_value(),
-							"graph: cannot add unweighted edge to "
+							"graph: value: cannot add unweighted edge to "
 							"edge-weighted graph");
 
 			return *this;
 		}
 
-		// Glues the grapg with another rhs at `indices`. That is, idx in
+		// Glues the graph with another rhs at `indices`. That is, idx in
 		// `indices` are considered to be the same vertex.
 		// O(n + m).
 		value &glue(const value &rhs, std::set<int> indices) {
-			std::vector<int> new_id(rhs.n(), -1);
+			// Computes new ids of right vertices.
+			std::vector<int> new_right_id(rhs.n(), -1);
 			int intersection_lt = 0;
 			auto it = indices.begin();
+			std::optional<std::vector<std::string>> rhs_vertex_weights;
 			for (int i = 0; i < rhs.n(); ++i) {
 				if (it != indices.end() and *it == i) {
 					// Is in intersecion.
 					++intersection_lt;
 					++it;
-					new_id[i] = i;
+					new_right_id[i] = i;
 				} else {
 					// New id.
-					new_id[i] = n() + i - intersection_lt;
+					new_right_id[i] = n() + i - intersection_lt;
+					if (rhs.vertex_weights().has_value()) {
+						if (!rhs_vertex_weights.has_value())
+							rhs_vertex_weights = std::vector<std::string>();
+						rhs_vertex_weights->push_back(
+							(*rhs.vertex_weights())[i]);
+					}
 				}
 			}
 
-			add_vertices(rhs.n() - intersection_lt);
-			for (auto [u, v] : rhs.edges())
-				add_edge(new_id[u], new_id[v]);
+			// Adds new vertices and edges.
+			add_vertices(rhs.n() - intersection_lt, rhs_vertex_weights);
+			for (int i = 0; i < rhs.m(); ++i) {
+				auto [u, v] = rhs.edges()[i];
+				add_edge(
+					new_right_id[u], new_right_id[v],
+					rhs.edge_weights().has_value()
+						? std::optional<std::string>((*rhs.edge_weights())[i])
+						: std::nullopt);
+			}
 
 			return *this;
+		}
+		value &glue(const value &rhs, const std::initializer_list<int> &il) {
+			return glue(rhs, std::set<int>(il));
+		}
+
+		// Glues the graph with another rhs such that index_pairs[i].first is
+		// considered to be the same as index_pairs[i].second.
+		// O(n log n + m);
+		value &glue(const value &rhs,
+					std::set<std::pair<int, int>> index_pairs) {
+			// Checks validity of indices.
+			std::set<int> idx_left, idx_right;
+			std::map<int, int> right_id_to_left;
+			for (auto [l, r] : index_pairs) {
+				tgen_ensure(
+					0 <= l and l < n() and 0 <= r and r < rhs.n(),
+					"graph: value: vertex indices to glue must be valid");
+				tgen_ensure(idx_left.count(l) == 0 and idx_right.count(r) == 0,
+							"graph: value: must not have repeated indices "
+							"on the same side to glue");
+
+				idx_left.insert(l);
+				idx_right.insert(r);
+				right_id_to_left[r] = l;
+			}
+
+			// Computes new ids of right vertices.
+			std::vector<int> new_right_id(rhs.n(), -1);
+			int intersection_lt = 0;
+			std::optional<std::vector<std::string>> rhs_vertex_weights;
+			for (int i = 0; i < rhs.n(); ++i) {
+				auto it = right_id_to_left.find(i);
+				if (it != right_id_to_left.end()) {
+					// Is in intersecion.
+					++intersection_lt;
+					new_right_id[i] = it->second;
+				} else {
+					// New id.
+					new_right_id[i] = n() + i - intersection_lt;
+					if (rhs.vertex_weights().has_value()) {
+						if (!rhs_vertex_weights.has_value())
+							rhs_vertex_weights = std::vector<std::string>();
+						rhs_vertex_weights->push_back(
+							(*rhs.vertex_weights())[i]);
+					}
+				}
+			}
+
+			// Adds new vertices and edges.
+			add_vertices(rhs.n() - intersection_lt, rhs_vertex_weights);
+			for (int i = 0; i < rhs.m(); ++i) {
+				auto [u, v] = rhs.edges()[i];
+				add_edge(
+					new_right_id[u], new_right_id[v],
+					rhs.edge_weights().has_value()
+						? std::optional<std::string>((*rhs.edge_weights())[i])
+						: std::nullopt);
+			}
+
+			return *this;
+		}
+		value &glue(const value &rhs,
+					std::initializer_list<std::pair<int, int>> il) {
+			return glue(rhs, std::set<std::pair<int, int>>(il));
 		}
 
 		// Self loops are mainteind for complement.
 		// O(n^2).
 		value &operator!() {
+			tgen_ensure(!edge_weights_.has_value(),
+						"graph: value: cannot compute complement of "
+						"edge-weighted graph");
+
 			m_ = 0;
 			std::vector<std::pair<int, int>> compl_edges;
 			for (int i = 0; i < n_; ++i) {
@@ -3958,11 +4059,12 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 
 			return *this;
 		}
+
 		// Concatenates two values.
 		// Linear.
 		value operator+(const value &rhs) const {
 			tgen_ensure(is_directed() == rhs.is_directed(),
-						"value: concatened graphs must have the same "
+						"graph: value: concatened graphs must have the same "
 						"is_directed value");
 
 			std::vector<std::pair<int, int>> edges = edges_;
@@ -3980,63 +4082,86 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 				if (rhs.shuffle_vertex_[i])
 					concat.shuffle_vertex_[n() + i] = true;
 
+			// Merge vertex weights.
 			if (vertex_weights().has_value()) {
-				tgen_ensure(
-					rhs.vertex_weights().has_value(),
-					"cannot concatenate vertex-unweighted graph to weighted");
+				tgen_ensure(rhs.vertex_weights().has_value(),
+							"graph: value: cannot concatenate "
+							"vertex-unweighted graph to weighted");
 
 				concat.set_vertex_weights(*vertex_weights());
 				concat.vertex_weights_->insert(concat.vertex_weights_->end(),
 											   rhs.vertex_weights()->begin(),
 											   rhs.vertex_weights()->end());
 			} else
-				tgen_ensure(
-					!rhs.vertex_weights().has_value(),
-					"cannot concatenate vertex-weighted graph to unweighted");
+				tgen_ensure(!rhs.vertex_weights().has_value(),
+							"graph: value: cannot concatenate vertex-weighted "
+							"graph to unweighted");
 
+			// Merge edge weights.
 			if (edge_weights().has_value()) {
-				tgen_ensure(
-					rhs.edge_weights().has_value(),
-					"cannot concatenate edge-unweighted graph to weighted");
+				tgen_ensure(rhs.edge_weights().has_value(),
+							"graph: value: cannot concatenate edge-unweighted "
+							"graph to weighted");
 
 				concat.set_edge_weights(*edge_weights());
 				concat.edge_weights_->insert(concat.edge_weights_->end(),
 											 rhs.edge_weights()->begin(),
 											 rhs.edge_weights()->end());
 			} else
-				tgen_ensure(
-					!rhs.edge_weights().has_value(),
-					"cannot concatenate edge-weighted graph to unweighted");
+				tgen_ensure(!rhs.edge_weights().has_value(),
+							"graph: value: cannot concatenate edge-weighted "
+							"graph to unweighted");
 
 			return concat;
 		}
 
 		// Prints to std::ostream.
-		friend std::ostream &operator<<(std::ostream &out, const value &inst) {
-			if (inst.print_nm_)
-				out << inst.n() << " " << inst.m() << std::endl;
+		// O(n + m).
+		friend std::ostream &operator<<(std::ostream &out, const value &val) {
+			// Prints `n` and `m`.
+			if (val.print_nm_)
+				out << val.n() << " " << val.m() << std::endl;
 
-			std::vector<int> vtx_label(inst.n()), shuffled_labels;
+			// Prints vertex weights.
+			if (val.vertex_weights()) {
+				for (int i = 0; i < val.n(); ++i) {
+					if (i > 0)
+						out << " ";
+					out << (*val.vertex_weights())[i];
+				}
+				out << std::endl;
+			}
+
+			// Shuffles labels.
+			std::vector<int> vtx_label(val.n()), shuffled_labels;
 			std::iota(vtx_label.begin(), vtx_label.end(), 0);
 
-			for (int i = 0; i < inst.n(); ++i)
-				if (inst.shuffle_vertex_[i])
+			for (int i = 0; i < val.n(); ++i)
+				if (val.shuffle_vertex_[i])
 					shuffled_labels.push_back(i);
 			tgen::shuffle(shuffled_labels.begin(), shuffled_labels.end());
 
 			int shuffled_id = 0;
-			for (int i = 0; i < inst.n(); ++i)
-				if (inst.shuffle_vertex_[i])
+			for (int i = 0; i < val.n(); ++i)
+				if (val.shuffle_vertex_[i])
 					vtx_label[i] = shuffled_labels[shuffled_id++];
 
-			std::vector<std::pair<int, int>> edges = inst.edges();
-			if (inst.shuffle_edges_)
+			std::vector<std::pair<int, int>> edges = val.edges();
+			if (val.shuffle_edges_)
 				tgen::shuffle(edges.begin(), edges.end());
 
-			for (auto [u, v] : edges)
-				out << (vtx_label[u] + inst.add_1_) << " "
-					<< (vtx_label[v] + inst.add_1_) << std::endl;
-			;
+			// Prints edges.
+			for (int i = 0; i < val.m(); ++i) {
+				auto [u, v] = val.edges()[i];
+				out << (vtx_label[u] + val.add_1_) << " "
+					<< (vtx_label[v] + val.add_1_);
+
+				// Edge weight.
+				if (val.edge_weights().has_value())
+					out << " " << (*val.edge_weights())[i];
+
+				out << std::endl;
+			}
 
 			return out;
 		}
@@ -4079,14 +4204,14 @@ struct graph : gen_base<graph<VWeight, EWeight>> {
 };
 
 // Standard graphs.
-inline graph<>::value K(int n) { return graph(n, n * (n - 1) / 2).gen(); }
-inline graph<>::value P(int n) {
+inline graph::value K(int n) { return graph(n, n * (n - 1) / 2).gen(); }
+inline graph::value P(int n) {
 	graph g(n, n - 1);
 	for (int i = 0; i + 1 < n; ++i)
 		g.add_edge(i, i + 1);
 	return g.gen();
 }
-inline graph<>::value C(int n) {
+inline graph::value C(int n) {
 	graph g(n, n);
 	for (int i = 0; i < n; ++i)
 		g.add_edge(i, (i + 1) % n);

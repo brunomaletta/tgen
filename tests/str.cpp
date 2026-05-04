@@ -177,6 +177,6 @@ TEST(str_test, value_index_out_of_bounds) {
 	tgen::register_gen();
 
 	tgen::str::value inst("ab");
-	EXPECT_THROW_TGEN_PREFIX(inst[-1], "str: instane: index out of bounds");
-	EXPECT_THROW_TGEN_PREFIX(inst[2], "str: instane: index out of bounds");
+	EXPECT_THROW_TGEN_PREFIX(inst[-1], "str: value: index out of bounds");
+	EXPECT_THROW_TGEN_PREFIX(inst[2], "str: value: index out of bounds");
 }

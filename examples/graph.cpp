@@ -13,5 +13,10 @@ int main() {
 
 	std::cout << std::endl;
 
-	std::cout << C(4).glue(C(3), {0, 1}).add_vertices(1).add_edge(2, 5).add_1();
+	std::vector<int> weights = {1, 2, 3, 4, 5, 6, 7};
+	std::cout << C(4).glue(C(3), {0, 1})
+					 .glue(P(2), {{2, 0}})
+					 .add_1()
+					 .print_nm()
+					 .set_edge_weights(weights);
 }

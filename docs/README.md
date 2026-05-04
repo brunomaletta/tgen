@@ -18,7 +18,7 @@ There are:
 - [Base operations](https://brunomaletta.github.io/tgen/group__base.html)
   - [Generator value operations](https://brunomaletta.github.io/tgen/group__generator__value__op.html)
 - [Math operations](https://brunomaletta.github.io/tgen/group__math.html)
-- [Hacks (worst-case generation)](https://brunomaletta.github.io/tgen/group__hack.html)
+- [Hacks (adversarial generation)](https://brunomaletta.github.io/tgen/group__hack.html)
 - [Miscellaneous operations](https://brunomaletta.github.io/tgen/group__misc.html)
 
 and operations for specific data types:

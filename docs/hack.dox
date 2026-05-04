@@ -4,7 +4,7 @@ namespace tgen::hack {
 
 /**
  * @defgroup hack Hacks
- * @brief Worst-case generation for specific problems.
+ * @brief Adversarial generation for specific problems.
  *
  * ### Examples
  *
@@ -202,7 +202,7 @@ namespace tgen::hack {
  * @ingroup hack
  * @brief List of strings that have high cost to insert in a @tt{@namespace{std}::@type{set}}.
  *
- * @param size Size of the list.
+ * @param size Total number of characters.
  *
  * Inserting these strings in a @tt{@namespace{std}::@type{set}} takes @tt{Theta(@pname{size} log(@pname{size}))}
  * time, and that is asymptotically the maximum one can achieve.
