@@ -3692,6 +3692,29 @@ template <typename T> struct pair : gen_base<pair<T>> {
  *           *
  *************/
 
+namespace detail {
+
+// Converts weight to std::string.
+template <typename Weight> std::string weight_to_str(const Weight &w) {
+	std::stringstream ss;
+	ss << print(w);
+	return ss.str();
+}
+
+// Converts weight std::vector to std::string.
+template <typename Weight>
+std::vector<std::string> weight_to_str(const std::vector<Weight> &vec) {
+	std::vector<std::string> str_weights;
+	for (const Weight &w : vec) {
+		std::stringstream ss;
+		ss << print(w);
+		str_weights.push_back(ss.str());
+	}
+	return str_weights;
+}
+
+} // namespace detail
+
 /*
  * Graph generator.
  *
@@ -3742,6 +3765,7 @@ struct graph : gen_base<graph> {
 
 		// Creates value from `n`, `m`, and edge list. The edges are
 		// considered to be directed.
+		// O(n + |edges|).
 		value(int n, int m, const std::vector<std::pair<int, int>> &edges,
 			  bool is_directed = false)
 			: n_(n), m_(m), adj_(n_), edges_(edges), is_directed_(is_directed),
@@ -3759,6 +3783,7 @@ struct graph : gen_base<graph> {
 
 		// Creates value from `n`, `m`, and adjacecy list. The edges are
 		// considered to be directed.
+		// O(n + |adj|).
 		value(int n, int m, const std::vector<std::set<int>> &adj,
 			  bool is_directed = false)
 			: n_(n), m_(m), adj_(adj), is_directed_(is_directed), add_1_(false),
@@ -3804,48 +3829,41 @@ struct graph : gen_base<graph> {
 		}
 
 		// Sets vertex weights.
+		// O(n).
 		template <typename Weight>
-		value &set_vertex_weights(std::vector<Weight> vertex_weights) {
+		value &set_vertex_weights(const std::vector<Weight> &vertex_weights) {
 			tgen_ensure(static_cast<int>(vertex_weights.size()) == n(),
 						"graph: value: must give `n` vertex weights");
-			std::vector<std::string> str_weights;
-			for (Weight &w : vertex_weights) {
-				std::stringstream ss;
-				ss << print(w);
-				str_weights.push_back(ss.str());
-			}
-			vertex_weights_ = str_weights;
+			vertex_weights_ = detail::weight_to_str(vertex_weights);
 			return *this;
 		}
 
 		// Sets edge weights.
+		// O(m).
 		template <typename Weight>
-		value &set_edge_weights(std::vector<Weight> edge_weights) {
+		value &set_edge_weights(const std::vector<Weight> &edge_weights) {
 			tgen_ensure(static_cast<int>(edge_weights.size()) == m(),
 						"graph: value: must give `m` edge weights");
-			std::vector<std::string> str_weights;
-			for (Weight &w : edge_weights) {
-				std::stringstream ss;
-				ss << print(w);
-				str_weights.push_back(ss.str());
-			}
-			edge_weights_ = str_weights;
+			edge_weights_ = detail::weight_to_str(edge_weights);
 			return *this;
 		}
 
 		// Adds 1 to vertex ids, for printing.
+		// O(1).
 		value &add_1() {
 			add_1_ = true;
 			return *this;
 		}
 
 		// Prints `n m` on a new line before printing the edges.
+		// O(1).
 		value &print_nm() {
 			print_nm_ = true;
 			return *this;
 		}
 
 		// Shuffles the graph's vertices and edge order.
+		// O(n).
 		value &shuffle() {
 			for (int i = 0; i < n(); ++i)
 				shuffle_vertex_[i] = true;
@@ -3854,6 +3872,7 @@ struct graph : gen_base<graph> {
 		}
 
 		// Shuffles the graph's vertices except `indices`, and edge orders.
+		// O(n).
 		value &shuffle_except(std::set<int> indices) {
 			auto it = indices.begin();
 			for (int i = 0; i < n(); ++i) {
@@ -3868,8 +3887,9 @@ struct graph : gen_base<graph> {
 
 		// Adds `k` vertices to the graph (labeled n, n+1, ...n+k-1). Updates
 		// `n` accordingly.
-		// O(1).
-		value &add_vertices(int k, std::optional<std::vector<std::string>>
+		// O(k) amortized.
+		template <typename Weight = int>
+		value &add_vertices(int k, std::optional<std::vector<Weight>>
 									   new_vertex_weights = std::nullopt) {
 			n_ += k;
 			adj_.resize(n());
@@ -3883,9 +3903,11 @@ struct graph : gen_base<graph> {
 					"graph: value: number of vertex weights must be equal "
 					"to number of added vertices");
 
+				std::vector<std::string> vertex_weights_str =
+					detail::weight_to_str(*new_vertex_weights);
 				vertex_weights_->insert(vertex_weights_->end(),
-										new_vertex_weights->begin(),
-										new_vertex_weights->end());
+										vertex_weights_str.begin(),
+										vertex_weights_str.end());
 			} else
 				tgen_ensure(!vertex_weights().has_value(),
 							"graph: value: cannot add unweighted vertices to "
@@ -3897,8 +3919,8 @@ struct graph : gen_base<graph> {
 		// Adds edge (u, v).
 		// Updates `m` accordingly.
 		// O(1) amortized.
-		value &add_edge(int u, int v,
-						std::optional<std::string> w = std::nullopt) {
+		template <typename Weight = int>
+		value &add_edge(int u, int v, std::optional<Weight> w = std::nullopt) {
 			tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n(),
 						"graph: value: vertex ids must be valid");
 			if (adj_[u].count(v))
@@ -3913,7 +3935,7 @@ struct graph : gen_base<graph> {
 							"graph: value: cannot add weighted edge to "
 							"edge-unweighted graph");
 
-				edge_weights_->push_back(*w);
+				edge_weights_->push_back(detail::weight_to_str(*w));
 			} else
 				tgen_ensure(!edge_weights().has_value(),
 							"graph: value: cannot add unweighted edge to "
@@ -3922,8 +3944,38 @@ struct graph : gen_base<graph> {
 			return *this;
 		}
 
-		// Glues the graph with another rhs at `indices`. That is, idx in
-		// `indices` are considered to be the same vertex.
+		// Links graph with another `rhs`, adding the edge between u (in left
+		// graph) and v (in right graph). Ids for added vertices are updated
+		// accordingly.
+		// O(n+m).
+		template <typename Weight = int>
+		value &link(const value &rhs, int new_u, int new_v,
+					std::optional<Weight> new_w = std::nullopt) {
+			tgen_ensure(0 <= new_u and new_u < n() and 0 <= new_v and
+							new_v < rhs.n(),
+						"graph: value: vertex ids must be valid");
+
+			// Edges from right-hand side.
+			int shift = n();
+			add_vertices(rhs.n(), rhs.vertex_weights());
+			for (int i = 0; i < rhs.m(); ++i) {
+				auto [u, v] = rhs.edges()[i];
+				add_edge(
+					shift + u, shift + v,
+					rhs.edge_weights().has_value()
+						? std::optional<std::string>((*rhs.edge_weights())[i])
+						: std::nullopt);
+			}
+
+			// New edge.
+			add_edge(new_u, shift + new_v, new_w);
+
+			return *this;
+		}
+
+		// Glues the graph with another `rhs` at `indices`. That is, idx in
+		// `indices` are considered to be the same vertex. Ids for added
+		// vertices are updated accordingly.
 		// O(n + m).
 		value &glue(const value &rhs, std::set<int> indices) {
 			// Computes new ids of right vertices.
@@ -3966,8 +4018,9 @@ struct graph : gen_base<graph> {
 			return glue(rhs, std::set<int>(il));
 		}
 
-		// Glues the graph with another rhs such that index_pairs[i].first is
-		// considered to be the same as index_pairs[i].second.
+		// Glues the graph with another `rhs` such that index_pairs[i].first is
+		// considered to be the same as index_pairs[i].second. Ids for added
+		// vertices are updated accordingly.
 		// O(n log n + m);
 		value &glue(const value &rhs,
 					std::set<std::pair<int, int>> index_pairs) {
@@ -4083,34 +4136,28 @@ struct graph : gen_base<graph> {
 					concat.shuffle_vertex_[n() + i] = true;
 
 			// Merge vertex weights.
+			tgen_ensure(vertex_weights().has_value() ==
+							rhs.vertex_weights().has_value(),
+						"graph: value: cannot concatenate vertex-weighted "
+						"graph to unweighted");
 			if (vertex_weights().has_value()) {
-				tgen_ensure(rhs.vertex_weights().has_value(),
-							"graph: value: cannot concatenate "
-							"vertex-unweighted graph to weighted");
-
 				concat.set_vertex_weights(*vertex_weights());
 				concat.vertex_weights_->insert(concat.vertex_weights_->end(),
 											   rhs.vertex_weights()->begin(),
 											   rhs.vertex_weights()->end());
-			} else
-				tgen_ensure(!rhs.vertex_weights().has_value(),
-							"graph: value: cannot concatenate vertex-weighted "
-							"graph to unweighted");
+			}
 
 			// Merge edge weights.
+			tgen_ensure(edge_weights().has_value() ==
+							rhs.edge_weights().has_value(),
+						"graph: value: cannot concatenate edge-weighted "
+						"graph to unweighted");
 			if (edge_weights().has_value()) {
-				tgen_ensure(rhs.edge_weights().has_value(),
-							"graph: value: cannot concatenate edge-unweighted "
-							"graph to weighted");
-
 				concat.set_edge_weights(*edge_weights());
 				concat.edge_weights_->insert(concat.edge_weights_->end(),
 											 rhs.edge_weights()->begin(),
 											 rhs.edge_weights()->end());
-			} else
-				tgen_ensure(!rhs.edge_weights().has_value(),
-							"graph: value: cannot concatenate edge-weighted "
-							"graph to unweighted");
+			}
 
 			return concat;
 		}
