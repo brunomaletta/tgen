@@ -3692,29 +3692,6 @@ template <typename T> struct pair : gen_base<pair<T>> {
  *           *
  *************/
 
-namespace detail {
-
-// Converts weight to std::string.
-template <typename Weight> std::string weight_to_str(const Weight &w) {
-	std::stringstream ss;
-	ss << print(w);
-	return ss.str();
-}
-
-// Converts weight std::vector to std::string.
-template <typename Weight>
-std::vector<std::string> weight_to_str(const std::vector<Weight> &vec) {
-	std::vector<std::string> str_weights;
-	for (const Weight &w : vec) {
-		std::stringstream ss;
-		ss << print(w);
-		str_weights.push_back(ss.str());
-	}
-	return str_weights;
-}
-
-} // namespace detail
-
 /*
  * Graph generator.
  *
@@ -3723,7 +3700,8 @@ std::vector<std::string> weight_to_str(const std::vector<Weight> &vec) {
  * VWeight is the type of vertex weights, and EWeight are the type of edge
  * weights.
  */
-struct graph : gen_base<graph> {
+template <typename VWeight, typename EWeight>
+struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	int n_, m_;							// Number of vertices and edges.
 	std::set<std::pair<int, int>> edg_; // Edges that were set.
 	bool is_directed_;					// If graph is directed.
@@ -3731,12 +3709,12 @@ struct graph : gen_base<graph> {
 
 	// Creates graph generator with `n` vertices and `m` edges.
 	// Additionally, you can set if the graph is directed and if self loop
-	graph(int n, int m, bool is_directed = false, bool has_self_loops = false)
+	wgraph(int n, int m, bool is_directed = false, bool has_self_loops = false)
 		: n_(n), m_(m), is_directed_(is_directed),
 		  has_self_loops_(has_self_loops) {}
 
 	// Adds edge bewteen u and v (this edge must be generated).
-	graph &add_edge(int u, int v) {
+	wgraph &add_edge(int u, int v) {
 		tgen_ensure(0 <= u and u < n_, "graph: vertex index must be valid");
 		tgen_ensure(0 <= v and v < n_, "graph: vertex index must be valid");
 
@@ -3758,28 +3736,9 @@ struct graph : gen_base<graph> {
 		std::vector<bool> shuffle_vertex_; // If should shuffle each vertex
 										   // output when printing.
 		bool shuffle_edges_; // If should shuffle edges when printing.
-		std::optional<std::vector<std::string>>
-			vertex_weights_; // Vertex weights.
-		std::optional<std::vector<std::string>>
+		std::optional<std::vector<VWeight>> vertex_weights_; // Vertex weights.
+		std::optional<std::vector<EWeight>>
 			edge_weights_; // Edge weights (in same order as edges_ ).
-
-		// Creates value from `n`, `m`, and edge list. The edges are
-		// considered to be directed.
-		// O(n + |edges|).
-		value(int n, int m, const std::vector<std::pair<int, int>> &edges,
-			  bool is_directed = false)
-			: n_(n), m_(m), adj_(n_), edges_(edges), is_directed_(is_directed),
-			  add_1_(false), print_nm_(false), shuffle_vertex_(n, false),
-			  shuffle_edges_(false) {
-			tgen_ensure(static_cast<int>(edges_.size()) == m,
-						"graph: value: number of edges must be equal to `m`");
-
-			for (auto [u, v] : edges) {
-				tgen_ensure(0 <= u and u < n, "graph: value: invalid edge");
-				tgen_ensure(0 <= v and v < n, "graph: value: invalid edge");
-				adj_[u].insert(v);
-			}
-		}
 
 		// Creates value from `n`, `m`, and adjacecy list. The edges are
 		// considered to be directed.
@@ -3803,6 +3762,42 @@ struct graph : gen_base<graph> {
 						"graph: value: number of edges must be equal to `m`");
 		}
 
+		// Creates value from `n`, `m`, and edge list. The edges are
+		// considered to be directed.
+		// O(n + |edges|).
+		value(int n, int m, const std::vector<std::pair<int, int>> &edges,
+			  bool is_directed = false)
+			: n_(n), m_(m), adj_(n_), edges_(edges), is_directed_(is_directed),
+			  add_1_(false), print_nm_(false), shuffle_vertex_(n, false),
+			  shuffle_edges_(false) {
+			tgen_ensure(static_cast<int>(edges_.size()) == m,
+						"graph: value: number of edges must be equal to `m`");
+
+			for (auto [u, v] : edges) {
+				tgen_ensure(0 <= u and u < n, "graph: value: invalid edge");
+				tgen_ensure(0 <= v and v < n, "graph: value: invalid edge");
+				adj_[u].insert(v);
+			}
+		}
+
+		// Weight type converstion.
+		template <typename NewVWeight, typename NewEWeight>
+		typename wgraph<NewVWeight, NewEWeight>::value
+		convert_weight_types() const {
+			tgen_ensure(
+				!vertex_weights_.has_value() and !edge_weights_.has_value(),
+				"graph: cannot convert edge type after assigning weights");
+
+			typename wgraph<NewVWeight, NewEWeight>::value new_graph(
+				n_, m_, adj_, is_directed_);
+			new_graph.is_directed_ = is_directed_;
+			new_graph.add_1_ = add_1_;
+			new_graph.print_nm_ = print_nm_;
+			new_graph.shuffle_vertex_ = shuffle_vertex_;
+			new_graph.shuffle_edges_ = shuffle_edges_;
+			return new_graph;
+		}
+
 		// Fetches number of vertices.
 		int n() const { return n_; }
 
@@ -3818,34 +3813,40 @@ struct graph : gen_base<graph> {
 		// Fetches a const ref. to edge set.
 		const std::vector<std::pair<int, int>> &edges() const { return edges_; }
 
-		// Fetches vertex weights as std::string.
-		const std::optional<std::vector<std::string>> &vertex_weights() const {
+		// Fetches vertex weights.
+		const std::optional<std::vector<VWeight>> &vertex_weights() const {
 			return vertex_weights_;
 		}
 
-		// Fetches edge weights as std::string.
-		const std::optional<std::vector<std::string>> &edge_weights() const {
+		// Fetches edge weights.
+		const std::optional<std::vector<EWeight>> &edge_weights() const {
 			return edge_weights_;
 		}
 
 		// Sets vertex weights.
 		// O(n).
-		template <typename Weight>
-		value &set_vertex_weights(const std::vector<Weight> &vertex_weights) {
+		template <typename NewVWeight = VWeight>
+		typename wgraph<NewVWeight, EWeight>::value
+		set_vertex_weights(const std::vector<NewVWeight> &vertex_weights) {
 			tgen_ensure(static_cast<int>(vertex_weights.size()) == n(),
 						"graph: value: must give `n` vertex weights");
-			vertex_weights_ = detail::weight_to_str(vertex_weights);
-			return *this;
+
+			auto new_graph = convert_weight_types<NewVWeight, EWeight>();
+			new_graph.vertex_weights_ = vertex_weights;
+			return new_graph;
 		}
 
 		// Sets edge weights.
 		// O(m).
-		template <typename Weight>
-		value &set_edge_weights(const std::vector<Weight> &edge_weights) {
+		template <typename NewEWeight = EWeight>
+		typename wgraph<VWeight, NewEWeight>::value
+		set_edge_weights(const std::vector<NewEWeight> &edge_weights) {
 			tgen_ensure(static_cast<int>(edge_weights.size()) == m(),
 						"graph: value: must give `m` edge weights");
-			edge_weights_ = detail::weight_to_str(edge_weights);
-			return *this;
+
+			auto new_graph = convert_weight_types<VWeight, NewEWeight>();
+			new_graph.edge_weights_ = edge_weights;
+			return new_graph;
 		}
 
 		// Adds 1 to vertex ids, for printing.
@@ -3888,8 +3889,7 @@ struct graph : gen_base<graph> {
 		// Adds `k` vertices to the graph (labeled n, n+1, ...n+k-1). Updates
 		// `n` accordingly.
 		// O(k) amortized.
-		template <typename Weight = int>
-		value &add_vertices(int k, std::optional<std::vector<Weight>>
+		value &add_vertices(int k, std::optional<std::vector<VWeight>>
 									   new_vertex_weights = std::nullopt) {
 			n_ += k;
 			adj_.resize(n());
@@ -3903,11 +3903,9 @@ struct graph : gen_base<graph> {
 					"graph: value: number of vertex weights must be equal "
 					"to number of added vertices");
 
-				std::vector<std::string> vertex_weights_str =
-					detail::weight_to_str(*new_vertex_weights);
 				vertex_weights_->insert(vertex_weights_->end(),
-										vertex_weights_str.begin(),
-										vertex_weights_str.end());
+										new_vertex_weights->begin(),
+										new_vertex_weights->end());
 			} else
 				tgen_ensure(!vertex_weights().has_value(),
 							"graph: value: cannot add unweighted vertices to "
@@ -3919,10 +3917,13 @@ struct graph : gen_base<graph> {
 		// Adds edge (u, v).
 		// Updates `m` accordingly.
 		// O(1) amortized.
-		template <typename Weight = int>
-		value &add_edge(int u, int v, std::optional<Weight> w = std::nullopt) {
+		value &add_edge(int u, int v, std::optional<EWeight> w = std::nullopt) {
 			tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n(),
 						"graph: value: vertex ids must be valid");
+
+			if (!is_directed() and u > v)
+				std::swap(u, v);
+
 			if (adj_[u].count(v))
 				return *this;
 
@@ -3935,7 +3936,7 @@ struct graph : gen_base<graph> {
 							"graph: value: cannot add weighted edge to "
 							"edge-unweighted graph");
 
-				edge_weights_->push_back(detail::weight_to_str(*w));
+				edge_weights_->push_back(*w);
 			} else
 				tgen_ensure(!edge_weights().has_value(),
 							"graph: value: cannot add unweighted edge to "
@@ -3947,7 +3948,7 @@ struct graph : gen_base<graph> {
 		// Links graph with another `rhs`, adding the edge between u (in left
 		// graph) and v (in right graph). Ids for added vertices are updated
 		// accordingly.
-		// O(n+m).
+		// O(rhs.n + rhs.m).
 		template <typename Weight = int>
 		value &link(const value &rhs, int new_u, int new_v,
 					std::optional<Weight> new_w = std::nullopt) {
@@ -3960,11 +3961,10 @@ struct graph : gen_base<graph> {
 			add_vertices(rhs.n(), rhs.vertex_weights());
 			for (int i = 0; i < rhs.m(); ++i) {
 				auto [u, v] = rhs.edges()[i];
-				add_edge(
-					shift + u, shift + v,
-					rhs.edge_weights().has_value()
-						? std::optional<std::string>((*rhs.edge_weights())[i])
-						: std::nullopt);
+				add_edge(shift + u, shift + v,
+						 rhs.edge_weights().has_value()
+							 ? std::optional<EWeight>((*rhs.edge_weights())[i])
+							 : std::nullopt);
 			}
 
 			// New edge.
@@ -3973,60 +3973,15 @@ struct graph : gen_base<graph> {
 			return *this;
 		}
 
-		// Glues the graph with another `rhs` at `indices`. That is, idx in
-		// `indices` are considered to be the same vertex. Ids for added
-		// vertices are updated accordingly.
-		// O(n + m).
-		value &glue(const value &rhs, std::set<int> indices) {
-			// Computes new ids of right vertices.
-			std::vector<int> new_right_id(rhs.n(), -1);
-			int intersection_lt = 0;
-			auto it = indices.begin();
-			std::optional<std::vector<std::string>> rhs_vertex_weights;
-			for (int i = 0; i < rhs.n(); ++i) {
-				if (it != indices.end() and *it == i) {
-					// Is in intersecion.
-					++intersection_lt;
-					++it;
-					new_right_id[i] = i;
-				} else {
-					// New id.
-					new_right_id[i] = n() + i - intersection_lt;
-					if (rhs.vertex_weights().has_value()) {
-						if (!rhs_vertex_weights.has_value())
-							rhs_vertex_weights = std::vector<std::string>();
-						rhs_vertex_weights->push_back(
-							(*rhs.vertex_weights())[i]);
-					}
-				}
-			}
-
-			// Adds new vertices and edges.
-			add_vertices(rhs.n() - intersection_lt, rhs_vertex_weights);
-			for (int i = 0; i < rhs.m(); ++i) {
-				auto [u, v] = rhs.edges()[i];
-				add_edge(
-					new_right_id[u], new_right_id[v],
-					rhs.edge_weights().has_value()
-						? std::optional<std::string>((*rhs.edge_weights())[i])
-						: std::nullopt);
-			}
-
-			return *this;
-		}
-		value &glue(const value &rhs, const std::initializer_list<int> &il) {
-			return glue(rhs, std::set<int>(il));
-		}
-
 		// Glues the graph with another `rhs` such that index_pairs[i].first is
 		// considered to be the same as index_pairs[i].second. Ids for added
 		// vertices are updated accordingly.
-		// O(n log n + m);
+		// O(rhs.n + rhs.m).
 		value &glue(const value &rhs,
 					std::set<std::pair<int, int>> index_pairs) {
 			// Checks validity of indices.
 			std::set<int> idx_left, idx_right;
-			std::map<int, int> right_id_to_left;
+			std::vector<int> right_id_to_left(rhs.n(), -1);
 			for (auto [l, r] : index_pairs) {
 				tgen_ensure(
 					0 <= l and l < n() and 0 <= r and r < rhs.n(),
@@ -4043,19 +3998,18 @@ struct graph : gen_base<graph> {
 			// Computes new ids of right vertices.
 			std::vector<int> new_right_id(rhs.n(), -1);
 			int intersection_lt = 0;
-			std::optional<std::vector<std::string>> rhs_vertex_weights;
+			std::optional<std::vector<VWeight>> rhs_vertex_weights;
 			for (int i = 0; i < rhs.n(); ++i) {
-				auto it = right_id_to_left.find(i);
-				if (it != right_id_to_left.end()) {
+				if (right_id_to_left[i] != -1) {
 					// Is in intersecion.
 					++intersection_lt;
-					new_right_id[i] = it->second;
+					new_right_id[i] = right_id_to_left[i];
 				} else {
 					// New id.
 					new_right_id[i] = n() + i - intersection_lt;
 					if (rhs.vertex_weights().has_value()) {
 						if (!rhs_vertex_weights.has_value())
-							rhs_vertex_weights = std::vector<std::string>();
+							rhs_vertex_weights = std::vector<VWeight>();
 						rhs_vertex_weights->push_back(
 							(*rhs.vertex_weights())[i]);
 					}
@@ -4066,11 +4020,10 @@ struct graph : gen_base<graph> {
 			add_vertices(rhs.n() - intersection_lt, rhs_vertex_weights);
 			for (int i = 0; i < rhs.m(); ++i) {
 				auto [u, v] = rhs.edges()[i];
-				add_edge(
-					new_right_id[u], new_right_id[v],
-					rhs.edge_weights().has_value()
-						? std::optional<std::string>((*rhs.edge_weights())[i])
-						: std::nullopt);
+				add_edge(new_right_id[u], new_right_id[v],
+						 rhs.edge_weights().has_value()
+							 ? std::optional<EWeight>((*rhs.edge_weights())[i])
+							 : std::nullopt);
 			}
 
 			return *this;
@@ -4078,6 +4031,20 @@ struct graph : gen_base<graph> {
 		value &glue(const value &rhs,
 					std::initializer_list<std::pair<int, int>> il) {
 			return glue(rhs, std::set<std::pair<int, int>>(il));
+		}
+
+		// Glues the graph with another `rhs` at `indices`. That is, idx in
+		// `indices` are considered to be the same vertex. Ids for added
+		// vertices are updated accordingly.
+		// O(rhs.n + rhs.m).
+		value &glue(const value &rhs, std::set<int> indices) {
+			std::set<std::pair<int, int>> index_pairs;
+			for (auto i : indices)
+				index_pairs.emplace(i, i);
+			return glue(rhs, index_pairs);
+		}
+		value &glue(const value &rhs, const std::initializer_list<int> &il) {
+			return glue(rhs, std::set<int>(il));
 		}
 
 		// Self loops are mainteind for complement.
@@ -4250,14 +4217,35 @@ struct graph : gen_base<graph> {
 	}
 };
 
-// Standard graphs.
+/*
+ * Other types of weighted-ness.
+ */
+
+// Vertex weighted graph.
+template <typename VWeight> using vgraph = wgraph<VWeight, int>;
+
+// Edge weighted graph.
+template <typename EWeight> using egraph = wgraph<int, EWeight>;
+
+// Unweighted graph.
+using graph = wgraph<int, int>;
+
+/*
+ * Standard graphs.
+ */
+
+// Complete.
 inline graph::value K(int n) { return graph(n, n * (n - 1) / 2).gen(); }
+
+// Path;
 inline graph::value P(int n) {
 	graph g(n, n - 1);
 	for (int i = 0; i + 1 < n; ++i)
 		g.add_edge(i, i + 1);
 	return g.gen();
 }
+
+// Cycle.
 inline graph::value C(int n) {
 	graph g(n, n);
 	for (int i = 0; i < n; ++i)
