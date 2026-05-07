@@ -252,7 +252,7 @@ namespace tgen {
  * @return @tt{i} in @tt{[0, @pname{distribution}.size()-]} with probability proportional to
  *         @tt{@pname{distribution}[i]}.
  *
- * @warning Assumes that the sum of @pname{distribution} fits in type @tt{T}.
+ * @warning Assumes that the sum of @pname{distribution} fits in type @tt{@type{unsigned} __int128}.
  *
  * #### Complexity
  *
@@ -266,6 +266,33 @@ namespace tgen {
  * ```
  *
  * @fn next_by_distribution(const std::vector<T> &distribution);
+ */
+
+
+/**
+ * @ingroup base
+ * @brief Returns many random indices with given probabilities.
+ *
+ * @param k Number of indices to be generated.
+ * @param distribution Probability distribution.
+ *
+ * @return An @tt{@namespace{std}::@type{vector}} of size @pname{k} with: @tt{i} in @tt{[0, @pname{distribution}.size()-]}
+ *         with probability proportional to @tt{@pname{distribution}[i]}.
+ *
+ * @warning Assumes that the sum of @pname{distribution} fits in type @tt{@type{unsigned} __int128}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{k} + |@pname{distribution}|)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // 1'000'000 values that are 0 or 1; 1000 times more likely to generate 1.
+ * std::vector<size_t> values = tgen::many_by_distribution(1e6, {1, 1000});
+ * ```
+ *
+ * @fn many_by_distribution(int k, const std::vector<T> &distribution);
  */
 
 

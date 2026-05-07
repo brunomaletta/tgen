@@ -697,25 +697,108 @@ inline u128 next128(u128 total) {
 	}
 }
 
+// Alias method for generating indices with probability proportional to
+// `distribution`.
+// <O(n), O(1)>.
+struct alias_method {
+	int n_;
+	std::vector<u128> weight_;
+	std::vector<int> alias_;
+	u128 total_;
+
+	// Creates an alias method for generating indices with probability
+	// proportional to the distribution.
+	// O(n).
+	template <typename T>
+	alias_method(const std::vector<T> &distribution)
+		: n_(distribution.size()), alias_(n_) {
+		tgen_ensure(distribution.size() > 0, "distribution must be non-empty");
+		for (const auto &w : distribution)
+			tgen_ensure(w >= 0, "distribution must be non-negative");
+
+		total_ =
+			std::accumulate(distribution.begin(), distribution.end(), u128(0));
+
+		std::queue<int> big, small;
+		for (int i = 0; i < n_; ++i) {
+			weight_.push_back(u128(n_) * distribution[i]);
+			if (weight_[i] < total_)
+				small.push(i);
+			else
+				big.push(i);
+		}
+
+		while (!small.empty() and !big.empty()) {
+			int s = small.front();
+			small.pop();
+			int b = big.front();
+			big.pop();
+
+			alias_[s] = b;
+
+			weight_[b] -= total_ - weight_[s];
+			if (weight_[b] < total_)
+				small.push(b);
+			else
+				big.push(b);
+		}
+
+		tgen_ensure_against_bug(small.empty(),
+								"alias_method: small must be empty");
+
+		// The remaining elements should have weight equal to total and be
+		// assigned to themselves.
+		while (!big.empty()) {
+			int b = big.front();
+			big.pop();
+			tgen_ensure_against_bug(
+				weight_[b] == total_,
+				"alias_method: weight of big element must be total");
+			alias_[b] = b;
+		}
+	}
+
+	// Generates a random index with probability proportional to the
+	// distribution.
+	// O(1).
+	size_t next() const {
+		int i = tgen::next<int>(0, n_ - 1);
+		return detail::next128(total_) < weight_[i] ? i : alias_[i];
+	}
+};
+
 } // namespace detail
 
 // Returns i with probability proportional to distribution[i].
+// O(|distribution|).
 template <typename T>
 size_t next_by_distribution(const std::vector<T> &distribution) {
-	tgen_ensure(distribution.size() > 0, "distribution must be non-empty");
-
-	T r = next<T>(
-		std::accumulate(distribution.begin(), distribution.end(), T(0)));
-	for (size_t i = 0; i < distribution.size(); ++i) {
-		if (r < distribution[i])
-			return i;
-		r -= distribution[i];
-	}
-	return distribution.size() - 1;
+	return detail::alias_method(distribution).next();
 }
 template <typename T>
 size_t next_by_distribution(const std::initializer_list<T> &distribution) {
 	return next_by_distribution(std::vector<T>(distribution));
+}
+
+// Returns a vector of k indices with probability proportional to
+// `distribution`. Uses alias method.
+// O(k + |distribution|).
+template <typename T>
+std::vector<size_t> many_by_distribution(int k,
+										 const std::vector<T> &distribution) {
+	tgen_ensure(distribution.size() > 0, "distribution must be non-empty");
+	tgen_ensure(k > 0, "number of elements to choose must be positive");
+
+	detail::alias_method am(distribution);
+	std::vector<size_t> res;
+	for (int i = 0; i < k; ++i)
+		res.push_back(am.next());
+	return res;
+}
+template <typename T>
+std::vector<size_t>
+many_by_distribution(int k, const std::initializer_list<T> &distribution) {
+	return many_by_distribution(k, std::vector<T>(distribution));
 }
 
 // Shuffles [first, last) inplace uniformly, for RandomAccessIterator.
@@ -4199,7 +4282,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		if (!is_directed_ and u > v)
 			std::swap(u, v);
 		edges_.emplace(u, v);
-		tgen_ensure(edges_.size() <= m_, "wgraph: too many edges were added");
+		tgen_ensure(static_cast<int>(edges_.size()) <= m_,
+					"wgraph: too many edges were added");
 		return *this;
 	}
 

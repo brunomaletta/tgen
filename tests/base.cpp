@@ -228,6 +228,19 @@ TEST(base_test, next_by_distribution) {
 		[]() { return tgen::next_by_distribution({2, 2, 2}); }, 3);
 }
 
+TEST(base_test, many_by_distribution) {
+	tgen::register_gen();
+
+	for (int i = 0; i < 5; ++i) {
+		auto vals = tgen::many_by_distribution<int>(3, {1, 2, 3});
+		for (int j : vals) {
+			EXPECT_TRUE(0 <= j and j < 3);
+		}
+	}
+	check_function_uniform(
+		[]() { return tgen::many_by_distribution<int>(2, {2, 2, 2}); }, 9);
+}
+
 TEST(base_test, shuffle) {
 	tgen::register_gen();
 
