@@ -172,20 +172,16 @@ namespace tgen::hack {
 
  /**
  * @ingroup hack
- * @brief Query list that tries to force asymptotic worst-case for Mo's algorithm.
+ * @brief Query list that forces asymptotic worst-case for Mo's algorithm.
  *
  * @param n Size of the array operated upon.
  * @param q Number of queries to be returned.
  *
- * The expected number of pointer moves are as follows, assuming standard implementations:
- * - For block-based Mo, assuming blocks of size @tt{b} and @tt{@pname{q} >> @pname{n} / b}:
- *   @tt{Theta(@pname{n}^2 / b + @pname{q} b)}.
- * - For Hilbert-based Mo:
- *   @tt{Theta(@pname{q} sqrt(@pname{n}))}.
+ * Forces @tt{\Theta(q sqrt n)} pointers move for any ordering.
  *
  * #### Complexity
  *
- * @tt{O(@pname{n} log @pname{n})}.
+ * @tt{O(@pname{n} log @pname{n} + @pname{q})}.
  *
  * #### Examples
  *

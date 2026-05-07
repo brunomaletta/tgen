@@ -289,7 +289,7 @@ namespace tgen {
  *
  * ```cpp
  * // 1'000'000 values that are 0 or 1; 1000 times more likely to generate 1.
- * std::vector<size_t> values = tgen::many_by_distribution(1e6, {1, 1000});
+ * std::vector<int> values = tgen::many_by_distribution(1e6, {1, 1000});
  * ```
  *
  * @fn many_by_distribution(int k, const std::vector<T> &distribution);
@@ -769,7 +769,7 @@ namespace tgen {
  *         return x * x;
  *     }, 1, 1e2);
  * // Generates distinct generator for prime numbers in [1, 100].
- * auto primes = tgen::distinct(gen_prime, 1, 100);
+ * auto primes = tgen::distinct(tgen::math::gen_prime, 1, 100);
  * ```
  *
  * @fn distinct::distinct(Func func, Args... args);

@@ -784,19 +784,19 @@ size_t next_by_distribution(const std::initializer_list<T> &distribution) {
 // `distribution`. Uses alias method.
 // O(k + |distribution|).
 template <typename T>
-std::vector<size_t> many_by_distribution(int k,
-										 const std::vector<T> &distribution) {
+std::vector<int> many_by_distribution(int k,
+									  const std::vector<T> &distribution) {
 	tgen_ensure(distribution.size() > 0, "distribution must be non-empty");
-	tgen_ensure(k > 0, "number of elements to choose must be positive");
+	tgen_ensure(k >= 0, "number of elements to choose must be non-negative");
 
 	detail::alias_method am(distribution);
-	std::vector<size_t> res;
+	std::vector<int> res;
 	for (int i = 0; i < k; ++i)
 		res.push_back(am.next());
 	return res;
 }
 template <typename T>
-std::vector<size_t>
+std::vector<int>
 many_by_distribution(int k, const std::initializer_list<T> &distribution) {
 	return many_by_distribution(k, std::vector<T>(distribution));
 }
@@ -3954,6 +3954,13 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			return *this;
 		}
 
+		// Prints the tree in parent style.
+		// O(1).
+		value &print_parents() {
+			print_parents_ = true;
+			return *this;
+		}
+
 		// Shuffles the tree's vertices except `indices`, and edge orders.
 		// O(n).
 		value &shuffle_except(std::set<int> indices) {
@@ -4165,6 +4172,11 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 						"wtree: value: invalid tree to print (number of edges "
 						"must be `n` - 1)");
 
+			if (val.print_parents_) {
+				throw std::runtime_error(
+					"wtree: value: printing parents is not implemented");
+			}
+
 			// Prints edges.
 			for (int i = 0; i < val.edges().size(); ++i) {
 				auto [u, v] = val.edges()[i];
@@ -4187,7 +4199,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		}
 	};
 
-	// Generates graph instance.
+	// Generates tree value.
 	value gen() const {
 		// Constructs adjacency list.
 		std::vector<std::vector<int>> adj(n_);
@@ -4197,6 +4209,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		}
 
 		std::vector<int> comp_size;
+		std::vector<std::vector<int>> component_ids;
 		std::vector<bool> vis(n_, false);
 		std::queue<int> q;
 
@@ -4206,11 +4219,13 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 
 			vis[i] = true;
 			q.push(i);
-			int cur_size = 0;
+			comp_size.push_back(0);
+			component_ids.emplace_back();
 			while (q.size()) {
 				int u = q.front();
 				q.pop();
-				++cur_size;
+				++comp_size.back();
+				component_ids.back().push_back(u);
 				for (int v : adj[u]) {
 					if (!vis[v]) {
 						vis[v] = true;
@@ -4218,14 +4233,17 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 					}
 				}
 			}
-			comp_size.push_back(cur_size);
 		}
 
 		// Creates edges connecting the connected components by treating them as
 		// vertices.
 		std::vector<std::pair<int, int>> edges(edges_.begin(), edges_.end());
 		if (comp_size.size() > 1) {
-			std::vector<int> prufer(comp_size.size() - 2, -1);
+			std::vector<int> prufer_values =
+				many_by_distribution(comp_size.size() - 2, comp_size);
+			for (auto [u, v] : detail::edges_from_prufer(prufer_values))
+				edges.emplace_back(pick(component_ids[u]),
+								   pick(component_ids[v]));
 		}
 
 		return value(n_, edges);
@@ -4786,7 +4804,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		}
 	};
 
-	// Generates graph instance.
+	// Generates graph value.
 	value gen() const {
 		value new_graph(
 			n_, edges_.size(),
@@ -5047,27 +5065,36 @@ inline std::vector<long long> std_unordered(int size) {
 	return list;
 }
 
-// Returns queries that force \Omega(n sqrt n) time
+// Returns queries that force \Theta(q sqrt n) asymptotic
 // for Mo algorithm for offline range queries.
-// This forces the following expected number of pointer moves, assuming standard
-// implementations:
-// For block-based Mo with blocks of size b and q >> n/b:
-//     \Theta(n^2 / b + q*b).
-// For Hilbert-based Mo:
-//     \Theta(q sqrt n).
-// O(n log n).
+// Forces \Theta(q sqrt n) pointer moves for any ordering.
+// O(n log n + q).
 inline std::vector<std::pair<int, int>> mo(int n, int q) {
 	std::set<std::pair<int, int>> queries;
-	for (int i = 0; i < n; ++i) {
-		queries.emplace(0, i);
-		queries.emplace(i, i);
-		queries.emplace(i, n - 1);
+
+	// Adversarial case.
+	int sq = std::sqrt(n);
+	for (int i = 0; i < sq; ++i) {
+		for (int j = i; j < sq; ++j) {
+			if (i * sq < n and j * sq < n)
+				queries.emplace(i * sq, j * sq);
+		}
 	}
-	return distinct_container(queries).gen_list(q).to_std();
+
+	// Push extra queries.
+	for (int i = 0; i < n; ++i)
+		if (static_cast<int>(queries.size()) < q) {
+			queries.emplace(0, i);
+			queries.emplace(i, i);
+			queries.emplace(i, n - 1);
+		}
+
+	return choose(shuffled(queries), q);
 }
 
 // Returns list of strings that have a high cost to insert in a std::set.
 // Forces cost \Theta(size log(size)).
+// Generates: {b, ab, aab, aaab, ...}.
 // O(size log(size)).
 inline std::vector<std::string> string_set(int size) {
 	std::vector<std::string> list;

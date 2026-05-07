@@ -17,5 +17,5 @@ int main() {
 					 .set_edge_weights(str("ab{0,2}a").gen_list(7).to_std());
 	std::cout << std::endl;
 
-	// std::cout << tree(5).gen();
+	std::cout << tree(5).add_edge(0, 1).add_edge(2, 3).gen().print_parents();
 }
