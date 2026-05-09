@@ -117,7 +117,7 @@
       }
 
       function computeY(x, w) {
-        if (w === 0) return 1;
+        if (w === 0) return 0.5;
         if (w > 0) return Math.pow(x, w);
         return Math.pow(1 - x, -w);
       }
@@ -141,7 +141,7 @@
         data: {
           labels: xs,
           datasets: [{
-            label: 'Normalized probability density',
+            label: 'Probability density (up to re-scaling)',
             data: makeData(0),
             borderWidth: 3,
             pointRadius: 0,
