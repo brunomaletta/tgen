@@ -4359,6 +4359,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 
 		return value(n_, new_edges);
 	}
+
+	value get_skewed() const {}
 };
 
 /*
