@@ -3842,8 +3842,9 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		int n_;									 // Number of vertices.
 		std::vector<std::set<int>> adj_;		 // Adjacency list.
 		std::vector<std::pair<int, int>> edges_; // Edge list.
-		bool add_1_;		 // If should add 1 for printing vertex ids.
-		bool print_parents_; // If should in parent style.
+		bool add_1_; // If should add 1 for printing vertex ids.
+		std::optional<int>
+			print_parents_; // If should in parent style (stores the root).
 		std::vector<bool> shuffle_vertex_; // If should shuffle each vertex
 										   // output when printing.
 		bool shuffle_edges_; // If should shuffle edges when printing.
@@ -3854,8 +3855,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// Creates value from `n` and adjacecy list.
 		// O(n).
 		value(int n, const std::vector<std::set<int>> &adj)
-			: n_(n), adj_(adj), add_1_(false), print_parents_(false),
-			  shuffle_vertex_(n, false), shuffle_edges_(false) {
+			: n_(n), adj_(adj), add_1_(false), shuffle_vertex_(n, false),
+			  shuffle_edges_(false) {
 			tgen_ensure(static_cast<int>(adj.size()) == n,
 						"wtree: value: size of adjacency list should ne `n`");
 
@@ -3864,7 +3865,9 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 					tgen_ensure(
 						0 <= v and v < n,
 						"wtree: value: vertices must be indexed in [0, n)");
-					edges_.emplace_back(std::min(u, v), std::max(u, v));
+					// Symmetric adjacency: count each undirected edge once.
+					if (u < v)
+						edges_.emplace_back(u, v);
 				}
 			tgen_ensure(static_cast<int>(edges_.size()) < n,
 						"wtree: value: must at less than `n` edges");
@@ -3874,13 +3877,13 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// O(n).
 		value(int n, const std::vector<std::pair<int, int>> &edges)
 			: n_(n), adj_(n), edges_(edges), add_1_(false),
-			  print_parents_(false), shuffle_vertex_(n, false),
-			  shuffle_edges_(false) {
+			  shuffle_vertex_(n, false), shuffle_edges_(false) {
 			for (auto [u, v] : edges) {
 				tgen_ensure(
 					0 <= std::min(u, v) and std::max(u, v) < n,
 					"wgraph: value: vertices must be indexed in [0, n)");
-				adj_[std::min(u, v)].insert(std::max(u, v));
+				adj_[u].insert(v);
+				adj_[v].insert(u);
 			}
 		}
 
@@ -3955,9 +3958,13 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		}
 
 		// Prints the tree in parent style.
-		// O(1).
-		value &print_parents() {
-			print_parents_ = true;
+		// If foot = -1, the root is considered to be 0, and its parent is not
+		// printed. Otherwise, prints the parent of the root as -1. If root = n,
+		// randomizes the root. O(1).
+		value &print_parents(int root = -1) {
+			tgen_ensure(root == -1 or (0 <= root and root < n() or root == n()),
+						"wtree: value: root must -1, `n`, or in [0, n)");
+			print_parents_ = root;
 			return *this;
 		}
 
@@ -4020,6 +4027,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 				return *this;
 
 			adj_[u].insert(v);
+			adj_[v].insert(u);
 			edges_.emplace_back(u, v);
 
 			if (w.has_value()) {
@@ -4172,9 +4180,63 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 						"wtree: value: invalid tree to print (number of edges "
 						"must be `n` - 1)");
 
-			if (val.print_parents_) {
-				throw std::runtime_error(
-					"wtree: value: printing parents is not implemented");
+			// Prints in parent style.
+			if (val.print_parents_.has_value()) {
+				tgen_ensure(!val.edge_weights().has_value(),
+							"wtree: value: cannot print parent style if edges "
+							"are weighted");
+
+				int root = *val.print_parents_;
+				bool skip_parent_0 = root == -1;
+				if (root == -1)
+					root = 0;
+				if (root == val.n())
+					root = next(0, val.n() - 1);
+
+				std::vector<int> parent(val.n(), -1);
+
+				std::queue<int> q;
+				std::vector<int> vis(val.n(), false);
+				q.push(root);
+				vis[root] = true;
+
+				while (q.size()) {
+					int u = q.front();
+					q.pop();
+					for (int v : val.adj()[u])
+						if (!vis[v]) {
+							vis[v] = true;
+							q.push(v);
+							parent[v] = u;
+						}
+				}
+
+				if (skip_parent_0) {
+					tgen_ensure(shuffled_labels.empty(),
+								"wtree: value: cannot shuffle vertices for "
+								"printing in parent style if root is -1");
+
+					for (int i = 1; i < val.n(); ++i) {
+						tgen_ensure(
+							parent[i] < i,
+							"wtree: value: parent of i must be less than i for "
+							"printing in parent style if root is -1");
+
+						if (i > 1)
+							out << " ";
+						out << parent[i] + val.add_1_;
+					}
+				} else {
+					for (int i = 0; i < val.n(); ++i) {
+						if (i > 0)
+							out << " ";
+						out << (parent[i] == -1 ? -1 : vtx_label[parent[i]]) +
+								   val.add_1_;
+					}
+				}
+
+				out << std::endl;
+				return out;
 			}
 
 			// Prints edges.
@@ -4194,7 +4256,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		}
 
 		// Gets a std::pair<n, adj> representing the value.
-		std::pair<int, std::vector<std::set<int>>> to_std() {
+		std::pair<int, std::vector<std::set<int>>> to_std() const {
 			return std::pair(n_, adj_);
 		}
 	};
@@ -4307,7 +4369,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 	// Graph value.
 	//
-	// If not directed, only stores edges i -> j such that i < j.
+	// If not directed, in the edge list only stores edges i -> j such that
+	// i < j.
 	struct value : gen_value_base<value> {
 		int n_, m_;						 // Number of vertices and edges.
 		std::vector<std::set<int>> adj_; // Adjacency list.
@@ -4342,8 +4405,13 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 					tgen_ensure(
 						0 <= v and v < n,
 						"wgraph: value: vertices must be indexed in [0, n)");
-					edges_.emplace_back(u, v);
-					is_edge_fixed_.push_back(true);
+					// Undirected adjacency is symmetric: count each edge once
+					// (canonical u <= v). Directed: every out-edge appears
+					// once.
+					if (is_directed_ or u <= v) {
+						edges_.emplace_back(u, v);
+						is_edge_fixed_.push_back(true);
+					}
 				}
 			tgen_ensure(static_cast<int>(edges_.size()) == m,
 						"wgraph: value: number of edges must be equal to `m`");
@@ -4354,7 +4422,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// O(n + m).
 		value(int n, int m, const std::vector<std::pair<int, int>> &edges,
 			  bool is_directed = false)
-			: n_(n), m_(m), adj_(n_), edges_(edges), is_edge_fixed_(n, true),
+			: n_(n), m_(m), adj_(n_), edges_(edges), is_edge_fixed_(m, true),
 			  is_directed_(is_directed), add_1_(false), print_nm_(false),
 			  shuffle_vertex_(n, false), shuffle_edges_(false) {
 			tgen_ensure(static_cast<int>(edges_.size()) == m,
@@ -4365,6 +4433,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 					0 <= std::min(u, v) and std::max(u, v) < n,
 					"wgraph: value: vertices must be indexed in [0, n)");
 				adj_[u].insert(v);
+				if (!is_directed_)
+					adj_[v].insert(u);
 			}
 		}
 
@@ -4514,6 +4584,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 				return *this;
 
 			adj_[u].insert(v);
+			if (!is_directed())
+				adj_[v].insert(u);
 			edges_.emplace_back(u, v);
 			is_edge_fixed_.push_back(true);
 			++m_;
@@ -4671,18 +4743,19 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			for (int i = 0; i < n_; ++i) {
 				std::set<int> complement;
 				for (int j = 0; j < n_; ++j) {
-					if (i > j and !is_directed_)
-						break;
-
 					bool add_j = false;
 					if (j == i and adj_[i].count(j))
 						add_j = true;
 					if (j != i and !adj_[i].count(j))
 						add_j = true;
+
 					if (add_j) {
 						complement.insert(j);
-						compl_edges.emplace_back(i, j);
-						++m_;
+						// If i > j and !is_directed(), we don't add the edge.
+						if (i <= j or is_directed()) {
+							compl_edges.emplace_back(i, j);
+							++m_;
+						}
 					}
 				}
 				std::swap(adj_[i], complement);
@@ -4799,7 +4872,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		}
 
 		// Gets a std::tuple<n, m, adj> representing the value.
-		std::tuple<int, int, std::vector<std::set<int>>> to_std() {
+		std::tuple<int, int, std::vector<std::set<int>>> to_std() const {
 			return std::tuple(n_, m_, adj_);
 		}
 	};
