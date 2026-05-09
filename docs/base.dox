@@ -191,7 +191,7 @@ namespace tgen {
 
 /**
  * @ingroup base
- * @brief Returns a random number up to value.
+ * @brief Returns a random number smaller than value.
  *
  * @tparam T type to be generated. Should be an arithmetic type: @primitive{int}, @primitive{double}, @primitive{long long}, @primitive{char}, etc.
  *
@@ -240,6 +240,80 @@ namespace tgen {
  * ```
  *
  * @fn next(T left, T right);
+ */
+
+
+/**
+ * @ingroup base
+ * @brief Returns a skewed random number smaller than value.
+ *
+ * @tparam T Arithmetic type, same as for @tt{tgen::next}.
+ *
+ * @param right Right endpoint (half-open range), same convention as @tt{tgen::next(@pname{right})}.
+ * @param w Skew parameter.
+ *
+ * @return A value in @tt{[0, @pname{right})} with bias controlled by @pname{w}.
+ *
+ * - @tt{@pname{w} = 0}: uniform distribution.
+ * - @tt{@pname{w} > 0}: returns the maximum of @tt{(@pname{w} + 1)} independent uniform samples.
+ *                       Biases the distribution toward larger values. The resulting density is proportional to @tt{f(x) = x^@pname{w}}.
+ *                       In particular:
+ *                       - @tt{@pname{w} = 1}: linear bias;
+ *                       - @tt{@pname{w} = 2}: quadratic bias;
+ *                       - @tt{@pname{w} = 3}: cubic bias.
+ * - @tt{@pname{w} < 0}: returns the minimum of @tt{(-@pname{w} + 1)} independent uniform samples. Symmetric to the @tt{@pname{w} > 0} case.
+ *
+ * The continuous version corresponds to Beta distributions:
+ * - @tt{@pname{w} > 0}: @tt{Beta(@pname{w} + 1, 1)};
+ * - @tt{@pname{w} < 0}: @tt{Beta(1, -@pname{w} + 1)}.
+ *
+ * \htmlinclude wnext_distribution.html
+ *
+ * #### Complexity
+ *
+ * @tt{O(|@pname{w}|)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Uniform on {0, ..., 9}, same as next(10).
+ * int a = tgen::wnext<int>(10, 0);
+ * // Biased toward larger integers in {0, ..., 9}.
+ * int b = tgen::wnext<int>(10, 2);
+ * ```
+ *
+ * @fn wnext(T right, int w);
+ */
+
+
+/**
+ * @ingroup base
+ * @brief Returns a skewed random number in range.
+ *
+ * @tparam T Arithmetic type, same as for @tt{tgen::next}.
+ *
+ * @param left Left endpoint of the range.
+ * @param right Right endpoint of the range.
+ * @param w Skew parameter.
+ *
+ * @return A value in @tt{[@pname{left}, @pname{right}]} with bias controlled by @pname{w}.
+ *
+ * See @tt{tgen::wnext} for more details.
+ *
+ * #### Complexity
+ *
+ * @tt{O(|@pname{w}|)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Uniform from 1 to 10.
+ * int x = tgen::wnext<int>(1, 10, 0);
+ * // Skewed toward 10.
+ * int y = tgen::wnext<int>(1, 10, 3);
+ * ```
+ *
+ * @fn wnext(T left, T right, int w);
  */
 
 

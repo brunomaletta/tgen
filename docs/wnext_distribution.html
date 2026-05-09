@@ -1,0 +1,209 @@
+<div id="wnext-viz">
+  <style>
+    #wnext-viz {
+      font-family: Arial, sans-serif;
+      margin: 40px 0;
+      color: black;
+    }
+
+    #wnext-viz .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgb(230, 230, 230);
+      color: black;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    #wnext-viz h1 {
+      margin-top: 0;
+    }
+
+    #wnext-viz .controls {
+      margin: 24px 0;
+    }
+
+    #wnext-viz input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    #wnext-viz .tickmarks {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 6px;
+      font-size: 0.85rem;
+      color: #666;
+      user-select: none;
+    }
+
+    #wnext-viz .tickmarks span {
+      width: 0;
+      transform: translateX(-50%);
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    #wnext-viz .tickmarks span:first-child {
+      transform: translateX(0%);
+    }
+
+    #wnext-viz .tickmarks span:last-child {
+      transform: translateX(-100%);
+    }
+
+    #wnext-viz .value {
+      font-size: 1.2rem;
+      margin-top: 8px;
+    }
+
+    #wnext-viz .formula {
+      margin-top: 16px;
+      font-family: monospace;
+      background: #f0f0f0;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    #wnext-viz canvas {
+      margin-top: 20px;
+    }
+  </style>
+
+  <div class="container">
+    <h1>wnext Distribution Viewer</h1>
+
+    <p>
+      <code>w = 0</code> is uniform.
+      Positive <code>w</code> means taking the maximum of <code>w</code>
+      uniform samples.<br>
+      Negative <code>w</code> means taking the minimum of <code>-w</code>
+      uniform samples.<br>
+    </p>
+
+    <div class="controls">
+      <label for="wnext-slider"><strong>w:</strong></label>
+      <input type="range" id="wnext-slider" min="-10" max="10" step="1" value="0">
+      <div class="tickmarks" id="wnext-tickmarks"></div>
+      <div class="value" id="wnext-value"></div>
+      <div class="formula" id="wnext-formula"></div>
+    </div>
+
+    <canvas id="wnext-chart"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    (function () {
+      const slider = document.getElementById('wnext-slider');
+      const valueText = document.getElementById('wnext-value');
+      const formulaText = document.getElementById('wnext-formula');
+      const tickmarks = document.getElementById('wnext-tickmarks');
+      const ctx = document.getElementById('wnext-chart');
+
+      for (let i = -10; i <= 10; i++) {
+        const span = document.createElement('span');
+        span.textContent = i;
+        tickmarks.appendChild(span);
+      }
+
+      const N = 400;
+      const xs = [];
+      for (let i = 0; i <= N; i++) {
+        xs.push(i / N);
+      }
+
+      function computeY(x, w) {
+        if (w === 0) return 1;
+        if (w > 0) return Math.pow(x, w);
+        return Math.pow(1 - x, -w);
+      }
+
+      function formula(w) {
+        if (w === 0) {
+          return 'Uniform distribution: normalized density proportional to f(x) = 1';
+        }
+        if (w > 0) {
+          return `Right-skewed (max of ${w} uniforms): normalized density proportional to x^${w}`;
+        }
+        return `Left-skewed (min of ${-w} uniforms): normalized density proportional to (1 - x)^${-w}`;
+      }
+
+      function makeData(w) {
+        return xs.map(x => computeY(x, w));
+      }
+
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: xs,
+          datasets: [{
+            label: 'Normalized probability density',
+            data: makeData(0),
+            borderWidth: 3,
+            pointRadius: 0,
+            tension: 0.15
+          }]
+        },
+        options: {
+          responsive: true,
+          animation: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: 'black'
+              }
+            }
+          },
+          scales: {
+            x: {
+              type: 'linear',
+              min: 0,
+              max: 1,
+              title: {
+                display: true,
+                text: 'x',
+                color: 'black'
+              },
+              ticks: {
+                color: 'black'
+              },
+              grid: {
+                color: 'rgba(0,0,0,0.15)'
+              }
+            },
+            y: {
+              min: 0,
+              max: 1,
+              title: {
+                display: true,
+                text: 'Normalized probability density',
+                color: 'black'
+              },
+              ticks: {
+                color: 'black'
+              },
+              grid: {
+                color: 'rgba(0,0,0,0.15)'
+              }
+            }
+          }
+        }
+      });
+
+      function update() {
+        const w = parseInt(slider.value, 10);
+        valueText.textContent = `w = ${w}`;
+        formulaText.textContent = formula(w);
+        chart.data.datasets[0].data = makeData(w);
+        chart.update();
+      }
+
+      slider.addEventListener('input', update);
+      update();
+    })();
+  </script>
+</div>

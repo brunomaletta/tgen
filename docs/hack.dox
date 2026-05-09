@@ -177,7 +177,7 @@ namespace tgen::hack {
  * @param n Size of the array operated upon.
  * @param q Number of queries to be returned.
  *
- * Forces @tt{\Theta(q sqrt n)} pointers move for any ordering.
+ * Forces @tt{Theta(q sqrt n)} pointers move for any ordering.
  *
  * #### Complexity
  *

@@ -2959,6 +2959,7 @@ HTML_EXTRA_FILES       = doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js 
 					doxygen-awesome-css/doxygen-awesome-paragraph-link.js \
 					doxygen-awesome-css/doxygen-awesome-interactive-toc.js \
 					doxygen-awesome-css/doxygen-awesome-tabs.js \
+                    wnext_distribution.html
 
 HTML_EXTRA_STYLESHEET = doxygen-awesome-css/doxygen-awesome.css \
 				doxygen-awesome-css/doxygen-awesome-sidebar-only.css \

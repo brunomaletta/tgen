@@ -677,6 +677,47 @@ template <typename T> T next(T left, T right) {
 							std::string(typeid(T).name()) + ")");
 }
 
+// Skewed next.
+//
+// Returns a random number in [0, right) with a bias controlled by `w`.
+// - w = 0:
+//     Uniform distribution.
+// - w > 0:
+//     Returns the maximum of (w + 1) independent uniform samples.
+//     Biases the distribution toward larger values.
+//     The resulting density is proportional to:
+//         f(x) = x^w
+//     In particular:
+//         w = 1 -> linear bias
+//         w = 2 -> quadratic bias
+//         w = 3 -> cubic bias
+// - w < 0:
+//     Returns the minimum of (-w + 1) independent uniform samples.
+//     Symmetric to the w > 0 case.
+// The continuous version corresponds to Beta distributions:
+//     w > 0 -> Beta(w + 1, 1)
+//     w < 0 -> Beta(1, -w + 1)
+// O(w).
+template <typename T> T wnext(T right, int w) {
+	T val = next<T>(right);
+	for (int i = 0; i < w; ++i)
+		val = std::max(val, next<T>(right));
+	for (int i = 0; i < -w; ++i)
+		val = std::min(val, next<T>(right));
+	return val;
+}
+
+// Returns a random number in [left, right] with a bias controlled by `w`.
+// O(w).
+template <typename T> T wnext(T left, T right, int w) {
+	T val = next<T>(left, right);
+	for (int i = 0; i < w; ++i)
+		val = std::max(val, next<T>(left, right));
+	for (int i = 0; i < -w; ++i)
+		val = std::min(val, next<T>(left, right));
+	return val;
+}
+
 namespace detail {
 
 // Uniformly random 128 bit number in [0, total).
@@ -4972,8 +5013,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// Adds edges between connected components.
 		std::set<std::pair<int, int>> edge_set = edges_;
 		if (component_ids.size() > 1) {
-			std::vector<int> prufer_values = many_by_distribution(
-				static_cast<int>(component_ids.size()) - 2, comp_size);
+			std::vector<int> prufer_values =
+				many_by_distribution(component_ids.size() - 2, comp_size);
 			for (auto [u, v] : detail::edges_from_prufer(prufer_values)) {
 				edge_set.emplace(pick(component_ids[u]),
 								 pick(component_ids[v]));

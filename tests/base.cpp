@@ -217,6 +217,47 @@ TEST(base_test, next_range) {
 						   11, 10, 20);
 }
 
+TEST(base_test, wnext_half_open_range) {
+	tgen::register_gen();
+
+	for (int i = 0; i < 100; ++i) {
+		int a = tgen::wnext<int>(100, 0);
+		int b = tgen::wnext<int>(100, 2);
+		int c = tgen::wnext<int>(100, -2);
+		EXPECT_TRUE(0 <= a and a < 100);
+		EXPECT_TRUE(0 <= b and b < 100);
+		EXPECT_TRUE(0 <= c and c < 100);
+	}
+	for (int i = 0; i < 100; ++i) {
+		double x = tgen::wnext<double>(1.0, 0);
+		double y = tgen::wnext<double>(1.0, 1);
+		double z = tgen::wnext<double>(1.0, -1);
+		EXPECT_TRUE(0 <= x and x < 1.0);
+		EXPECT_TRUE(0 <= y and y < 1.0);
+		EXPECT_TRUE(0 <= z and z < 1.0);
+	}
+}
+
+TEST(base_test, wnext_closed_range) {
+	tgen::register_gen();
+
+	for (int i = 0; i < 100; ++i) {
+		int a = tgen::wnext<int>(10, 20, 0);
+		int b = tgen::wnext<int>(10, 20, 2);
+		int c = tgen::wnext<int>(10, 20, -2);
+		EXPECT_TRUE(10 <= a and a <= 20);
+		EXPECT_TRUE(10 <= b and b <= 20);
+		EXPECT_TRUE(10 <= c and c <= 20);
+	}
+}
+
+TEST(base_test, wnext_weight_zero_uniform) {
+	tgen::register_gen();
+
+	check_function_uniform([]() -> int { return tgen::wnext<int>(10, 0); }, 10);
+	check_function_uniform([]() { return tgen::wnext<int>(10, 20, 0); }, 11);
+}
+
 TEST(base_test, next_by_distribution) {
 	tgen::register_gen();
 
