@@ -17,7 +17,7 @@ TEST(base_test, distinct) {
 	}
 
 	EXPECT_EQ(st.size(), 10);
-	EXPECT_THROW_TGEN_PREFIX(g.gen(), "no more distinct values");
+	EXPECT_THROW_TGEN_PREFIX(g.gen(), "distinct: no more distinct values");
 }
 
 TEST(base_test, distinct_gen_list) {
@@ -46,7 +46,7 @@ TEST(base_test, distinct_gen_all) {
 	}
 
 	EXPECT_EQ(st.size(), 10);
-	EXPECT_THROW_TGEN_PREFIX(g.gen(), "no more distinct values");
+	EXPECT_THROW_TGEN_PREFIX(g.gen(), "distinct: no more distinct values");
 }
 
 TEST(base_test, print_scalar) {

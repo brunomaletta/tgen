@@ -316,7 +316,7 @@ template <typename Func, typename... Args> struct distinct {
 		if (val)
 			return *val;
 
-		throw detail::error("no more distinct values");
+		throw detail::error("distinct: no more distinct values");
 	}
 	template <typename U> auto gen(std::initializer_list<U> il) {
 		return gen(std::vector<U>(il));
@@ -351,9 +351,10 @@ template <typename Func, typename... Args> struct distinct {
 
 	// Nice error for `out << distinct`.
 	friend std::ostream &operator<<(std::ostream &out, const distinct &) {
-		static_assert(detail::dependent_false_v<distinct>,
-					  "cannot print a distinct generator. Maybe you forgot to "
-					  "call `gen()`?");
+		static_assert(
+			detail::dependent_false_v<distinct>,
+			"distinct: cannot print a distinct generator. Maybe you forgot to "
+			"call `gen()`?");
 		return out;
 	}
 };
@@ -410,9 +411,9 @@ template <typename Gen> struct gen_base {
 
 	// Nice error for `out << generator`.
 	friend std::ostream &operator<<(std::ostream &out, const gen_base &) {
-		static_assert(
-			detail::dependent_false_v<gen_base>,
-			"cannot print a generator. Maybe you forgot to call `gen()`?");
+		static_assert(detail::dependent_false_v<gen_base>,
+					  "gen_base: cannot print a generator. Maybe you forgot to "
+					  "call `gen()`?");
 		return out;
 	}
 };
@@ -3823,9 +3824,11 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 	std::set<std::pair<int, int>> edges_; // Edges that were set.
 
 	// Creates tree generator with `n` vertices.
+	// O(1).
 	wtree(int n) : n_(n) {}
 
 	// Adds edge bewteen u and v (this edge must be generated).
+	// O(log n).
 	wtree &add_edge(int u, int v) {
 		tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n_,
 					"wtree: vertices must be index in [0, n)");
@@ -3850,7 +3853,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		bool shuffle_edges_; // If should shuffle edges when printing.
 		std::optional<std::vector<VWeight>> vertex_weights_; // Vertex weights.
 		std::optional<std::vector<EWeight>>
-			edge_weights_; // Edge weights (in same order as edges_ ).
+			edge_weights_; // Edge weights (in same order as edges_).
 
 		// Creates value from `n` and adjacecy list.
 		// O(n).
@@ -3886,6 +3889,9 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 				adj_[v].insert(u);
 			}
 		}
+		value(int n, const std::set<std::pair<int, int>> &edges)
+			: value(n, std::vector<std::pair<int, int>>(edges.begin(),
+														edges.end())) {}
 
 		// Weight type converstion.
 		// O(n).
@@ -3908,18 +3914,18 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// Fetches number of vertices.
 		int n() const { return n_; }
 
-		// Fetches adjacency list.
+		// Fetches a const ref. to adjacency list.
 		const std::vector<std::set<int>> &adj() const { return adj_; }
 
-		// Fetches edge list.
+		// Fetches a const ref. to edge list.
 		const std::vector<std::pair<int, int>> &edges() const { return edges_; }
 
-		// Fetches vertex weights.
+		// Fetches a const ref. to vertex weights.
 		const std::optional<std::vector<VWeight>> &vertex_weights() const {
 			return vertex_weights_;
 		}
 
-		// Fetches edge weights.
+		// Fetches a const ref. to edge weights.
 		const std::optional<std::vector<EWeight>> &edge_weights() const {
 			return edge_weights_;
 		}
@@ -4015,7 +4021,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		}
 
 		// Adds edge (u, v).
-		// O(1) amortized.
+		// O(log n) amortized.
 		value &add_edge(int u, int v, std::optional<EWeight> w = std::nullopt) {
 			tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n(),
 						"wtree: value: vertex ids must be valid");
@@ -4047,7 +4053,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// Links tree with another `rhs`, adding the edge between u (in left
 		// tree) and v (in right tree). Ids for added vertices are updated
 		// accordingly.
-		// O(rhs.n).
+		// O(rhs.n + rhs.m * log n) amortized.
 		value &link(const value &rhs, int new_u, int new_v,
 					std::optional<EWeight> new_w = std::nullopt) {
 			tgen_ensure(0 <= new_u and new_u < n() and 0 <= new_v and
@@ -4074,7 +4080,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// Glues the tree with another `rhs` such that index_pairs[i].first is
 		// considered to be the same as index_pairs[i].second. Ids for added
 		// vertices are updated accordingly.
-		// O(rhs.n).
+		// O(rhs.n + rhs.m * log n) amortized.
 		value &glue(const value &rhs,
 					std::set<std::pair<int, int>> index_pairs) {
 			// Checks validity of indices.
@@ -4262,6 +4268,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 	};
 
 	// Generates tree value.
+	// O(n).
 	value gen() const {
 		// Constructs adjacency list.
 		std::vector<std::vector<int>> adj(n_);
@@ -4299,16 +4306,17 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 
 		// Creates edges connecting the connected components by treating them as
 		// vertices.
-		std::vector<std::pair<int, int>> edges(edges_.begin(), edges_.end());
+		std::vector<std::pair<int, int>> new_edges(edges_.begin(),
+												   edges_.end());
 		if (comp_size.size() > 1) {
 			std::vector<int> prufer_values =
 				many_by_distribution(comp_size.size() - 2, comp_size);
 			for (auto [u, v] : detail::edges_from_prufer(prufer_values))
-				edges.emplace_back(pick(component_ids[u]),
-								   pick(component_ids[v]));
+				new_edges.emplace_back(pick(component_ids[u]),
+									   pick(component_ids[v]));
 		}
 
-		return value(n_, edges);
+		return value(n_, new_edges);
 	}
 };
 
@@ -4349,12 +4357,15 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	bool has_self_loops_;				  // If self-loops are allowed.
 
 	// Creates graph generator with `n` vertices and `m` edges.
-	// Additionally, you can set if the graph is directed and if self loop
+	// Additionally, you can set if the graph is directed and if self loops are
+	// allowed.
+	// O(1).
 	wgraph(int n, int m, bool is_directed = false, bool has_self_loops = false)
 		: n_(n), m_(m), is_directed_(is_directed),
 		  has_self_loops_(has_self_loops) {}
 
 	// Adds edge bewteen u and v (this edge must be generated).
+	// O(log m).
 	wgraph &add_edge(int u, int v) {
 		tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n_,
 					"wgraph: vertices must be indexed in [0, n)");
@@ -4375,13 +4386,9 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		int n_, m_;						 // Number of vertices and edges.
 		std::vector<std::set<int>> adj_; // Adjacency list.
 		std::vector<std::pair<int, int>> edges_; // Edge list.
-		std::vector<bool>
-			is_edge_fixed_; // If edge is fixed (that is, was not created by the
-							// generator and should not be touched to make graph
-							// connected or a DAG).
-		bool is_directed_;	// If graph is directed.
-		bool add_1_;		// If should add 1 for printing vertex ids.
-		bool print_nm_;		// If should print n and m.
+		bool is_directed_;						 // If graph is directed.
+		bool add_1_;	// If should add 1 for printing vertex ids.
+		bool print_nm_; // If should print n and m.
 		std::vector<bool> shuffle_vertex_; // If should shuffle each vertex
 										   // output when printing.
 		bool shuffle_edges_; // If should shuffle edges when printing.
@@ -4408,10 +4415,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 					// Undirected adjacency is symmetric: count each edge once
 					// (canonical u <= v). Directed: every out-edge appears
 					// once.
-					if (is_directed_ or u <= v) {
+					if (is_directed_ or u <= v)
 						edges_.emplace_back(u, v);
-						is_edge_fixed_.push_back(true);
-					}
 				}
 			tgen_ensure(static_cast<int>(edges_.size()) == m,
 						"wgraph: value: number of edges must be equal to `m`");
@@ -4419,12 +4424,12 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 		// Creates value from `n`, `m`, and edge list. The edges are
 		// considered to be directed.
-		// O(n + m).
+		// O(n + m log n).
 		value(int n, int m, const std::vector<std::pair<int, int>> &edges,
 			  bool is_directed = false)
-			: n_(n), m_(m), adj_(n_), edges_(edges), is_edge_fixed_(m, true),
-			  is_directed_(is_directed), add_1_(false), print_nm_(false),
-			  shuffle_vertex_(n, false), shuffle_edges_(false) {
+			: n_(n), m_(m), adj_(n_), edges_(edges), is_directed_(is_directed),
+			  add_1_(false), print_nm_(false), shuffle_vertex_(n, false),
+			  shuffle_edges_(false) {
 			tgen_ensure(static_cast<int>(edges_.size()) == m,
 						"wgraph: value: number of edges must be equal to `m`");
 
@@ -4437,6 +4442,12 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 					adj_[v].insert(u);
 			}
 		}
+		value(int n, int m, const std::set<std::pair<int, int>> &edges,
+			  bool is_directed = false)
+			: value(
+				  n, m,
+				  std::vector<std::pair<int, int>>(edges.begin(), edges.end()),
+				  is_directed) {}
 
 		// Weight type converstion.
 		// O(n + m).
@@ -4450,7 +4461,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 			typename wgraph<NewVWeight, NewEWeight>::value new_graph(
 				n_, m_, adj_, is_directed_);
-			new_graph.is_edge_fixed_ = is_edge_fixed_;
 			new_graph.is_directed_ = is_directed_;
 			new_graph.add_1_ = add_1_;
 			new_graph.print_nm_ = print_nm_;
@@ -4572,7 +4582,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 		// Adds edge (u, v).
 		// Updates `m` accordingly.
-		// O(1) amortized.
+		// O(log n) amortized.
 		value &add_edge(int u, int v, std::optional<EWeight> w = std::nullopt) {
 			tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n(),
 						"wgraph: value: vertex ids must be valid");
@@ -4587,7 +4597,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			if (!is_directed())
 				adj_[v].insert(u);
 			edges_.emplace_back(u, v);
-			is_edge_fixed_.push_back(true);
 			++m_;
 
 			if (w.has_value()) {
@@ -4607,7 +4616,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// Links graph with another `rhs`, adding the edge between u (in left
 		// graph) and v (in right graph). Ids for added vertices are updated
 		// accordingly.
-		// O(rhs.n + rhs.m).
+		// O(rhs.n + rhs.m * log n) amortized.
 		value &link(const value &rhs, int new_u, int new_v,
 					std::optional<EWeight> new_w = std::nullopt) {
 			tgen_ensure(0 <= new_u and new_u < n() and 0 <= new_v and
@@ -4623,7 +4632,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 						 rhs.edge_weights().has_value()
 							 ? std::optional<EWeight>((*rhs.edge_weights())[i])
 							 : std::nullopt);
-				is_edge_fixed_.back() = rhs.is_edge_fixed_[i];
 			}
 
 			// New edge.
@@ -4635,7 +4643,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// Glues the graph with another `rhs` such that index_pairs[i].first is
 		// considered to be the same as index_pairs[i].second. Ids for added
 		// vertices are updated accordingly.
-		// O(rhs.n + rhs.m).
+		// O(rhs.n + rhs.m * log n) amortized.
 		value &glue(const value &rhs,
 					std::set<std::pair<int, int>> index_pairs) {
 			// Checks validity of indices.
@@ -4683,7 +4691,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 						 rhs.edge_weights().has_value()
 							 ? std::optional<EWeight>((*rhs.edge_weights())[i])
 							 : std::nullopt);
-				is_edge_fixed_.back() = rhs.is_edge_fixed_[i];
 			}
 
 			return *this;
@@ -4696,7 +4703,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// Glues the graph with another `rhs` at `indices`. That is, idx in
 		// `indices` are considered to be the same vertex. Ids for added
 		// vertices are updated accordingly.
-		// O(rhs.n + rhs.m).
+		// O(rhs.n + rhs.m * log n) amortized.
 		value &glue(const value &rhs, std::set<int> indices) {
 			std::set<std::pair<int, int>> index_pairs;
 			for (auto i : indices)
@@ -4708,26 +4715,30 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		}
 
 		// Computs subgraph of graph with num_edges edges.
+		// O(m) amortized.
 		value &subgraph(int num_edges) {
 			tgen_ensure(
 				num_edges <= m(),
 				"wgraph: value: can choose at most `m` edges from graph");
 
 			std::vector<std::pair<int, int>> new_edges;
-			std::vector<bool> new_is_edge_fixed;
+			std::optional<std::vector<EWeight>> new_edge_weights;
 
 			int left = m();
 			for (int i = 0; i < m(); ++i) {
 				if (next(1, left--) <= num_edges) {
 					new_edges.push_back(edges()[i]);
-					new_is_edge_fixed.push_back(false);
+					if (edge_weights_.has_value()) {
+						if (!new_edge_weights.has_value())
+							new_edge_weights = std::vector<EWeight>();
+						new_edge_weights->push_back((*edge_weights())[i]);
+					}
 					--num_edges;
 				}
 			}
 
 			edges_ = new_edges;
-			is_edge_fixed_ = new_is_edge_fixed;
-
+			edge_weights_ = new_edge_weights;
 			return *this;
 		}
 
@@ -4761,28 +4772,22 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 				std::swap(adj_[i], complement);
 			}
 			std::swap(edges_, compl_edges);
-			is_edge_fixed_ = std::vector<bool>(edges().size(), false);
 
 			return *this;
 		}
 
 		// Concatenates two values.
-		// Linear.
+		// O(N + M log N), N = n + rhs.n, M = m + rhs.m.
 		value operator+(const value &rhs) const {
 			tgen_ensure(is_directed() == rhs.is_directed(),
 						"wgraph: value: concatened graphs must have the same "
 						"is_directed value");
 
 			std::vector<std::pair<int, int>> edges = edges_;
-			std::vector<bool> is_edge_fixed = is_edge_fixed_;
-			for (int i = 0; i < rhs.m(); ++i) {
-				auto &[u, v] = rhs.edges()[i];
+			for (auto [u, v] : rhs.edges())
 				edges.emplace_back(n() + u, n() + v);
-				is_edge_fixed.push_back(rhs.is_edge_fixed_[i]);
-			}
 
 			value concat(n() + rhs.n(), m() + rhs.m(), edges, is_directed());
-			concat.is_edge_fixed_ = is_edge_fixed;
 			if (rhs.add_1_)
 				concat.add_1();
 			if (rhs.print_nm_)
@@ -4878,6 +4883,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	};
 
 	// Generates graph value.
+	// O(n + m log n).
 	value gen() const {
 		value new_graph(
 			n_, edges_.size(),
@@ -4904,15 +4910,176 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			try {
 				new_edge_pair = edge_gen.gen();
 			} catch (std::runtime_error &e) {
-				if (std::string(e.what()) == "tgen: no more distinct values")
+				if (std::string(e.what()) ==
+					"tgen: distinct: no more distinct values")
 					throw detail::error("wgraph: not enough edges to generate");
 				else
 					throw e;
 			}
 
 			new_graph.add_edge(new_edge_pair.first(), new_edge_pair.second());
-			// Marks this edge as not fixed (generated).
-			new_graph.is_edge_fixed_.back() = false;
+		}
+
+		return new_graph;
+	}
+
+	// Gets a (not uniformly) random connected undirected graph.
+	// 1. Preset edges induce a spanning forest on their components.
+	// 2. Then, uniformly random edges between components are added.
+	// 3. Remaining edges are added uniformly at random.
+	// O(n + m log n).
+	value get_connected() const {
+		tgen_ensure(!is_directed_,
+					"wgraph: get_connected is only for undirected graphs");
+		tgen_ensure(m_ >= n_ - 1,
+					"wgraph: connected graph needs at least n - 1 edges");
+
+		// Computes connected components.
+
+		std::vector<std::set<int>> adj(n_);
+		for (auto [u, v] : edges_) {
+			adj[u].insert(v);
+			adj[v].insert(u);
+		}
+
+		std::vector<int> comp_size;
+		std::vector<std::vector<int>> component_ids;
+		std::vector<bool> vis(n_, false);
+		std::queue<int> q;
+
+		for (int i = 0; i < n_; ++i) {
+			if (vis[i])
+				continue;
+
+			vis[i] = true;
+			q.push(i);
+			comp_size.push_back(0);
+			component_ids.emplace_back();
+			while (q.size()) {
+				int u = q.front();
+				q.pop();
+				++comp_size.back();
+				component_ids.back().push_back(u);
+				for (int v : adj[u]) {
+					if (!vis[v]) {
+						vis[v] = true;
+						q.push(v);
+					}
+				}
+			}
+		}
+
+		// Adds edges between connected components.
+		std::set<std::pair<int, int>> edge_set = edges_;
+		if (component_ids.size() > 1) {
+			std::vector<int> prufer_values = many_by_distribution(
+				static_cast<int>(component_ids.size()) - 2, comp_size);
+			for (auto [u, v] : detail::edges_from_prufer(prufer_values)) {
+				edge_set.emplace(pick(component_ids[u]),
+								 pick(component_ids[v]));
+			}
+		}
+
+		tgen_ensure(static_cast<int>(edge_set.size()) <= m_,
+					"wgraph: not enough edges to make graph connected");
+
+		value new_graph(n_, edge_set.size(), edge_set, false);
+
+		detail::tgen_ensure_against_bug(new_graph.m() <= m_,
+										"wgraph: too many edges were added");
+
+		// Generates final edges.
+
+		tgen::pair gen_repeat(0, n_ - 1);
+		if (has_self_loops_) {
+			gen_repeat.leq();
+		} else {
+			gen_repeat.lt();
+		}
+		auto edge_gen = gen_repeat.distinct();
+
+		while (new_graph.m() < m_) {
+			pair<int>::value new_edge_pair(0, 0);
+			try {
+				new_edge_pair = edge_gen.gen();
+			} catch (std::runtime_error &e) {
+				if (std::string(e.what()) ==
+					"tgen: distinct: no more distinct values")
+					throw detail::error("wgraph: not enough edges to generate");
+				else
+					throw e;
+			}
+
+			new_graph.add_edge(new_edge_pair.first(), new_edge_pair.second());
+		}
+
+		return new_graph;
+	}
+
+	// Gets a (not uniformly) random directed acyclic graph.
+	// 1. Randomized Kahn (uniform choice among indegree-0 vertices) yields a
+	//    random topological order of the preset edges (which must be acyclic).
+	// 2. Extra edges are sampled randomly using the order.
+	// O(n + m log n).
+	value get_acyclic() const {
+		tgen_ensure(is_directed_,
+					"wgraph: get_acyclic is only for directed graphs");
+
+		std::vector<std::vector<int>> adj(n_);
+		std::vector<int> indeg(n_, 0);
+		for (auto [u, v] : edges_) {
+			adj[u].push_back(v);
+			++indeg[v];
+		}
+
+		std::vector<int> available;
+		for (int i = 0; i < n_; ++i)
+			if (indeg[i] == 0)
+				available.push_back(i);
+
+		// Random topological order using randomized Kahn's algorithm.
+		std::vector<int> order;
+		while (!available.empty()) {
+			int idx = next(0, static_cast<int>(available.size()) - 1);
+			int u = available[idx];
+			std::swap(available[idx], available.back());
+			available.pop_back();
+
+			order.push_back(u);
+			for (int v : adj[u])
+				if (--indeg[v] == 0)
+					available.push_back(v);
+		}
+
+		tgen_ensure(static_cast<int>(order.size()) == n_,
+					"wgraph: preset edges contain a directed cycle");
+
+		value new_graph(n_, edges_.size(), edges_, true);
+
+		// Generates final edges.
+
+		detail::tgen_ensure_against_bug(new_graph.m() <= m_,
+										"wgraph: too many edges were added");
+
+		if (new_graph.m() < m_) {
+			auto edge_gen = tgen::pair(0, n_ - 1).lt().distinct();
+
+			while (new_graph.m() < m_) {
+				pair<int>::value idx_pair(0, 0);
+				try {
+					idx_pair = edge_gen.gen();
+				} catch (std::runtime_error &e) {
+					if (std::string(e.what()) ==
+						"tgen: distinct: no more distinct values")
+						throw detail::error(
+							"wgraph: not enough edges to generate");
+					else
+						throw e;
+				}
+
+				new_graph.add_edge(order[idx_pair.first()],
+								   order[idx_pair.second()]);
+			}
 		}
 
 		return new_graph;
@@ -4937,9 +5104,12 @@ using graph = wgraph<int, int>;
  */
 
 // Complete.
+// O(n^2).
 inline graph::value K(int n) { return graph(n, n * (n - 1) / 2).gen(); }
 
 // Path.
+// Path with `n`vertices. The edges of the path are 0 and n-1.
+// O(n).
 inline graph::value P(int n) {
 	graph g(n, n - 1);
 	for (int i = 0; i + 1 < n; ++i)
@@ -4949,6 +5119,7 @@ inline graph::value P(int n) {
 
 // Cycle.
 // n >= 3.
+// O(n).
 inline graph::value C(int n) {
 	tgen_ensure(n >= 3, "graph: cycle size must be at least 3");
 
@@ -4957,6 +5128,23 @@ inline graph::value C(int n) {
 		g.add_edge(i, (i + 1) % n);
 	return g.gen();
 }
+
+// Complete bipartite.
+// The first side has vertices `0` to `n-1`, the second side has vertices `n` to
+// `n+m-1`.
+// O(n * m).
+inline graph::value K(int n, int m) {
+	graph g(n + m, n * m);
+	for (int i = 0; i < n; ++i)
+		for (int j = 0; j < m; ++j)
+			g.add_edge(i, n + j);
+	return g.gen();
+}
+
+// Star.
+// The center is vertex 0.
+// O(n).
+inline graph::value S(int n) { return K(1, n - 1); }
 
 /************
  *          *
