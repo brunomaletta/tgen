@@ -21,4 +21,8 @@ int main() {
 	std::cout << std::endl;
 
 	std::cout << graph(10, 15, true).get_acyclic();
+	std::cout << std::endl;
+
+	std::cout << graph(10, 15).get_skewed(100, 2);
+	std::cout << std::endl;
 }
