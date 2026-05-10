@@ -4961,7 +4961,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 		// Computes uniformly random subgraph of graph with num_edges edges.
 		// O(m) amortized.
-		value &subgraph(int num_edges) {
+		value &random_subgraph(int num_edges) {
 			tgen_ensure(
 				num_edges <= m(),
 				"wgraph: value: can choose at most `m` edges from graph");
@@ -4984,6 +4984,96 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 			edges_ = new_edges;
 			edge_weights_ = new_edge_weights;
+			return *this;
+		}
+
+		// Computes a random (not uniform) connected subgraph with `num_edges`
+		// edges.
+		// 1. Picks a spanning tree via randomized Prim.
+		// 2. Adds additional edges uniformly at random.
+		// O(n + m).
+		value &random_connected_subgraph(int num_edges) {
+			tgen_ensure(!is_directed_,
+						"wgraph: value: random_connected_subgraph is only for "
+						"undirected graphs");
+			tgen_ensure(num_edges >= n() - 1,
+						"wgraph: value: random_connected_subgraph needs at "
+						"least `n - 1` edges");
+			tgen_ensure(
+				num_edges <= m(),
+				"wgraph: value: can choose at most `m` edges from graph");
+
+			// Builds an incidence list: for each vertex, the (neighbor, edge
+			// index) pairs.
+			std::vector<std::vector<std::pair<int, int>>> incident(n());
+			for (int i = 0; i < m(); ++i) {
+				auto [u, v] = edges_[i];
+				incident[u].emplace_back(v, i);
+				incident[v].emplace_back(u, i);
+			}
+
+			// Randomized Prim.
+			std::vector<bool> vis(n(), false);
+			std::vector<int> queue;
+			std::vector<bool> in_tree(m(), false);
+			int tree_count = 0;
+
+			int start = tgen::next<int>(0, n() - 1);
+			vis[start] = true;
+			queue.push_back(start);
+
+			while (!queue.empty()) {
+				int i = tgen::next<int>(0, queue.size() - 1);
+				int u = queue[i];
+				std::swap(queue[i], queue.back());
+				queue.pop_back();
+
+				for (auto [v, edge_idx] : incident[u]) {
+					if (!vis[v]) {
+						vis[v] = true;
+						queue.push_back(v);
+						in_tree[edge_idx] = true;
+						++tree_count;
+					}
+				}
+			}
+			tgen_ensure(tree_count == n() - 1,
+						"wgraph: value: random_connected_subgraph requires the "
+						"current graph to be connected");
+
+			// Splits edge indices into tree edges and the rest.
+			std::vector<int> tree_idx, rest_idx;
+			for (int i = 0; i < m(); ++i) {
+				if (in_tree[i])
+					tree_idx.push_back(i);
+				else
+					rest_idx.push_back(i);
+			}
+
+			tgen::shuffle(rest_idx.begin(), rest_idx.end());
+
+			std::vector<int> chosen_idx;
+			chosen_idx.insert(chosen_idx.end(), tree_idx.begin(),
+							  tree_idx.end());
+			chosen_idx.insert(chosen_idx.end(), rest_idx.begin(),
+							  rest_idx.begin() + num_edges - (n() - 1));
+			detail::tgen_ensure_against_bug(
+				chosen_idx.size() == num_edges,
+				"wgraph: value: chose a wrong number of edges");
+
+			std::vector<std::pair<int, int>> new_edges;
+			std::optional<std::vector<EWeight>> new_edge_weights;
+			if (edge_weights_.has_value())
+				new_edge_weights = std::vector<EWeight>();
+			for (int i : chosen_idx) {
+				new_edges.push_back(edges_[i]);
+				if (new_edge_weights.has_value())
+					new_edge_weights->push_back((*edge_weights_)[i]);
+			}
+
+			edges_ = new_edges;
+			edge_weights_ = new_edge_weights;
+			m_ = num_edges;
 			return *this;
 		}
 

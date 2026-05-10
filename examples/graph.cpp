@@ -3,7 +3,7 @@
 using namespace tgen;
 
 int main() {
-	register_gen();
+	register_gen(2);
 
 	std::cout << (!K(4) + K(2) + C(3)).add_1();
 	std::cout << std::endl;
