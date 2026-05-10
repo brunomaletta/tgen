@@ -3877,6 +3877,52 @@ inline std::vector<std::pair<int, int>> edges_from_prufer(std::vector<int> p) {
 	return edges;
 }
 
+// Disjoint set union (union-find) for connectivity queries.
+struct dsu {
+	std::vector<int> parent_;
+	std::vector<unsigned char> rank_;
+
+	// Creates a dsu with `n` elements, indexed from 0 to n-1.
+	// Initially every element is in its own set.
+	// O(n).
+	dsu(int n) : parent_(n), rank_(n, 0) {
+		for (int i = 0; i < n; ++i)
+			parent_[i] = i;
+	}
+
+	// Adds new elements fo the dsu, each in their own new set.
+	// O(k) amortized.
+	void add_elements(int k) {
+		for (int i = 0; i < k; ++i) {
+			int new_id = parent_.size();
+			parent_.push_back(new_id);
+			rank_.push_back(0);
+		}
+	}
+
+	// Finds representative of set containing i.
+	// O(alpha(n)) amortized, O(log n) worst case.
+	int find(int i) {
+		return parent_[i] == i ? i : parent_[i] = find(parent_[i]);
+	}
+
+	// Merges components of `a` and `b`. Returns if the sets were united, and
+	// false if a and be were in the same set.
+	// O(alpha(n)) amortized, O(log n) worst case.
+	bool unite(int a, int b) {
+		a = find(a);
+		b = find(b);
+		if (a == b)
+			return false;
+		if (rank_[a] > rank_[b])
+			std::swap(a, b);
+		parent_[a] = b;
+		if (rank_[a] == rank_[b])
+			++rank_[b];
+		return true;
+	}
+};
+
 } // namespace detail
 
 /*
@@ -3924,12 +3970,13 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		std::optional<std::vector<VWeight>> vertex_weights_; // Vertex weights.
 		std::optional<std::vector<EWeight>>
 			edge_weights_; // Edge weights (in same order as edges_).
+		detail::dsu dsu_;  // Connectivity of current edges (for cycle checks).
 
 		// Creates value from `n` and adjacecy list.
 		// O(n).
 		value(int n, const std::vector<std::set<int>> &adj)
 			: n_(n), adj_(adj), add_1_(false), shuffle_vertex_(n, false),
-			  shuffle_edges_(false) {
+			  shuffle_edges_(false), dsu_(n) {
 			tgen_ensure(static_cast<int>(adj.size()) == n,
 						"wtree: value: size of adjacency list should ne `n`");
 
@@ -3939,22 +3986,26 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 						0 <= v and v < n,
 						"wtree: value: vertices must be indexed in [0, n)");
 					// Symmetric adjacency: count each undirected edge once.
-					if (u < v)
+					if (u < v) {
 						edges_.emplace_back(u, v);
+						tgen_ensure(
+							dsu_.unite(u, v),
+							"wtree: value: initial adjacency must form a tree");
+					}
 				}
-			tgen_ensure(static_cast<int>(edges_.size()) < n,
-						"wtree: value: must at less than `n` edges");
 		}
 
 		// Creates value from `n` and edge list.
 		// O(n).
 		value(int n, const std::vector<std::pair<int, int>> &edges)
 			: n_(n), adj_(n), edges_(edges), add_1_(false),
-			  shuffle_vertex_(n, false), shuffle_edges_(false) {
+			  shuffle_vertex_(n, false), shuffle_edges_(false), dsu_(n) {
 			for (auto [u, v] : edges) {
 				tgen_ensure(
 					0 <= std::min(u, v) and std::max(u, v) < n,
 					"wgraph: value: vertices must be indexed in [0, n)");
+				tgen_ensure(dsu_.unite(u, v),
+							"wtree: value: initial edges must form a tree");
 				adj_[u].insert(v);
 				adj_[v].insert(u);
 			}
@@ -4087,6 +4138,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 							"wtree: value: cannot add unweighted vertices to "
 							"vertex-weighted graph");
 
+			dsu_.add_elements(k);
+
 			return *this;
 		}
 
@@ -4105,6 +4158,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			adj_[u].insert(v);
 			adj_[v].insert(u);
 			edges_.emplace_back(u, v);
+			tgen_ensure(dsu_.unite(u, v),
+						"wtree: value: added edge must not create a cycle");
 
 			if (w.has_value()) {
 				tgen_ensure(edge_weights().has_value(),
