@@ -5230,7 +5230,23 @@ template <typename VWeight> using vgraph = wgraph<VWeight, int>;
 template <typename EWeight> using egraph = wgraph<int, EWeight>;
 
 // Unweighted graph.
-using graph = wgraph<int, int>;
+struct graph : wgraph<int, int> {
+	using wgraph::wgraph;
+
+	// Uniformly random bipartite graph. The first side has vertices 0 .. n1-1,
+	// the second n1 .. n1+n2-1.
+	// O(n1 + n2 + m log n).
+	static graph::value gen_bipartite(int n1, int n2, int m) {
+		tgen_ensure(m <= static_cast<long long>(n1) * n2,
+					"graph: bipartite graph has at most n1 * n2 edges");
+
+		graph bipartite(n1 + n2, m);
+		for (auto [u, v] :
+			 pair<int>(0, n1 - 1, n1, n1 + n2 - 1).gen_list(m).to_std())
+			bipartite.add_edge(u, v);
+		return bipartite.gen();
+	}
+};
 
 /*
  * Standard graphs.
@@ -5263,14 +5279,14 @@ inline graph::value C(int n) {
 }
 
 // Complete bipartite.
-// The first side has vertices `0` to `n-1`, the second side has vertices `n` to
-// `n+m-1`.
-// O(n * m).
-inline graph::value K(int n, int m) {
-	graph g(n + m, n * m);
-	for (int i = 0; i < n; ++i)
-		for (int j = 0; j < m; ++j)
-			g.add_edge(i, n + j);
+// The first side has vertices `0` to `n1-1`, the second side has vertices `n1`
+// to `n1+n2-1`.
+// O(n1 * n2).
+inline graph::value K(int n1, int n2) {
+	graph g(n1 + n2, static_cast<long long>(n1) * n2);
+	for (int i = 0; i < n1; ++i)
+		for (int j = 0; j < n2; ++j)
+			g.add_edge(i, n1 + j);
 	return g.gen();
 }
 
