@@ -319,6 +319,109 @@ namespace tgen {
 
 /**
  * @ingroup base
+ * @brief Sampler for repeated draws from a fixed weighted distribution.
+ *
+ * Builds, in @tt{O(n)} time, a structure that produces independent
+ * indices @tt{i} in @tt{[0, n - 1]} with probability proportional to
+ * @tt{distribution[i]}, in @tt{O(1)} per draw.
+ *
+ * Internally uses the
+ * <a href="https://en.wikipedia.org/wiki/Alias_method">alias method</a>.
+ * The internal weight type is selected from the input type @tt{T}:
+ *
+ * - if @tt{T} is integral (@primitive{int}, @primitive{long long}, ...), all
+ *   arithmetic is performed exactly in @tt{@type{unsigned} __int128}, so
+ *   distributions summing to nearly @tt{2^128} are handled with no loss;
+ * - if @tt{T} is floating-point (@primitive{float}, @primitive{double}, ...),
+ *   arithmetic is performed in @tt{@type{double}}, with the small relative
+ *   rounding error inherent to floating-point sums.
+ *
+ * If only a single index is needed, prefer @tt{tgen::next_by_distribution}. To draw
+ * @tt{k} indices in one call, prefer @tt{tgen::many_by_distribution}. Use
+ * @tt{tgen::weighted_sampler} directly when many independent draws from the
+ * same distribution are needed but they cannot all be generated at once
+ * (for example, when the next draw depends on previous draws).
+ *
+ * ### Examples
+ *
+ * ```cpp
+ * // Build the sampler once, draw many times. Integer weights.
+ * tgen::weighted_sampler sampler(std::vector<int>{1, 3, 6});
+ * for (int i = 0; i < 100; ++i)
+ *     std::cout << sampler.next() << " ";
+ * // "2 1 2 0 2 1 1 2 2 1 2 2 1 2 2 ..."
+ *
+ * // Fractional probabilities also work.
+ * tgen::weighted_sampler probs(std::vector<double>{0.1, 0.3, 0.6});
+ * size_t idx = probs.next();
+ * ```
+ *
+ * @struct weighted_sampler;
+ */
+
+
+/**
+ * @brief Creates a weighted sampler from a probability distribution.
+ *
+ * @tparam T Arithmetic type of the weights.
+ *
+ * @param distribution Non-negative weights.
+ *
+ * The probability of drawing index @tt{i} is @tt{@pname{distribution}[i] / sum(@pname{distribution})}.
+ *
+ * @throws std::runtime_error if @pname{distribution} is invalid.
+ *
+ * @warning For integral @tt{T}, assumes that the sum of @pname{distribution}
+ *          fits in type @tt{@type{unsigned} __int128}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(|@pname{distribution}|)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Twice as likely to draw index 1 as index 0.
+ * tgen::weighted_sampler sampler({1, 2});
+ *
+ * // Same idea, expressed as fractional probabilities.
+ * tgen::weighted_sampler probs({1.0 / 3, 2.0 / 3});
+ * ```
+ *
+ * @fn weighted_sampler::weighted_sampler(const std::vector<T> &distribution);
+ */
+
+
+/**
+ * @brief Generates a random index with probability proportional to the
+ *        distribution.
+ *
+ * @return An index @tt{i} in @tt{[0, |@pname{distribution}| - 1]} with
+ *         probability @tt{@pname{distribution}[i] / sum(@pname{distribution})}.
+ *
+ * Indices with weight @tt{0} are never returned.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::weighted_sampler sampler({1, 1000});
+ * // Probability of returning "1" is 1000 times that of "0".
+ * int idx = sampler.next();
+ * ```
+ *
+ * @fn weighted_sampler::next() const;
+ */
+
+
+
+
+
+/**
+ * @ingroup base
  * @brief Returns random index with given probabilities.
  *
  * @param distribution Probability distribution.
@@ -327,6 +430,10 @@ namespace tgen {
  *         @tt{@pname{distribution}[i]}.
  *
  * @warning Assumes that the sum of @pname{distribution} fits in type @tt{@type{unsigned} __int128}.
+ *
+ * If many indices are needed from the same distribution, prefer
+ * @ref many_by_distribution, or build a @ref tgen::weighted_sampler once and
+ * call @ref weighted_sampler::next repeatedly.
  *
  * #### Complexity
  *
@@ -354,6 +461,9 @@ namespace tgen {
  *         with probability proportional to @tt{@pname{distribution}[i]}.
  *
  * @warning Assumes that the sum of @pname{distribution} fits in type @tt{@type{unsigned} __int128}.
+ *
+ * Internally builds a @ref tgen::weighted_sampler and calls
+ * @ref weighted_sampler::next @pname{k} times.
  *
  * #### Complexity
  *

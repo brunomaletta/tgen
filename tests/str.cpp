@@ -126,18 +126,18 @@ TEST(str_test, gen_regex_with_grouping) {
 TEST(str_test, gen_regex_uniform) {
 	tgen::register_gen();
 
-	check_generator_uniform(tgen::str(2, 'a', 'b'), 4);
-	check_generator_uniform(tgen::str(3, std::set<char>{'0', '1'}), 8);
-	check_generator_uniform(tgen::str(2, 'a', 'z').fix(0, 'x'), 26);
+	expect_generator_uniform(tgen::str(2, 'a', 'b'), 4);
+	expect_generator_uniform(tgen::str(3, std::set<char>{'0', '1'}), 8);
+	expect_generator_uniform(tgen::str(2, 'a', 'z').fix(0, 'x'), 26);
 
-	check_generator_uniform(tgen::str("[ab]"), 2);
-	check_generator_uniform(tgen::str("a|b|c"), 3);
-	check_generator_uniform(tgen::str("[ab][cd]"), 4);
-	check_generator_uniform(tgen::str("[0-9]"), 10);
-	check_generator_uniform(tgen::str("[ab]{2}"), 4);
-	check_generator_uniform(tgen::str("(a|b)(c|d)"), 4);
-	check_generator_uniform(tgen::str("0 | [1-9][0-9]{0, 2} | 1000"), 1001);
-	check_generator_uniform(tgen::str("0 | [1-9][0-9]{0, 1}"), 100);
+	expect_generator_uniform(tgen::str("[ab]"), 2);
+	expect_generator_uniform(tgen::str("a|b|c"), 3);
+	expect_generator_uniform(tgen::str("[ab][cd]"), 4);
+	expect_generator_uniform(tgen::str("[0-9]"), 10);
+	expect_generator_uniform(tgen::str("[ab]{2}"), 4);
+	expect_generator_uniform(tgen::str("(a|b)(c|d)"), 4);
+	expect_generator_uniform(tgen::str("0 | [1-9][0-9]{0, 2} | 1000"), 1001);
+	expect_generator_uniform(tgen::str("0 | [1-9][0-9]{0, 1}"), 100);
 }
 
 TEST(str_test, add_restriction_after_regex_throws) {

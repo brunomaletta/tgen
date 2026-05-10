@@ -201,9 +201,9 @@ TEST(base_test, next_val) {
 		auto n = tgen::next(10);
 		EXPECT_TRUE(0 <= n and n < 10);
 	}
-	check_function_uniform([]() -> int { return tgen::next<int>(10); }, 10);
-	check_function_uniform([]() -> int { return tgen::next<double>(2) < 1; },
-						   2);
+	expect_function_uniform([]() -> int { return tgen::next<int>(10); }, 10);
+	expect_function_uniform([]() -> int { return tgen::next<double>(2) < 1; },
+							2);
 }
 
 TEST(base_test, next_range) {
@@ -213,8 +213,8 @@ TEST(base_test, next_range) {
 		auto n = tgen::next(10, 20);
 		EXPECT_TRUE(10 <= n and n <= 20);
 	}
-	check_function_uniform([](int l, int r) { return tgen::next<int>(l, r); },
-						   11, 10, 20);
+	expect_function_uniform([](int l, int r) { return tgen::next<int>(l, r); },
+							11, 10, 20);
 }
 
 TEST(base_test, wnext_half_open_range) {
@@ -254,8 +254,109 @@ TEST(base_test, wnext_closed_range) {
 TEST(base_test, wnext_weight_zero_uniform) {
 	tgen::register_gen();
 
-	check_function_uniform([]() -> int { return tgen::wnext<int>(10, 0); }, 10);
-	check_function_uniform([]() { return tgen::wnext<int>(10, 20, 0); }, 11);
+	expect_function_uniform([]() -> int { return tgen::wnext<int>(10, 0); },
+							10);
+	expect_function_uniform([]() { return tgen::wnext<int>(10, 20, 0); }, 11);
+}
+
+TEST(base_test, weighted_sampler_invalid) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::weighted_sampler(std::vector<int>()),
+		"weighted_sampler: distribution must be non-empty");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::weighted_sampler({1, -2, 3}),
+		"weighted_sampler: distribution must be non-negative");
+}
+
+TEST(base_test, weighted_sampler_basic) {
+	tgen::register_gen();
+
+	tgen::weighted_sampler s({1, 2, 3, 4});
+	for (int i = 0; i < 100; ++i) {
+		size_t idx = s.next();
+		EXPECT_TRUE(idx < 4);
+	}
+}
+
+TEST(base_test, weighted_sampler_single_element) {
+	tgen::register_gen();
+
+	tgen::weighted_sampler s({5});
+	for (int i = 0; i < 100; ++i)
+		EXPECT_EQ(s.next(), 0u);
+}
+
+TEST(base_test, weighted_sampler_uniform) {
+	tgen::register_gen();
+
+	tgen::weighted_sampler s({2, 2, 2, 2, 2});
+	expect_function_uniform([&]() -> int { return s.next(); }, 5);
+}
+
+TEST(base_test, weighted_sampler_zero_weights) {
+	tgen::register_gen();
+
+	// Indices with weight 0 must never be sampled; the other indices must all
+	// appear.
+	tgen::weighted_sampler s({0, 5, 0, 7, 0});
+	std::set<size_t> seen;
+	for (int i = 0; i < 1000; ++i) {
+		size_t idx = s.next();
+		EXPECT_TRUE(idx == 1 or idx == 3);
+		seen.insert(idx);
+	}
+	EXPECT_EQ(seen.size(), 2u);
+}
+
+TEST(base_test, weighted_sampler_large_weights) {
+	tgen::register_gen();
+
+	// 64-bit weights that would overflow if accumulated as 64-bit; the alias
+	// method internally uses 128-bit, so this must succeed.
+	tgen::weighted_sampler s({uint64_t(8e18), uint64_t(8e18), uint64_t(8e18)});
+	std::set<size_t> seen;
+	for (int i = 0; i < 1000; ++i) {
+		size_t idx = s.next();
+		EXPECT_TRUE(idx < 3);
+		seen.insert(idx);
+	}
+	EXPECT_EQ(seen.size(), 3u);
+	expect_function_uniform([&]() -> int { return s.next(); }, 3);
+}
+
+TEST(base_test, weighted_sampler_double_weights) {
+	tgen::register_gen();
+
+	// Fractional double weights: the sampler stores weights in double when the
+	// input type is floating-point, so all three indices must appear.
+	tgen::weighted_sampler s({0.5, 1.5, 2.0});
+	std::set<size_t> seen;
+	for (int i = 0; i < 1000; ++i) {
+		size_t idx = s.next();
+		EXPECT_TRUE(idx < 3);
+		seen.insert(idx);
+	}
+	EXPECT_EQ(seen.size(), 3u);
+}
+
+TEST(base_test, weighted_sampler_distribution_integral) {
+	tgen::register_gen();
+
+	std::vector<int> dist = {1, 3, 6};
+	tgen::weighted_sampler s(dist);
+	expect_distribution([](const auto &gen) -> int { return gen.next(); },
+						{1.0, 3.0, 6.0}, s);
+}
+
+TEST(base_test, weighted_sampler_distribution_double) {
+	tgen::register_gen();
+
+	std::vector<double> dist = {0.25, 0.75, 2.0};
+	tgen::weighted_sampler s(dist);
+	expect_distribution([](const auto &gen) -> int { return gen.next(); }, dist,
+						s);
 }
 
 TEST(base_test, next_by_distribution) {
@@ -265,7 +366,7 @@ TEST(base_test, next_by_distribution) {
 		auto n = tgen::next_by_distribution({1, 2, 3});
 		EXPECT_TRUE(0 <= n and n < 3);
 	}
-	check_function_uniform(
+	expect_function_uniform(
 		[]() { return tgen::next_by_distribution({2, 2, 2}); }, 3);
 }
 
@@ -278,7 +379,7 @@ TEST(base_test, many_by_distribution) {
 			EXPECT_TRUE(0 <= j and j < 3);
 		}
 	}
-	check_function_uniform(
+	expect_function_uniform(
 		[]() { return tgen::many_by_distribution<int>(2, {2, 2, 2}); }, 9);
 }
 
@@ -331,7 +432,7 @@ TEST(base_test, any_by_distribution) {
 		int value = tgen::pick_by_distribution(v, {1, 2, 3});
 		EXPECT_TRUE(find(v.begin(), v.end(), value) != v.end());
 	}
-	check_function_uniform(
+	expect_function_uniform(
 		[]() { return tgen::pick_by_distribution({1, 2, 3}, {2, 2, 2}); }, 3);
 }
 

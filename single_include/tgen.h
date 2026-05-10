@@ -759,7 +759,7 @@ inline u128 next128(u128 total) {
 
 	while (true) {
 		// Generate uniform 128-bit random number.
-		u128 r = ((u128)next<uint64_t>(0, std::numeric_limits<uint64_t>::max())
+		u128 r = (u128(next<uint64_t>(0, std::numeric_limits<uint64_t>::max()))
 				  << 64) |
 				 next<uint64_t>(0, std::numeric_limits<uint64_t>::max());
 
@@ -768,31 +768,47 @@ inline u128 next128(u128 total) {
 	}
 }
 
-// Alias method for generating indices with probability proportional to
-// `distribution`.
+} // namespace detail
+
+// Weighted sampler.
+//
+// Generates indices with probability proportional to `distribution`, using
+// alias method.
+//
+// Internally, integral weights are accumulated in unsigned __int128 (exact);
+// floating-point weights are accumulated in double.
 // <O(n), O(1)>.
-struct alias_method {
+template <typename T> struct weighted_sampler {
+	static_assert(std::is_arithmetic_v<T>,
+				  "weighted_sampler requires an arithmetic weight type");
+
+	// Internal storage type: `u128` for integral inputs (exact arithmetic),
+	// `double` for floating-point inputs.
+	using storage_t =
+		std::conditional_t<std::is_integral_v<T>, detail::u128, double>;
+
 	int n_;
-	std::vector<u128> weight_;
+	std::vector<storage_t> weight_;
 	std::vector<int> alias_;
-	u128 total_;
+	storage_t total_;
 
 	// Creates an alias method for generating indices with probability
 	// proportional to the distribution.
 	// O(n).
-	template <typename T>
-	alias_method(const std::vector<T> &distribution)
+	weighted_sampler(const std::vector<T> &distribution)
 		: n_(distribution.size()), alias_(n_) {
-		tgen_ensure(distribution.size() > 0, "distribution must be non-empty");
+		tgen_ensure(distribution.size() > 0,
+					"weighted_sampler: distribution must be non-empty");
 		for (const auto &w : distribution)
-			tgen_ensure(w >= 0, "distribution must be non-negative");
+			tgen_ensure(w >= 0,
+						"weighted_sampler: distribution must be non-negative");
 
-		total_ =
-			std::accumulate(distribution.begin(), distribution.end(), u128(0));
+		total_ = std::accumulate(distribution.begin(), distribution.end(),
+								 storage_t(0));
 
 		std::queue<int> big, small;
 		for (int i = 0; i < n_; ++i) {
-			weight_.push_back(u128(n_) * distribution[i]);
+			weight_.push_back(storage_t(n_) * storage_t(distribution[i]));
 			if (weight_[i] < total_)
 				small.push(i);
 			else
@@ -814,19 +830,32 @@ struct alias_method {
 				big.push(b);
 		}
 
-		tgen_ensure_against_bug(small.empty(),
-								"alias_method: small must be empty");
+		detail::tgen_ensure_against_bug(
+			small.empty(), "weighted_sampler: small must be empty");
 
 		// The remaining elements should have weight equal to total and be
 		// assigned to themselves.
 		while (!big.empty()) {
 			int b = big.front();
 			big.pop();
-			tgen_ensure_against_bug(
-				weight_[b] == total_,
-				"alias_method: weight of big element must be total");
+			if constexpr (std::is_integral_v<T>) {
+				detail::tgen_ensure_against_bug(
+					weight_[b] == total_,
+					"weighted_sampler: weight of big element must be total");
+			}
 			alias_[b] = b;
 		}
+	}
+	weighted_sampler(const std::initializer_list<T> &distribution)
+		: weighted_sampler(std::vector<T>(distribution)) {}
+
+	// Uniformly random value in [0, total). Overloaded so next() can dispatch
+	// at compile time to the right primitive for the chosen `storage_t`.
+	static detail::u128 sample_below(detail::u128 total) {
+		return detail::next128(total);
+	}
+	static double sample_below(double total) {
+		return tgen::next<double>(0, total);
 	}
 
 	// Generates a random index with probability proportional to the
@@ -834,17 +863,19 @@ struct alias_method {
 	// O(1).
 	size_t next() const {
 		int i = tgen::next<int>(0, n_ - 1);
-		return detail::next128(total_) < weight_[i] ? i : alias_[i];
+		return sample_below(total_) < weight_[i] ? i : alias_[i];
 	}
 };
-
-} // namespace detail
+template <typename T>
+weighted_sampler(const std::vector<T> &) -> weighted_sampler<T>;
+template <typename T>
+weighted_sampler(const std::initializer_list<T> &) -> weighted_sampler<T>;
 
 // Returns i with probability proportional to distribution[i].
 // O(|distribution|).
 template <typename T>
 size_t next_by_distribution(const std::vector<T> &distribution) {
-	return detail::alias_method(distribution).next();
+	return weighted_sampler(distribution).next();
 }
 template <typename T>
 size_t next_by_distribution(const std::initializer_list<T> &distribution) {
@@ -860,7 +891,7 @@ std::vector<int> many_by_distribution(int k,
 	tgen_ensure(distribution.size() > 0, "distribution must be non-empty");
 	tgen_ensure(k >= 0, "number of elements to choose must be non-negative");
 
-	detail::alias_method am(distribution);
+	weighted_sampler am(distribution);
 	std::vector<int> res;
 	for (int i = 0; i < k; ++i)
 		res.push_back(am.next());
@@ -5199,6 +5230,9 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	//    pick k uniformly in [1, spread]; walk from u toward the root k
 	//    times along tree parents to get v; add edge (u, v).
 	// Preset edges are not supported.
+	// If elongation is small, generates a graph with small diameter.
+	// If elongation is large, generates a graph with large diameter, with
+	// vertices 0 and n-1 being far apart.
 	// O(n + m log^2 n).
 	value get_skewed(int elongation, int spread) const {
 		tgen_ensure(!is_directed_,
@@ -5248,7 +5282,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// Creates uniform generator of edges (u, v) such that v is ancestor of
 		// u. For that, every u has depth[u] choices for v, so we weight u by
 		// depth[u]. After that we can just pick the ancestor uniformly.
-		detail::alias_method vertex_choice(depth);
+		weighted_sampler vertex_choice(depth);
 		distinct extra_edges([&]() -> std::pair<int, int> {
 			int u = vertex_choice.next();
 			int k = next(1, spread);

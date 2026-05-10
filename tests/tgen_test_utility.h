@@ -39,8 +39,8 @@ inline std::vector<char *> get_argv(std::initializer_list<const char *> list) {
 // `num_tests` tests and `num_elements` total elements. If it was generated
 // uniformly, the probability of the failure is at most 1e-9.
 template <typename T>
-bool check_uniform(const std::map<T, int> &counts, int num_elements,
-				   int num_tests) {
+bool expect_uniform(const std::map<T, int> &counts, int num_elements,
+					int num_tests) {
 	EXPECT_TRUE(static_cast<int>(counts.size()) <= num_elements)
 		<< "Expected at most " << num_elements << " unique values, but got "
 		<< counts.size();
@@ -66,7 +66,7 @@ bool check_uniform(const std::map<T, int> &counts, int num_elements,
 // If the generator is not uniform, the test will usually fail,
 // but no strict guarantee is made (it depends on how biased it is).
 template <typename Gen>
-void check_generator_uniform(const Gen &gen, int num_elements) {
+void expect_generator_uniform(const Gen &gen, int num_elements) {
 	int repeats = 3, count_fail = 0;
 	std::map<typename Gen::value::std_type, int> example_counts;
 	for (int i = 0; i < repeats; ++i) {
@@ -76,7 +76,7 @@ void check_generator_uniform(const Gen &gen, int num_elements) {
 		for (long long j = 0; j < num_tests; ++j)
 			counts[gen.gen().to_std()]++;
 
-		if (!check_uniform(counts, num_elements, num_tests))
+		if (!expect_uniform(counts, num_elements, num_tests))
 			++count_fail;
 
 		example_counts = counts;
@@ -94,7 +94,7 @@ void check_generator_uniform(const Gen &gen, int num_elements) {
 // If the function is not uniform, the test will usually fail,
 // but no strict guarantee is made (it depends on how biased it is).
 template <typename F, typename... Args>
-void check_function_uniform(F func, int num_elements, Args... args) {
+void expect_function_uniform(F func, int num_elements, Args... args) {
 	using T = std::invoke_result_t<F, Args...>;
 	int repeats = 3, count_fail = 0;
 	std::map<T, int> example_counts;
@@ -105,7 +105,7 @@ void check_function_uniform(F func, int num_elements, Args... args) {
 		for (long long j = 0; j < num_tests; ++j)
 			counts[func(args...)]++;
 
-		if (!check_uniform(counts, num_elements, num_tests)) {
+		if (!expect_uniform(counts, num_elements, num_tests)) {
 			++count_fail;
 			example_counts = counts;
 		}
@@ -114,4 +114,33 @@ void check_function_uniform(F func, int num_elements, Args... args) {
 		<< "Distribution not uniform\nNum elements: " << num_elements
 		<< "\nCounts:\n"
 		<< tgen::print(example_counts);
+}
+
+// Checks that `func(args...)` produces values whose proportions match the
+// requested `weights`, within 6 standard deviations per category. The
+// false-fail probability is below 2e-9 per category, so the test is reliable.
+// `func(args...)` must return a value that can index into `weights` (typically
+// an integer in `[0, weights.size())`).
+template <typename F, typename... Args>
+void expect_distribution(F func, const std::vector<double> &weights,
+						 Args... args) {
+	using T = std::invoke_result_t<F, Args...>;
+	int num_tests = 100000;
+	double total = std::accumulate(weights.begin(), weights.end(), 0.0);
+
+	std::map<T, int> counts;
+	for (int i = 0; i < num_tests; ++i)
+		counts[func(args...)]++;
+
+	for (size_t i = 0; i < weights.size(); ++i) {
+		double p = weights[i] / total;
+		double expected = num_tests * p;
+		double std_dev = std::sqrt(num_tests * p * (1 - p));
+		auto it = counts.find(static_cast<T>(i));
+		int count = (it == counts.end()) ? 0 : it->second;
+		EXPECT_LE(std::abs(count - expected), 6 * std_dev)
+			<< "Index " << i
+			<< " count off by too much; weights: " << tgen::print(weights)
+			<< "; counts: " << tgen::print(counts);
+	}
 }

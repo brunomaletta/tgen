@@ -143,6 +143,6 @@ TEST(permutation_test, gen_with_cycles) {
 TEST(permutation_test, gen_uniform) {
 	tgen::register_gen();
 
-	check_generator_uniform(tgen::permutation(4), 24);
-	check_generator_uniform(tgen::permutation(5).fix(0, 3).fix(1, 2), 6);
+	expect_generator_uniform(tgen::permutation(4), 24);
+	expect_generator_uniform(tgen::permutation(5).fix(0, 3).fix(1, 2), 6);
 }

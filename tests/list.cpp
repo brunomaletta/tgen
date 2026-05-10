@@ -422,19 +422,19 @@ TEST(list_test, gen_with_all) {
 TEST(list_test, gen_uniform) {
 	tgen::register_gen();
 
-	check_generator_uniform(tgen::list<int>(5, 0, 1), 1 << 5);
-	check_generator_uniform(tgen::list<int>(5, 0, 1).fix(0, 1), 1 << 4);
-	check_generator_uniform(tgen::list<int>(5, 0, 1).equal(0, 1), 1 << 4);
-	check_generator_uniform(tgen::list<int>(5, 0, 1).fix(0, 1).equal(0, 1),
-							1 << 3);
-	check_generator_uniform(tgen::list<int>(5, 0, 1).equal(0, 1).equal(1, 2),
-							1 << 3);
-	check_generator_uniform(tgen::list<int>(3, 1, 3).all_different(), 6);
-	check_generator_uniform(tgen::list<int>(5, 1, 5).different({0, 1, 2}),
-							60 * 5 * 5);
-	check_generator_uniform(
+	expect_generator_uniform(tgen::list<int>(5, 0, 1), 1 << 5);
+	expect_generator_uniform(tgen::list<int>(5, 0, 1).fix(0, 1), 1 << 4);
+	expect_generator_uniform(tgen::list<int>(5, 0, 1).equal(0, 1), 1 << 4);
+	expect_generator_uniform(tgen::list<int>(5, 0, 1).fix(0, 1).equal(0, 1),
+							 1 << 3);
+	expect_generator_uniform(tgen::list<int>(5, 0, 1).equal(0, 1).equal(1, 2),
+							 1 << 3);
+	expect_generator_uniform(tgen::list<int>(3, 1, 3).all_different(), 6);
+	expect_generator_uniform(tgen::list<int>(5, 1, 5).different({0, 1, 2}),
+							 60 * 5 * 5);
+	expect_generator_uniform(
 		tgen::list<int>(5, 1, 5).different({0, 1, 2}).equal(1, 4), 60 * 5);
-	check_generator_uniform(
+	expect_generator_uniform(
 		tgen::list<int>(5, 1, 5).different({0, 1, 2}).equal(1, 4).fix(4, 3),
 		12 * 5);
 }

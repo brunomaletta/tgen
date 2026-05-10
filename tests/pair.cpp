@@ -348,17 +348,17 @@ TEST(pair_test, uniform_all) {
 		// Total pairs = 5*5 = 25.
 
 		// eq = 5.
-		check_generator_uniform(tgen::pair<int>(0, 4, 0, 4).eq(), 5);
+		expect_generator_uniform(tgen::pair<int>(0, 4, 0, 4).eq(), 5);
 		// neq = 25 - 5 = 20.
-		check_generator_uniform(tgen::pair<int>(0, 4, 0, 4).neq(), 20);
+		expect_generator_uniform(tgen::pair<int>(0, 4, 0, 4).neq(), 20);
 		// lt = n(n-1)/2 = 10.
-		check_generator_uniform(tgen::pair<int>(0, 4, 0, 4).lt(), 10);
+		expect_generator_uniform(tgen::pair<int>(0, 4, 0, 4).lt(), 10);
 		// gt = same as lt.
-		check_generator_uniform(tgen::pair<int>(0, 4, 0, 4).gt(), 10);
+		expect_generator_uniform(tgen::pair<int>(0, 4, 0, 4).gt(), 10);
 		// leq = lt + eq = 10 + 5 = 15.
-		check_generator_uniform(tgen::pair<int>(0, 4, 0, 4).leq(), 15);
+		expect_generator_uniform(tgen::pair<int>(0, 4, 0, 4).leq(), 15);
 		// geq = gt + eq = 10 + 5 = 15.
-		check_generator_uniform(tgen::pair<int>(0, 4, 0, 4).geq(), 15);
+		expect_generator_uniform(tgen::pair<int>(0, 4, 0, 4).geq(), 15);
 	}
 
 	// Asymmetric [0,3] x [2,6].
@@ -367,12 +367,12 @@ TEST(pair_test, uniform_all) {
 		// lt = 17.
 		// gt = 1  (only (3, 2)).
 
-		check_generator_uniform(tgen::pair<int>(0, 3, 2, 6).lt(), 17);
-		check_generator_uniform(tgen::pair<int>(0, 3, 2, 6).gt(), 1);
+		expect_generator_uniform(tgen::pair<int>(0, 3, 2, 6).lt(), 17);
+		expect_generator_uniform(tgen::pair<int>(0, 3, 2, 6).gt(), 1);
 		// 17+ 2.
-		check_generator_uniform(tgen::pair<int>(0, 3, 2, 6).leq(), 19);
+		expect_generator_uniform(tgen::pair<int>(0, 3, 2, 6).leq(), 19);
 		// 2 + 1.
-		check_generator_uniform(tgen::pair<int>(0, 3, 2, 6).geq(), 3);
+		expect_generator_uniform(tgen::pair<int>(0, 3, 2, 6).geq(), 3);
 	}
 
 	// Edge: single-point intersection [1,5] x [5,10].
@@ -380,16 +380,16 @@ TEST(pair_test, uniform_all) {
 		// eq = 1 (only 5).
 		// lt = 29.
 
-		check_generator_uniform(tgen::pair<int>(1, 5, 5, 10).lt(), 29);
+		expect_generator_uniform(tgen::pair<int>(1, 5, 5, 10).lt(), 29);
 		// 29 + 1.
-		check_generator_uniform(tgen::pair<int>(1, 5, 5, 10).leq(), 30);
+		expect_generator_uniform(tgen::pair<int>(1, 5, 5, 10).leq(), 30);
 	}
 
 	// Edge: no intersection [0,2] x [5,7]
 	{
 		// total = 3 * 3 = 9.
 
-		check_generator_uniform(tgen::pair<int>(0, 2, 5, 7).neq(), 9);
-		check_generator_uniform(tgen::pair<int>(0, 2, 5, 7).leq(), 9);
+		expect_generator_uniform(tgen::pair<int>(0, 2, 5, 7).neq(), 9);
+		expect_generator_uniform(tgen::pair<int>(0, 2, 5, 7).leq(), 9);
 	}
 }

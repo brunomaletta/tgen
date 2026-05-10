@@ -16,6 +16,6 @@ TEST(misc_test, parenthesis) {
 		}
 	}
 
-	check_function_uniform(tgen::misc::gen_parenthesis, 5, 6);
-	check_function_uniform(tgen::misc::gen_parenthesis, 14, 8);
+	expect_function_uniform(tgen::misc::gen_parenthesis, 5, 6);
+	expect_function_uniform(tgen::misc::gen_parenthesis, 14, 8);
 }

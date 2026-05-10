@@ -217,8 +217,8 @@ TEST(math_test, gen_prime) {
 TEST(math_test, gen_prime_uniform) {
 	tgen::register_gen();
 
-	check_function_uniform(tgen::math::gen_prime, 25, 0, 100);
-	check_function_uniform(tgen::math::gen_prime, 168, 0, 1000);
+	expect_function_uniform(tgen::math::gen_prime, 25, 0, 100);
+	expect_function_uniform(tgen::math::gen_prime, 168, 0, 1000);
 }
 
 TEST(math_test, prime_from) {
@@ -297,9 +297,9 @@ TEST(math_test, gen_divisor_count) {
 TEST(math_test, gen_divisor_count_uniform) {
 	tgen::register_gen();
 
-	check_function_uniform(tgen::math::gen_divisor_count, 25, 0, 100, 2);
-	check_function_uniform(tgen::math::gen_divisor_count, 11, 0, 1000, 3);
-	check_function_uniform(tgen::math::gen_divisor_count, 3, 0, 1000, 5);
+	expect_function_uniform(tgen::math::gen_divisor_count, 25, 0, 100, 2);
+	expect_function_uniform(tgen::math::gen_divisor_count, 11, 0, 1000, 3);
+	expect_function_uniform(tgen::math::gen_divisor_count, 3, 0, 1000, 5);
 }
 
 TEST(math_test, prime_gaps) {
@@ -438,10 +438,10 @@ TEST(math_test, gen_congruent_uniform) {
 		return tgen::math::gen_congruent(l, r, rems, mods);
 	};
 
-	check_function_uniform(func, 50, 0, 99, std::vector<uint64_t>{0},
-						   std::vector<uint64_t>{2});
-	check_function_uniform(func, 16, 0, 99, std::vector<uint64_t>{0, 1},
-						   std::vector<uint64_t>{2, 3});
+	expect_function_uniform(func, 50, 0, 99, std::vector<uint64_t>{0},
+							std::vector<uint64_t>{2});
+	expect_function_uniform(func, 16, 0, 99, std::vector<uint64_t>{0, 1},
+							std::vector<uint64_t>{2, 3});
 }
 
 TEST(math_test, congruent_from_invalid) {
@@ -618,9 +618,10 @@ TEST(math_test, gen_partition) {
 TEST(math_test, gen_partition_uniform) {
 	tgen::register_gen();
 
-	check_function_uniform(tgen::math::gen_partition, 512, 10, 1, std::nullopt);
-	check_function_uniform(tgen::math::gen_partition, 7, 10, 2, 3);
-	check_function_uniform(tgen::math::gen_partition, 266, 100, 13, 15);
+	expect_function_uniform(tgen::math::gen_partition, 512, 10, 1,
+							std::nullopt);
+	expect_function_uniform(tgen::math::gen_partition, 7, 10, 2, 3);
+	expect_function_uniform(tgen::math::gen_partition, 266, 100, 13, 15);
 }
 
 TEST(math_test, gen_partition_fixed_size_invalid) {
@@ -687,10 +688,10 @@ TEST(math_test, gen_partition_fixed_size) {
 TEST(math_test, gen_partition_fixed_size_uniform) {
 	tgen::register_gen();
 
-	check_function_uniform(tgen::math::gen_partition_fixed_size, 66, 10, 3, 0,
-						   std::nullopt);
-	check_function_uniform(tgen::math::gen_partition_fixed_size, 36, 10, 3, 1,
-						   std::nullopt);
-	check_function_uniform(tgen::math::gen_partition_fixed_size, 381, 100, 5,
-						   18, 22);
+	expect_function_uniform(tgen::math::gen_partition_fixed_size, 66, 10, 3, 0,
+							std::nullopt);
+	expect_function_uniform(tgen::math::gen_partition_fixed_size, 36, 10, 3, 1,
+							std::nullopt);
+	expect_function_uniform(tgen::math::gen_partition_fixed_size, 381, 100, 5,
+							18, 22);
 }
