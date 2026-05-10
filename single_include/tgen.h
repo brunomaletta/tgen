@@ -3995,9 +3995,6 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		bool add_1_; // If should add 1 for printing vertex ids.
 		std::optional<int>
 			print_parents_; // If should in parent style (stores the root).
-		std::vector<bool> shuffle_vertex_; // If should shuffle each vertex
-										   // output when printing.
-		bool shuffle_edges_; // If should shuffle edges when printing.
 		std::optional<std::vector<VWeight>> vertex_weights_; // Vertex weights.
 		std::optional<std::vector<EWeight>>
 			edge_weights_; // Edge weights (in same order as edges_).
@@ -4006,8 +4003,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// Creates value from `n` and adjacecy list.
 		// O(n).
 		value(int n, const std::vector<std::set<int>> &adj)
-			: n_(n), adj_(adj), add_1_(false), shuffle_vertex_(n, false),
-			  shuffle_edges_(false), dsu_(n) {
+			: n_(n), adj_(adj), add_1_(false), dsu_(n) {
 			tgen_ensure(static_cast<int>(adj.size()) == n,
 						"wtree: value: size of adjacency list should ne `n`");
 
@@ -4029,8 +4025,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// Creates value from `n` and edge list.
 		// O(n).
 		value(int n, const std::vector<std::pair<int, int>> &edges)
-			: n_(n), adj_(n), edges_(edges), add_1_(false),
-			  shuffle_vertex_(n, false), shuffle_edges_(false), dsu_(n) {
+			: n_(n), adj_(n), edges_(edges), add_1_(false), dsu_(n) {
 			for (auto [u, v] : edges) {
 				tgen_ensure(
 					0 <= std::min(u, v) and std::max(u, v) < n,
@@ -4058,8 +4053,6 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			typename wtree<NewVWeight, NewEWeight>::value new_tree(n_, adj_);
 			new_tree.add_1_ = add_1_;
 			new_tree.print_parents_ = print_parents_;
-			new_tree.shuffle_vertex_ = shuffle_vertex_;
-			new_tree.shuffle_edges_ = shuffle_edges_;
 			return new_tree;
 		}
 
@@ -4126,17 +4119,75 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			return *this;
 		}
 
-		// Shuffles the tree's vertices except `indices`, and edge orders.
+		// Shuffles the tree's vertex labels (except those in `indices`,
+		// which keep their current label) and edge order. The change is
+		// applied eagerly to the underlying adjacency list, edge list,
+		// vertex weights and edge weights.
 		// O(n).
 		value &shuffle_except(std::set<int> indices) {
-			auto it = indices.begin();
+			// Builds the relabeling: for each vertex `i`, `new_label[i]` is
+			// its new id. Vertices in `indices` keep their label; the others
+			// are permuted among themselves.
+			std::vector<int> new_label(n());
+			std::vector<int> shuffled;
 			for (int i = 0; i < n(); ++i) {
-				if (it != indices.end() and *it == i)
-					++it;
+				if (indices.count(i))
+					new_label[i] = i;
 				else
-					shuffle_vertex_[i] = true;
+					shuffled.push_back(i);
 			}
-			shuffle_edges_ = true;
+			std::vector<int> targets = shuffled;
+			tgen::shuffle(targets.begin(), targets.end());
+			for (size_t k = 0; k < shuffled.size(); ++k)
+				new_label[shuffled[k]] = targets[k];
+
+			// Rewrites adjacency list with new labels.
+			std::vector<std::set<int>> new_adj(n());
+			for (int u = 0; u < n(); ++u)
+				for (int v : adj_[u])
+					new_adj[new_label[u]].insert(new_label[v]);
+			adj_ = std::move(new_adj);
+
+			// Rewrites edges with new labels (canonical undirected order).
+			for (auto &[u, v] : edges_) {
+				u = new_label[u];
+				v = new_label[v];
+				if (u > v)
+					std::swap(u, v);
+			}
+
+			// Permutes vertex weights to match the new labels.
+			if (vertex_weights_.has_value()) {
+				std::vector<VWeight> new_vw(n());
+				for (int i = 0; i < n(); ++i)
+					new_vw[new_label[i]] = (*vertex_weights_)[i];
+				vertex_weights_ = std::move(new_vw);
+			}
+
+			// Rebuilds the dsu so future `add_edge` calls see the new labels.
+			dsu_ = detail::dsu(n());
+			for (auto [u, v] : edges_)
+				dsu_.unite(u, v);
+
+			// Shuffles edge order, keeping edge weights aligned.
+
+			std::vector<int> perm(edges_.size());
+			std::iota(perm.begin(), perm.end(), 0);
+			tgen::shuffle(perm.begin(), perm.end());
+
+			std::vector<std::pair<int, int>> new_edges;
+			std::optional<std::vector<EWeight>> new_ew;
+			if (edge_weights_.has_value())
+				new_ew = std::vector<EWeight>();
+			for (int i : perm) {
+				new_edges.push_back(edges_[i]);
+				if (new_ew.has_value())
+					new_ew->push_back((*edge_weights_)[i]);
+			}
+			edges_ = new_edges;
+			if (new_ew.has_value())
+				edge_weights_ = new_ew;
+
 			return *this;
 		}
 
@@ -4151,7 +4202,6 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 									   new_vertex_weights = std::nullopt) {
 			n_ += k;
 			adj_.resize(n());
-			shuffle_vertex_.resize(n());
 			if (new_vertex_weights.has_value()) {
 				tgen_ensure(vertex_weights().has_value(),
 							"wtree: value: cannot add weighted vertices to "
@@ -4320,24 +4370,6 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 				out << std::endl;
 			}
 
-			// Shuffles labels.
-			std::vector<int> vtx_label(val.n()), shuffled_labels;
-			std::iota(vtx_label.begin(), vtx_label.end(), 0);
-
-			for (int i = 0; i < val.n(); ++i)
-				if (val.shuffle_vertex_[i])
-					shuffled_labels.push_back(i);
-			tgen::shuffle(shuffled_labels.begin(), shuffled_labels.end());
-
-			int shuffled_id = 0;
-			for (int i = 0; i < val.n(); ++i)
-				if (val.shuffle_vertex_[i])
-					vtx_label[i] = shuffled_labels[shuffled_id++];
-
-			std::vector<std::pair<int, int>> edges = val.edges();
-			if (val.shuffle_edges_)
-				tgen::shuffle(edges.begin(), edges.end());
-
 			tgen_ensure(val.edges().size() == val.n() - 1,
 						"wtree: value: invalid tree to print (number of edges "
 						"must be `n` - 1)");
@@ -4374,10 +4406,6 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 				}
 
 				if (skip_parent_0) {
-					tgen_ensure(shuffled_labels.empty(),
-								"wtree: value: cannot shuffle vertices for "
-								"printing in parent style if root is -1");
-
 					for (int i = 1; i < val.n(); ++i) {
 						tgen_ensure(
 							parent[i] < i,
@@ -4392,8 +4420,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 					for (int i = 0; i < val.n(); ++i) {
 						if (i > 0)
 							out << " ";
-						out << (parent[i] == -1 ? -1 : vtx_label[parent[i]]) +
-								   val.add_1_;
+						out << (parent[i] == -1 ? -1 : parent[i]) + val.add_1_;
 					}
 				}
 
@@ -4404,8 +4431,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			// Prints edges.
 			for (int i = 0; i < val.edges().size(); ++i) {
 				auto [u, v] = val.edges()[i];
-				out << (vtx_label[u] + val.add_1_) << " "
-					<< (vtx_label[v] + val.add_1_);
+				out << (u + val.add_1_) << " " << (v + val.add_1_);
 
 				// Edge weight.
 				if (val.edge_weights().has_value())
@@ -4565,9 +4591,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		bool is_directed_;						 // If graph is directed.
 		bool add_1_;	// If should add 1 for printing vertex ids.
 		bool print_nm_; // If should print n and m.
-		std::vector<bool> shuffle_vertex_; // If should shuffle each vertex
-										   // output when printing.
-		bool shuffle_edges_; // If should shuffle edges when printing.
 		std::optional<std::vector<VWeight>> vertex_weights_; // Vertex weights.
 		std::optional<std::vector<EWeight>>
 			edge_weights_; // Edge weights (in same order as edges_ ).
@@ -4578,8 +4601,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		value(int n, const std::vector<std::set<int>> &adj,
 			  bool is_directed = false)
 			: n_(n), m_(0), adj_(adj), is_directed_(is_directed), add_1_(false),
-			  print_nm_(false), shuffle_vertex_(n, false),
-			  shuffle_edges_(false) {
+			  print_nm_(false) {
 			tgen_ensure(static_cast<int>(adj.size()) == n,
 						"wgraph: value: size of adjacency list should ne `n`");
 
@@ -4604,8 +4626,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		value(int n, const std::vector<std::pair<int, int>> &edges = {},
 			  bool is_directed = false)
 			: n_(n), m_(edges.size()), adj_(n_), edges_(edges),
-			  is_directed_(is_directed), add_1_(false), print_nm_(false),
-			  shuffle_vertex_(n, false), shuffle_edges_(false) {
+			  is_directed_(is_directed), add_1_(false), print_nm_(false) {
 			for (auto [u, v] : edges) {
 				tgen_ensure(
 					0 <= std::min(u, v) and std::max(u, v) < n,
@@ -4637,8 +4658,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			new_graph.is_directed_ = is_directed_;
 			new_graph.add_1_ = add_1_;
 			new_graph.print_nm_ = print_nm_;
-			new_graph.shuffle_vertex_ = shuffle_vertex_;
-			new_graph.shuffle_edges_ = shuffle_edges_;
 			return new_graph;
 		}
 
@@ -4707,22 +4726,76 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			return *this;
 		}
 
-		// Shuffles the graph's vertices except `indices`, and edge orders.
-		// O(n).
+		// Shuffles the graph's vertex labels (except those in `indices`,
+		// which keep their current label) and edge order. The change is
+		// applied eagerly to the underlying adjacency list, edge list,
+		// vertex weights and edge weights.
+		// O(n + m).
 		value &shuffle_except(std::set<int> indices) {
-			auto it = indices.begin();
+			// Builds the relabeling: for each vertex `i`, `new_label[i]` is
+			// its new id. Vertices in `indices` keep their label; the others
+			// are permuted among themselves.
+			std::vector<int> new_label(n());
+			std::vector<int> shuffled;
 			for (int i = 0; i < n(); ++i) {
-				if (it != indices.end() and *it == i) {
-					++it;
-				} else
-					shuffle_vertex_[i] = true;
+				if (indices.count(i))
+					new_label[i] = i;
+				else
+					shuffled.push_back(i);
 			}
-			shuffle_edges_ = true;
+			std::vector<int> targets = shuffled;
+			tgen::shuffle(targets.begin(), targets.end());
+			for (size_t k = 0; k < shuffled.size(); ++k)
+				new_label[shuffled[k]] = targets[k];
+
+			// Rewrites adjacency list with new labels.
+			std::vector<std::set<int>> new_adj(n());
+			for (int u = 0; u < n(); ++u)
+				for (int v : adj_[u])
+					new_adj[new_label[u]].insert(new_label[v]);
+			adj_ = new_adj;
+
+			// Rewrites edges with new labels (canonical undirected order).
+			for (auto &[u, v] : edges_) {
+				u = new_label[u];
+				v = new_label[v];
+				if (!is_directed_ and u > v)
+					std::swap(u, v);
+			}
+
+			// Permutes vertex weights to match the new labels.
+			if (vertex_weights_.has_value()) {
+				std::vector<VWeight> new_vw(n());
+				for (int i = 0; i < n(); ++i)
+					new_vw[new_label[i]] = (*vertex_weights_)[i];
+				vertex_weights_ = new_vw;
+			}
+
+			// Shuffles edge order, keeping edge weights aligned.
+
+			std::vector<int> perm(edges_.size());
+			std::iota(perm.begin(), perm.end(), 0);
+			tgen::shuffle(perm.begin(), perm.end());
+
+			std::vector<std::pair<int, int>> new_edges;
+			std::optional<std::vector<EWeight>> new_ew;
+			if (edge_weights_.has_value())
+				new_ew = std::vector<EWeight>();
+			for (int i : perm) {
+				new_edges.push_back(edges_[i]);
+				if (new_ew.has_value())
+					new_ew->push_back((*edge_weights_)[i]);
+			}
+
+			edges_ = new_edges;
+			if (new_ew.has_value())
+				edge_weights_ = new_ew;
+
 			return *this;
 		}
 
 		// Shuffles the graph's vertices and edge order.
-		// O(n).
+		// O(n + m).
 		value &shuffle() { return shuffle_except({}); }
 
 		// Adds `k` vertices to the graph (labeled n, n+1, ...n+k-1). Updates
@@ -4732,7 +4805,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 									   new_vertex_weights = std::nullopt) {
 			n_ += k;
 			adj_.resize(n());
-			shuffle_vertex_.resize(n());
 			if (new_vertex_weights.has_value()) {
 				tgen_ensure(vertex_weights().has_value(),
 							"wgraph: value: cannot add weighted vertices to "
@@ -4887,7 +4959,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			return glue(rhs, std::set<int>(il));
 		}
 
-		// Computs subgraph of graph with num_edges edges.
+		// Computes uniformly random subgraph of graph with num_edges edges.
 		// O(m) amortized.
 		value &subgraph(int num_edges) {
 			tgen_ensure(
@@ -4965,11 +5037,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 				concat.add_1();
 			if (rhs.print_nm_)
 				concat.print_nm();
-			if (rhs.shuffle_edges_)
-				concat.shuffle_edges_ = true;
-			for (int i = 0; i < rhs.n(); ++i)
-				if (rhs.shuffle_vertex_[i])
-					concat.shuffle_vertex_[n() + i] = true;
 
 			// Merge vertex weights.
 			tgen_ensure(vertex_weights().has_value() ==
@@ -5015,29 +5082,10 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 				out << std::endl;
 			}
 
-			// Shuffles labels.
-			std::vector<int> vtx_label(val.n()), shuffled_labels;
-			std::iota(vtx_label.begin(), vtx_label.end(), 0);
-
-			for (int i = 0; i < val.n(); ++i)
-				if (val.shuffle_vertex_[i])
-					shuffled_labels.push_back(i);
-			tgen::shuffle(shuffled_labels.begin(), shuffled_labels.end());
-
-			int shuffled_id = 0;
-			for (int i = 0; i < val.n(); ++i)
-				if (val.shuffle_vertex_[i])
-					vtx_label[i] = shuffled_labels[shuffled_id++];
-
-			std::vector<std::pair<int, int>> edges = val.edges();
-			if (val.shuffle_edges_)
-				tgen::shuffle(edges.begin(), edges.end());
-
 			// Prints edges.
 			for (int i = 0; i < val.m(); ++i) {
 				auto [u, v] = val.edges()[i];
-				out << (vtx_label[u] + val.add_1_) << " "
-					<< (vtx_label[v] + val.add_1_);
+				out << (u + val.add_1_) << " " << (v + val.add_1_);
 
 				// Edge weight.
 				if (val.edge_weights().has_value())
