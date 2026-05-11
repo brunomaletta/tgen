@@ -79,7 +79,6 @@ all: lint doc test
 
 clean:
 	-rm -rf $(BUILD_ROOT)
-	-rm -f sample examples/sample_debug
 
 $(EXAMPLE_REL) $(EXAMPLE_SAN):
 	mkdir -p $@

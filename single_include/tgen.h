@@ -1302,7 +1302,7 @@ template <typename T> T get_opt(const std::string &value) {
 		} else if constexpr (std::is_floating_point_v<T>)
 			return static_cast<T>(std::stold(value));
 		else
-			return value; // default: std::string
+			return value; // Default: std::string.
 	} catch (...) {
 	}
 
@@ -1322,15 +1322,15 @@ inline void parse_opts(int argc, char **argv) {
 			tgen_ensure(key.size() > 1,
 						"invalid opt (" + std::string(argv[i]) + ")");
 			if ('0' <= key[1] and key[1] <= '9') {
-				// This case is a positional negative number argument
+				// This case is a positional negative number argument.
 				pos_opts.push_back(key);
 				continue;
 			}
 
-			// pops first char '-'
+			// Pops first char '-'.
 			key = key.substr(1);
 		} else {
-			// This case is a positional argument that does not start with '-'
+			// This case is a positional argument that does not start with '-'.
 			pos_opts.push_back(key);
 			continue;
 		}
@@ -1340,13 +1340,13 @@ inline void parse_opts(int argc, char **argv) {
 			tgen_ensure(key.size() > 1,
 						"invalid opt (" + std::string(argv[i]) + ")");
 
-			// pops first char '-'
+			// Pops first char '-'.
 			key = key.substr(1);
 		}
 
 		// Assumes that, if it starts with '-' and second char is not a digit,
 		// then it is a <key, value> pair.
-		// 1 or 2 chars '-' have already been poped.
+		// 1 or 2 chars '-' have already been popped.
 
 		std::size_t eq = key.find('=');
 		if (eq != std::string::npos) {
@@ -4568,7 +4568,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	wgraph(int n, int m, bool is_directed = false, bool has_self_loops = false)
 		: n_(n), m_(m), is_directed_(is_directed),
 		  has_self_loops_(has_self_loops) {
-		tgen_ensure(n > 0, "wgraph: n must be positive");
+		tgen_ensure(n > 0, "wgraph: number of vertices must be positive");
 	}
 
 	// Adds edge bewteen u and v (this edge must be generated).
@@ -4652,6 +4652,9 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 				  n,
 				  std::vector<std::pair<int, int>>(edges.begin(), edges.end()),
 				  is_directed) {}
+		value(int n, const std::initializer_list<std::pair<int, int>> &edges,
+			  bool is_directed = false)
+			: value(n, std::vector<std::pair<int, int>>(edges), is_directed) {}
 
 		// Weight type converstion.
 		// O(n + m).
@@ -4968,6 +4971,13 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			return glue(rhs, std::set<int>(il));
 		}
 
+		// Disjoint union.
+		// Shifts ids from `rhs` graph by n().
+		// O(rhs.n + rhs.m * log n) amortized.
+		value &disjoint_union(const value &rhs) {
+			return glue(rhs, std::set<int>());
+		}
+
 		// Rebuilds adjacency from edges_ after replacing the edge list (e.g.
 		// subgraph operations).
 		// O(m).
@@ -5099,36 +5109,37 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			return *this;
 		}
 
-		// Self loops are mainteind for complement.
+		// Complement. Self loops are maintained.
 		// O(n^2).
-		value &operator!() {
+		value operator!() const {
 			tgen_ensure(!edge_weights_.has_value(),
 						"wgraph: value: cannot compute complement of "
 						"edge-weighted graph");
 
+			value complement = *this;
 			std::vector<std::pair<int, int>> compl_edges;
-			for (int i = 0; i < n_; ++i) {
-				std::set<int> complement;
-				for (int j = 0; j < n_; ++j) {
+			for (int i = 0; i < complement.n_; ++i) {
+				std::set<int> complement_adj;
+				for (int j = 0; j < complement.n_; ++j) {
 					bool add_j = false;
-					if (j == i and adj_[i].count(j))
+					if (j == i and complement.adj_[i].count(j))
 						add_j = true;
-					if (j != i and !adj_[i].count(j))
+					if (j != i and !complement.adj_[i].count(j))
 						add_j = true;
 
 					if (add_j) {
-						complement.insert(j);
+						complement_adj.insert(j);
 						// If i > j and !is_directed(), we don't add the edge.
-						if (i <= j or is_directed()) {
+						if (i <= j or complement.is_directed_) {
 							compl_edges.emplace_back(i, j);
 						}
 					}
 				}
-				std::swap(adj_[i], complement);
+				std::swap(complement.adj_[i], complement_adj);
 			}
-			std::swap(edges_, compl_edges);
+			std::swap(complement.edges_, compl_edges);
 
-			return *this;
+			return complement;
 		}
 
 		// Concatenates two values.
