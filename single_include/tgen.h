@@ -4592,8 +4592,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	struct value : gen_value_base<value> {
 		using std_type = std::tuple<int, int, std::vector<std::set<int>>>;
 
-		int n_, m_;						 // Number of vertices and edges.
-		std::vector<std::set<int>> adj_; // Adjacency list.
+		int n_;									 // Number of vertices.
+		std::vector<std::set<int>> adj_;		 // Adjacency list.
 		std::vector<std::pair<int, int>> edges_; // Edge list.
 		bool is_directed_;						 // If graph is directed.
 		bool add_1_;	// If should add 1 for printing vertex ids.
@@ -4607,7 +4607,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// O(n + m).
 		value(int n, const std::vector<std::set<int>> &adj,
 			  bool is_directed = false)
-			: n_(n), m_(0), adj_(adj), is_directed_(is_directed), add_1_(false),
+			: n_(n), adj_(adj), is_directed_(is_directed), add_1_(false),
 			  print_nm_(false) {
 			tgen_ensure(static_cast<int>(adj.size()) == n,
 						"wgraph: value: size of adjacency list should ne `n`");
@@ -4620,10 +4620,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 					// Undirected adjacency is symmetric: count each edge once
 					// (canonical u <= v). Directed: every out-edge appears
 					// once.
-					if (is_directed_ or u <= v) {
+					if (is_directed_ or u <= v)
 						edges_.emplace_back(u, v);
-						++m_;
-					}
 				}
 		}
 
@@ -4632,15 +4630,20 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// O(n + m log n).
 		value(int n, const std::vector<std::pair<int, int>> &edges = {},
 			  bool is_directed = false)
-			: n_(n), m_(edges.size()), adj_(n_), edges_(edges),
-			  is_directed_(is_directed), add_1_(false), print_nm_(false) {
+			: n_(n), adj_(n_), edges_(), is_directed_(is_directed),
+			  add_1_(false), print_nm_(false) {
 			for (auto [u, v] : edges) {
 				tgen_ensure(
 					0 <= std::min(u, v) and std::max(u, v) < n,
 					"wgraph: value: vertices must be indexed in [0, n)");
+				if (!is_directed_ and u > v)
+					std::swap(u, v);
+				if (adj_[u].count(v))
+					continue;
 				adj_[u].insert(v);
 				if (!is_directed_)
 					adj_[v].insert(u);
+				edges_.emplace_back(u, v);
 			}
 		}
 		value(int n, const std::set<std::pair<int, int>> &edges,
@@ -4672,7 +4675,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		int n() const { return n_; }
 
 		// Fetches number of edges.
-		int m() const { return m_; }
+		int m() const { return edges_.size(); }
 
 		// Fetches if graph is directed;
 		bool is_directed() const { return is_directed_; }
@@ -4849,7 +4852,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			if (!is_directed())
 				adj_[v].insert(u);
 			edges_.emplace_back(u, v);
-			++m_;
 
 			if (w.has_value()) {
 				tgen_ensure(edge_weights().has_value(),
@@ -4966,12 +4968,11 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			return glue(rhs, std::set<int>(il));
 		}
 
-		// Rebuilds adjacency and m_ from edges_ after replacing the edge list
-		// (e.g. subgraph operations).
+		// Rebuilds adjacency from edges_ after replacing the edge list (e.g.
+		// subgraph operations).
 		// O(m).
 		void rebuild_adj_from_edge_list() {
 			adj_.assign(n_, {});
-			m_ = edges_.size();
 			for (auto [u, v] : edges_) {
 				adj_[u].insert(v);
 				if (!is_directed_)
@@ -5105,7 +5106,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 						"wgraph: value: cannot compute complement of "
 						"edge-weighted graph");
 
-			m_ = 0;
 			std::vector<std::pair<int, int>> compl_edges;
 			for (int i = 0; i < n_; ++i) {
 				std::set<int> complement;
@@ -5121,7 +5121,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 						// If i > j and !is_directed(), we don't add the edge.
 						if (i <= j or is_directed()) {
 							compl_edges.emplace_back(i, j);
-							++m_;
 						}
 					}
 				}
@@ -5149,7 +5148,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 						"wgraph to unweighted");
 
 			value concat = *this;
-			concat.glue(rhs, {});
+			concat.glue(rhs, std::set<std::pair<int, int>>());
 			concat.add_1_ = add_1_ | rhs.add_1_;
 			concat.print_nm_ = print_nm_ | rhs.print_nm_;
 
@@ -5189,7 +5188,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		}
 
 		// Gets a std::tuple<n, m, adj> representing the value.
-		std_type to_std() const { return std::tuple(n_, m_, adj_); }
+		std_type to_std() const { return std::tuple(n_, m(), adj_); }
 	};
 
 	// Generates graph value.
@@ -5467,8 +5466,10 @@ struct graph : wgraph<int, int> {
 					"graph: bipartite graph has at most n1 * n2 edges");
 
 		graph bipartite(n1 + n2, m);
-		for (auto [u, v] :
-			 pair<int>(0, n1 - 1, n1, n1 + n2 - 1).gen_list(m).to_std())
+		for (auto [u, v] : pair<int>(0, n1 - 1, n1, n1 + n2 - 1)
+							   .distinct()
+							   .gen_list(m)
+							   .to_std())
 			bipartite.add_edge(u, v);
 		return bipartite.gen();
 	}

@@ -1,15 +1,126 @@
+.DELETE_ON_ERROR:
+
 SRC_DIR       := single_include
 DOC_BUILD_DIR := docs/build
 DOC_HTML_DIR  := $(DOC_BUILD_DIR)
+DOC_INDEX     := $(abspath $(DOC_HTML_DIR)/index.html)
 DOC_SRC_DIR   := docs
 THEME_DIR     := docs/doxygen-awesome-css
+
+# Extra argv for runnable examples, e.g. make graph ARGS='--seed 1'   (also works with graph-asan, etc.)
+ARGS ?=
+
+# Parallel builds by default (override: make NPROCS=1)
+NPROCS ?= $(shell nproc 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)
+MAKEFLAGS += -j$(NPROCS)
+
+# Optional compiler cache (unset CCACHE= to disable)
+CCACHE := $(shell command -v ccache 2>/dev/null)
+
+BUILD_ROOT := build
+GCC_OBJDIR   := $(BUILD_ROOT)/gcc
+CLANG_OBJDIR := $(BUILD_ROOT)/clang
+ASAN_OBJDIR  := $(BUILD_ROOT)/asan
+
+# Example binaries: release vs sanitizer trees so ASAN=1 cannot reuse a release binary
+EXAMPLE_BINDIR := $(BUILD_ROOT)/examples
+EXAMPLE_REL    := $(EXAMPLE_BINDIR)/rel
+EXAMPLE_SAN    := $(EXAMPLE_BINDIR)/asan
+# Set ASAN=1 for sanitized examples, e.g. make graph ASAN=1  or  make graph-asan
+EXAMPLE_USE_SAN := $(filter 1 yes true on ON,$(ASAN))
+EXAMPLE_OUT     = $(if $(strip $(EXAMPLE_USE_SAN)),$(EXAMPLE_SAN),$(EXAMPLE_REL))
+
+TEST_SRCS     := $(sort $(wildcard tests/*.cpp))
+TEST_HEADERS  := $(sort $(wildcard tests/*.h))
+TGEN_HEADER   := $(SRC_DIR)/tgen.h
+
+GCC_OBJS   := $(patsubst tests/%.cpp,$(GCC_OBJDIR)/%.o,$(TEST_SRCS))
+CLANG_OBJS := $(patsubst tests/%.cpp,$(CLANG_OBJDIR)/%.o,$(TEST_SRCS))
+ASAN_OBJS  := $(patsubst tests/%.cpp,$(ASAN_OBJDIR)/%.o,$(TEST_SRCS))
+
+CXX_GCC   := $(if $(CCACHE),ccache )g++
+CXX_CLANG := $(if $(CCACHE),ccache )clang++
+CXX_ASAN  := $(CXX_GCC)
+
+CXXFLAGS_COMMON := -std=c++17 -Wall -Wshadow -pthread
+CXXFLAGS_GCC    := $(CXXFLAGS_COMMON) -O2
+CXXFLAGS_CLANG  := $(CXXFLAGS_COMMON) -O2
+CXXFLAGS_ASAN   := $(CXXFLAGS_COMMON) -g -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer
+
+GTEST_LIBS := -lgtest -lgtest_main
+
+# $(1)=install name  $(2)=source under examples/  $(3)=compiler (CXX_GCC or CXX_CLANG)
+define EXAMPLE_LINK_RULE
+$(EXAMPLE_REL)/$(1): examples/$(2) $(TGEN_HEADER) | $(EXAMPLE_REL)
+	$(3) $(CXXFLAGS_COMMON) -O2 -I $(SRC_DIR) $$< -o $$@
+$(EXAMPLE_SAN)/$(1): examples/$(2) $(TGEN_HEADER) | $(EXAMPLE_SAN)
+	$(3) $(CXXFLAGS_ASAN) -I $(SRC_DIR) $$< -o $$@
+endef
+
+define EXAMPLE_DEBUG_RULE
+$(EXAMPLE_REL)/$(1): examples/$(2) $(TGEN_HEADER) | $(EXAMPLE_REL)
+	$(3) $(CXXFLAGS_COMMON) -g -I $(SRC_DIR) $$< -o $$@
+$(EXAMPLE_SAN)/$(1): examples/$(2) $(TGEN_HEADER) | $(EXAMPLE_SAN)
+	$(3) $(CXXFLAGS_ASAN) -I $(SRC_DIR) $$< -o $$@
+endef
+
+$(eval $(call EXAMPLE_LINK_RULE,graph,graph.cpp,$(CXX_CLANG)))
+$(eval $(call EXAMPLE_LINK_RULE,sample,all.cpp,$(CXX_GCC)))
+$(eval $(call EXAMPLE_LINK_RULE,unordered,unordered_set.cpp,$(CXX_GCC)))
+$(eval $(call EXAMPLE_LINK_RULE,range_queries,range_queries.cpp,$(CXX_GCC)))
+$(eval $(call EXAMPLE_LINK_RULE,unordered_clang,unordered_set.cpp,$(CXX_CLANG)))
+$(eval $(call EXAMPLE_DEBUG_RULE,sample_debug,all.cpp,$(CXX_GCC)))
+
+.PHONY: all doc clean-doc opendoc lint lint-check test test_clang test_asan \
+	sample sample_debug unordered range_queries unordered_clang graph cloc \
+	help print-% %-asan
 
 all: lint doc test
 
 clean:
-	-rm -f test sample examples/sample_debug
+	-rm -rf $(BUILD_ROOT)
+	-rm -f sample examples/sample_debug
 
-.PHONY: doc clean-doc
+$(EXAMPLE_REL) $(EXAMPLE_SAN):
+	mkdir -p $@
+
+$(GCC_OBJDIR) $(CLANG_OBJDIR) $(ASAN_OBJDIR):
+	mkdir -p $@
+
+# Per-TU objects + dependency files for incremental builds
+$(GCC_OBJDIR)/%.o: tests/%.cpp $(TGEN_HEADER) $(TEST_HEADERS) | $(GCC_OBJDIR)
+	$(CXX_GCC) $(CXXFLAGS_GCC) -MMD -MP -c $< -o $@
+
+$(CLANG_OBJDIR)/%.o: tests/%.cpp $(TGEN_HEADER) $(TEST_HEADERS) | $(CLANG_OBJDIR)
+	$(CXX_CLANG) $(CXXFLAGS_CLANG) -MMD -MP -c $< -o $@
+
+$(ASAN_OBJDIR)/%.o: tests/%.cpp $(TGEN_HEADER) $(TEST_HEADERS) | $(ASAN_OBJDIR)
+	$(CXX_ASAN) $(CXXFLAGS_ASAN) -MMD -MP -c $< -o $@
+
+$(GCC_OBJDIR)/test: $(GCC_OBJS)
+	$(CXX_GCC) $(CXXFLAGS_GCC) $^ $(GTEST_LIBS) -o $@
+
+$(CLANG_OBJDIR)/test: $(CLANG_OBJS)
+	$(CXX_CLANG) $(CXXFLAGS_CLANG) $^ $(GTEST_LIBS) -o $@
+
+$(ASAN_OBJDIR)/test: $(ASAN_OBJS)
+	$(CXX_ASAN) $(CXXFLAGS_ASAN) $^ $(GTEST_LIBS) -o $@
+
+-include $(GCC_OBJS:.o=.d)
+-include $(CLANG_OBJS:.o=.d)
+-include $(ASAN_OBJS:.o=.d)
+
+test: $(GCC_OBJDIR)/test
+	$<
+	@rm -f $<
+
+test_clang: $(CLANG_OBJDIR)/test
+	$<
+	@rm -f $<
+
+test_asan: $(ASAN_OBJDIR)/test
+	-$<
+	@rm -f $<
 
 doc: clean-doc
 	cd $(DOC_SRC_DIR) && doxygen Doxyfile
@@ -35,7 +146,24 @@ clean-doc:
 	rm -rf $(DOC_BUILD_DIR)
 
 opendoc:
-	google-chrome docs/build/index.html > /dev/null 2>&1 &
+	@test -f '$(DOC_INDEX)' || { printf '%s\n' "opendoc: missing $(DOC_INDEX) - run 'make doc' first." >&2; exit 1; }
+	@{ \
+	if command -v xdg-open >/dev/null 2>&1; then \
+		( xdg-open '$(DOC_INDEX)' </dev/null >/dev/null 2>&1 & ); \
+	elif command -v google-chrome-stable >/dev/null 2>&1; then \
+		( google-chrome-stable 'file://$(DOC_INDEX)' </dev/null >/dev/null 2>&1 & ); \
+	elif command -v google-chrome >/dev/null 2>&1; then \
+		( google-chrome 'file://$(DOC_INDEX)' </dev/null >/dev/null 2>&1 & ); \
+	elif command -v chromium >/dev/null 2>&1; then \
+		( chromium 'file://$(DOC_INDEX)' </dev/null >/dev/null 2>&1 & ); \
+	elif command -v chromium-browser >/dev/null 2>&1; then \
+		( chromium-browser 'file://$(DOC_INDEX)' </dev/null >/dev/null 2>&1 & ); \
+	else \
+		printf '%s\n' "opendoc: no xdg-open or Chrome/Chromium on PATH. Open in a browser:" >&2; \
+		printf '%s\n' "  file://$(DOC_INDEX)" >&2; \
+		exit 1; \
+	fi; \
+	}
 
 lint:
 	find $(SRC_DIR) examples tests \( -name '*.h' -o -name '*.cpp' \) -print0 | xargs -0 clang-format -i
@@ -47,42 +175,35 @@ lint-check:
 	( echo ""; echo "Run 'make lint' to fix formatting"; exit 1 )
 	@echo "Formatting check passed"
 
-test: single_include/* tests/*
-	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -o test -Wall -Wshadow -O2
-	./test
-	rm -f test
+sample: $(EXAMPLE_OUT)/sample
+	$< $(ARGS)
 
-test_clang: single_include/* tests/*
-	clang++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -o test -Wall -Wshadow -O2
-	./test
-	rm -f test
+graph: $(EXAMPLE_OUT)/graph
+	$< $(ARGS)
 
-test_asan:
-	g++ -std=c++17 tests/*.cpp -lgtest -lgtest_main -pthread -o test -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -g -Wall -Wshadow
-	-./test
-	rm -f test
+unordered: $(EXAMPLE_OUT)/unordered
 
-sample:
-	g++ -std=c++17 examples/all.cpp -I $(SRC_DIR) -o sample
-	@-./sample
-	@rm -f sample
+range_queries: $(EXAMPLE_OUT)/range_queries
 
-unordered:
-	g++ -std=c++17 examples/unordered_set.cpp -I $(SRC_DIR) -o sample -O2
+unordered_clang: $(EXAMPLE_OUT)/unordered_clang
 
-range_queries:
-	g++ -std=c++17 examples/range_queries.cpp -I $(SRC_DIR) -o sample -O2
+sample_debug: $(EXAMPLE_OUT)/sample_debug
 
-unordered_clang:
-	clang++ -std=c++17 examples/unordered_set.cpp -I $(SRC_DIR) -o sample -O2
+# Shorthand: graph-asan -> make graph ASAN=1 (jobserver preserved; ARGS is forwarded automatically)
+%-asan:
+	+@$(MAKE) $(@:-asan=) ASAN=1
 
-graph:
-	clang++ -std=c++17 examples/graph.cpp -I $(SRC_DIR) -o sample -O2
-	@-./sample
-	@rm -f sample
+help:
+	@echo "Tests:     make test | test_clang | test_asan"
+	@echo "Examples:  make graph | sample | unordered | range_queries | unordered_clang | sample_debug"
+	@echo " + argv:   make graph ARGS='…'   (sample, graph, graph-asan, …)"
+	@echo " + ASan:   make graph ASAN=1   or   make graph-asan   (same for sample-asan, unordered-asan, …)"
+	@echo "           Binaries: build/examples/rel/… and build/examples/asan/… (see ASAN=1)"
+	@echo "Docs:      make doc | opendoc | clean-doc"
+	@echo "Other:     make lint | lint-check | clean | cloc | print-CXXFLAGS_COMMON"
 
-sample_debug:
-	g++ -g examples/all.cpp -o examples/sample_debug
+print-%:
+	@echo '$* = $($*)'
 
 cloc: clean
 	cloc --by-file single_include examples tests docs/custom.css docs/header.html
