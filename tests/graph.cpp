@@ -535,6 +535,17 @@ TEST(graph_test, set_vertex_weights) {
 	EXPECT_TRUE((graph_gen_result_valid(w, 5, 4, false, false)));
 }
 
+TEST(graph_test, add_unweighted_vertices_to_weighted_graph) {
+	tgen::register_gen();
+
+	auto g = tgen::graph(5, 4).gen();
+	auto w = g.set_vertex_weights(std::vector<int>{0, 1, 2, 3, 4});
+
+	EXPECT_THROW_TGEN_PREFIX(w.add_vertices(10),
+							 "wgraph: value: cannot add unweighted vertices to "
+							 "vertex-weighted graph");
+}
+
 TEST(graph_test, set_edge_weights) {
 	tgen::register_gen();
 
@@ -560,6 +571,19 @@ TEST(graph_test, glue_disjoint_union_size) {
 		EXPECT_TRUE((graph_gen_result_valid(c, n_a + b.n(), a.m() + b.m(),
 											false, false)));
 	}
+}
+
+TEST(graph_test, glue_disjoint_union_directedness_mismatch) {
+	tgen::register_gen();
+
+	auto a = tgen::graph(4, 3).gen();		// undirected
+	auto b = tgen::graph(3, 2, true).gen(); // directed
+	tgen::graph::value c = a;
+	tgen::graph::value d = b;
+
+	EXPECT_THROW_TGEN_PREFIX(
+		c.glue(d, std::set<std::pair<int, int>>()),
+		"wtree: value: trees must have the same is_directed value");
 }
 
 TEST(graph_test, value_add_vertices_and_add_edge) {

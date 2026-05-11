@@ -71,7 +71,7 @@ $(eval $(call EXAMPLE_LINK_RULE,range_queries,range_queries.cpp,$(CXX_GCC)))
 $(eval $(call EXAMPLE_LINK_RULE,unordered_clang,unordered_set.cpp,$(CXX_CLANG)))
 $(eval $(call EXAMPLE_DEBUG_RULE,sample_debug,all.cpp,$(CXX_GCC)))
 
-.PHONY: all doc clean-doc opendoc lint lint-check test test_clang test_asan \
+.PHONY: all doc doc-rebuild clean-doc opendoc lint lint-check test test_clang test_asan \
 	sample sample_debug unordered range_queries unordered_clang graph cloc \
 	help print-% %-asan
 
@@ -121,25 +121,26 @@ test_asan: $(ASAN_OBJDIR)/test
 	-$<
 	@rm -f $<
 
-doc: clean-doc
-	cd $(DOC_SRC_DIR) && doxygen Doxyfile
+# Incremental by default (no rm -rf); use `make doc-rebuild` or `make clean-doc doc` for a full wipe.
+doc:
+	cd $(DOC_SRC_DIR) && { \
+	printf '%s\n' '@INCLUDE = Doxyfile' 'NUM_PROC_THREADS = $(NPROCS)' 'DOT_NUM_THREADS = $(NPROCS)'; \
+	} | doxygen -
 
 	# copy theme assets into html root
-	cp $(THEME_DIR)/*.css $(DOC_HTML_DIR)/
-	cp $(THEME_DIR)/*.js  $(DOC_HTML_DIR)/
+	cp $(THEME_DIR)/*.css $(THEME_DIR)/*.js $(DOC_HTML_DIR)/
 
 	# project assets
-	cp $(DOC_SRC_DIR)/custom.css $(DOC_HTML_DIR)/
-	cp $(DOC_SRC_DIR)/header.html $(DOC_HTML_DIR)/
-	cp $(DOC_SRC_DIR)/layout.xml $(DOC_HTML_DIR)/
-	cp $(DOC_SRC_DIR)/tgen_logo_white.svg $(DOC_HTML_DIR)/
-	cp $(DOC_SRC_DIR)/tgen_logo_black.svg $(DOC_HTML_DIR)/
-	cp $(DOC_SRC_DIR)/tgen_logo_white_small.svg $(DOC_HTML_DIR)/
-	cp $(DOC_SRC_DIR)/tgen_logo_black_small.svg $(DOC_HTML_DIR)/
-	cp $(DOC_SRC_DIR)/favicon.svg $(DOC_HTML_DIR)/
+	cp $(DOC_SRC_DIR)/custom.css $(DOC_SRC_DIR)/header.html $(DOC_SRC_DIR)/layout.xml \
+		$(DOC_SRC_DIR)/tgen_logo_white.svg $(DOC_SRC_DIR)/tgen_logo_black.svg \
+		$(DOC_SRC_DIR)/tgen_logo_white_small.svg $(DOC_SRC_DIR)/tgen_logo_black_small.svg \
+		$(DOC_SRC_DIR)/favicon.svg $(DOC_HTML_DIR)/
 
 	# GitHub Pages safety
 	touch $(DOC_HTML_DIR)/.nojekyll
+
+doc-rebuild:
+	$(MAKE) clean-doc doc
 
 clean-doc:
 	rm -rf $(DOC_BUILD_DIR)
@@ -198,7 +199,7 @@ help:
 	@echo " + argv:   make graph ARGS='…'   (sample, graph, graph-asan, …)"
 	@echo " + ASan:   make graph ASAN=1   or   make graph-asan   (same for sample-asan, unordered-asan, …)"
 	@echo "           Binaries: build/examples/rel/… and build/examples/asan/… (see ASAN=1)"
-	@echo "Docs:      make doc | opendoc | clean-doc"
+	@echo "Docs:      make doc | doc-rebuild | opendoc | clean-doc   (doc-rebuild = clean + doc)"
 	@echo "Other:     make lint | lint-check | clean | cloc | print-CXXFLAGS_COMMON"
 
 print-%:

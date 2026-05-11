@@ -3991,6 +3991,9 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 	}
 
 	// Tree value.
+	//
+	// Edges are stored in both directions in adjacency list, but only u < v in
+	// edge list.
 	struct value : gen_value_base<value> {
 		using std_type = std::pair<int, std::vector<std::set<int>>>;
 
@@ -3998,8 +4001,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		std::vector<std::set<int>> adj_;		 // Adjacency list.
 		std::vector<std::pair<int, int>> edges_; // Edge list.
 		bool add_1_; // If should add 1 for printing vertex ids.
-		std::optional<int>
-			print_parents_; // If should in parent style (stores the root).
+		std::optional<int> print_parents_; // If should print in parent style
+										   // (stores the root).
 		std::optional<std::vector<VWeight>> vertex_weights_; // Vertex weights.
 		std::optional<std::vector<EWeight>>
 			edge_weights_; // Edge weights (in same order as edges_).
@@ -4010,7 +4013,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		value(int n, const std::vector<std::set<int>> &adj)
 			: n_(n), adj_(adj), add_1_(false), dsu_(n) {
 			tgen_ensure(static_cast<int>(adj.size()) == n,
-						"wtree: value: size of adjacency list should ne `n`");
+						"wtree: value: size of adjacency list should be `n`");
 
 			for (int u = 0; u < n; ++u)
 				for (auto v : adj[u]) {
@@ -4032,9 +4035,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		value(int n, const std::vector<std::pair<int, int>> &edges)
 			: n_(n), adj_(n), edges_(edges), add_1_(false), dsu_(n) {
 			for (auto [u, v] : edges) {
-				tgen_ensure(
-					0 <= std::min(u, v) and std::max(u, v) < n,
-					"wgraph: value: vertices must be indexed in [0, n)");
+				tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n,
+							"wtree: value: vertices must be indexed in [0, n)");
 				tgen_ensure(dsu_.unite(u, v),
 							"wtree: value: initial edges must form a tree");
 				adj_[u].insert(v);
@@ -4047,7 +4049,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		value(int n, const std::initializer_list<std::pair<int, int>> &edges)
 			: value(n, std::vector<std::pair<int, int>>(edges)) {}
 
-		// Weight type converstion.
+		// Weight type conversion.
 		// O(n).
 		template <typename NewVWeight, typename NewEWeight>
 		typename wtree<NewVWeight, NewEWeight>::value
@@ -4116,7 +4118,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		}
 
 		// Prints the tree in parent style.
-		// If foot = -1, the root is considered to be 0, and its parent is not
+		// If root = -1, the root is considered to be 0, and its parent is not
 		// printed. Otherwise, prints the parent of the root as -1. If root = n,
 		// randomizes the root. O(1).
 		value &print_parents(int root = -1) {
@@ -4202,7 +4204,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// O(n).
 		value &shuffle() { return shuffle_except({}); }
 
-		// Adds `k` vertices to the graph (labeled n, n+1, ...n+k-1). Updates
+		// Adds `k` vertices to the tree (labeled n, n+1, ...n+k-1). Updates
 		// `n` accordingly. This makes the tree invalid (not a tree anymore).
 		// O(k) amortized.
 		value &add_vertices(int k, std::optional<std::vector<VWeight>>
@@ -4212,7 +4214,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			if (new_vertex_weights.has_value()) {
 				tgen_ensure(vertex_weights().has_value(),
 							"wtree: value: cannot add weighted vertices to "
-							"vertex-unweighted graph");
+							"vertex-unweighted tree");
 				tgen_ensure(
 					static_cast<int>(new_vertex_weights->size()) == k,
 					"wtree: value: number of vertex weights must be equal "
@@ -4224,7 +4226,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			} else
 				tgen_ensure(!vertex_weights().has_value(),
 							"wtree: value: cannot add unweighted vertices to "
-							"vertex-weighted graph");
+							"vertex-weighted tree");
 
 			dsu_.add_elements(k);
 
@@ -4252,13 +4254,13 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			if (w.has_value()) {
 				tgen_ensure(edge_weights().has_value(),
 							"wtree: value: cannot add weighted edge to "
-							"edge-unweighted graph");
+							"edge-unweighted tree");
 
 				edge_weights_->push_back(*w);
 			} else
 				tgen_ensure(!edge_weights().has_value(),
 							"wtree: value: cannot add unweighted edge to "
-							"edge-weighted graph");
+							"edge-weighted tree");
 
 			return *this;
 		}
@@ -4529,13 +4531,13 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
  * Other types of weighted-ness.
  */
 
-// Vertex weighted graph.
+// Vertex weighted tree.
 template <typename VWeight> using vtree = wtree<VWeight, int>;
 
-// Edge weighted graph.
+// Edge weighted tree.
 template <typename EWeight> using etree = wtree<int, EWeight>;
 
-// Unweighted graph.
+// Unweighted tree.
 using tree = wtree<int, int>;
 
 /*************
@@ -4571,7 +4573,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		tgen_ensure(n > 0, "wgraph: number of vertices must be positive");
 	}
 
-	// Adds edge bewteen u and v (this edge must be generated).
+	// Adds edge between u and v (this edge must be generated).
 	// O(log m).
 	wgraph &add_edge(int u, int v) {
 		tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n_,
@@ -4587,8 +4589,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 	// Graph value.
 	//
-	// If not directed, in the edge list only stores edges i -> j such that
-	// i < j.
+	// Edges are stored in both directions (if undirected) in adjacency list,
+	// but only u < v in edge list.
 	struct value : gen_value_base<value> {
 		using std_type = std::tuple<int, int, std::vector<std::set<int>>>;
 
@@ -4610,7 +4612,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			: n_(n), adj_(adj), is_directed_(is_directed), add_1_(false),
 			  print_nm_(false) {
 			tgen_ensure(static_cast<int>(adj.size()) == n,
-						"wgraph: value: size of adjacency list should ne `n`");
+						"wgraph: value: size of adjacency list should be `n`");
 
 			for (int u = 0; u < n; ++u)
 				for (auto v : adj[u]) {
@@ -4903,6 +4905,10 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// O(rhs.n + rhs.m * log n) amortized.
 		value &glue(const value &rhs,
 					std::set<std::pair<int, int>> index_pairs) {
+			tgen_ensure(
+				is_directed() == rhs.is_directed(),
+				"wtree: value: trees must have the same is_directed value");
+
 			// Checks validity of indices.
 			std::set<int> idx_left, idx_right;
 			std::vector<int> right_id_to_left(rhs.n(), -1);
@@ -5495,7 +5501,7 @@ struct graph : wgraph<int, int> {
 inline graph::value K(int n) { return graph(n, n * (n - 1) / 2).gen(); }
 
 // Path.
-// Path with `n`vertices. The edges of the path are 0 and n-1.
+// Path with `n` vertices. The edges of the path are 0 and n-1.
 // O(n).
 inline graph::value P(int n) {
 	graph g(n, n - 1);

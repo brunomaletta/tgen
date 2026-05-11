@@ -231,6 +231,17 @@ TEST(tree_test, set_vertex_weights) {
 	EXPECT_EQ(*w.vertex_weights(), std::vector<int>({10, 20, 30, 40, 50}));
 }
 
+TEST(tree_test, add_unweighted_vertices_to_weighted_tree) {
+	tgen::register_gen();
+
+	auto t = tgen::tree(5).gen();
+	auto w = t.set_vertex_weights(std::vector<int>{0, 1, 2, 3, 4});
+
+	EXPECT_THROW_TGEN_PREFIX(w.add_vertices(10),
+							 "wtree: value: cannot add unweighted vertices to "
+							 "vertex-weighted tree");
+}
+
 TEST(tree_test, set_edge_weights) {
 	tgen::register_gen();
 
