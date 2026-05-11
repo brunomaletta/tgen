@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <initializer_list>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -1608,8 +1609,9 @@ template <typename T> struct list : gen_base<list<T>> {
 
 		using value_type = T;			 // Value type, for templates.
 		using std_type = std::vector<T>; // std type for value.
-		std::vector<T> vec_;			 // list.
-		char sep_;						 // Separator for printing.
+
+		std::vector<T> vec_; // list.
+		char sep_;			 // Separator for printing.
 
 		value(const std::vector<T> &vec) : vec_(vec), sep_(' ') {}
 		value(const std::initializer_list<T> &il) : value(std::vector<T>(il)) {}
@@ -2140,7 +2142,7 @@ struct permutation : gen_base<permutation> {
 		}
 
 		// Gets a std::vector representing the value.
-		std::vector<int> to_std() const { return vec_; }
+		std_type to_std() const { return vec_; }
 	};
 
 	// Generates permutation value.
@@ -3526,7 +3528,7 @@ struct str : gen_base<str> {
 		}
 
 		// Gets a std::string representing the value.
-		std::string to_std() const { return str_; }
+		std_type to_std() const { return str_; }
 	};
 
 	// Generates str value.
@@ -3988,7 +3990,9 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 	}
 
 	// Tree value.
-	struct value {
+	struct value : gen_value_base<value> {
+		using std_type = std::pair<int, std::vector<std::set<int>>>;
+
 		int n_;									 // Number of vertices.
 		std::vector<std::set<int>> adj_;		 // Adjacency list.
 		std::vector<std::pair<int, int>> edges_; // Edge list.
@@ -4039,6 +4043,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		value(int n, const std::set<std::pair<int, int>> &edges)
 			: value(n, std::vector<std::pair<int, int>>(edges.begin(),
 														edges.end())) {}
+		value(int n, const std::initializer_list<std::pair<int, int>> &edges)
+			: value(n, std::vector<std::pair<int, int>>(edges)) {}
 
 		// Weight type converstion.
 		// O(n).
@@ -4093,7 +4099,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		template <typename NewEWeight = EWeight>
 		typename wtree<VWeight, NewEWeight>::value
 		set_edge_weights(const std::vector<NewEWeight> &edge_weights) const {
-			tgen_ensure(static_cast<int>(edge_weights.size()) == edges().size(),
+			tgen_ensure(edge_weights.size() == edges().size(),
 						"wtree: value: must give `m` edge weights");
 
 			auto new_tree = convert_weight_types<VWeight, NewEWeight>();
@@ -4113,7 +4119,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// printed. Otherwise, prints the parent of the root as -1. If root = n,
 		// randomizes the root. O(1).
 		value &print_parents(int root = -1) {
-			tgen_ensure(root == -1 or (0 <= root and root < n() or root == n()),
+			tgen_ensure(root == -1 or (0 <= root and root < n()) or root == n(),
 						"wtree: value: root must -1, `n`, or in [0, n)");
 			print_parents_ = root;
 			return *this;
@@ -4269,7 +4275,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			// Edges from right-hand side.
 			int shift = n();
 			add_vertices(rhs.n(), rhs.vertex_weights());
-			for (int i = 0; i < rhs.edges().size(); ++i) {
+			for (int i = 0; i < static_cast<int>(rhs.edges().size()); ++i) {
 				auto [u, v] = rhs.edges()[i];
 				add_edge(shift + u, shift + v,
 						 rhs.edge_weights().has_value()
@@ -4328,7 +4334,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 
 			// Adds new vertices and edges.
 			add_vertices(rhs.n() - intersection_lt, rhs_vertex_weights);
-			for (int i = 0; i < rhs.edges().size(); ++i) {
+			for (int i = 0; i < static_cast<int>(rhs.edges().size()); ++i) {
 				auto [u, v] = rhs.edges()[i];
 				add_edge(new_right_id[u], new_right_id[v],
 						 rhs.edge_weights().has_value()
@@ -4370,7 +4376,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 				out << std::endl;
 			}
 
-			tgen_ensure(val.edges().size() == val.n() - 1,
+			tgen_ensure(static_cast<int>(val.edges().size()) == val.n() - 1,
 						"wtree: value: invalid tree to print (number of edges "
 						"must be `n` - 1)");
 
@@ -4429,7 +4435,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			}
 
 			// Prints edges.
-			for (int i = 0; i < val.edges().size(); ++i) {
+			for (int i = 0; i < static_cast<int>(val.edges().size()); ++i) {
 				auto [u, v] = val.edges()[i];
 				out << (u + val.add_1_) << " " << (v + val.add_1_);
 
@@ -4444,9 +4450,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		}
 
 		// Gets a std::pair<n, adj> representing the value.
-		std::pair<int, std::vector<std::set<int>>> to_std() const {
-			return std::pair(n_, adj_);
-		}
+		std_type to_std() const { return std::pair(n_, adj_); }
 	};
 
 	// Generates tree value.
@@ -4585,6 +4589,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// If not directed, in the edge list only stores edges i -> j such that
 	// i < j.
 	struct value : gen_value_base<value> {
+		using std_type = std::tuple<int, int, std::vector<std::set<int>>>;
+
 		int n_, m_;						 // Number of vertices and edges.
 		std::vector<std::set<int>> adj_; // Adjacency list.
 		std::vector<std::pair<int, int>> edges_; // Edge list.
@@ -4959,6 +4965,19 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			return glue(rhs, std::set<int>(il));
 		}
 
+		// Rebuilds adjacency and m_ from edges_ after replacing the edge list
+		// (e.g. subgraph operations).
+		// O(m).
+		void rebuild_adj_from_edge_list() {
+			adj_.assign(n_, {});
+			m_ = edges_.size();
+			for (auto [u, v] : edges_) {
+				adj_[u].insert(v);
+				if (!is_directed_)
+					adj_[v].insert(u);
+			}
+		}
+
 		// Computes uniformly random subgraph of graph with num_edges edges.
 		// O(m) amortized.
 		value &random_subgraph(int num_edges) {
@@ -4984,6 +5003,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 			edges_ = new_edges;
 			edge_weights_ = new_edge_weights;
+			rebuild_adj_from_edge_list();
 			return *this;
 		}
 
@@ -5058,7 +5078,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			chosen_idx.insert(chosen_idx.end(), rest_idx.begin(),
 							  rest_idx.begin() + num_edges - (n() - 1));
 			detail::tgen_ensure_against_bug(
-				chosen_idx.size() == num_edges,
+				static_cast<int>(chosen_idx.size()) == num_edges,
 				"wgraph: value: chose a wrong number of edges");
 
 			std::vector<std::pair<int, int>> new_edges;
@@ -5073,7 +5093,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 			edges_ = new_edges;
 			edge_weights_ = new_edge_weights;
-			m_ = num_edges;
+			rebuild_adj_from_edge_list();
 			return *this;
 		}
 
@@ -5188,9 +5208,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		}
 
 		// Gets a std::tuple<n, m, adj> representing the value.
-		std::tuple<int, int, std::vector<std::set<int>>> to_std() const {
-			return std::tuple(n_, m_, adj_);
-		}
+		std_type to_std() const { return std::tuple(n_, m_, adj_); }
 	};
 
 	// Generates graph value.
