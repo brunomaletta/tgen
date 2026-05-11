@@ -4,6 +4,7 @@
 #include "tgen_test_utility.h"
 
 #include <set>
+#include <sstream>
 #include <string>
 
 TEST(str_test, constructor_size_zero) {
@@ -168,9 +169,7 @@ TEST(str_test, value_ops) {
 	tgen::str::value b = tgen::str("cd").gen();
 	EXPECT_EQ((a + b).to_std(), "abcd");
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::str::value("xyz");
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), "xyz");
+	EXPECT_EQ((std::ostringstream() << tgen::str::value("xyz")).str(), "xyz");
 }
 
 TEST(str_test, value_index_out_of_bounds) {

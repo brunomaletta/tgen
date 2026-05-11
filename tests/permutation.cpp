@@ -3,6 +3,7 @@
 #include "../single_include/tgen.h"
 #include "tgen_test_utility.h"
 
+#include <sstream>
 #include <vector>
 
 TEST(permutation_test, constructor_size_zero) {
@@ -58,17 +59,13 @@ TEST(permutation_test, value_ops) {
 	inst.sort();
 	EXPECT_EQ(inst.to_std(), std::vector<int>({0, 1, 2}));
 
-	testing::internal::CaptureStdout();
-	std::cout << inst;
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("0 1 2"));
+	EXPECT_EQ((std::ostringstream() << inst).str(), std::string("0 1 2"));
 
-	testing::internal::CaptureStdout();
-	std::cout << inst.add_1();
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2 3"));
+	EXPECT_EQ((std::ostringstream() << inst.add_1()).str(),
+			  std::string("1 2 3"));
 
-	testing::internal::CaptureStdout();
-	std::cout << inst.add_1().separator(',');
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1,2,3"));
+	EXPECT_EQ((std::ostringstream() << inst.add_1().separator(',')).str(),
+			  std::string("1,2,3"));
 }
 
 TEST(permutation_test, gen_invalid) {

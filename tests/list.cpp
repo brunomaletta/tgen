@@ -3,8 +3,8 @@
 #include "../single_include/tgen.h"
 #include "tgen_test_utility.h"
 
-#include <iostream>
 #include <set>
+#include <sstream>
 #include <utility>
 #include <vector>
 
@@ -193,14 +193,9 @@ TEST(list_test, value_ops) {
 	tgen::list<tgen::list<int>::value>::value nested = {{1, 2}, {3}};
 	EXPECT_EQ(nested.to_std(), std::vector<std::vector<int>>({{1, 2}, {3}}));
 
-	testing::internal::CaptureStdout();
-	std::cout << inst;
-	EXPECT_EQ(testing::internal::GetCapturedStdout(),
-			  std::string("1 2 3 4 5 6"));
+	EXPECT_EQ((std::ostringstream() << inst).str(), std::string("1 2 3 4 5 6"));
 
-	testing::internal::CaptureStdout();
-	std::cout << inst.separator(',');
-	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+	EXPECT_EQ((std::ostringstream() << inst.separator(',')).str(),
 			  std::string("1,2,3,4,5,6"));
 }
 

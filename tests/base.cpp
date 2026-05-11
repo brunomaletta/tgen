@@ -4,6 +4,7 @@
 #include "tgen_test_utility.h"
 
 #include <algorithm>
+#include <sstream>
 
 TEST(base_test, distinct) {
 	tgen::register_gen();
@@ -52,117 +53,117 @@ TEST(base_test, distinct_gen_all) {
 TEST(base_test, print_scalar) {
 	tgen::register_gen();
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(10);
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("10"));
+	EXPECT_EQ((std::ostringstream() << tgen::print(10)).str(),
+			  std::string("10"));
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(std::string("str"));
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("str"));
+	EXPECT_EQ((std::ostringstream() << tgen::print(std::string("str"))).str(),
+			  std::string("str"));
 }
 
 TEST(base_test, print_pair) {
 	tgen::register_gen();
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(std::pair<std::string, double>("str", 0.1));
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("str 0.1"));
+	EXPECT_EQ((std::ostringstream()
+			   << tgen::print(std::pair<std::string, double>("str", 0.1)))
+				  .str(),
+			  std::string("str 0.1"));
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(std::pair<std::string, double>("str", 0.1), ',');
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("str,0.1"));
+	EXPECT_EQ((std::ostringstream()
+			   << tgen::print(std::pair<std::string, double>("str", 0.1), ','))
+				  .str(),
+			  std::string("str,0.1"));
 }
 
 TEST(base_test, print_tuple) {
 	tgen::register_gen();
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(
-		std::tuple<int, double, std::string>(5, 0.1, "str"));
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("5 0.1 str"));
+	EXPECT_EQ((std::ostringstream() << tgen::print(
+				   std::tuple<int, double, std::string>(5, 0.1, "str")))
+				  .str(),
+			  std::string("5 0.1 str"));
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(
-		std::tuple<int, double, std::string>(5, 0.1, "str"), ',');
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("5,0.1,str"));
+	EXPECT_EQ((std::ostringstream() << tgen::print(
+				   std::tuple<int, double, std::string>(5, 0.1, "str"), ','))
+				  .str(),
+			  std::string("5,0.1,str"));
 }
 
 TEST(base_test, print_1d_container) {
 	tgen::register_gen();
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print({1, 2, 3});
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2 3"));
+	EXPECT_EQ((std::ostringstream() << tgen::print({1, 2, 3})).str(),
+			  std::string("1 2 3"));
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(std::vector<int>({1, 2, 3}));
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2 3"));
+	EXPECT_EQ((std::ostringstream() << tgen::print(std::vector<int>({1, 2, 3})))
+				  .str(),
+			  std::string("1 2 3"));
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(std::set<int>({1, 2, 3}));
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2 3"));
+	EXPECT_EQ(
+		(std::ostringstream() << tgen::print(std::set<int>({1, 2, 3}))).str(),
+		std::string("1 2 3"));
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(std::array<int, 3>({1, 2, 3}));
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2 3"));
+	EXPECT_EQ(
+		(std::ostringstream() << tgen::print(std::array<int, 3>({1, 2, 3})))
+			.str(),
+		std::string("1 2 3"));
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(std::array<int, 3>({1, 2, 3}), ',');
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1,2,3"));
+	EXPECT_EQ((std::ostringstream()
+			   << tgen::print(std::array<int, 3>({1, 2, 3}), ','))
+				  .str(),
+			  std::string("1,2,3"));
 }
 
 TEST(base_test, print_2d_container) {
 	tgen::register_gen();
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::println({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
-	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+	EXPECT_EQ((std::ostringstream()
+			   << tgen::println({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}))
+				  .str(),
 			  std::string("1 2 3\n4 5 6\n7 8 9\n"));
 
 	std::vector<int> r1 = {1, 2, 3}, r2 = {4, 5, 6}, r3 = {7, 8, 9};
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print({r1, r2, r3});
-	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+	EXPECT_EQ((std::ostringstream() << tgen::print({r1, r2, r3})).str(),
 			  std::string("1 2 3\n4 5 6\n7 8 9"));
 
 	// Complex container 1.
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(std::vector<std::vector<int>>({r1, r2, r3}));
-	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+	EXPECT_EQ((std::ostringstream()
+			   << tgen::print(std::vector<std::vector<int>>({r1, r2, r3})))
+				  .str(),
 			  std::string("1 2 3\n4 5 6\n7 8 9"));
 
 	// Complex container 2.
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(std::vector<std::pair<int, int>>({{1, 2}, {3, 4}}),
-							 ',');
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1,2\n3,4"));
+	EXPECT_EQ((std::ostringstream() << tgen::print(
+				   std::vector<std::pair<int, int>>({{1, 2}, {3, 4}}), ','))
+				  .str(),
+			  std::string("1,2\n3,4"));
 
 	// Complex container 2.
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(std::map<std::string, int>({{"ab", 2}, {"c", 4}}),
-							 ',');
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("ab,2\nc,4"));
+	EXPECT_EQ((std::ostringstream() << tgen::print(
+				   std::map<std::string, int>({{"ab", 2}, {"c", 4}}), ','))
+				  .str(),
+			  std::string("ab,2\nc,4"));
 
 	// Complex container 3.
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(std::vector<std::tuple<char, int, double>>(
-		{{'a', 1, 0.1}, {'b', 2, 0.2}}));
-	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+	EXPECT_EQ((std::ostringstream()
+			   << tgen::print(std::vector<std::tuple<char, int, double>>(
+					  {{'a', 1, 0.1}, {'b', 2, 0.2}})))
+				  .str(),
 			  std::string("a 1 0.1\nb 2 0.2"));
 
 	// Complex tuple.
-	testing::internal::CaptureStdout();
-	std::cout << tgen::println(
-		std::tuple<int, std::pair<int, int>, double>({2, {3, 4}, 5.1}));
-	EXPECT_EQ(testing::internal::GetCapturedStdout(),
-			  std::string("2\n3 4\n5.1\n"));
+	EXPECT_EQ(
+		(std::ostringstream() << tgen::println(
+			 std::tuple<int, std::pair<int, int>, double>({2, {3, 4}, 5.1})))
+			.str(),
+		std::string("2\n3 4\n5.1\n"));
 
 	// Complex pair.
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print(
-		std::pair<std::pair<int, int>, std::pair<int, int>>({{1, 2}, {3, 4}}));
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("1 2\n3 4"));
+	EXPECT_EQ((std::ostringstream() << tgen::print(
+				   std::pair<std::pair<int, int>, std::pair<int, int>>(
+					   {{1, 2}, {3, 4}})))
+				  .str(),
+			  std::string("1 2\n3 4"));
 }
 
 TEST(base_test, print_cols) {
@@ -173,17 +174,15 @@ TEST(base_test, print_cols) {
 													 std::vector<int>({1})),
 							 "print_cols: sizes should be the same");
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print_cols(std::vector<int>({1, 2}),
-								  std::vector<int>({3, 4}));
-	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+	EXPECT_EQ((std::ostringstream() << tgen::print_cols(
+				   std::vector<int>({1, 2}), std::vector<int>({3, 4})))
+				  .str(),
 			  std::string("1 3\n2 4\n"));
 
-	testing::internal::CaptureStdout();
-	std::cout << tgen::print_cols(std::vector<int>({1, 2}),
-								  std::vector<int>({3, 4}),
-								  tgen::list<int>::value({5, 6}));
-	EXPECT_EQ(testing::internal::GetCapturedStdout(),
+	EXPECT_EQ((std::ostringstream() << tgen::print_cols(
+				   std::vector<int>({1, 2}), std::vector<int>({3, 4}),
+				   tgen::list<int>::value({5, 6})))
+				  .str(),
 			  std::string("1 3 5\n2 4 6\n"));
 }
 

@@ -4,6 +4,7 @@
 #include "tgen_test_utility.h"
 
 #include <cstdint>
+#include <sstream>
 #include <utility>
 
 template <typename T> struct pair_test {
@@ -96,13 +97,10 @@ TEST(pair_test, value_ops) {
 		std::make_pair(std::make_pair(1, 2), std::make_pair(3, 4));
 	EXPECT_EQ(nested.to_std(), expected);
 
-	testing::internal::CaptureStdout();
-	std::cout << inst;
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("2 3"));
+	EXPECT_EQ((std::ostringstream() << inst).str(), std::string("2 3"));
 
-	testing::internal::CaptureStdout();
-	std::cout << inst.separator(',');
-	EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("2,3"));
+	EXPECT_EQ((std::ostringstream() << inst.separator(',')).str(),
+			  std::string("2,3"));
 }
 
 TEST(pair_test, gen_eq) {
