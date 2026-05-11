@@ -8,11 +8,13 @@
 #include <queue>
 #include <set>
 #include <sstream>
+#include <string>
+#include <type_traits>
 #include <vector>
 
 namespace {
 
-bool is_tree_shape(const tgen::tree::value &t) {
+template <typename Tree> bool is_tree_like(const Tree &t) {
 	if (t.n() <= 0)
 		return false;
 	if (static_cast<int>(t.edges().size()) != t.n() - 1)
@@ -35,6 +37,8 @@ bool is_tree_shape(const tgen::tree::value &t) {
 	}
 	return seen == t.n();
 }
+
+bool is_tree_shape(const tgen::tree::value &t) { return is_tree_like(t); }
 
 // Unrooted tree isomorphism via centroid decomposition and multiset hashing.
 // `mphash` must be shared across both trees when comparing for isomorphism;
@@ -359,4 +363,59 @@ TEST(tree_test, gen_uniform_labeled_trees) {
 	// For k fixed edges that form a single connected component, the number of
 	// trees is (k+1) * n^(n-2-k).
 	expect_generator_uniform(tgen::tree(5).add_edge(0, 1), 50);
+}
+
+TEST(tree_test, weight_type_aliases) {
+	tgen::register_gen();
+
+	EXPECT_TRUE((std::is_same_v<tgen::tree, tgen::wtree<int, int>>));
+	EXPECT_TRUE((std::is_same_v<tgen::vtree<long>, tgen::wtree<long, int>>));
+	EXPECT_TRUE(
+		(std::is_same_v<tgen::etree<unsigned>, tgen::wtree<int, unsigned>>));
+}
+
+TEST(tree_test, vtree_gen_and_vertex_weights) {
+	tgen::register_gen();
+
+	auto t = tgen::vtree<double>(6).gen();
+
+	EXPECT_TRUE(is_tree_like(t));
+
+	std::vector<double> vw = {0.5, 1.5, 2.5, 3.5, 4.5, 5.5};
+	auto w = t.set_vertex_weights(vw);
+
+	ASSERT_TRUE(w.vertex_weights().has_value());
+	EXPECT_EQ(*w.vertex_weights(), vw);
+}
+
+TEST(tree_test, etree_gen_and_edge_weights) {
+	tgen::register_gen();
+
+	auto t = tgen::etree<std::string>(5).gen();
+
+	EXPECT_TRUE(is_tree_like(t));
+
+	std::vector<std::string> ew(4, "xy");
+	auto w = t.set_edge_weights(ew);
+
+	ASSERT_TRUE(w.edge_weights().has_value());
+	EXPECT_EQ(*w.edge_weights(), ew);
+}
+
+TEST(tree_test, wtree_both_weight_dimensions) {
+	tgen::register_gen();
+
+	auto t = tgen::wtree<bool, char>(4).gen();
+
+	EXPECT_TRUE(is_tree_like(t));
+
+	// Each setter requires an unweighted value; both dimensions are still
+	// supported on the same wtree<V,E> template.
+	std::vector<bool> vw = {true, false, true, false};
+	std::vector<char> ew = {'a', 'b', 'c'};
+	auto wv = t.set_vertex_weights(vw);
+	auto we = t.set_edge_weights(ew);
+
+	EXPECT_EQ(*wv.vertex_weights(), vw);
+	EXPECT_EQ(*we.edge_weights(), ew);
 }

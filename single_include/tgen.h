@@ -3967,6 +3967,7 @@ struct dsu {
  * the type of edge weights. Generator does not generate weights. The weights
  * are to be set in the wtree::value.
  */
+
 template <typename VWeight, typename EWeight>
 struct wtree : gen_base<wtree<VWeight, EWeight>> {
 	int n_;								  // Number of vertices.
@@ -5138,39 +5139,19 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 						"wgraph: value: concatened graphs must have the same "
 						"is_directed value");
 
-			std::vector<std::pair<int, int>> edges = edges_;
-			for (auto [u, v] : rhs.edges())
-				edges.emplace_back(n() + u, n() + v);
-
-			value concat(n() + rhs.n(), edges, is_directed());
-			if (rhs.add_1_)
-				concat.add_1();
-			if (rhs.print_nm_)
-				concat.print_nm();
-
-			// Merge vertex weights.
 			tgen_ensure(vertex_weights().has_value() ==
 							rhs.vertex_weights().has_value(),
 						"wgraph: value: cannot concatenate vertex-weighted "
 						"wgraph to unweighted");
-			if (vertex_weights().has_value()) {
-				concat.set_vertex_weights(*vertex_weights());
-				concat.vertex_weights_->insert(concat.vertex_weights_->end(),
-											   rhs.vertex_weights()->begin(),
-											   rhs.vertex_weights()->end());
-			}
-
-			// Merge edge weights.
 			tgen_ensure(edge_weights().has_value() ==
 							rhs.edge_weights().has_value(),
 						"wgraph: value: cannot concatenate edge-weighted "
 						"wgraph to unweighted");
-			if (edge_weights().has_value()) {
-				concat.set_edge_weights(*edge_weights());
-				concat.edge_weights_->insert(concat.edge_weights_->end(),
-											 rhs.edge_weights()->begin(),
-											 rhs.edge_weights()->end());
-			}
+
+			value concat = *this;
+			concat.glue(rhs, {});
+			concat.add_1_ = add_1_ | rhs.add_1_;
+			concat.print_nm_ = print_nm_ | rhs.print_nm_;
 
 			return concat;
 		}
