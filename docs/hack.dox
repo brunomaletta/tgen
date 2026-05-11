@@ -48,7 +48,7 @@ namespace tgen::hack {
  * Computes two strings that have the same polynomial hash for any base and power-of-two mod (up to @tt{2^64}). <br>
  * Characters are in @tt{[a, b]}.
  *
- * @return A @tt{@namespace{std}\::pair} with the colided strings.
+ * @return A @tt{@namespace{std}\::pair} with the colliding strings.
  *
  * Reference:
  * - <a href="https://codeforces.com/blog/entry/60442">On the mathematics behind rolling hashes and anti-hash
@@ -62,7 +62,7 @@ namespace tgen::hack {
  * #### Examples
  *
  * ```cpp
- * // Prints unsined polynomial hash hack.
+ * // Prints unsigned polynomial hash hack.
  * std::cout << tgen::print(tgen::hack::unsigned_polynomial_hash_hack()) << std::endl;
  * ```
  *
@@ -82,9 +82,9 @@ namespace tgen::hack {
  * @tt{0 < @pname{base} < @pname{mod}}
  *
  * Computes two strings that have the same polynomial hash for given base and mod. <br>
- * Characters are in @tt{[a, a + @pname{alphabet_size})}. The larger the alphabet, the smaller the colided strings.
+ * Characters are in @tt{[a, a + @pname{alphabet_size})}. The larger the alphabet, the smaller the colliding strings.
  *
- * @return A @tt{@namespace{std}\::pair} with the colided strings.
+ * @return A @tt{@namespace{std}\::pair} with the colliding strings.
  *
  * Reference:
  * - <a href="https://codeforces.com/blog/entry/60442">On the mathematics behind rolling hashes and anti-hash
@@ -119,9 +119,9 @@ namespace tgen::hack {
  *
  * Computes two strings that have the same polynomial hash for given bases and mods,
  * up to 2 (base, mod) pairs. <br>
- * Characters are in @tt{[a, a + @pname{alphabet_size})}. The larger the alphabet, the smaller the colided strings.
+ * Characters are in @tt{[a, a + @pname{alphabet_size})}. The larger the alphabet, the smaller the colliding strings.
  *
- * @return A @tt{@namespace{std}\::pair} with the colided strings.
+ * @return A @tt{@namespace{std}\::pair} with the colliding strings.
  *
  * Reference:
  * - <a href="https://codeforces.com/blog/entry/4898">On the mathematics behind rolling hashes and anti-hash
@@ -177,7 +177,7 @@ namespace tgen::hack {
  * @param n Size of the array operated upon.
  * @param q Number of queries to be returned.
  *
- * Forces @tt{Theta(q sqrt n)} pointers move for any ordering.
+ * Forces @tt{Theta(q sqrt n)} pointer moves for any ordering.
  *
  * #### Complexity
  *

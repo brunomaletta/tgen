@@ -592,7 +592,7 @@ struct println : print {
 //   2 2
 //   3 5
 //",
-//  that is, ir prints the end of the line for all lines.
+//  that is, it prints the end of the line for all lines.
 template <typename... Args> struct print_cols {
 	std::string s_;
 
@@ -1100,7 +1100,7 @@ template <typename T> struct distinct_range {
 		return vi + left_;
 	}
 
-	// Generates a list of distict values.
+	// Generates a list of distinct values.
 	// O(size * log(n)).
 	auto gen_list(int size) {
 		std::vector<T> res;
@@ -1109,7 +1109,7 @@ template <typename T> struct distinct_range {
 		return typename list<T>::value(res);
 	}
 
-	// Generates all distict values.
+	// Generates all distinct values.
 	// O(n log(n))
 	auto gen_all() {
 		std::vector<T> res;
@@ -1177,7 +1177,7 @@ distinct_container(const C &) -> distinct_container<typename C::value_type>;
  * 1) -keyname=value or --keyname=value (ex. -n=10   , --test-count=20)
  * 2) -keyname value or --keyname value (ex. -n 10   , --test-count 20)
  *
- * Positional options are number from 0 sequentially.
+ * Positional options are numbered from 0 sequentially.
  * For example, for "10 -n=20 str" positional option 1 is the string "str".
  */
 
@@ -1924,7 +1924,7 @@ template <typename T> struct list : gen_base<list<T>> {
 					for (int idx2 : diff_restrictions_[nxt_diff])
 						if (defined_idx[idx2]) {
 							// There can not be any more defined. This case is
-							// when there are values not coverered by a single
+							// when there are values not covered by a single
 							// "different" restriction in the tree.
 							if (initially_defined_comp_idx[comp_id[idx2]])
 								throw detail::complex_restrictions_error(
@@ -2092,7 +2092,7 @@ struct permutation : gen_base<permutation> {
 			return ((size() - cycles) % 2 == 0) ? +1 : -1;
 		}
 
-		// Sorts values in increasign order.
+		// Sorts values in increasing order.
 		// O(n).
 		value &sort() {
 			for (int i = 0; i < size(); ++i)
@@ -2159,7 +2159,7 @@ struct permutation : gen_base<permutation> {
 
 				if (idx_to_val[idx] != -1) {
 					tgen_ensure(idx_to_val[idx] == val,
-								"permutation: cannot set an idex to two "
+								"permutation: cannot set an index to two "
 								"different values");
 				} else
 					idx_to_val[idx] = val;
@@ -2225,8 +2225,8 @@ using namespace tgen::detail;
 inline int popcount(uint64_t x) { return __builtin_popcountll(x); }
 
 inline int ctzll(uint64_t x) {
-	// Mistery code found on the internet.
-	// Uses de Brujin sequence.
+	// Mystery code found on the internet.
+	// Uses de Bruijn sequence.
 	static const unsigned char index64[64] = {
 		0,	1,	2,	53, 3,	7,	54, 27, 4,	38, 41, 8,	34, 55, 48, 28,
 		62, 5,	39, 46, 44, 42, 22, 9,	24, 35, 59, 56, 49, 18, 29, 11,
@@ -2372,7 +2372,7 @@ inline std::optional<uint64_t> expo(uint64_t base, uint64_t exp,
 		}
 
 		exp >>= 1;
-		// Necesary for correctness.
+		// Necessary for correctness.
 		if (!exp)
 			break;
 
@@ -2878,7 +2878,7 @@ inline const std::vector<uint64_t> &fibonacci() {
 	return fib;
 }
 
-// Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
+// Partition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
 // O(n).
 // 0 < n.
 // 0 < part_left.
@@ -2944,7 +2944,7 @@ gen_partition(int n, int part_left = 1,
 	return part;
 }
 
-// Parition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
+// Partition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
 // O(n) time/memory if part_r is not set, O(n * k) time/memory otherwise.
 // 0 < k <= n.
 // 0 <= part_left.
@@ -3078,7 +3078,7 @@ namespace detail {
  * the pattern that comes before has its delimiters defined either by () or
  * [] at its end or is taken from the beginning of the pattern (in
  * "a[bc]{2}", "{2}" is applied to "[bc]", and in "[01]abc{3}", the "{3}" is
- * appied to "[01]abc").
+ * applied to "[01]abc").
  */
 
 // If it has children, it is either a SEQ or an OR group, defined by the
@@ -3923,7 +3923,7 @@ struct dsu {
 			parent_[i] = i;
 	}
 
-	// Adds new elements fo the dsu, each in their own new set.
+	// Adds new elements to the dsu, each in their own new set.
 	// O(k) amortized.
 	void add_elements(int k) {
 		for (int i = 0; i < k; ++i) {
@@ -3977,11 +3977,11 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 	// O(1).
 	wtree(int n) : n_(n) { tgen_ensure(n > 0, "wtree: n must be positive"); }
 
-	// Adds edge bewteen u and v (this edge must be generated).
+	// Adds edge between u and v (this edge must be generated).
 	// O(log n).
 	wtree &add_edge(int u, int v) {
 		tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n_,
-					"wtree: vertices must be index in [0, n)");
+					"wtree: vertices must be indexed in [0, n)");
 		tgen_ensure(u != v, "wtree: cannot add self loop to tree");
 
 		if (u > v)
@@ -4008,7 +4008,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			edge_weights_; // Edge weights (in same order as edges_).
 		detail::dsu dsu_;  // Connectivity of current edges (for cycle checks).
 
-		// Creates value from `n` and adjacecy list.
+		// Creates value from `n` and adjacency list.
 		// O(n).
 		value(int n, const std::vector<std::set<int>> &adj)
 			: n_(n), adj_(adj), add_1_(false), dsu_(n) {
@@ -4320,7 +4320,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			std::optional<std::vector<VWeight>> rhs_vertex_weights;
 			for (int i = 0; i < rhs.n(); ++i) {
 				if (right_id_to_left[i] != -1) {
-					// Is in intersecion.
+					// Is in intersection.
 					++intersection_lt;
 					new_right_id[i] = right_id_to_left[i];
 				} else {
@@ -4604,7 +4604,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		std::optional<std::vector<EWeight>>
 			edge_weights_; // Edge weights (in same order as edges_ ).
 
-		// Creates value from `n`, `m`, and adjacecy list. The edges are
+		// Creates value from `n`, `m`, and adjacency list. The edges are
 		// considered to be directed.
 		// O(n + m).
 		value(int n, const std::vector<std::set<int>> &adj,
@@ -4658,7 +4658,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			  bool is_directed = false)
 			: value(n, std::vector<std::pair<int, int>>(edges), is_directed) {}
 
-		// Weight type converstion.
+		// Weight type conversion.
 		// O(n + m).
 		template <typename NewVWeight, typename NewEWeight>
 		typename wgraph<NewVWeight, NewEWeight>::value
@@ -4931,7 +4931,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			std::optional<std::vector<VWeight>> rhs_vertex_weights;
 			for (int i = 0; i < rhs.n(); ++i) {
 				if (right_id_to_left[i] != -1) {
-					// Is in intersecion.
+					// Is in intersection.
 					++intersection_lt;
 					new_right_id[i] = right_id_to_left[i];
 				} else {
@@ -5152,7 +5152,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// O(N + M log N), N = n + rhs.n, M = m + rhs.m.
 		value operator+(const value &rhs) const {
 			tgen_ensure(is_directed() == rhs.is_directed(),
-						"wgraph: value: concatened graphs must have the same "
+						"wgraph: value: concatenated graphs must have the same "
 						"is_directed value");
 
 			tgen_ensure(vertex_weights().has_value() ==
@@ -5776,11 +5776,11 @@ inline std::vector<std::string> string_set(int size) {
 namespace misc {
 
 // Generates a random balanced parentheses sequence with k '(' and k ')'.
-// Valid meanst that for no prefix there are more ')' than '('.
+// Valid means that for no prefix there are more ')' than '('.
 // O(size).
 inline std::string gen_parenthesis(int size) {
 	tgen_ensure(size > 0 and size % 2 == 0,
-				"misc: parenthesis: size must a positive even number");
+				"misc: parenthesis: size must be a positive even number");
 
 	int k = size / 2;
 	std::string s;

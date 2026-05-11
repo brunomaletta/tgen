@@ -13,7 +13,8 @@
 		{                                                                      \
 			try {                                                              \
 				stmt;                                                          \
-				FAIL() << "Expected std::runtime_error, but no error ocurred"; \
+				FAIL()                                                         \
+					<< "Expected std::runtime_error, but no error occurred";   \
 			} catch (const std::runtime_error &e) {                            \
 				std::string msg = e.what();                                    \
 				std::string tgen_pref = std::string("tgen: ") + prefix;        \

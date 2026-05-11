@@ -69,7 +69,7 @@ namespace tgen {
  * Defines a generator of pairs with first in @tt{[@pname{both_left}, @pname{both_right}]}
  * and second in @tt{[@pname{both_left}, @pname{both_right}]}.
  *
- * Equivalent to @tt{tgen::pair::pair(@pname{both_left}, @pname{both_right}, @pname{both_left}, @pname{borh_right})}.
+ * Equivalent to @tt{tgen::pair::pair(@pname{both_left}, @pname{both_right}, @pname{both_left}, @pname{both_right})}.
  *
  * #### Examples
  *
@@ -102,7 +102,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Pairs of values in [10, 20] with first = second.
+ * // Pairs of values in [10, 20] with first != second.
  * auto pair_gen = tgen::pair<int>(10, 20).neq();
  * ```
  *
@@ -317,7 +317,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Converts instant to std::pair.
+ * // Converts instance to std::pair.
  * std::pair<int, int> p = tgen::pair<int>::value({2, 3}).to_std();
  * // p = {2, 3}.
  * ```

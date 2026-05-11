@@ -105,7 +105,7 @@ std::cout <<
 // "67 96 80 11 46 52 42 2 93 1 28 3 48 82 90 99 53 98 94 88"
 ```
 
-Random Palindrome of length 7.
+Random palindrome of length 7.
 
 ```cpp
 std::cout << tgen::str(7, 'a', 'z').palindrome().gen() << std::endl;
@@ -131,7 +131,7 @@ std::cout << s2.gen() << std::endl;
 // "T C T G T G A C"
 ```
 
-Random binary sequence of length 10 with 5 1's that start with 1.
+Random binary sequence of length 10 with 5 1's that starts with 1.
 
 ```cpp
 std::cout <<

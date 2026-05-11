@@ -128,7 +128,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Numbers from from 0 up to 10^30.
+ * // Numbers from 0 up to 10^30.
  * auto leq1e30 = tgen::str("0 | [1-9][0-9]{0,%d} | 10{%d}", 30-1, 30);
  * ```
  *

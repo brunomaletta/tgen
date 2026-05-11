@@ -78,7 +78,7 @@ namespace tgen {
 
 /**
  * @ingroup opts
- * @brief Checks if opt with with some key exists.
+ * @brief Checks if opt with some key exists.
  *
  * @param key Key of named opt.
  *

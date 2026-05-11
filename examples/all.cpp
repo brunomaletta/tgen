@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
 	// Random 20 distinct values from 1 to 100.
 	std::cout << tgen::list<int>(20, 1, 100).distinct().gen() << std::endl;
 
-	// Random Palindrome of length 7.
+	// Random palindrome of length 7.
 	std::cout << tgen::str(7, 'a', 'z').palindrome().gen() << std::endl;
 
 	// Random 3 runs of 4 equal numbers. Values between runs are distinct.
@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 		s2.different(i - 1, i);
 	std::cout << s2.gen() << std::endl;
 
-	// Random binary list of length 10 with 5 1's that start with 1.
+	// Random binary list of length 10 with 5 1's that starts with 1.
 	std::cout << tgen::list<int>(10, 0, 1).fix(0, 1).gen_until(
 					 [](const auto &inst) {
 						 auto vec = inst.to_std();
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
 					 100)
 			  << std::endl;
 
-	// Prints a random 1-based permutation of size 10 that start with 2.
+	// Prints a random 1-based permutation of size 10 that starts with 2.
 	std::cout << tgen::permutation(10).fix(0, 1).gen().add_1() << std::endl;
 
 	// Random permutation of size 5 with only one cycle.

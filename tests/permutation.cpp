@@ -73,7 +73,7 @@ TEST(permutation_test, gen_invalid) {
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::permutation(5).fix(0, 1).fix(0, 2).gen(),
-		"permutation: cannot set an idex to two different values");
+		"permutation: cannot set an index to two different values");
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::permutation(5).fix(0, 0).fix(1, 0).gen(),
 		"permutation: cannot set two indices to the same value");

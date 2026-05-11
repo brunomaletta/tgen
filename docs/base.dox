@@ -269,6 +269,8 @@ namespace tgen {
  *
  * \htmlinclude wnext_distribution.html
  *
+ * @note Distribution might be slightly biased because of floating point arithmetic.
+ *
  * #### Complexity
  *
  * @tt{O(|@pname{w}|)}.
@@ -1112,7 +1114,7 @@ namespace tgen {
  *        @tt{@type{Gen}::value}, and returns a @primitive{bool}.
  * @param max_tries The maximum number of times the function will try to generate a valid value
  *        satisfying @pname{predicate}.
- * @param args Arguments for the the function @tt{tgen::@type{Gen}::gen}.
+ * @param args Arguments for the function @tt{tgen::@type{Gen}::gen}.
  *
  * Calls @tt{tgen::@type{Gen}::gen(@pname{args}...)} until @pname{predicate} is true, at most @pname{max_tries} times.
  * If @pname{predicate} has probabiliyy @tt{p} of returning @tt{true}, then the value

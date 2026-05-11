@@ -12,7 +12,7 @@ namespace tgen {
  * ### Examples
  *
  * ```cpp
- * // Prints a random 1-based permutation of size 10 that start with 2.
+ * // Prints a random 1-based permutation of size 10 that starts with 2.
  * std::cout << tgen::permutation(10).fix(0, 1).gen().add_1() << std::endl;
  * // "2 7 10 4 3 9 1 5 8 6"
  * 
@@ -86,7 +86,7 @@ namespace tgen {
  *
  * @param cycle_sizes Sizes of cycles.
  *
- * The sizes of cycles of the generated permuttion will be @pname{cycle_sizes}.
+ * The sizes of cycles of the generated permutation will be @pname{cycle_sizes}.
  *
  * #### Examples
  *

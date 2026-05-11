@@ -72,14 +72,14 @@ No loops. No backtracking. No custom generator code.
 
 ## ⚖️ Why not [testlib](https://github.com/MikeMirzayanov/testlib) / [jngen](https://github.com/ifsmirnov/jngen)?
 
-`tgen` works in a similar way as traditional generators, but provides:
+`tgen` works similarly to traditional generators, but provides:
 - **Declarative generators** to express complex constraints concisely;
 - **Adversarial generation** to create worst-case inputs for known algorithms;
 - **Built-in distinct generation** for duplicate-free, unbiased generation;
 - **Provably uniform sampling** across all supported operations;
 - **Comprehensive documentation** with many examples.
 
-## 📦 Instalation
+## 📦 Installation
 
 Header-only. Download
 
