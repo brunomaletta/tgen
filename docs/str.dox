@@ -410,14 +410,14 @@ namespace tgen {
 /**
  * @brief Creates a string value from a @texttt{@namespace{std}::@type{string}}.
  *
- * @param str The @texttt{@namespace{std}::@type{string}} representing the value.
+ * @param str The @texttt{@namespace{std}::@type{string}} representing the string.
  *
  * #### Examples
  *
  * ```cpp
- * // Creates and prints a value from a std::string.
+ * // Creates and prints a string from a std::string.
  * std::string s = "aba";
- * tgen::str::value val(aba);
+ * tgen::str::value val(s);
  * std::cout << val << std::endl; // Prints "aba".
  * ```
  *
@@ -428,12 +428,12 @@ namespace tgen {
 /**
  * @brief Returns the size of the string value.
  *
- * @return The number of characters in the value.
+ * @return The number of characters in the string.
  *
  * #### Examples
  *
  * ```cpp
- * // Prints the size of a value.
+ * // Prints the size of a string.
  * tgen::str::value val = "aba";
  * std::cout << val.size() << std::endl; // Prints "3".
  * ```
@@ -443,7 +443,7 @@ namespace tgen {
 
 
 /**
- * @brief Accesses the character at some position of the value.
+ * @brief Accesses the character at some position of the string.
  *
  * @param idx Index to be accessed.
  *
@@ -452,7 +452,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Changes and prints a position of a value.
+ * // Changes and prints a position of a string.
  * tgen::str::value val = "aba";
  * ++val[1];
  * std::cout << val[1] << std::endl; // Prints "c".
@@ -472,7 +472,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sorts and prints a value.
+ * // Sorts and prints a string.
  * tgen::str::value val = "aba";
  * std::cout << val.sort() << std::endl; // Prints "aab".
  * ```
@@ -482,7 +482,7 @@ namespace tgen {
 
 
 /**
- * @brief Reverses the value.
+ * @brief Reverses the string.
  *
  * #### Complexity
  *
@@ -491,7 +491,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Reverses and prints a value.
+ * // Reverses and prints a string.
  * tgen::str::value val = "bac";
  * std::cout << val.reverse() << std::endl; // Prints "cab".
  * ```
@@ -510,7 +510,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sets a value to lowercase and prints it.
+ * // Sets the string to lowercase and prints it.
  * tgen::str<int>::value val = "abC";
  * std::cout << val.lowercase() << std::endl; // Prints "abc".
  * ```
@@ -529,7 +529,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sets a value to uppercase and prints it.
+ * // Sets the string to uppercase and prints it.
  * tgen::str<int>::value val = "abC";
  * std::cout << val.uppercase() << std::endl; // Prints "ABC".
  * ```
@@ -539,7 +539,7 @@ namespace tgen {
 
 
 /**
- * @brief Concatenates two values.
+ * @brief Concatenates two strings.
  *
  * @param rhs The right-hand side.
  *
@@ -552,7 +552,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Concatenates and prints two values.
+ * // Concatenates and prints two strings.
  * tgen::str s = tgen::str(5, 'a', 'z').all_different();
  * std::cout << s.gen() + s.gen() << std::endl;
  * ```
@@ -562,14 +562,14 @@ namespace tgen {
 
 
 /**
- * @brief Prints the value to an output stream.
+ * @brief Prints the string to an output stream.
  *
  * The string is printed with no end of line.
  *
  * #### Examples
  *
  * ```cpp
- * // Prints a value.
+ * // Prints a string.
  * std::cout << tgen::str::value("aba") << std::endl; // Prints "aba".
  * ```
  *
@@ -578,9 +578,9 @@ namespace tgen {
 
 
 /**
- * @brief Converts the value to a @texttt{@namespace{std}::@type{string}}.
+ * @brief Converts the string to a @texttt{@namespace{std}::@type{string}}.
  *
- * @return A @texttt{@namespace{std}::@type{string}} representing the value.
+ * @return A @texttt{@namespace{std}::@type{string}} representing the string.
  *
  * #### Examples
  *

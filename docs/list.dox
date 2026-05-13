@@ -130,7 +130,7 @@ namespace tgen {
  * @param idx Index.
  * @param val Value.
  *
- * @throws std::runtime_error if @pname{value} is not in the value range/set.
+ * @throws std::runtime_error if @pname{value} is not in the generator's range/set.
  *
  * #### Examples
  *
@@ -338,12 +338,12 @@ namespace tgen {
 /**
  * @brief Creates a list value from a @texttt{@namespace{std}::@type{vector}}.
  *
- * @param vec The @texttt{@namespace{std}::@type{vector}} representing the value.
+ * @param vec The @texttt{@namespace{std}::@type{vector}} representing the list.
  *
  * #### Examples
  *
  * ```cpp
- * // Creates and prints a value from a std::vector.
+ * // Creates and prints a list from a std::vector.
  * std::vector<int> v = {1, 2, 3};
  * tgen::list<int>::value val(v);
  * std::cout << val << std::endl; // Prints "1 2 3".
@@ -365,7 +365,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints the size of a value.
+ * // Prints the size of a list.
  * tgen::list<int>::value val = {1, 2, 3};
  * std::cout << val.size() << std::endl; // Prints "3".
  * ```
@@ -375,16 +375,16 @@ namespace tgen {
 
 
 /**
- * @brief Accesses the value at some position of the value.
+ * @brief Accesses the element at some position of the list.
  *
  * @param idx Index to be accessed.
  *
- * @return The value at index @pname{idx}.
+ * @return The element at index @pname{idx}.
  *
  * #### Examples
  *
  * ```cpp
- * // Changes and prints a position of a value.
+ * // Changes and prints a position of a list.
  * tgen::list<int>::value val = {1, 2, 3};
  * ++val[1];
  * std::cout << val[1] << std::endl; // Prints "3".
@@ -395,7 +395,7 @@ namespace tgen {
 
 
 /**
- * @brief Sorts the value in non-decreasing order.
+ * @brief Sorts the list in non-decreasing order.
  *
  * #### Complexity
  *
@@ -404,7 +404,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sorts and prints a value.
+ * // Sorts and prints a list.
  * tgen::list<int>::value val = {3, 1, 2};
  * std::cout << val.sort() << std::endl; // Prints "1 2 3".
  * ```
@@ -414,7 +414,7 @@ namespace tgen {
 
 
 /**
- * @brief Reverses the value.
+ * @brief Reverses the list.
  *
  * #### Complexity
  *
@@ -423,7 +423,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Reverses and prints a value.
+ * // Reverses and prints a list.
  * tgen::list<int>::value val = {3, 1, 2};
  * std::cout << val.reverse() << std::endl; // Prints "2 1 3".
  * ```
@@ -442,7 +442,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints a value, separated by commas.
+ * // Prints a list, separated by commas.
  * tgen::list<int>::value val = {3, 1, 2};
  * std::cout << val.separator(',') << std::endl; // Prints "3,1,2".
  * ```
@@ -452,7 +452,7 @@ namespace tgen {
 
 
 /**
- * @brief Concatenates two values.
+ * @brief Concatenates two lists.
  *
  * @param rhs The right-hand side.
  *
@@ -465,7 +465,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Concatenates and prints two values.
+ * // Concatenates and prints two lists.
  * tgen::list<int> s = tgen::list<int>(5, 1, 5).all_different();
  * std::cout << s.gen() + s.gen() << std::endl;
  * ```
@@ -475,15 +475,15 @@ namespace tgen {
 
 
 /**
- * @brief Prints the value to an output stream.
+ * @brief Prints the list to an output stream.
  *
- * The values are printed with one space as a separator by default,
+ * The elements are printed with one space as a separator by default,
  * and with no end of line.
  *
  * #### Examples
  *
  * ```cpp
- * // Prints a value.
+ * // Prints a list.
  * std::cout << tgen::list<int>::value({3, 1, 2}) << std::endl; // Prints "3 1 2".
  * ```
  *
@@ -492,9 +492,9 @@ namespace tgen {
 
 
 /**
- * @brief Converts the value to a @texttt{@namespace{std}::@type{vector}}.
+ * @brief Converts the list to a @texttt{@namespace{std}::@type{vector}}.
  *
- * @return A @texttt{@namespace{std}::@type{vector}} representing the value.
+ * @return A @texttt{@namespace{std}::@type{vector}} representing the list.
  *
  * #### Examples
  *

@@ -139,12 +139,12 @@ namespace tgen {
 /**
  * @brief Creates a permutation value from a @texttt{@namespace{std}::@type{vector}}.
  *
- * @param vec The @texttt{@namespace{std}::@type{vector}} representing the value.
+ * @param vec The @texttt{@namespace{std}::@type{vector}} representing the permutation.
  *
  * #### Examples
  *
  * ```cpp
- * // Creates and prints a value from a std::vector.
+ * // Creates and prints a permutation from a std::vector.
  * std::vector<int> v = {0, 1, 2};
  * tgen::permutation::value val(v);
  * std::cout << val << std::endl; // Prints "0 1 2".
@@ -166,7 +166,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints the size of a value.
+ * // Prints the size of a permutation.
  * tgen::permutation::value val = {0, 1, 2};
  * std::cout << val.size() << std::endl; // Prints "3".
  * ```
@@ -176,16 +176,16 @@ namespace tgen {
 
 
 /**
- * @brief Returns the value at some position of the value.
+ * @brief Returns the image at some position of the permutation.
  *
  * @param idx Index to be accessed.
  *
- * @return The value at index @pname{idx}.
+ * @return The element at index @pname{idx}.
  *
  * #### Examples
  *
  * ```cpp
- * // Prints a position of a value.
+ * // Prints a position of a permutation.
  * tgen::permutation::value val = {2, 0, 1};
  * std::cout << val[1] << std::endl; // Prints "0".
  * ```
@@ -212,7 +212,7 @@ namespace tgen {
 
 
 /**
- * @brief Sorts the value in non-decreasing order.
+ * @brief Sorts the permutation in non-decreasing order.
  *
  * #### Complexity
  *
@@ -221,7 +221,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Sorts and prints a value.
+ * // Sorts and prints a permutation.
  * tgen::permutation::value val = {2, 0, 1};
  * std::cout << val.sort() << std::endl; // Prints "0 1 2".
  * ```
@@ -231,7 +231,7 @@ namespace tgen {
 
 
 /**
- * @brief Reverses the value.
+ * @brief Reverses the permutation.
  *
  * #### Complexity
  *
@@ -240,7 +240,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Reverses and prints a value.
+ * // Reverses and prints a permutation.
  * tgen::permutation::value val = {2, 0, 1};
  * std::cout << val.reverse() << std::endl; // Prints "1 0 2".
  * ```
@@ -312,15 +312,15 @@ namespace tgen {
 
 
 /**
- * @brief Prints the value to an output stream.
+ * @brief Prints the permutation to an output stream.
  *
- * The values are printed with one space as a separator by default,
+ * The entries are printed with one space as a separator by default,
  * and with no end of line.
  *
  * #### Examples
  *
  * ```cpp
- * // Prints a value.
+ * // Prints a permutation.
  * std::cout << tgen::permutation::value({2, 0, 1}) << std::endl; // Prints "2 0 1".
  * ```
  *
@@ -329,9 +329,9 @@ namespace tgen {
 
 
 /**
- * @brief Converts the value to a @texttt{@namespace{std}::@type{vector}}.
+ * @brief Converts the permutation to a @texttt{@namespace{std}::@type{vector}}.
  *
- * @return A @texttt{@namespace{std}::@type{vector}} representing the value.
+ * @return A @texttt{@namespace{std}::@type{vector}} representing the permutation.
  *
  * #### Examples
  *

@@ -205,12 +205,12 @@ namespace tgen {
 /**
  * @brief Creates a pair value from a @texttt{@namespace{std}::@type{pair}}.
  *
- * @param pair The @texttt{@namespace{std}::@type{pair}} representing the value.
+ * @param pair The @texttt{@namespace{std}::@type{pair}} representing the pair.
  *
  * #### Examples
  *
  * ```cpp
- * // Creates and prints a value from a std::pair.
+ * // Creates and prints a pair from a std::pair.
  * std::pair<int, int> p = {2, 3};
  * tgen::pair<int>::value val(p);
  * std::cout << val << std::endl; // Prints "2 3".
@@ -229,7 +229,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Creates and prints a value {2, 3}.
+ * // Creates and prints a pair {2, 3}.
  * tgen::pair<int>::value val(2, 3);
  * std::cout << val << std::endl; // Prints "2 3".
  * ```
@@ -282,7 +282,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints a value, separated by comma.
+ * // Prints a pair, separated by comma.
  * tgen::pair<int>::value val = {2, 3};
  * std::cout << val.separator(',') << std::endl; // Prints "2,3".
  * ```
@@ -292,15 +292,15 @@ namespace tgen {
 
 
 /**
- * @brief Prints the value to an output stream.
+ * @brief Prints the pair to an output stream.
  *
- * The values are printed with one space as a separator by default,
+ * The pair elements are printed with one space as a separator by default,
  * and with no end of line.
  *
  * #### Examples
  *
  * ```cpp
- * // Prints a value.
+ * // Prints a pair.
  * std::cout <<
  *     tgen::pair<int>::value({2, 3}) << std::endl; // Prints "2 3".
  * ```
@@ -310,14 +310,14 @@ namespace tgen {
 
 
 /**
- * @brief Converts the value to a @texttt{@namespace{std}::@type{pair}}.
+ * @brief Converts the pair to a @texttt{@namespace{std}::@type{pair}}.
  *
- * @return A @texttt{@namespace{std}::@type{pair}} representing the value.
+ * @return A @texttt{@namespace{std}::@type{pair}} representing the pair.
  *
  * #### Examples
  *
  * ```cpp
- * // Converts value to std::pair.
+ * // Converts the pair to std::pair.
  * std::pair<int, int> p = tgen::pair<int>::value({2, 3}).to_std();
  * // p = {2, 3}.
  * ```

@@ -90,9 +90,8 @@ namespace tgen {
  * Defines a set of trees on @tt{n} vertices, subject to preset edges. A
  * uniformly random @tt{tgen::wtree::value} from that set (satisfying the
  * constraints) is produced by @tt{tgen::wtree::gen}.
- * 
- * For a structured tree
- * There are also structured, non uniform operations:
+ *
+ * There are also structured, non-uniform operations:
  * - For skewed trees (with large diameter): @tt{tgen::wtree::get_skewed}.
  *
  * @struct wtree;
@@ -173,7 +172,7 @@ namespace tgen {
 
 
 /**
- * @brief Generates a uniformly random value from the set of valid lists.
+ * @brief Generates a uniformly random value from the set of valid trees.
  *
  * @return A uniformly random @tt{tgen::tree::value} from the set of valid trees, given the added restrictions.
  *
@@ -238,7 +237,7 @@ namespace tgen {
 
 
 /**
- * @brief Builds a value from a vertex count and an adjacency list.
+ * @brief Builds a tree from a vertex count and an adjacency list.
  *
  * @param n Number of vertices.
  * @param adj Adjacency list of length @tt{n}; @tt{adj[u]} contains every neighbor of @tt{u}.
@@ -265,7 +264,7 @@ namespace tgen {
 
 
 /**
- * @brief Builds a value from a vertex count and an edge list.
+ * @brief Builds a tree from a vertex count and an edge list.
  *
  * @param n Number of vertices.
  * @param edges List of undirected edges.
@@ -346,7 +345,7 @@ namespace tgen {
 /**
  * @brief Optional vertex weights.
  *
- * @return Const reference to the optional vertex-weight vector; absent when this value has no
+ * @return Const reference to the optional vertex-weight vector; absent when this tree has no
  *         vertex weights.
  *
  * Absent when the tree has no edge weights.
@@ -413,7 +412,7 @@ namespace tgen {
  *
  * @param edge_weights One weight per edge, in the same order as @tt{edges()}.
  *
- * @return A copy of this value with @pname{edge_weights} attached.
+ * @return A copy of this tree with @pname{edge_weights} attached.
  *
  * Immutable style: returns a copy with weights set; does not modify @tt{*this}.
  *
@@ -600,10 +599,10 @@ namespace tgen {
 
 
 /**
- * @brief Prints the value to an output stream.
+ * @brief Prints the tree to an output stream.
  *
  * @param out Output stream.
- * @param val Tree value to write.
+ * @param val Tree to write.
  *
  * Optional vertex-weight line, then edges (with optional edge weights), or parent format when
  * @tt{tgen::wtree::value::print_parents} was set.
