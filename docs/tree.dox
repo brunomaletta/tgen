@@ -134,6 +134,10 @@ namespace tgen {
  *
  * @param n Number of vertices.
  *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
  * #### Examples
  *
  * ```cpp
@@ -152,6 +156,10 @@ namespace tgen {
  * @param v Second endpoint.
  *
  * Preset edges must not form a cycle.
+ *
+ * #### Complexity
+ *
+ * @tt{O(log n)}.
  *
  * #### Examples
  *
@@ -198,6 +206,10 @@ namespace tgen {
  * @warning Does not support preset edges. That is, you can not add a @tt{tgen::wtree::add_edge} restriction
  *          before calling this function.
  *
+ * #### Complexity
+ *
+ * @tt{O(n)}.
+ *
  * #### Examples
  *
  * ```cpp
@@ -233,6 +245,10 @@ namespace tgen {
  *
  * Adjacency list must be symmetric, and must form a tree.
  *
+ * #### Complexity
+ *
+ * @tt{O(n)}.
+ *
  * #### Examples
  *
  * ```cpp
@@ -256,6 +272,10 @@ namespace tgen {
  *
  * Each edge @tt{(u, v)} must be listed once with @tt{u < v}, and must form a tree.
  *
+ * #### Complexity
+ *
+ * @tt{O(n)}.
+ *
  * #### Examples
  *
  * ```cpp
@@ -275,7 +295,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Path on 5 vertices; prints the vertex count.
+ * // Prints the vertex count of a path on 5 vertices.
  * auto t = tgen::tree::value(5, {{0, 1}, {1, 2}, {2, 3}, {3, 4}});
  * std::cout << t.n() << std::endl; // 5
  * ```
@@ -306,7 +326,7 @@ namespace tgen {
 /**
  * @brief Edge list.
  *
- * @return Const reference to the edge list; each pair has @tt{u < v}.
+ * @return Const reference to the edge list.
  *
  * Each edge @tt{(u, v)} appears only once, with @tt{u < v}.
  * The order matches optional edge weights when present.
@@ -314,7 +334,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Iterates the edge list of a 4-vertex path and prints each edge.
+ * // Prints every edge of a path on 4 vertices.
  * for (const auto &[u, v] : tgen::tree::value(4, {{0, 1}, {1, 2}, {2, 3}}).edges())
  *     std::cout << u << " " << v << "\n";
  * ```
@@ -324,21 +344,19 @@ namespace tgen {
 
 
 /**
- * @brief Optional vertex weights, one per vertex when set.
+ * @brief Optional vertex weights.
  *
  * @return Const reference to the optional vertex-weight vector; absent when this value has no
  *         vertex weights.
  *
- * Empty @tt{std::nullopt} means vertex weights are not used for this value (printing and
- * @tt{add_vertices} follow the weighted vs unweighted rules in the implementation).
+ * Absent when the tree has no edge weights.
  *
  * #### Examples
  *
  * ```cpp
- * // Reads optional vertex weights after attaching them.
+ * // Prints weight of vertex 0.
  * auto t = tgen::tree::value(2, {{0, 1}}).set_vertex_weights({7, 8});
- * if (t.vertex_weights().has_value())
- *     std::cout << (*t.vertex_weights())[0] << std::endl;
+ * std::cout << (*t.vertex_weights())[0] << std::endl;
  * ```
  *
  * @fn wtree::value::vertex_weights() const;
@@ -346,20 +364,18 @@ namespace tgen {
 
 
 /**
- * @brief Optional edge weights in the same order as the edge list.
+ * @brief Optional edge weights.
  *
- * @return Const reference to the optional edge-weight vector, aligned with @tt{edges()}; absent
- *         when this value has no edge weights.
+ * @return Const reference to the optional edge-weight vector, aligned with @tt{edges()};
  *
- * Index @tt{i} corresponds to @tt{edges()[i]}. Absent when the value has no edge weights.
+ * Index @tt{i} corresponds to @tt{edges()[i]}. Absent when the tree has no edge weights.
  *
  * #### Examples
  *
  * ```cpp
- * // Reads optional edge weights after attaching them.
+ * // Prints weight of first edge.
  * auto t = tgen::tree::value(3, {{0, 1}, {1, 2}}).set_edge_weights({30, 40});
- * if (t.edge_weights().has_value())
- *     std::cout << t.edge_weights()->size() << std::endl; // 2
+ * std::cout << (*t.edge_weights())[0] << std::endl;
  * ```
  *
  * @fn wtree::value::edge_weights() const;
@@ -367,13 +383,17 @@ namespace tgen {
 
 
 /**
- * @brief Attaches vertex weights, one per vertex; returns a new value.
+ * @brief Attaches vertex weights.
  *
  * @param vertex_weights One weight per vertex (@tt{n} values).
  *
- * @return A copy of this value with @pname{vertex_weights} attached.
+ * @return A @tt{tgen::wtree::value} with @pname{vertex_weights} attached. The weight type is deduced.
  *
- * Immutable style: returns a copy with weights set; does not modify @tt{*this}.
+ * Immutable style: returns a copy with weights set (weight type deduced); does not modify @tt{*this}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n)}.
  *
  * #### Examples
  *
@@ -381,7 +401,7 @@ namespace tgen {
  * // Returns a copy with vertex weights; prints weight line then edges.
  * auto t = tgen::tree::value(3, {{0, 1}, {1, 2}});
  * auto w = t.set_vertex_weights({1, 2, 3});
- * std::cout << w << std::endl; // weight line, then edges
+ * std::cout << w << std::endl; // Weight line, then edges.
  * ```
  *
  * @fn wtree::value::set_vertex_weights(const std::vector<int> &vertex_weights) const;
@@ -397,13 +417,17 @@ namespace tgen {
  *
  * Immutable style: returns a copy with weights set; does not modify @tt{*this}.
  *
+ * #### Complexity
+ *
+ * @tt{O(n)}.
+ *
  * #### Examples
  *
  * ```cpp
  * // Returns a copy with edge weights; prints edges with weights.
  * auto t = tgen::tree::value(3, {{0, 1}, {1, 2}});
  * auto w = t.set_edge_weights({9, 10});
- * std::cout << w << std::endl; // edges with weights on each line
+ * std::cout << w << std::endl; // Edges with weights on each line.
  * ```
  *
  * @fn wtree::value::set_edge_weights(const std::vector<int> &edge_weights) const;
@@ -411,18 +435,21 @@ namespace tgen {
 
 
 /**
- * @brief Adds one to printed vertex indices.
+ * @brief Adds 1 for printing.
  *
- * @return Reference to @tt{*this} (for chaining).
+ * This makes it so, when given to @tt{@namespace{std}::@type{cout}}, the tree will be printed with labels
+ * 1-based. Weights are not affected.
  *
- * Affects @tt{@namespace{std}::@type{ostream}} output only; internal vertex ids stay @tt{0..n-1}.
+ * #### Complexity
+ *
+ * @tt{O(1)}.
  *
  * #### Examples
  *
  * ```cpp
  * // Shifts printed vertex indices by one (internal ids stay 0-based).
  * auto t = tgen::tree::value(3, {{0, 1}, {1, 2}});
- * std::cout << t.add_1() << std::endl; // edges printed with ids shifted by one
+ * std::cout << t.add_1() << std::endl; // Edges printed with ids shifted by one.
  * ```
  *
  * @fn wtree::value::add_1();
@@ -430,21 +457,23 @@ namespace tgen {
 
 
 /**
- * @brief Prints in parent format instead of edge list (optional root).
+ * @brief Prints in parent format instead of edge list.
  *
- * @param root Root choice: @tt{-1} uses vertex @tt{0} and omits its parent line; @tt{n()} picks a
+ * @param root Root choice: @tt{-1} uses vertex @tt{0} and omits its parent; @tt{n()} picks a
  *             random root; otherwise an explicit root in @tt{[0, n())}.
  *
- * @return Reference to @tt{*this} (for chaining).
+ * Incompatible with edge weights.
  *
- * Incompatible with edge-weighted printing (see implementation checks).
+ * #### Complexity
+ *
+ * @tt{O(1)}.
  *
  * #### Examples
  *
  * ```cpp
- * // Prints in parent format (root -1: vertex 0 root, its parent line omitted).
+ * // Prints in parent format (root -1: vertex 0 root, its parent is omitted).
  * auto t = tgen::tree::value(3, {{0, 1}, {1, 2}});
- * std::cout << t.print_parents(-1) << std::endl;
+ * std::cout << t.print_parents() << std::endl;
  * ```
  *
  * @fn wtree::value::print_parents(int root = -1);
@@ -452,22 +481,20 @@ namespace tgen {
 
 
 /**
- * @brief Randomly relabels vertices (and shuffles edge order), optionally fixing some labels.
+ * @brief Shuffles vertices except given vertices, and edge order.
  *
  * @param indices Vertex ids to keep fixed; every other vertex is relabeled by a random permutation.
  *
- * @return Reference to @tt{*this} (for chaining).
+ * #### Complexity
  *
- * Updates adjacency, edges, and aligned weight vectors in place.
+ * @tt{O(n)}.
  *
  * #### Examples
  *
  * ```cpp
  * // Keeps vertex 0 fixed, randomly relabels the rest and shuffles edge order.
- * tgen::register_gen(0);
  * auto t = tgen::tree(8).gen();
- * t.shuffle_except({0});
- * std::cout << t << std::endl;
+ * std::cout << t.shuffle_except({0}) << std::endl;
  * ```
  *
  * @fn wtree::value::shuffle_except(std::set<int> indices);
@@ -475,20 +502,20 @@ namespace tgen {
 
 
 /**
- * @brief Randomly relabels all vertices and shuffles edge order.
+ * @brief Shuffles vertices and edge order.
  *
- * @return Reference to @tt{*this} (for chaining).
+ * Shuffles all vertices and edge order. Equivalent to @tt{shuffle_except({})}.
  *
- * Equivalent to @tt{shuffle_except({})}.
+ * #### Complexity
+ *
+ * @tt{O(n)}.
  *
  * #### Examples
  *
  * ```cpp
  * // Randomly relabels all vertices and shuffles edge order.
- * tgen::register_gen(0);
  * auto t = tgen::tree(8).gen();
- * t.shuffle();
- * std::cout << t << std::endl;
+ * std::cout << t.shuffle() << std::endl;
  * ```
  *
  * @fn wtree::value::shuffle();
@@ -496,71 +523,21 @@ namespace tgen {
 
 
 /**
- * @brief Appends isolated new vertices; the result need not stay a single tree
- *        unless you only use it as an intermediate step.
+ * @brief Links two trees by an edge.
  *
- * @param k Number of new isolated vertices (labeled @tt{n..n+k-1} before updating @tt{n}).
- * @param new_vertex_weights Weights for the new vertices when this value already has vertex
- *                           weights; otherwise @tt{std::nullopt}.
- *
- * @return Reference to @tt{*this} (for chaining).
- *
- * Vertex weights, if any, must be supplied for new vertices when the value is vertex-weighted.
- *
- * #### Examples
- *
- * ```cpp
- * // Adds isolated vertices then edges to obtain a tree on five vertices.
- * tgen::tree::value t(3, {{0, 1}, {1, 2}});
- * t.add_vertices(2);
- * t.add_edge(0, 3);
- * t.add_edge(3, 4);
- * std::cout << t << std::endl; // tree on five vertices
- * ```
- *
- * @fn wtree::value::add_vertices(int k, std::optional<std::vector<int>> new_vertex_weights = std::nullopt);
- */
-
-
-/**
- * @brief Adds an undirected edge if it does not create a cycle (tree stays a forest).
- *
- * @param u First endpoint.
- * @param v Second endpoint.
- * @param w Edge weight when this value carries edge weights; otherwise @tt{std::nullopt}.
- *
- * @return Reference to @tt{*this} (for chaining).
- *
- * If @tt{(u,v)} already exists, returns unchanged. If @tt{w} is set, the value must already carry
- * edge weights; if unset, it must be edge-unweighted.
- *
- * #### Examples
- *
- * ```cpp
- * // Adds one vertex and an edge to grow the tree to three vertices.
- * tgen::tree::value t(2, {{0, 1}});
- * t.add_vertices(1);
- * t.add_edge(0, 2);
- * std::cout << t.n() << std::endl; // 3
- * ```
- *
- * @fn wtree::value::add_edge(int u, int v, std::optional<int> w = std::nullopt);
- */
-
-
-/**
- * @brief Disjoint union of this tree and another, plus one new connecting edge
- *        (the other tree's vertices are relabeled).
- *
- * @param rhs Second tree; its vertex ids are shifted by this tree's @tt{n()} before merging.
+ * @param rhs Second tree.
  * @param new_u Endpoint in this tree.
- * @param new_v Endpoint in @pname{rhs} (before relabeling; it is connected after the shift).
- * @param new_w Weight of the connecting edge when edge weights are used on both sides consistently.
+ * @param new_v Endpoint in @pname{rhs} before relabeling.
+ * @param new_w Optional weight of the connecting edge.
  *
- * @return Reference to @tt{*this} (for chaining).
+ * Vertices of @pname{rhs} are shifted by the current @tt{n()}.
+ * Weight usage must be consistent.
  *
- * Vertices of @tt{rhs} are shifted by the current @tt{n()} before connecting. Weights are copied
- * when both sides use the same weighting mode.
+ * #### Complexity
+ *
+ * @tt{O(rhs.n() + rhs.edges().size() * log n)} amortized.
+ *
+ * That is, the complexity depends mostly on the @pname{rhs} tree.
  *
  * #### Examples
  *
@@ -577,16 +554,19 @@ namespace tgen {
 
 
 /**
- * @brief Merges another value by identifying vertex pairs; vertices only in the
- *        other are appended with new ids.
+ * @brief Glues another tree on given vertices.
  *
- * @param rhs Other tree merged into this one.
- * @param index_pairs Set of @tt{(l, r)} pairs: vertex @tt{l} here is identified with vertex @tt{r}
- *                    in @pname{rhs} (each index at most once on each side).
+ * @param rhs Other tree to be glued.
+ * @param index_pairs Set of @tt{(l, r)} pairs: vertex @tt{l} is glued to vertex @tt{r} in @pname{rhs}.
  *
- * @return Reference to @tt{*this} (for chaining).
+ * Gluing one vertex to another means they are considered to be the same vertex, maintaining the label
+ * it had in this tree. Other vertices are shifted accordingly.
  *
- * Pairs identify a vertex from this value with a vertex from @tt{rhs}; other overloads route here.
+ * #### Complexity
+ *
+ * @tt{O(rhs.n() + rhs.edges().size() * log n)} amortized.
+ *
+ * That is, the complexity depends mostly on the @pname{rhs} tree.
  *
  * #### Examples
  *
@@ -603,18 +583,16 @@ namespace tgen {
 
 
 /**
- * @brief Converts to a standard library pair of vertex count and adjacency list.
+ * @brief Converts the tree to a @tt{@namespace{std}} types.
  *
- * @return @tt{(n, adj)} as a @texttt{@namespace{std}::@type{pair}} of vertex count and adjacency list.
- *
- * First component is @tt{n}; second is the adjacency list (symmetric for undirected edges).
+ * @return @tt{(n, adj)} as a @tt{@namespace{std}::@type{pair}} of vertex count and adjacency list.
  *
  * #### Examples
  *
  * ```cpp
- * // Converts to (n, adjacency list) and prints n and adjacency size.
+ * // Converts to (n, adjacency list) and prints n and adjacency list.
  * auto p = tgen::tree::value(3, {{0, 1}, {1, 2}}).to_std();
- * std::cout << p.first << " " << p.second.size() << std::endl;
+ * std::cout << p.first << std::endl << tgen::print(p.second) << std::endl;
  * ```
  *
  * @fn wtree::value::to_std() const;
@@ -627,10 +605,12 @@ namespace tgen {
  * @param out Output stream.
  * @param val Tree value to write.
  *
- * @return Reference to @pname{out}.
+ * Optional vertex-weight line, then edges (with optional edge weights), or parent format when
+ * @tt{tgen::wtree::value::print_parents} was set.
  *
- * Optional vertex-weight line, then edges (and edge weights when present), or parent format when
- * @tt{print_parents} was set.
+ * #### Complexity
+ *
+ * @tt{O(n)}.
  *
  * #### Examples
  *

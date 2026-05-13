@@ -562,7 +562,7 @@ namespace tgen {
 
 
 /**
- * @brief Prints the value to a @texttt{@namespace{std}::@type{ostream}}.
+ * @brief Prints the value to an output stream.
  *
  * The string is printed with no end of line.
  *
