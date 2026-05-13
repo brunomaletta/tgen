@@ -2,19 +2,10 @@
 
 using namespace tgen;
 
-int main() {
-	register_gen(2);
+int main(int argc, char **argv) {
+	register_gen(argc, argv);
 
 	std::cout << (!K(4) + K(2) + C(3)).add_1();
-	std::cout << std::endl;
-
-	std::cout << graph(4, 4)
-					 .gen()
-					 .glue(C(3), {0, 1})
-					 .link(K(1), 2, 0)
-					 .add_1()
-					 .print_nm()
-					 .set_edge_weights(str("ab{0,2}a").gen_list(7).to_std());
 	std::cout << std::endl;
 
 	std::cout << graph(10, 12).get_connected();
@@ -25,4 +16,8 @@ int main() {
 
 	std::cout << graph(10, 15).get_skewed(100, 2);
 	std::cout << std::endl;
+
+	std::cout << tgen::tree(4).gen().set_vertex_weights<std::string>(
+					 {"a", "ab", "b", "abc"})
+			  << std::endl;
 }

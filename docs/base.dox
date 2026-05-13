@@ -1205,13 +1205,13 @@ namespace tgen {
 /**
  * Comparator for generator values.
  *
- * @tparam Inst Automatically set to the given type.
+ * @tparam Val Automatically set to the given type.
  *
  * @param rhs Right-hand side of the comparison.
  *
  * @return If this value is less than the right-hand side value.
  *
- * Uses @tt{@pname{Inst}::to_std} for the comparison.
+ * Uses @tt{@pname{Val}::to_std} for the comparison.
  *
  * #### Complexity
  *
@@ -1221,10 +1221,10 @@ namespace tgen {
  *
  * ```cpp
  * // Checks if one string is lexicographically smaller than the other.
- * std::cout (tgen::str::value("aba") < tgen::str::value("abc")) << std::endl;
+ * std::cout << (tgen::str::value("aba") < tgen::str::value("abc")) << std::endl;
  * ```
  *
- * @fn gen_value_base::operator<(const Inst &rhs) const;
+ * @fn gen_value_base::operator<(const Val &rhs) const;
  */
 
 
@@ -1240,11 +1240,11 @@ namespace tgen {
  *
  * ```cpp
  * // Shuffles and prints a value.
- * tgen::list<int>::value inst = {3, 1, 2};
- * std::cout << tgen::shuffled(inst) << std::endl;
+ * tgen::list<int>::value val = {3, 1, 2};
+ * std::cout << tgen::shuffled(val) << std::endl;
  *
- * // Prints a random element from inst.
- * std::cout << tgen::pick(inst) << std::endl;
+ * // Prints a random element from val.
+ * std::cout << tgen::pick(val) << std::endl;
  * ```
  */
 
@@ -1253,23 +1253,23 @@ namespace tgen {
  * @ingroup generator_value_op
  * @brief Shuffles a list value.
  *
- * @tparam Inst List value type, deduced automatically. Must be a `tgen::list::value`.
+ * @tparam Val List value type, deduced automatically. Must be a `tgen::list::value`.
  *
- * @param inst The value to shuffle.
+ * @param val The value to shuffle.
  *
  * #### Complexity
  *
- * @tt{O(|@pname{inst}|)}.
+ * @tt{O(|@pname{val}|)}.
  *
  * #### Examples
  *
  * ```cpp
  * // Shuffles a value.
- * tgen::list<int>::value inst = {3, 1, 2};
- * tgen::shuffle(inst);
+ * tgen::list<int>::value val = {3, 1, 2};
+ * tgen::shuffle(val);
  * ```
  *
- * @fn shuffle(Inst &inst);
+ * @fn shuffle(Val &val);
  */
 
 
@@ -1277,25 +1277,25 @@ namespace tgen {
  * @ingroup generator_value_op
  * @brief Shuffles a list value.
  *
- * @tparam Inst List value type, deduced automatically. Must be a `tgen::list::value`.
+ * @tparam Val List value type, deduced automatically. Must be a `tgen::list::value`.
  *
- * @param inst The original value.
+ * @param val The original value.
  *
  * @return The shuffled value.
  *
  * #### Complexity
  *
- * @tt{O(|@pname{inst}|)}.
+ * @tt{O(|@pname{val}|)}.
  *
  * #### Examples
  *
  * ```cpp
  * // Shuffles and prints a value.
- * tgen::list<int>::value inst = {3, 1, 2};
- * std::cout << tgen::shuffled(inst) << std::endl;
+ * tgen::list<int>::value val = {3, 1, 2};
+ * std::cout << tgen::shuffled(val) << std::endl;
  * ```
  *
- * @fn shuffled(const Inst &inst);
+ * @fn shuffled(const Val &val);
  */
 
 
@@ -1303,9 +1303,9 @@ namespace tgen {
  * @ingroup generator_value_op
  * @brief Choses a random element from the list value.
  *
- * @tparam Inst List value type, deduced automatically. Must be a `tgen::list::value`.
+ * @tparam Val List value type, deduced automatically. Must be a `tgen::list::value`.
  *
- * @param inst The original value.
+ * @param val The original value.
  *
  * @return A uniformly random element from the value.
  *
@@ -1316,12 +1316,12 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints a random element from v.
- * tgen::list<int>::value inst = {3, 1, 2};
- * std::cout << tgen::pick(inst) << std::endl;
+ * // Prints a random element from val.
+ * tgen::list<int>::value val = {3, 1, 2};
+ * std::cout << tgen::pick(val) << std::endl;
  * ```
  *
- * @fn pick(const Inst &inst);
+ * @fn pick(const Val &val);
  */
 
 
@@ -1329,9 +1329,9 @@ namespace tgen {
  * @ingroup generator_value_op
  * @brief Choses a random element from the list value.
  *
- * @tparam Inst List value type, deduced automatically. Must be a `tgen::list::value`.
+ * @tparam Val List value type, deduced automatically. Must be a `tgen::list::value`.
  *
- * @param inst The value to choose from.
+ * @param val The value to choose from.
  * @param distribution The probability distribution.
  *
  * @return A uniformly random element from the value.
@@ -1343,12 +1343,12 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints a random element from value with given odds.
- * tgen::list<int>::value inst = {3, 1, 2};
- * std::cout << tgen::pick_by_distribution(inst, {1, 2, 3}) << std::endl;
+ * // Prints a random element from val with given odds.
+ * tgen::list<int>::value val = {3, 1, 2};
+ * std::cout << tgen::pick_by_distribution(val, {1, 2, 3}) << std::endl;
  * ```
  *
- * @fn pick_by_distribution(const Inst &inst, const std::vector<T> &distribution);
+ * @fn pick_by_distribution(const Val &val, const std::vector<T> &distribution);
  */
 
 
@@ -1356,26 +1356,26 @@ namespace tgen {
  * @ingroup generator_value_op
  * @brief Chooses some values from the list value, as in a sublist of fixed length.
  *
- * @tparam Inst List value type, deduced automatically. Must be a `tgen::list::value`.
+ * @tparam Val List value type, deduced automatically. Must be a `tgen::list::value`.
  *
- * @param inst The original value.
+ * @param val The original value.
  * @param k The size of the sublist.
  *
  * @return A uniformly random subsequence of length @pname{k}.
  *
  * #### Complexity
  *
- * @tt{O(|@pname{inst}|)}.
+ * @tt{O(|@pname{val}|)}.
  *
  * #### Examples
  *
  * ```cpp
- * // Prints a subsequenec of length 2 from v.
- * tgen::list<int>::value inst = {3, 1, 2};
- * std::cout << tgen::choose(2, inst) << std::endl;
+ * // Prints a subsequence of length 2 from val.
+ * tgen::list<int>::value val = {3, 1, 2};
+ * std::cout << tgen::choose(val, 2) << std::endl;
  * ```
  *
- * @fn choose(const Inst &inst, int k);
+ * @fn choose(const Val &val, int k);
  */
 
 

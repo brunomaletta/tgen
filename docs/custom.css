@@ -516,4 +516,17 @@ html.dark-mode #projectlogo img {
   cursor: default;
 }
 
+/* Doxygen @image html for SVG: <div class="image"><object width="N"> — use one width=N (pixels); height follows the SVG aspect ratio. Scales down on narrow layouts. */
+.contents .image,
+.textblock .image {
+	text-align: center;
+}
+
+.contents .image object[type="image/svg+xml"],
+.textblock .image object[type="image/svg+xml"] {
+	max-width: 100%;
+	height: auto;
+	display: block;
+	margin-inline: auto;
+}
 

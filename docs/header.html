@@ -39,594 +39,538 @@ $extrastylesheet
 </script>
 
 <script type="text/javascript">
+(function () {
+	'use strict';
 
-document.addEventListener('DOMContentLoaded', function() {
+	// ---------------------------------------------------------------------------
+	// Constants
+	// ---------------------------------------------------------------------------
 
-    // --- keep your colgroup code ---
-    var tables = document.querySelectorAll('table.memberdecls');
-    tables.forEach(function(table) {
-        var colgroup = document.createElement('colgroup');
-        var col1 = document.createElement('col');
-        var col2 = document.createElement('col');
-        col1.style.width = '300px';
-        col2.style.width = 'auto';
-        colgroup.appendChild(col1);
-        colgroup.appendChild(col2);
-        table.insertBefore(colgroup, table.firstChild);
-    });
+	var URL_REDIRECTS = {
+		'structtgen_1_1__detail_1_1gen__base.html': 'group__generator__op.html'
+	};
 
-	// split return type + function name ONLY on first signature row
-	document.querySelectorAll(
-			".memproto table.memname > tbody > tr:first-child > td.memname"
-			).forEach(el => {
-
-				if (el.querySelector(".tgen-return")) return;
-
-				// keep only text nodes and anchors (others unlikely here)
-				const nodes = Array.from(el.childNodes).filter(n =>
-						n.nodeType === Node.TEXT_NODE || (n.nodeType === Node.ELEMENT_NODE && n.tagName === "A")
-						);
-				if (!nodes.length) return;
-
-				const raw = nodes.map(n => n.textContent).join('').trimStart();
-
-				if (raw.startsWith("#define")) {
-					const retSpan = document.createElement("span");
-					retSpan.className = "tgen-return";
-					retSpan.textContent = "#define";
-
-					const nameSpan = document.createElement("span");
-					nameSpan.className = "tgen-name";
-
-					// Everything after "#define"
-					const after = raw.slice(7).trimStart();
-
-					// extract macro identifier only
-					const match = after.match(/^([A-Za-z_]\w*)/);
-					if (match) nameSpan.textContent = match[1];
-					else nameSpan.textContent = after; // fallback
-
-					el.innerHTML = "";
-					el.appendChild(retSpan);
-					el.appendChild(document.createTextNode(" "));
-					el.appendChild(nameSpan);
-					return;
-				}
-
-				// heuristic that decides if RHS looks like a function name
-				function looksLikeFunctionName(str) {
-				str = str.trim();
-				if (!str) return false;
-				if (str.includes("::")) return true;                 // namespaced/method
-				if (/^operator[^\s]*$/.test(str)) return true;       // operator (maybe no paren)
-				if (/^[~A-Za-z_]\w*\s*\(/.test(str)) return true;    // free function with '('
-				return false;
-				}
-
-				// primary pass: find last space outside templates where RHS looks like function name
-				let templateDepth = 0;
-				let splitNodeIndex = -1;
-				let splitOffset = -1; // only meaningful when splitting inside a text node
-
-				for (let i = nodes.length - 1; i >= 0; --i) {
-					const n = nodes[i];
-					const text = n.textContent;
-					for (let j = text.length - 1; j >= 0; --j) {
-						const c = text[j];
-						if (c === '>') templateDepth++;
-						else if (c === '<') templateDepth--;
-						if (templateDepth === 0 && c === ' ') {
-							// build RHS candidate: remainder of this node plus all following nodes
-							let rhs = text.slice(j + 1);
-							for (let k = i + 1; k < nodes.length; ++k) rhs += nodes[k].textContent;
-							if (looksLikeFunctionName(rhs)) {
-								splitNodeIndex = i;
-								splitOffset = j;
-								break;
-							}
-						}
-					}
-					if (splitNodeIndex !== -1) break;
-				}
-
-				// operator fallback: search across full concatenated text for last "operator..."
-				if (splitNodeIndex === -1) {
-					const full = nodes.map(n => n.textContent).join('');
-					const opPos = full.lastIndexOf('operator');
-					if (opPos !== -1) {
-						// ensure operator is a standalone token (preceded by whitespace or start)
-						const beforeChar = opPos > 0 ? full[opPos - 1] : ' ';
-						if (/\s/.test(beforeChar)) {
-							// find the last space before opPos (split should occur at that space)
-							let spacePos = full.lastIndexOf(' ', opPos - 1);
-							if (spacePos === -1) spacePos = 0; // fallback: split at start if weird layout
-
-							// map spacePos back to node index + offset
-							let cum = 0;
-							let foundNode = -1;
-							let foundOffset = -1;
-							for (let i = 0; i < nodes.length; ++i) {
-								const len = nodes[i].textContent.length;
-								if (spacePos < cum + len) {
-									foundNode = i;
-									foundOffset = spacePos - cum;
-									break;
-								}
-								cum += len;
-							}
-
-							if (foundNode === -1) {
-								// spacePos at end — put split before last node
-								splitNodeIndex = nodes.length - 2;
-								splitOffset = nodes[splitNodeIndex].textContent.length - 1;
-							} else {
-								// If split is at start of node (offset === 0) we treat as splitting between nodes:
-								if (foundOffset === 0) {
-									splitNodeIndex = foundNode - 1;
-									splitOffset = (splitNodeIndex >= 0) ? nodes[splitNodeIndex].textContent.length - 1 : -1;
-								} else {
-									splitNodeIndex = foundNode;
-									splitOffset = foundOffset; // index of the space within that node's text
-								}
-							}
-						}
-					}
-				}
-
-				// If still no split found: constructor/unknown → treat whole thing as name
-				if (splitNodeIndex === -1) {
-					const nameSpan = document.createElement("span");
-					nameSpan.className = "tgen-name";
-					// append clones to avoid moving original nodes while iterating
-					nodes.forEach(n => nameSpan.appendChild(n.cloneNode(true)));
-					el.innerHTML = "";
-					el.appendChild(nameSpan);
-					return;
-				}
-
-				// Build ret/name spans safely (preserve anchors)
-				const retSpan = document.createElement("span");
-				retSpan.className = "tgen-return";
-				const nameSpan = document.createElement("span");
-				nameSpan.className = "tgen-name";
-
-				for (let idx = 0; idx < nodes.length; ++idx) {
-					const node = nodes[idx];
-					// clone to avoid side effects
-					const clone = node.cloneNode(true);
-
-					if (idx < splitNodeIndex) {
-						retSpan.appendChild(clone);
-					} else if (idx > splitNodeIndex) {
-						nameSpan.appendChild(clone);
-					} else {
-						// split inside this node (or between nodes if splitOffset == -1)
-						if (node.nodeType === Node.TEXT_NODE && splitOffset >= 0) {
-							const left = node.textContent.slice(0, splitOffset);
-							const right = node.textContent.slice(splitOffset + 1);
-							if (left) retSpan.appendChild(document.createTextNode(left));
-							if (right) nameSpan.appendChild(document.createTextNode(right));
-						} else {
-							// element (anchor) or odd case — put it into the name (operators or qualified names often appear here)
-							nameSpan.appendChild(clone);
-						}
-					}
-				}
-
-				// replace content preserving all other DOM nodes not in nodes array
-				// (we used el.childNodes filtered earlier; to be safe, replace entire content)
-				el.innerHTML = "";
-				el.appendChild(retSpan);
-				el.appendChild(nameSpan);
-	});
-
-	// ------------------------------------
-	// C++ type syntax highlighter
-	// ------------------------------------
-
-	const CPP_PRIMITIVES = new Set([
-	  "int","long","short","char","float","double","bool","void",
-	  "size_t","ptrdiff_t",
-	  "uint8_t","uint16_t","uint32_t","uint64_t",
-	  "int8_t","int16_t","int32_t","int64_t",
-	  "auto"
+	var CPP_PRIMITIVES = new Set([
+		'int', 'long', 'short', 'char', 'float', 'double', 'bool', 'void',
+		'size_t', 'ptrdiff_t',
+		'uint8_t', 'uint16_t', 'uint32_t', 'uint64_t',
+		'int8_t', 'int16_t', 'int32_t', 'int64_t',
+		'auto'
 	]);
 
-	const CPP_KEYWORDS = new Set([
-	  "#define",
-	  "const","constexpr","static","volatile","mutable",
-	  "typename","class","struct","signed","unsigned"
+	var CPP_KEYWORDS = new Set([
+		'#define',
+		'const', 'constexpr', 'static', 'volatile', 'mutable',
+		'typename', 'class', 'struct', 'signed', 'unsigned'
 	]);
+
+	var HIGHLIGHT_TYPE_SPLIT_RE =
+		/(\s+|#[A-Za-z_]\w*|::|->\*|->|<=|>=|==|!=|&&|\|\||<<|>>|[()<>*&,:~#])/g;
+
+	var STL_TYPES_RE =
+		/^(ostream|vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/;
+
+	var STL_TYPES_EXTENDED_RE =
+		/^(ostream|vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set|unique_ptr|shared_ptr|deque|list)$/;
+
+	var MEMITEMRIGHT_HIGHLIGHT_ANCESTOR =
+		'span.keywordtype, span.keyword, span.type, span.namespace, span.paramname, span.paramdefval';
+
+	var MEMPROTO_MEMNAME_ROW =
+		'.memproto table.memname > tbody > tr:first-child > td.memname';
+
+	var MEMPROTO_FIRST_ROW_LAST_TD =
+		'.memproto table.memname > tbody > tr:first-child > td:last-child';
+
+	// Doxygen already styled these; do not re-tokenize their text (markdown ```cpp``` lines).
+	var FRAGMENT_SKIP_SPAN_SELECTOR =
+		'span.comment, span.stringliteral, span.charliteral, span.preprocessor, span.keyword, span.keywordtype, span.keywordflow';
+
+	// ---------------------------------------------------------------------------
+	// Small utilities
+	// ---------------------------------------------------------------------------
 
 	function isInNavTree(node) {
-		return node.closest && node.closest("#nav-tree");
+		return Boolean(node && node.closest && node.closest('#nav-tree'));
 	}
 
-	// ACTUAL FUNCTION
-	function highlightType(node) {
-		const walker = document.createTreeWalker(
-				node,
-				NodeFilter.SHOW_TEXT,
-				null,
-				false
-				);
-
-		// collect text nodes first to avoid mutation during traversal
-		const textNodes = [];
-		while (walker.nextNode()) textNodes.push(walker.currentNode);
-
-		// tokeniser: keep words, C++ separators and whitespace as separate tokens
-		//const SPLIT_RE = /(\b|::|[:<>,()=*&]|\s+)/;
-		const SPLIT_RE = /(\s+|#[A-Za-z_]\w*|::|->\*|->|<=|>=|==|!=|&&|\|\||<<|>>|[()<>*&,:~#])/g;
-
-		for (const textNode of textNodes) {
-
-			const parent = textNode.parentElement;
-			if (!parent) continue;
-
-			if (isInNavTree(parent)) continue;
-
-			// CRITICAL FIX: DO NOT TOUCH DOXYGEN LINKS
-			if (parent.closest("a.el")) continue;
-
-			// skip empty / whitespace-only nodes
-			const text = textNode.nodeValue;
-			if (!text || !text.trim()) continue;
-
-			// avoid re-processing nodes already tokenized
-			if (parent.closest && parent.closest('.tgen-hl')) continue;
-
-			const frag = document.createDocumentFragment();
-			const tokens = text.split(SPLIT_RE).filter(t => t !== undefined && t !== "");
-
-			for (const tok of tokens) {
-				// keep whitespace/separators as plain text
-				if (/^\s+$/.test(tok) || /^[:<>,()=*&]$/.test(tok) || tok === '::') {
-					frag.appendChild(document.createTextNode(tok));
-					continue;
-				}
-
-				let cls = null;
-
-				// primitives (set assumed to exist in scope)
-				if (typeof CPP_PRIMITIVES !== "undefined" && CPP_PRIMITIVES.has(tok)) {
-					cls = "primitive";
-				}
-				// keywords (set assumed to exist in scope)
-				else if (typeof CPP_KEYWORDS !== "undefined" && CPP_KEYWORDS.has(tok)) {
-					cls = "keyword";
-				}
-				else if (tok === "std" || tok == "tgen" || tok == "detail") {
-					cls = "namespace";
-				}
-				// heuristic for types: start with uppercase OR common STL-like names
-				else if (/^[A-Z]\w*$/.test(tok)) {
-					cls = "type";
-				}
-				else if (/^(ostream|vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set|unique_ptr|shared_ptr|deque|list)$/.test(tok)) {
-					cls = "type";
-				}
-				// custom types
-				else if (/^(compiler_value)$/.test(tok)) {
-					cls = "type";
-				}
-				// simple fallback: identifiers that look like types (camelCase / internal capitals)
-				else if (/^[A-Za-z_]\w*$/.test(tok) && /[A-Z]/.test(tok.slice(1))) {
-					cls = "type";
-				}
-
-				if (cls) {
-					const s = document.createElement("span");
-					s.className = "tgen-hl " + cls;
-					s.textContent = tok;
-					frag.appendChild(s);
-				} else {
-					// leave as plain text (parameter names, numbers, etc.)
-					frag.appendChild(document.createTextNode(tok));
-				}
-			}
-
-			textNode.replaceWith(frag);
-		}
+	function docContent() {
+		return document.getElementById('doc-content');
 	}
 
-	// apply to return types
-	document.querySelectorAll(".tgen-return").forEach(highlightType);
-	// apply to parameter types
-	document.querySelectorAll(".paramtype").forEach(highlightType);
+	// ---------------------------------------------------------------------------
+	// Member declaration tables: fixed left column width
+	// ---------------------------------------------------------------------------
 
-	// apply to after params: for example "int f() const" -> apply to "const"
-	document.querySelectorAll(".memproto table.memname > tbody > tr:first-child > td:last-child")
-		.forEach(highlightType);
-
-
-
-	// Highlight return type in FUNCTION LIST.
-	function highlightReturnType(td) {
-
-		function tokenize(str) {
-			//return str.split(/(\b|::|<|>|,|&|\*|\s+)/);
-			return str.split(/(#[A-Za-z_]\w*|::|<|>|,|&|\*|\s+|\b)/);
-		}
-
-		function classify(tok) {
-
-			if (/^(auto|void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
-				return "keywordtype";
-
-			// heuristic for types: start with uppercase OR common STL-like names
-			if (/^[A-Z]\w*$/.test(tok))
-				return "type";
-
-			if (/^(ostream|vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
-				return "type";
-
-			if (/^(#define|struct|const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
-				return "keyword";
-
-			if (tok === "std" || tok == "tgen" || tok == "detail")
-				return "namespace";
-
-			return null;
-		}
-
-		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
-		let node;
-
-		while ((node = walker.nextNode())) {
-
-			// CRITICAL: skip if inside a link
-			if (node.parentElement.closest("a")) continue;
-
-			const tokens = tokenize(node.nodeValue);
-			if (tokens.length === 1) continue;
-
-			const frag = document.createDocumentFragment();
-
-			tokens.forEach(tok => {
-
-				const cls = classify(tok);
-
-				if (!cls) {
-					frag.appendChild(document.createTextNode(tok));
-				} else {
-					const span = document.createElement("span");
-					span.className = cls;
-					span.textContent = tok;
-					frag.appendChild(span);
-				}
-			});
-
-			node.replaceWith(frag);
-		}
-	}
-	document.querySelectorAll("td.memItemLeft").forEach(highlightReturnType);
-
-	// Highlight parameters in FUNCTION LIST.
-	function highlightSignature(td) {
-
-		function tokenize(str) {
-			return str.split(/(\b|::|<|>|,|\(|\)|=|&|\*|\s+)/);
-		}
-
-		function classify(tok, state) {
-
-			// entering default value
-			if (tok === "=") {
-				state.inDefault = true;
-				return null;
-			}
-
-			// leaving default value
-			if (tok === "," || tok === ")") {
-				state.inDefault = false;
-				return null;
-			}
-
-			// namespace std.
-			if (tok === "std" || tok == "tgen" || tok == "detail")
-				return "namespace";
-
-			// DEFAULT VALUE TOKENS
-			if (state.inDefault) {
-				if (/^(true|false|nullptr)$/.test(tok))
-					return "paramdefval";       // bool literals
-
-				if (/^\d+(\.\d+)?$/.test(tok))
-					return "paramdefval";       // numeric literal
-
-				return "paramdefval";           // anything in default expr
-			}
-
-			// KEYWORDS
-			if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
-				return "keyword";
-
-			// TYPES
-			if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
-				return "keywordtype";
-
-			// heuristic for types: start with uppercase OR common STL-like names
-			if (/^[A-Z]\w*$/.test(tok))
-				return "type";
-
-			// STL TYPES
-			if (/^(ostream|vector|array|pair|tuple|optional|string|map|set|unordered_map|unordered_set)$/.test(tok))
-				return "type";
-
-			// CUSTOM TYPES
-			if (/^(compiler_value)$/.test(tok))
-				return "type";
-
-			// IDENTIFIER → parameter name
-			if (/^[a-zA-Z_]\w*$/.test(tok))
-				return "paramname";
-
-			return null;
-		}
-
-		const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
-		let node;
-
-		while ((node = walker.nextNode())) {
-
-			if (!node.nodeValue.includes("(")) continue;
-
-			const tokens = tokenize(node.nodeValue);
-			const frag = document.createDocumentFragment();
-
-			const state = { inDefault: false };
-
-			tokens.forEach(tok => {
-				const cls = classify(tok, state);
-
-				if (!cls) {
-					frag.appendChild(document.createTextNode(tok));
-				} else {
-					const span = document.createElement("span");
-					span.className = cls;
-					span.textContent = tok;
-					frag.appendChild(span);
-				}
-			});
-
-			node.replaceWith(frag);
-		}
-	}
-	document.querySelectorAll("td.memItemRight").forEach(highlightSignature);
-
-	// Removes links for function names in docs.
-	function unlinkNames(root = document) {
-		root.querySelectorAll(".tgen-name a").forEach(link => {
-			if (link.closest("#nav-tree")) return; // CRITICAL
-
-			const text = link.textContent;
-			link.replaceWith(document.createTextNode(text));
+	function applyMemberDeclColumnWidths() {
+		document.querySelectorAll('table.memberdecls').forEach(function (table) {
+			var colgroup = document.createElement('colgroup');
+			var c0 = document.createElement('col');
+			var c1 = document.createElement('col');
+			c0.style.width = '300px';
+			c1.style.width = 'auto';
+			colgroup.appendChild(c0);
+			colgroup.appendChild(c1);
+			table.insertBefore(colgroup, table.firstChild);
 		});
 	}
-	// Removes links for function parameters in docs.
-	function unlinkParamsInSignatures(root = document) {
-		root.querySelectorAll("td.memItemRight a.el").forEach(link => {
-			if (link.closest("#nav-tree")) return;
 
-			const td = link.closest("td.memItemRight");
+	// ---------------------------------------------------------------------------
+	// Memproto first row: split "return type" vs "function / macro name"
+	// ---------------------------------------------------------------------------
+
+	function rhsLooksLikeFunctionName(str) {
+		str = str.trim();
+		if (!str) return false;
+		if (str.indexOf('::') !== -1) return true;
+		if (/^operator[^\s]*$/.test(str)) return true;
+		if (/^[~A-Za-z_]\w*\s*\(/.test(str)) return true;
+		return false;
+	}
+
+	function transformMemprotoMemnameCell(el) {
+		if (el.querySelector('.tgen-return')) return;
+
+		var nodes = Array.from(el.childNodes).filter(function (n) {
+			return n.nodeType === Node.TEXT_NODE ||
+				(n.nodeType === Node.ELEMENT_NODE && n.tagName === 'A');
+		});
+		if (!nodes.length) return;
+
+		var raw = nodes.map(function (n) { return n.textContent; }).join('').trimStart();
+
+		if (raw.indexOf('#define') === 0) {
+			var retSpan = document.createElement('span');
+			retSpan.className = 'tgen-return';
+			retSpan.textContent = '#define';
+			var nameSpan = document.createElement('span');
+			nameSpan.className = 'tgen-name';
+			var after = raw.slice(7).trimStart();
+			var m = after.match(/^([A-Za-z_]\w*)/);
+			nameSpan.textContent = m ? m[1] : after;
+			el.innerHTML = '';
+			el.appendChild(retSpan);
+			el.appendChild(document.createTextNode(' '));
+			el.appendChild(nameSpan);
+			return;
+		}
+
+		var splitNodeIndex = -1;
+		var splitOffset = -1;
+		var templateDepth = 0;
+		var i;
+		var j;
+		var k;
+		var text;
+		var c;
+		var rhs;
+
+		for (i = nodes.length - 1; i >= 0; --i) {
+			text = nodes[i].textContent;
+			for (j = text.length - 1; j >= 0; --j) {
+				c = text[j];
+				if (c === '>') templateDepth++;
+				else if (c === '<') templateDepth--;
+				if (templateDepth === 0 && c === ' ') {
+					rhs = text.slice(j + 1);
+					for (k = i + 1; k < nodes.length; ++k) rhs += nodes[k].textContent;
+					if (rhsLooksLikeFunctionName(rhs)) {
+						splitNodeIndex = i;
+						splitOffset = j;
+						break;
+					}
+				}
+			}
+			if (splitNodeIndex !== -1) break;
+		}
+
+		if (splitNodeIndex === -1) {
+			var full = nodes.map(function (n) { return n.textContent; }).join('');
+			var opPos = full.lastIndexOf('operator');
+			if (opPos !== -1) {
+				var beforeChar = opPos > 0 ? full[opPos - 1] : ' ';
+				if (/\s/.test(beforeChar)) {
+					var spacePos = full.lastIndexOf(' ', opPos - 1);
+					if (spacePos === -1) spacePos = 0;
+					var cum = 0;
+					var foundNode = -1;
+					var foundOffset = -1;
+					for (i = 0; i < nodes.length; ++i) {
+						var len = nodes[i].textContent.length;
+						if (spacePos < cum + len) {
+							foundNode = i;
+							foundOffset = spacePos - cum;
+							break;
+						}
+						cum += len;
+					}
+					if (foundNode === -1) {
+						splitNodeIndex = nodes.length - 2;
+						splitOffset = nodes[splitNodeIndex].textContent.length - 1;
+					} else if (foundOffset === 0) {
+						splitNodeIndex = foundNode - 1;
+						splitOffset = splitNodeIndex >= 0
+							? nodes[splitNodeIndex].textContent.length - 1
+							: -1;
+					} else {
+						splitNodeIndex = foundNode;
+						splitOffset = foundOffset;
+					}
+				}
+			}
+		}
+
+		if (splitNodeIndex === -1) {
+			var onlyName = document.createElement('span');
+			onlyName.className = 'tgen-name';
+			nodes.forEach(function (n) { onlyName.appendChild(n.cloneNode(true)); });
+			el.innerHTML = '';
+			el.appendChild(onlyName);
+			return;
+		}
+
+		var ret = document.createElement('span');
+		ret.className = 'tgen-return';
+		var name = document.createElement('span');
+		name.className = 'tgen-name';
+
+		for (i = 0; i < nodes.length; ++i) {
+			var node = nodes[i];
+			var clone = node.cloneNode(true);
+			if (i < splitNodeIndex) {
+				ret.appendChild(clone);
+			} else if (i > splitNodeIndex) {
+				name.appendChild(clone);
+			} else if (node.nodeType === Node.TEXT_NODE && splitOffset >= 0) {
+				var left = node.textContent.slice(0, splitOffset);
+				var right = node.textContent.slice(splitOffset + 1);
+				if (left) ret.appendChild(document.createTextNode(left));
+				if (right) name.appendChild(document.createTextNode(right));
+			} else {
+				name.appendChild(clone);
+			}
+		}
+
+		el.innerHTML = '';
+		el.appendChild(ret);
+		el.appendChild(name);
+	}
+
+	function applyMemprotoReturnNameSplit() {
+		document.querySelectorAll(MEMPROTO_MEMNAME_ROW).forEach(transformMemprotoMemnameCell);
+	}
+
+	// ---------------------------------------------------------------------------
+	// Syntax highlight: .tgen-return, .paramtype, trailing cv / noexcept cell,
+	// and plain text inside markdown fenced blocks (div.fragment > div.line).
+	// ---------------------------------------------------------------------------
+
+	function highlightCppTokensInSubtree(root, opts) {
+		opts = opts || {};
+		var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+		var textNodes = [];
+		while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+		textNodes.forEach(function (textNode) {
+			var parent = textNode.parentElement;
+			if (!parent || isInNavTree(parent)) return;
+			if (opts.fragmentLine) {
+				if (parent.closest && parent.closest('a')) return;
+				if (parent.closest && parent.closest(FRAGMENT_SKIP_SPAN_SELECTOR)) return;
+			} else if (parent.closest('a.el')) return;
+
+			var text = textNode.nodeValue;
+			if (!text || !text.trim()) return;
+			if (parent.closest && parent.closest('.tgen-hl')) return;
+
+			var frag = document.createDocumentFragment();
+			var parts = text.split(HIGHLIGHT_TYPE_SPLIT_RE).filter(function (t) {
+				return t !== undefined && t !== '';
+			});
+
+			parts.forEach(function (tok) {
+				if (/^\s+$/.test(tok) || /^[:<>,()=*&]$/.test(tok) || tok === '::') {
+					frag.appendChild(document.createTextNode(tok));
+					return;
+				}
+
+				var cls = null;
+				if (CPP_PRIMITIVES.has(tok)) cls = 'primitive';
+				else if (CPP_KEYWORDS.has(tok)) cls = 'keyword';
+				else if (tok === 'std' || tok === 'tgen' || tok === 'detail') cls = 'namespace';
+				else if (/^[A-Z]\w*$/.test(tok)) cls = 'type';
+				else if (STL_TYPES_EXTENDED_RE.test(tok)) cls = 'type';
+				else if (tok === 'compiler_value') cls = 'type';
+				else if (/^[A-Za-z_]\w*$/.test(tok) && /[A-Z]/.test(tok.slice(1))) cls = 'type';
+
+				if (cls) {
+					var span = document.createElement('span');
+					span.className = 'tgen-hl ' + cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				} else {
+					frag.appendChild(document.createTextNode(tok));
+				}
+			});
+
+			textNode.parentNode.replaceChild(frag, textNode);
+		});
+	}
+
+	function applyTgenCppHighlights() {
+		document.querySelectorAll('.tgen-return').forEach(function (el) {
+			highlightCppTokensInSubtree(el);
+		});
+		document.querySelectorAll('.paramtype').forEach(function (el) {
+			highlightCppTokensInSubtree(el);
+		});
+		document.querySelectorAll(MEMPROTO_FIRST_ROW_LAST_TD).forEach(function (el) {
+			highlightCppTokensInSubtree(el);
+		});
+	}
+
+	// Markdown ```cpp``` → div.fragment > div.line; Doxygen leaves std::vector, etc. unstyled.
+	function applyFragmentCppTokenHighlights() {
+		var root = docContent();
+		if (!root) return;
+		root.querySelectorAll('div.fragment > div.line').forEach(function (line) {
+			highlightCppTokensInSubtree(line, { fragmentLine: true });
+		});
+	}
+
+	// ---------------------------------------------------------------------------
+	// Function list: return type column (memItemLeft)
+	// ---------------------------------------------------------------------------
+
+	function tokenizeMemItemLeft(str) {
+		return str.split(/(#[A-Za-z_]\w*|::|<|>|,|&|\*|\s+|\b)/);
+	}
+
+	function classifyMemItemLeftToken(tok) {
+		if (/^(auto|void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+			return 'keywordtype';
+		if (/^[A-Z]\w*$/.test(tok)) return 'type';
+		if (STL_TYPES_RE.test(tok)) return 'type';
+		if (/^(#define|struct|const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+			return 'keyword';
+		if (tok === 'std' || tok === 'tgen' || tok === 'detail') return 'namespace';
+		return null;
+	}
+
+	function highlightMemItemLeft(td) {
+		var walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		var node;
+		while ((node = walker.nextNode())) {
+			if (node.parentElement.closest('a')) continue;
+			var tokens = tokenizeMemItemLeft(node.nodeValue);
+			if (tokens.length === 1) continue;
+
+			var frag = document.createDocumentFragment();
+			tokens.forEach(function (tok) {
+				var cls = classifyMemItemLeftToken(tok);
+				if (!cls) frag.appendChild(document.createTextNode(tok));
+				else {
+					var span = document.createElement('span');
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+			node.parentNode.replaceChild(frag, node);
+		}
+	}
+
+	function highlightAllMemItemLeft() {
+		document.querySelectorAll('td.memItemLeft').forEach(highlightMemItemLeft);
+	}
+
+	// ---------------------------------------------------------------------------
+	// Function list: signature column (memItemRight)
+	// ---------------------------------------------------------------------------
+
+	function tokenizeMemItemRight(str) {
+		return str.split(/(\b|::|<|>|,|\(|\)|=|&|\*|\s+)/);
+	}
+
+	function classifyMemItemRightToken(tok, state) {
+		if (tok === '=') {
+			state.inDefault = true;
+			return null;
+		}
+		if (tok === ',' || tok === ')') {
+			state.inDefault = false;
+			return null;
+		}
+		if (tok === 'std' || tok === 'tgen' || tok === 'detail') return 'namespace';
+
+		if (state.inDefault) {
+			if (/^(true|false|nullptr)$/.test(tok)) return 'paramdefval';
+			if (/^\d+(\.\d+)?$/.test(tok)) return 'paramdefval';
+			return 'paramdefval';
+		}
+
+		if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok)) return 'keyword';
+		if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
+			return 'keywordtype';
+		if (/^[A-Z]\w*$/.test(tok)) return 'type';
+		if (STL_TYPES_RE.test(tok)) return 'type';
+		if (tok === 'compiler_value') return 'type';
+		if (/^[a-zA-Z_]\w*$/.test(tok)) return 'paramname';
+		return null;
+	}
+
+	function highlightMemItemRight(td) {
+		var walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		var collected = [];
+		var n;
+		while ((n = walker.nextNode())) collected.push(n);
+
+		collected.forEach(function (textNode) {
+			var raw = textNode.nodeValue;
+			if (!raw || !raw.trim()) return;
+
+			var pe = textNode.parentElement;
+			if (!pe) return;
+			if (pe.closest('a.el')) return;
+			if (pe.closest(MEMITEMRIGHT_HIGHLIGHT_ANCESTOR)) return;
+
+			var tokens = tokenizeMemItemRight(raw);
+			var frag = document.createDocumentFragment();
+			var state = { inDefault: false };
+			tokens.forEach(function (tok) {
+				var cls = classifyMemItemRightToken(tok, state);
+				if (!cls) frag.appendChild(document.createTextNode(tok));
+				else {
+					var span = document.createElement('span');
+					span.className = cls;
+					span.textContent = tok;
+					frag.appendChild(span);
+				}
+			});
+			textNode.parentNode.replaceChild(frag, textNode);
+		});
+	}
+
+	function highlightAllMemItemRight() {
+		document.querySelectorAll('td.memItemRight').forEach(highlightMemItemRight);
+	}
+
+	// ---------------------------------------------------------------------------
+	// After load: strip selected links, keep colours via span classes
+	// ---------------------------------------------------------------------------
+
+	function classifySignatureIdentifier(tok) {
+		var t = tok.trim();
+		if (!t) return 'paramname';
+
+		if (t.indexOf('::') !== -1) {
+			var parts = t.split('::').filter(Boolean);
+			if (
+				parts.length &&
+				parts.every(function (p) {
+					var c = classifySignatureIdentifier(p);
+					return c === 'type' || c === 'namespace';
+				})
+			)
+				return 'type';
+		}
+
+		if (/^(const|constexpr|static|inline|volatile|mutable|noexcept|typename|class|struct|signed|unsigned)$/.test(t))
+			return 'keyword';
+		if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(t)) return 'keywordtype';
+		if (/^[A-Z]\w*$/.test(t)) return 'type';
+		if (STL_TYPES_RE.test(t)) return 'type';
+		if (t === 'compiler_value') return 'type';
+		if (t === 'std' || t === 'tgen' || t === 'detail') return 'namespace';
+		if (/^[A-Za-z_]\w*$/.test(t) && /[A-Z]/.test(t.slice(1))) return 'type';
+		return 'paramname';
+	}
+
+	function unlinkTgenNameLinks(root) {
+		root.querySelectorAll('.tgen-name a').forEach(function (link) {
+			if (link.closest('#nav-tree')) return;
+			link.replaceWith(document.createTextNode(link.textContent));
+		});
+	}
+
+	function unlinkSignatureParamLinks(root) {
+		root.querySelectorAll('td.memItemRight a.el').forEach(function (link) {
+			if (link.closest('#nav-tree')) return;
+			var td = link.closest('td.memItemRight');
 			if (!td) return;
-
-			// skip function name (first link in the cell)
-			const firstLink = td.querySelector("a.el");
+			var firstLink = td.querySelector('a.el');
 			if (link === firstLink) return;
-
-			const span = document.createElement("span");
-			span.className = "paramname";
+			var span = document.createElement('span');
+			span.className = classifySignatureIdentifier(link.textContent);
 			span.textContent = link.textContent;
-
 			link.replaceWith(span);
 		});
 	}
-	// run once after load
-	window.addEventListener("load", () => {
-		const root = document.getElementById("doc-content");
-		unlinkNames(root);
-		unlinkParamsInSignatures(root);
-	});
-	// run whenever doxygen dynamically updates DOM
-	const observer = new MutationObserver(mutations => {
-		for (const m of mutations) {
-			for (const node of m.addedNodes) {
-				if (node.nodeType === 1 && !isInNavTree(node)) { // ELEMENT_NODE
-					unlinkNames(node);
-				}
+
+	function observeDocContentForNameUnlink(docRoot) {
+		new MutationObserver(function (mutations) {
+			mutations.forEach(function (m) {
+				m.addedNodes.forEach(function (node) {
+					if (node.nodeType === 1 && !isInNavTree(node)) unlinkTgenNameLinks(node);
+				});
+			});
+		}).observe(docRoot, { childList: true, subtree: true });
+	}
+
+	function registerPostLoadLinkStripping(docRoot) {
+		window.addEventListener('load', function () {
+			unlinkTgenNameLinks(docRoot);
+			unlinkSignatureParamLinks(docRoot);
+		});
+		observeDocContentForNameUnlink(docRoot);
+	}
+
+	// ---------------------------------------------------------------------------
+	// Rewrite a.el hrefs for merged / moved pages
+	// ---------------------------------------------------------------------------
+
+	function applyDocLinkRedirects(root) {
+		root.querySelectorAll('a.el').forEach(function (a) {
+			var href = a.getAttribute('href');
+			if (!href) return;
+			var page = href.split('#')[0];
+			if (!Object.prototype.hasOwnProperty.call(URL_REDIRECTS, page)) return;
+			var anchor = href.indexOf('#') !== -1 ? '#' + href.split('#')[1] : '';
+			a.href = URL_REDIRECTS[page] + anchor;
+		});
+	}
+
+	// ---------------------------------------------------------------------------
+	// Memproto: drop empty parameter placeholder cells
+	// ---------------------------------------------------------------------------
+
+	function removeEmptyParameterCells() {
+		document.querySelectorAll('table.memname tr').forEach(function (tr) {
+			var typeTd = tr.querySelector('td.paramtype');
+			var nameTd = tr.querySelector('td.paramname');
+			if (!typeTd && !nameTd) return;
+
+			function empty(td) {
+				return !td || td.textContent.trim() === '';
 			}
-		}
-	});
-	observer.observe(document.getElementById("doc-content"), {
-		childList: true,
-		subtree: true
-	});
 
-    // mapping: original doxygen page -> new destination
-    const redirects = {
-		"structtgen_1_1__detail_1_1gen__base.html": "group__generator__op.html",
-    };
+			if (empty(typeTd) && empty(nameTd)) {
+				if (typeTd) typeTd.remove();
+				if (nameTd) nameTd.remove();
+				var prev = tr.querySelector('td:nth-last-child(3)');
+				if (prev && prev.textContent.trim() === ',') prev.remove();
+			}
+		});
+	}
 
-	const root = document.getElementById("doc-content");
-    root.querySelectorAll("a.el").forEach(a => {
+	// ---------------------------------------------------------------------------
+	// Title row: badges + GitHub control
+	// ---------------------------------------------------------------------------
 
-        const href = a.getAttribute("href");
-        if (!href) return;
-
-        // remove anchors (#...)
-        const page = href.split("#")[0];
-
-        if (!(page in redirects))
-            return;
-
-        // preserve anchor if exists
-        const anchor = href.includes("#") ? "#" + href.split("#")[1] : "";
-
-        a.href = redirects[page] + anchor;
-    });
-
-	// Removes empty div in parameters.
-	document.querySelectorAll("table.memname tr").forEach(tr => {
-		const typeTd = tr.querySelector("td.paramtype");
-		const nameTd = tr.querySelector("td.paramname");
-
-		if (!typeTd && !nameTd) return;
-
-		function isEmpty(td) {
-			if (!td) return true;
-			return td.textContent.trim() === "";
-		}
-
-		// no parameters at all
-		if (isEmpty(typeTd) && isEmpty(nameTd)) {
-			// remove both columns
-			typeTd?.remove();
-			nameTd?.remove();
-
-			// also remove the comma separators Doxygen may leave (rare cases)
-			const prev = tr.querySelector("td:nth-last-child(3)");
-			if (prev && prev.textContent.trim() === ",") prev.remove();
-		}
-	});
-});
-
-</script>
-
-<!-- GitHub Corner -->
-<a href="https://github.com/brunomaletta/tgen" target="_blank" class="github-corner" aria-label="View on GitHub">
-<svg viewBox="0 0 250 250">
-  <path d="M0 0 L250 0 L250 250 Z" class="corner-bg"></path>
-  <path d="M128 109c-15-5-18-11-18-11
-           3-6 8-7 8-7
-           6-1 10 5 10 5
-           5 9 13 7 16 6
-           0-5 2-7 3-8
-           -12-1-25-6-25-28
-           0-6 2-11 5-15
-           -1-1-2-7 1-14
-           0 0 5-2 16 5
-           5-1 10-2 15-2
-           5 0 10 1 15 2
-           11-7 16-5 16-5
-           3 7 2 13 1 14
-           3 4 5 9 5 15
-           0 22-13 27-25 28
-           2 2 4 6 4 12
-           0 9 0 16 0 18"
-        class="octo-arm"></path>
-</svg>
-</a>
-
-
-<!-- Change name in top of the page -->
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const name = document.getElementById("projectname");
-  if (!name) return;
-
-  name.innerHTML = `
+	function injectProjectHeader() {
+		var name = document.getElementById('projectname');
+		if (!name) return;
+		name.innerHTML = `
 	  <div class="top-buttons">
 		  <img src="https://img.shields.io/github/actions/workflow/status/brunomaletta/tgen/ci.yml?label=tests" height="20">
 		  <div id="github-button">
@@ -653,9 +597,58 @@ document.addEventListener("DOMContentLoaded", () => {
 			</div>
 		</div>
   `;
-});
+	}
+
+	// ---------------------------------------------------------------------------
+	// Boot
+	// ---------------------------------------------------------------------------
+
+	function init() {
+		applyMemberDeclColumnWidths();
+		applyMemprotoReturnNameSplit();
+		applyTgenCppHighlights();
+		applyFragmentCppTokenHighlights();
+		highlightAllMemItemLeft();
+		highlightAllMemItemRight();
+
+		var root = docContent();
+		if (root) {
+			applyDocLinkRedirects(root);
+			registerPostLoadLinkStripping(root);
+		}
+
+		removeEmptyParameterCells();
+		injectProjectHeader();
+	}
+
+	document.addEventListener('DOMContentLoaded', init);
+})();
 </script>
 
+<!-- GitHub Corner -->
+<a href="https://github.com/brunomaletta/tgen" target="_blank" class="github-corner" aria-label="View on GitHub">
+<svg viewBox="0 0 250 250">
+  <path d="M0 0 L250 0 L250 250 Z" class="corner-bg"></path>
+  <path d="M128 109c-15-5-18-11-18-11
+           3-6 8-7 8-7
+           6-1 10 5 10 5
+           5 9 13 7 16 6
+           0-5 2-7 3-8
+           -12-1-25-6-25-28
+           0-6 2-11 5-15
+           -1-1-2-7 1-14
+           0 0 5-2 16 5
+           5-1 10-2 15-2
+           5 0 10 1 15 2
+           11-7 16-5 16-5
+           3 7 2 13 1 14
+           3 4 5 9 5 15
+           0 22-13 27-25 28
+           2 2 4 6 4 12
+           0 9 0 16 0 18"
+        class="octo-arm"></path>
+</svg>
+</a>
 
 </head>
 <body>

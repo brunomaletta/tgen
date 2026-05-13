@@ -100,7 +100,7 @@ namespace tgen {
 
 
 /**
- * @brief Generates a random value from the set of valid permutations.
+ * @brief Generates a uniformly random value from the set of valid permutations.
  *
  * @return A uniformly random @tt{tgen::permutation::value} from the set of valid permutations, given the added restrictions.
  *
@@ -114,8 +114,8 @@ namespace tgen {
  *
  * ```cpp
  * // Generates and prints a random permutation of size 5.
- * auto inst = tgen::permutation(5).gen();
- * std::cout << inst << std::endl;
+ * auto val = tgen::permutation(5).gen();
+ * std::cout << val << std::endl;
  * ```
  *
  * @fn permutation::gen() const;
@@ -146,12 +146,12 @@ namespace tgen {
  * ```cpp
  * // Creates and prints a value from a std::vector.
  * std::vector<int> v = {0, 1, 2};
- * tgen::permutation::value inst(v);
- * std::cout << inst << std::endl; // Prints "0 1 2".
+ * tgen::permutation::value val(v);
+ * std::cout << val << std::endl; // Prints "0 1 2".
  *
  * // Also works with conversions, and std::initializer_list<T>.
- * inst = {1, 0};
- * std::cout << inst.add_1() << std::endl; // Prints "2 1".
+ * val = {1, 0};
+ * std::cout << val.add_1() << std::endl; // Prints "2 1".
  * ```
  *
  * @fn permutation::value::value(const std::vector<int> &vec);
@@ -167,8 +167,8 @@ namespace tgen {
  *
  * ```cpp
  * // Prints the size of a value.
- * tgen::permutation::value inst = {0, 1, 2};
- * std::cout << inst.size() << std::endl; // Prints "3".
+ * tgen::permutation::value val = {0, 1, 2};
+ * std::cout << val.size() << std::endl; // Prints "3".
  * ```
  *
  * @fn permutation::value::size();
@@ -186,8 +186,8 @@ namespace tgen {
  *
  * ```cpp
  * // Prints a position of a value.
- * tgen::permutation::value inst = {2, 0, 1};
- * std::cout << inst[1] << std::endl; // Prints "0".
+ * tgen::permutation::value val = {2, 0, 1};
+ * std::cout << val[1] << std::endl; // Prints "0".
  * ```
  *
  * @fn permutation::value::operator[](int idx) const;
@@ -203,8 +203,8 @@ namespace tgen {
  *
  * ```cpp
  * // Prints parity of permutation.
- * tgen::permutation::value inst = {2, 0, 1};
- * std::cout << inst.parity() << std::endl; // Prints "1".
+ * tgen::permutation::value val = {2, 0, 1};
+ * std::cout << val.parity() << std::endl; // Prints "1".
  * ```
  *
  * @fn permutation::value::parity();
@@ -222,8 +222,8 @@ namespace tgen {
  *
  * ```cpp
  * // Sorts and prints a value.
- * tgen::permutation::value inst = {2, 0, 1};
- * std::cout << inst.sort() << std::endl; // Prints "0 1 2".
+ * tgen::permutation::value val = {2, 0, 1};
+ * std::cout << val.sort() << std::endl; // Prints "0 1 2".
  * ```
  *
  * @fn permutation::value::sort();
@@ -241,8 +241,8 @@ namespace tgen {
  *
  * ```cpp
  * // Reverses and prints a value.
- * tgen::permutation::value inst = {2, 0, 1};
- * std::cout << inst.reverse() << std::endl; // Prints "1 0 2".
+ * tgen::permutation::value val = {2, 0, 1};
+ * std::cout << val.reverse() << std::endl; // Prints "1 0 2".
  * ```
  *
  * @fn permutation::value::reverse();
@@ -262,8 +262,8 @@ namespace tgen {
  *
  * ```cpp
  * // Prints inverse of permutation.
- * tgen::permutation::value inst = {2, 0, 1};
- * std::cout << inst.inverse() << std::endl; // Prints "1 2 0".
+ * tgen::permutation::value val = {2, 0, 1};
+ * std::cout << val.inverse() << std::endl; // Prints "1 2 0".
  * ```
  *
  * @fn permutation::value::inverse();
@@ -281,8 +281,8 @@ namespace tgen {
  *
  * ```cpp
  * // Prints a permutation, separated by commas.
- * tgen::permutation::value inst = {2, 0, 1};
- * std::cout << inst.separator(',') << std::endl; // Prints "2,0,1".
+ * tgen::permutation::value val = {2, 0, 1};
+ * std::cout << val.separator(',') << std::endl; // Prints "2,0,1".
  * ```
  *
  * @fn permutation::value::separator(char sep);
@@ -303,8 +303,8 @@ namespace tgen {
  *
  * ```cpp
  * // Prints a 1-based permutation.
- * tgen::permutation::value inst = {2, 0, 1};
- * std::cout << inst.add_1() << std::endl; // Prints "3 1 2".
+ * tgen::permutation::value val = {2, 0, 1};
+ * std::cout << val.add_1() << std::endl; // Prints "3 1 2".
  * ```
  *
  * @fn permutation::value::add_1();
@@ -324,7 +324,7 @@ namespace tgen {
  * std::cout << tgen::permutation::value({2, 0, 1}) << std::endl; // Prints "2 0 1".
  * ```
  *
- * @fn permutation::value::operator<<(std::ostream &out, const value &inst);
+ * @fn permutation::value::operator<<(std::ostream &out, const value &val);
  */
 
 

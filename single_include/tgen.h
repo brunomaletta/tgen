@@ -2142,7 +2142,7 @@ struct permutation : gen_base<permutation> {
 		}
 
 		// Gets a std::vector representing the value.
-		std_type to_std() const { return vec_; }
+		std::vector<int> to_std() const { return std_type(vec_); }
 	};
 
 	// Generates permutation value.
@@ -3528,7 +3528,7 @@ struct str : gen_base<str> {
 		}
 
 		// Gets a std::string representing the value.
-		std_type to_std() const { return str_; }
+		std::string to_std() const { return std_type(str_); }
 	};
 
 	// Generates str value.
@@ -4453,7 +4453,9 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		}
 
 		// Gets a std::pair<n, adj> representing the value.
-		std_type to_std() const { return std::pair(n_, adj_); }
+		std::pair<int, std::vector<std::set<int>>> to_std() const {
+			return std_type(n_, adj_);
+		}
 	};
 
 	// Generates tree value.
@@ -5205,7 +5207,9 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		}
 
 		// Gets a std::tuple<n, m, adj> representing the value.
-		std_type to_std() const { return std::tuple(n_, m(), adj_); }
+		std::tuple<int, int, std::vector<std::set<int>>> to_std() const {
+			return std_type(n_, m(), adj_);
+		}
 	};
 
 	// Generates graph value.

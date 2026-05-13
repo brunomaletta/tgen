@@ -366,7 +366,7 @@ namespace tgen {
 
 
 /**
- * @brief Generates a random value from the set of valid strings.
+ * @brief Generates a uniformly random value from the set of valid strings.
  *
  * @return A uniformly random @tt{tgen::str::value} satisfying the restrictions,
  *         or (for regex generators) a random match according to the regex semantics
@@ -417,8 +417,8 @@ namespace tgen {
  * ```cpp
  * // Creates and prints a value from a std::string.
  * std::string s = "aba";
- * tgen::str::value inst(aba);
- * std::cout << inst << std::endl; // Prints "aba".
+ * tgen::str::value val(aba);
+ * std::cout << val << std::endl; // Prints "aba".
  * ```
  *
  * @fn str::value::value(const std::string &str);
@@ -434,8 +434,8 @@ namespace tgen {
  *
  * ```cpp
  * // Prints the size of a value.
- * tgen::str::value inst = "aba";
- * std::cout << inst.size() << std::endl; // Prints "3".
+ * tgen::str::value val = "aba";
+ * std::cout << val.size() << std::endl; // Prints "3".
  * ```
  *
  * @fn int str::value::size() const;
@@ -453,9 +453,9 @@ namespace tgen {
  *
  * ```cpp
  * // Changes and prints a position of a value.
- * tgen::str::value inst = "aba";
- * ++inst[1];
- * std::cout << inst[1] << std::endl; // Prints "c".
+ * tgen::str::value val = "aba";
+ * ++val[1];
+ * std::cout << val[1] << std::endl; // Prints "c".
  * ```
  *
  * @fn char &str::value::operator[](int idx);
@@ -473,8 +473,8 @@ namespace tgen {
  *
  * ```cpp
  * // Sorts and prints a value.
- * tgen::str::value inst = "aba";
- * std::cout << inst.sort() << std::endl; // Prints "aab".
+ * tgen::str::value val = "aba";
+ * std::cout << val.sort() << std::endl; // Prints "aab".
  * ```
  *
  * @fn str::value::sort();
@@ -492,8 +492,8 @@ namespace tgen {
  *
  * ```cpp
  * // Reverses and prints a value.
- * tgen::str::value inst = "bac";
- * std::cout << inst.reverse() << std::endl; // Prints "cab".
+ * tgen::str::value val = "bac";
+ * std::cout << val.reverse() << std::endl; // Prints "cab".
  * ```
  *
  * @fn str::value::reverse();
@@ -511,8 +511,8 @@ namespace tgen {
  *
  * ```cpp
  * // Sets a value to lowercase and prints it.
- * tgen::str<int>::value inst = "abC";
- * std::cout << inst.lowercase() << std::endl; // Prints "ABC".
+ * tgen::str<int>::value val = "abC";
+ * std::cout << val.lowercase() << std::endl; // Prints "abc".
  * ```
  *
  * @fn str::value::lowercase();
@@ -530,8 +530,8 @@ namespace tgen {
  *
  * ```cpp
  * // Sets a value to uppercase and prints it.
- * tgen::str<int>::value inst = "abC";
- * std::cout << inst.uppercase() << std::endl; // Prints "abc".
+ * tgen::str<int>::value val = "abC";
+ * std::cout << val.uppercase() << std::endl; // Prints "ABC".
  * ```
  *
  * @fn str::value::uppercase();
@@ -573,7 +573,7 @@ namespace tgen {
  * std::cout << tgen::str::value("aba") << std::endl; // Prints "aba".
  * ```
  *
- * @fn str::value::operator<<(std::ostream &out, const value &inst);
+ * @fn str::value::operator<<(std::ostream &out, const value &val);
  */
 
 
@@ -591,7 +591,7 @@ namespace tgen {
  * // s = "cab".
  * ```
  *
- * @fn str::value::to_std() const;
+ * @fn std::string str::value::to_std() const;
  */
 
 };
