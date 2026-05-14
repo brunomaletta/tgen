@@ -163,6 +163,20 @@ TEST(tree_test, value_constructor_rejects_cycle) {
 							 "wtree: value: initial edges must form a tree");
 }
 
+TEST(tree_test, value_from_adjacency_list) {
+	tgen::register_gen();
+
+	std::vector<std::set<int>> a(3);
+	a[0] = {1};
+	a[1] = {0, 2};
+	a[2] = {1};
+	tgen::tree::value t(a);
+
+	EXPECT_EQ(t.n(), 3);
+	EXPECT_TRUE(is_tree_shape(t));
+	EXPECT_EQ(t.edges(), (std::vector<std::pair<int, int>>({{0, 1}, {1, 2}})));
+}
+
 TEST(tree_test, link_composes_trees) {
 	tgen::register_gen();
 

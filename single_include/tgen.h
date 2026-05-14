@@ -75,9 +75,9 @@ inline std::runtime_error error(const std::string &msg) {
 }
 inline std::runtime_error contradiction_error(const std::string &type,
 											  const std::string &msg = "") {
-	// Tried to generate a contradicting type.
+	// Tried to generate a contradictory type.
 	std::string error_msg =
-		type + ": invalid " + type + " (contradicting restrictions)";
+		type + ": invalid " + type + " (contradictory restrictions)";
 	if (!msg.empty())
 		error_msg += ": " + msg;
 	return error(error_msg);
@@ -102,7 +102,7 @@ inline void tgen_ensure_against_bug(bool cond, const std::string &msg = "") {
 	}
 }
 
-// Ensures condition is true, with nice debug.
+// Ensures condition is true, with a clear error message on failure.
 #define tgen_ensure(cond, ...)                                                 \
 	if (!(cond))                                                               \
 	tgen::detail::throw_assertion_error(#cond, ##__VA_ARGS__, __FILE__,        \
@@ -116,7 +116,7 @@ inline void ensure_registered() {
 				"tgen::register_gen(argc, argv) before running tgen functions");
 }
 
-// Template magic to detect types in compile time.
+// Template magic to detect types at compile time.
 
 // Detects containers != std::string.
 template <typename T, typename = void> struct is_container : std::false_type {};
@@ -171,7 +171,7 @@ template <typename... Ts>
 struct is_tuple_multiline<std::tuple<Ts...>>
 	: std::bool_constant<(!is_scalar<Ts>::value or ...)> {};
 
-// Used to return false in compile time only if evaluated.
+// Used to return false at compile time only if evaluated.
 template <typename> inline constexpr bool dependent_false_v = false;
 
 /*
@@ -1392,7 +1392,7 @@ inline void set_seed(int argc, char **argv) {
 // Returns true if there is an opt at a given index.
 inline bool has_opt(std::size_t index) {
 	detail::ensure_registered();
-	return 0 <= index and index < detail::pos_opts.size();
+	return index < detail::pos_opts.size();
 }
 
 // Returns true if there is an opt with a given key.
@@ -1413,7 +1413,7 @@ T opt(size_t index, std::optional<T> default_value = std::nullopt) {
 	if (!has_opt(index)) {
 		if (default_value)
 			return *default_value;
-		throw detail::error("cannot find key with index " +
+		throw detail::error("cannot find opt at index " +
 							std::to_string(index));
 	}
 	return detail::get_opt<T>(detail::pos_opts[index]);
@@ -1427,7 +1427,7 @@ T opt(const std::string &key, std::optional<T> default_value = std::nullopt) {
 	if (!has_opt(key)) {
 		if (default_value)
 			return *default_value;
-		throw detail::error("cannot find key with key " + key);
+		throw detail::error("cannot find opt with key " + key);
 	}
 	return detail::get_opt<T>(detail::named_opts[key]);
 }
@@ -1437,7 +1437,7 @@ opt(K key, std::optional<T> default_value = std::nullopt) {
 	return opt<T>(std::string(1, key), default_value);
 }
 
-// Registers generator by initializing rnd and parsing opts.
+// Registers generator by initializing rng and parsing opts.
 inline void register_gen(int argc, char **argv) {
 	detail::set_seed(argc, argv);
 
@@ -1448,7 +1448,7 @@ inline void register_gen(int argc, char **argv) {
 	detail::registered = true;
 }
 
-// Registers generator by initializing rnd with a given seed.
+// Registers generator by initializing rng with a given seed.
 inline void register_gen(std::optional<long long> seed = std::nullopt) {
 	if (seed)
 		detail::rng.seed(*seed);
@@ -1571,8 +1571,8 @@ template <typename T> struct list : gen_base<list<T>> {
 	list &all_equal() { return equal_range(0, size_ - 1); }
 
 	// Restricts lists for list[S] to be different (distinct), for given subset
-	// S of indices. You can not add two of these restrictions with
-	// intersection.
+	// S of indices. You cannot add two of these restrictions on sets that
+	// intersect.
 	list &different(std::set<int> indices) {
 		if (!indices.empty())
 			diff_restrictions_.push_back(indices);
@@ -1711,12 +1711,12 @@ template <typename T> struct list : gen_base<list<T>> {
 		}
 
 		// Shifts back to correct range, but there might still be values
-		// that we can not use.
+		// that we cannot use.
 		for (T &val : gen_list)
 			val += value_l_;
 
 		// Now for every generated value, we shift it by how many forbidden
-		// values are <= to it.
+		// values are <= it.
 		std::vector<std::pair<T, int>> values_sorted;
 		for (std::size_t i = 0; i < gen_list.size(); ++i)
 			values_sorted.emplace_back(gen_list[i], i);
@@ -1849,7 +1849,7 @@ template <typename T> struct list : gen_base<list<T>> {
 			if (diff_containing.size() >= 3)
 				throw detail::complex_restrictions_error(
 					"list",
-					"one index can not be in >= 3 'different' restrictions");
+					"one index cannot be in >= 3 'different' restrictions");
 
 		std::vector<bool> vis_diff(diff_restrictions_.size(), false);
 		std::vector<bool> initially_defined_comp_idx(comp_count, false);
@@ -1923,7 +1923,7 @@ template <typename T> struct list : gen_base<list<T>> {
 					std::set<T> nxt_defined_values;
 					for (int idx2 : diff_restrictions_[nxt_diff])
 						if (defined_idx[idx2]) {
-							// There can not be any more defined. This case is
+							// There cannot be any more defined. This case is
 							// when there are values not covered by a single
 							// "different" restriction in the tree.
 							if (initially_defined_comp_idx[comp_id[idx2]])
@@ -2328,7 +2328,7 @@ std::runtime_error there_is_no_upto_error(const std::string &type, T r) {
 // gcd(a, mod) = 1.
 inline i128 modular_inverse_128(i128 a, i128 mod) {
 	tgen_ensure(0 < a and a < mod,
-				"math: remainder must be positive and smaller than the mod");
+				"math: modular inverse requires 0 < value < mod");
 
 	i128 t = 0, new_t = 1;
 	i128 r = mod, new_r = a;
@@ -4008,17 +4008,15 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			edge_weights_; // Edge weights (in same order as edges_).
 		detail::dsu dsu_;  // Connectivity of current edges (for cycle checks).
 
-		// Creates value from `n` and adjacency list.
+		// Creates value from adjacency list.
 		// O(n).
-		value(int n, const std::vector<std::set<int>> &adj)
-			: n_(n), adj_(adj), add_1_(false), dsu_(n) {
-			tgen_ensure(static_cast<int>(adj.size()) == n,
-						"wtree: value: size of adjacency list should be `n`");
-
-			for (int u = 0; u < n; ++u)
+		value(const std::vector<std::set<int>> &adj)
+			: n_(static_cast<int>(adj.size())), adj_(adj), add_1_(false),
+			  dsu_(n_) {
+			for (int u = 0; u < n_; ++u)
 				for (auto v : adj[u]) {
 					tgen_ensure(
-						0 <= v and v < n,
+						0 <= v and v < n_,
 						"wtree: value: vertices must be indexed in [0, n)");
 					// Symmetric adjacency: count each undirected edge once.
 					if (u < v) {
@@ -4059,7 +4057,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 						"wtree: value: cannot convert weight type after "
 						"assigning weights");
 
-			typename wtree<NewVWeight, NewEWeight>::value new_tree(n_, adj_);
+			typename wtree<NewVWeight, NewEWeight>::value new_tree(adj_);
 			new_tree.add_1_ = add_1_;
 			new_tree.print_parents_ = print_parents_;
 			return new_tree;
@@ -4376,7 +4374,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 						out << " ";
 					out << (*val.vertex_weights())[i];
 				}
-				out << std::endl;
+				out << '\n';
 			}
 
 			tgen_ensure(static_cast<int>(val.edges().size()) == val.n() - 1,
@@ -4433,7 +4431,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 					}
 				}
 
-				out << std::endl;
+				out << '\n';
 				return out;
 			}
 
@@ -4446,7 +4444,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 				if (val.edge_weights().has_value())
 					out << " " << (*val.edge_weights())[i];
 
-				out << std::endl;
+				out << '\n';
 			}
 
 			return out;
@@ -4606,20 +4604,16 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		std::optional<std::vector<EWeight>>
 			edge_weights_; // Edge weights (in same order as edges_ ).
 
-		// Creates value from `n`, `m`, and adjacency list. The edges are
-		// considered to be directed.
+		// Creates value from adjacency list. The edges
+		// are considered to be directed.
 		// O(n + m).
-		value(int n, const std::vector<std::set<int>> &adj,
-			  bool is_directed = false)
-			: n_(n), adj_(adj), is_directed_(is_directed), add_1_(false),
-			  print_nm_(false) {
-			tgen_ensure(static_cast<int>(adj.size()) == n,
-						"wgraph: value: size of adjacency list should be `n`");
-
-			for (int u = 0; u < n; ++u)
+		value(const std::vector<std::set<int>> &adj, bool is_directed = false)
+			: n_(static_cast<int>(adj.size())), adj_(adj),
+			  is_directed_(is_directed), add_1_(false), print_nm_(false) {
+			for (int u = 0; u < n_; ++u)
 				for (auto v : adj[u]) {
 					tgen_ensure(
-						0 <= v and v < n,
+						0 <= v and v < n_,
 						"wgraph: value: vertices must be indexed in [0, n)");
 					// Undirected adjacency is symmetric: count each edge once
 					// (canonical u <= v). Directed: every out-edge appears
@@ -4671,7 +4665,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 						"assigning weights");
 
 			typename wgraph<NewVWeight, NewEWeight>::value new_graph(
-				n_, adj_, is_directed_);
+				adj_, is_directed_);
 			new_graph.is_directed_ = is_directed_;
 			new_graph.add_1_ = add_1_;
 			new_graph.print_nm_ = print_nm_;
@@ -4843,7 +4837,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		}
 
 		// Adds edge (u, v).
-		// Updates `m` accordingly.
 		// O(log n) amortized.
 		value &add_edge(int u, int v, std::optional<EWeight> w = std::nullopt) {
 			tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n(),
@@ -4999,7 +4992,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		}
 
 		// Computes uniformly random subgraph of graph with num_edges edges.
-		// O(m) amortized.
+		// O(n + m).
 		value &random_subgraph(int num_edges) {
 			tgen_ensure(
 				num_edges <= m(),
@@ -5179,7 +5172,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		friend std::ostream &operator<<(std::ostream &out, const value &val) {
 			// Prints `n` and `m`.
 			if (val.print_nm_)
-				out << val.n() << " " << val.m() << std::endl;
+				out << val.n() << " " << val.m() << '\n';
 
 			// Prints vertex weights.
 			if (val.vertex_weights()) {
@@ -5188,7 +5181,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 						out << " ";
 					out << (*val.vertex_weights())[i];
 				}
-				out << std::endl;
+				out << '\n';
 			}
 
 			// Prints edges.
@@ -5200,7 +5193,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 				if (val.edge_weights().has_value())
 					out << " " << (*val.edge_weights())[i];
 
-				out << std::endl;
+				out << '\n';
 			}
 
 			return out;
@@ -5297,19 +5290,19 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			}
 		}
 
-		auto connected_graph = *this;
+		auto connected = *this;
 
 		// Adds edges between connected components.
 		if (component_ids.size() > 1) {
 			std::vector<int> prufer_values =
 				many_by_distribution(component_ids.size() - 2, comp_size);
 			for (auto [u, v] : detail::edges_from_prufer(prufer_values))
-				connected_graph.add_edge(pick(component_ids[u]),
-										 pick(component_ids[v]));
+				connected.add_edge(pick(component_ids[u]),
+								   pick(component_ids[v]));
 		}
 
 		// Generates remaining edges.
-		return connected_graph.gen();
+		return connected.gen();
 	}
 
 	// Gets a (not uniformly) random directed acyclic graph.
@@ -5350,17 +5343,17 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		tgen_ensure(static_cast<int>(order.size()) == n_,
 					"wgraph: preset edges contain a directed cycle");
 
-		value new_graph(n_, edges_, true);
+		value acyclic(n_, edges_, true);
 
 		// Generates final edges.
 
-		detail::tgen_ensure_against_bug(new_graph.m() <= m_,
+		detail::tgen_ensure_against_bug(acyclic.m() <= m_,
 										"wgraph: too many edges were added");
 
-		if (new_graph.m() < m_) {
+		if (acyclic.m() < m_) {
 			auto edge_gen = tgen::pair(0, n_ - 1).lt().distinct();
 
-			while (new_graph.m() < m_) {
+			while (acyclic.m() < m_) {
 				pair<int>::value idx_pair(0, 0);
 				try {
 					idx_pair = edge_gen.gen();
@@ -5372,12 +5365,12 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 					throw e;
 				}
 
-				new_graph.add_edge(order[idx_pair.first()],
-								   order[idx_pair.second()]);
+				acyclic.add_edge(order[idx_pair.first()],
+								 order[idx_pair.second()]);
 			}
 		}
 
-		return new_graph;
+		return acyclic;
 	}
 
 	// Skewed undirected connected graph.
@@ -5390,7 +5383,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// If elongation is small, generates a graph with small diameter.
 	// If elongation is large, generates a graph with large diameter, with
 	// vertices 0 and n-1 being far apart.
-	// O(n + m log^2 n).
+	// O(n log n + m log^2 n).
 	value get_skewed(int elongation, int spread) const {
 		tgen_ensure(!is_directed_,
 					"wgraph: get_skewed is only for undirected graphs");
@@ -5401,10 +5394,10 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		tgen_ensure(
 			m_ >= n_ - 1,
 			"wgraph: skewed graph needs at least n - 1 edges to be connected");
-		tgen_ensure(spread >= 1,
-					"wgraph: get_skewed spread must be at least 1");
+		tgen_ensure(spread >= 2,
+					"wgraph: get_skewed spread must be at least 2");
 
-		value new_graph(n_);
+		value skewed(n_);
 
 		std::vector<int> parent(n_), depth(n_, 0);
 		parent[0] = 0;
@@ -5412,7 +5405,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			int p = wnext<int>(i, elongation);
 			parent[i] = p;
 			depth[i] = depth[p] + 1;
-			new_graph.add_edge(i, p);
+			skewed.add_edge(i, p);
 		}
 
 		// Binary lifting.
@@ -5437,17 +5430,21 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		};
 
 		// Creates uniform generator of edges (u, v) such that v is ancestor of
-		// u. For that, every u has depth[u] choices for v, so we weight u by
-		// depth[u]. After that we can just pick the ancestor uniformly.
-		weighted_sampler vertex_choice(depth);
+		// u. For that, every u has depth[u]-1 choices for v, so we weight u by
+		// min(spread - 1, depth[u] - 1). After that we can just pick the
+		// ancestor uniformly.
+		std::vector<int> distribution = depth;
+		for (int &d : distribution)
+			d = std::max(0, std::min(spread - 1, d - 1));
+		weighted_sampler vertex_choice(distribution);
 		distinct extra_edges([&]() -> std::pair<int, int> {
 			int u = vertex_choice.next();
-			int k = next(1, spread);
+			int k = next(2, spread);
 			return {u, kth_parent(u, k)};
 		});
 
 		// Adds the remaining edges.
-		while (new_graph.m() < m_) {
+		while (skewed.m() < m_) {
 			std::pair<int, int> edge;
 			try {
 				edge = extra_edges.gen();
@@ -5458,10 +5455,30 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 				throw e;
 			}
 
-			new_graph.add_edge(edge.first, edge.second);
+			skewed.add_edge(edge.first, edge.second);
 		}
 
-		return new_graph;
+		return skewed;
+	}
+
+	// Uniformly random bipartite graph. The first side has vertices 0 .. n1-1,
+	// the second n1 .. n1+n2-1.
+	// O(n1 + n2 + m log n).
+	static value gen_bipartite(int n1, int n2, int m) {
+		tgen_ensure(m <= static_cast<long long>(n1) * n2,
+					"wgraph: bipartite graph has at most n1 * n2 edges");
+
+		wgraph bipartite(n1 + n2, m);
+		for (auto [u, v] : pair<int>(0, n1 - 1, n1, n1 + n2 - 1)
+							   .distinct()
+							   .gen_list(m)
+							   .to_std())
+			bipartite.add_edge(u, v);
+
+		detail::tgen_ensure_against_bug(
+			static_cast<int>(bipartite.edges_.size()) == m,
+			"wgraph: invalid number of edges in bipartite graph");
+		return bipartite.gen();
 	}
 };
 
@@ -5476,25 +5493,7 @@ template <typename VWeight> using vgraph = wgraph<VWeight, int>;
 template <typename EWeight> using egraph = wgraph<int, EWeight>;
 
 // Unweighted graph.
-struct graph : wgraph<int, int> {
-	using wgraph::wgraph;
-
-	// Uniformly random bipartite graph. The first side has vertices 0 .. n1-1,
-	// the second n1 .. n1+n2-1.
-	// O(n1 + n2 + m log n).
-	static graph::value gen_bipartite(int n1, int n2, int m) {
-		tgen_ensure(m <= static_cast<long long>(n1) * n2,
-					"graph: bipartite graph has at most n1 * n2 edges");
-
-		graph bipartite(n1 + n2, m);
-		for (auto [u, v] : pair<int>(0, n1 - 1, n1, n1 + n2 - 1)
-							   .distinct()
-							   .gen_list(m)
-							   .to_std())
-			bipartite.add_edge(u, v);
-		return bipartite.gen();
-	}
-};
+using graph = wgraph<int, int>;
 
 /*
  * Standard graphs.

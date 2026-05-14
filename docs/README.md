@@ -28,6 +28,7 @@ and operations for specific data types:
 - [Permutations](https://brunomaletta.github.io/tgen/group__permutation.html)
 - [Strings](https://brunomaletta.github.io/tgen/group__str.html)
 - [Trees](https://brunomaletta.github.io/tgen/group__tree.html)
+- [Graphs](https://brunomaletta.github.io/tgen/group__graph.html)
 
 ### Type generators and values
 

@@ -105,7 +105,7 @@ TEST(opts_test, opt_named_not_found) {
 	auto argv = get_argv({"./executable", "-n", "10", "-10"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::opt<int>("m"), "cannot find key with key m");
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<int>("m"), "cannot find opt with key m");
 }
 
 TEST(opts_test, opt_named_invalid_conversion) {
@@ -151,7 +151,7 @@ TEST(opts_test, opt_positional_not_found) {
 	auto argv = get_argv({"./executable", "-n", "10", "-10"});
 	tgen::register_gen(argv.size() - 1, argv.data());
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::opt<int>(1), "cannot find key with index 1");
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<int>(1), "cannot find opt at index 1");
 }
 
 TEST(opts_test, opt_positional) {

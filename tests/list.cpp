@@ -302,21 +302,21 @@ TEST(list_test, gen_with_all_invalid) {
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::list<int>(10, 1, 10).fix(0, 5).equal(0, 1).fix(1, 6).gen(),
-		"list: invalid list (contradicting restrictions)");
+		"list: invalid list (contradictory restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::list<int>(10, 1, 10).fix(0, 5).fix(1, 5).different(0, 1).gen(),
-		"list: invalid list (contradicting restrictions)");
+		"list: invalid list (contradictory restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, 1, 9).all_different().gen(),
-							 "list: invalid list (contradicting restrictions)");
+							 "list: invalid list (contradictory restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, 1, 10)
 								 .fix(0, 1)
 								 .fix(2, 1)
 								 .different({0, 1, 2})
 								 .gen(),
-							 "list: invalid list (contradicting restrictions)");
+							 "list: invalid list (contradictory restrictions)");
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(10, 0, 2)
 								 .equal(0, 1)
@@ -325,7 +325,7 @@ TEST(list_test, gen_with_all_invalid) {
 								 .fix(2, 1)
 								 .different({0, 2, 3})
 								 .gen(),
-							 "list: invalid list (contradicting restrictions)");
+							 "list: invalid list (contradictory restrictions)");
 }
 
 TEST(list_test, gen_with_all_complex) {

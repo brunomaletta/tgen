@@ -1,0 +1,1085 @@
+#include "../single_include/tgen.h"
+
+namespace tgen {
+
+/**
+ * @defgroup graph Graphs
+ * @brief Generation of simple labeled graphs (undirected or directed).
+ *
+ * Vertices are labeled @tt{0} through @tt{n-1}. Isomorphism is not factored
+ * out: two different labeled graphs are distinct.
+ *
+ * The template @tt{tgen::wgraph<VWeight, EWeight>} is the general generator. It
+ * fixes @tt{n} and a target edge count @tt{m}, optional preset edges, and
+ * directed / self-loop mode. It only randomizes **edges** (which pairs of vertices are adjacent);
+ * vertex and edge weights are not sampled by the generator. Attach them on @tt{tgen::wgraph::value} with
+ * @tt{tgen::wgraph::value::set_vertex_weights} / @tt{tgen::wgraph::value::set_edge_weights} when needed.
+ *
+ * Convenient aliases (same constructors and methods as @tt{tgen::wgraph}):
+ * - @tt{tgen::graph} — unweighted, @tt{tgen::wgraph<int, int>};
+ * - @tt{tgen::vgraph<VWeight>} — vertex weight type @tt{VWeight}, dummy edge
+ *   weight @tt{int}, i.e. @tt{tgen::wgraph<VWeight, int>};
+ * - @tt{tgen::egraph<EWeight>} — edge weight type @tt{EWeight}, dummy vertex
+ *   weight @tt{int}, i.e. @tt{tgen::wgraph<int, EWeight>}.
+ *
+ * ### Examples
+ *
+ * Uniform completion to @tt{m} edges with one forced edge.
+ *
+ * ```cpp
+ * // Prints a random simple graph on 5 vertices with 6 edges, including (0,1).
+ * std::cout << tgen::graph(5, 6).add_edge(0, 1).gen();
+ * ```
+ * ```
+ * 0 1
+ * 3 4
+ * 1 3
+ * 1 4
+ * 2 4
+ * 0 2
+ * ```
+ * @image html graph1.svg "Example generated graph" width=600
+ *
+ * Random **connected** undirected graph extending preset edges.
+ *
+ * ```cpp
+ * // Random connected graph on 8 vertices with 10 edges, including edge (0,1).
+ * std::cout << tgen::graph(8, 10).add_edge(0, 1).get_connected();
+ * ```
+ * ```
+ * 0 1
+ * 0 3
+ * 1 5
+ * 2 7
+ * 4 7
+ * 5 6
+ * 6 7
+ * 1 4
+ * 1 2
+ * 1 6
+ * ```
+ * @image html graph2.svg "Example generated graph" width=600
+ *
+ * Random **directed acyclic** graph with @tt{m} edges.
+ *
+ * ```cpp
+ * // Random DAG on 8 vertices with 12 directed edges.
+ * std::cout << tgen::graph(8, 12, true).get_acyclic();
+ * ```
+ * ```
+ * 1 2
+ * 7 4
+ * 3 5
+ * 2 5
+ * 6 4
+ * 1 5
+ * 7 0
+ * 1 0
+ * 4 3
+ * 4 5
+ * 1 3
+ * 0 3
+ * ```
+ * @image html graph3.svg "Example generated graph" width=600
+ *
+ * Skewed connected undirected graph.
+ *
+ * ```cpp
+ * // Skewed connected graph on 10 vertices with 15 edges (elongation 100, spread 2).
+ * std::cout << graph(10, 15).get_skewed(100, 2);
+ * ```
+ * ```
+ * 0 1
+ * 1 2
+ * 2 3
+ * 3 4
+ * 4 5
+ * 5 6
+ * 6 7
+ * 7 8
+ * 8 9
+ * 1 3
+ * 6 8
+ * 7 9
+ * 5 7
+ * 4 6
+ * 2 4
+ * ```
+ * @image html graph4.svg "Example generated graph" width=600
+ *
+ * Attach vertex weights after generation (the weight type is converted automatically).
+ *
+ * ```cpp
+ * // Triangle with string edge weights and a leading n/m line when printed.
+ * std::cout << tgen::C(3).set_edge_weights<std::string>({"a", "b", "ab"}).print_nm();
+ * ```
+ * ```
+ * 3 3
+ * 0 1 a
+ * 0 2 b
+ * 1 2 ab
+ * ```
+ * @image html graph5.svg "Example generated graph" width=600
+
+ *
+ * Standard graphs (@tt{tgen::K}, @tt{tgen::P}, @tt{tgen::C}, and @tt{tgen::S})
+ * are deterministic helpers that return @tt{tgen::wgraph::value}.
+ *
+ * For labeled **trees** (exactly @tt{n-1} undirected edges), see the @ref tree module and @tt{tgen::wtree}.
+ */
+
+
+
+
+
+/**
+ * @ingroup graph
+ * @brief Labeled weighted graph generator.
+ *
+ * Defines graphs on @tt{n} vertices with exactly @tt{m} edges after generation,
+ * subject to preset edges from @tt{tgen::wgraph::add_edge}. A uniformly random
+ * completion (respecting simple / directed / self-loop rules) is produced by
+ * @tt{tgen::wgraph::gen}.
+ *
+ * There are other static generation methods:
+ * - For uniformly random bipartite graphs: @tt{tgen::wgraph::gen_bipartite}.
+ *
+ * There are also structured, non-uniform operations:
+ * - For random connected undirected graphs: @tt{tgen::wgraph::get_connected};
+ * - For random directed acyclic graphs: @tt{tgen::wgraph::get_acyclic};
+ * - For random skewed connected undirected graphs: @tt{tgen::wgraph::get_skewed}.
+ *
+ * @struct wgraph;
+ */
+
+
+/**
+ * @ingroup graph
+ * @brief Vertex-weighted labeled graphs.
+ *
+ * Same as @tt{tgen::wgraph<VWeight, int>} (edge weight type is a dummy @tt{int}).
+ *
+ * @typedef tgen::vgraph;
+ */
+
+
+/**
+ * @ingroup graph
+ * @brief Edge-weighted labeled graphs.
+ *
+ * Same as @tt{tgen::wgraph<int, EWeight>} (vertex weight type is a dummy @tt{int}).
+ *
+ * @typedef tgen::egraph;
+ */
+
+
+/**
+ * @ingroup graph
+ * @brief Unweighted labeled graphs.
+ *
+ * Same as @tt{tgen::wgraph<int, int>} (vertex and edge weight types are dummy @tt{int}).
+ *
+ * @typedef tgen::graph;
+ */
+
+
+/**
+ * @brief Creates a graph generator for a fixed number of vertices and edges.
+ *
+ * @param n Number of vertices.
+ * @param m Target number of edges.
+ * @param is_directed If true, edges are directed and distinguish @tt{(u,v)} from @tt{(v,u)}.
+ * @param has_self_loops If true, pairs @tt{(i,i)} may be generated.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Undirected simple graph on 10 vertices with 15 edges.
+ * auto g = tgen::graph(10, 15);
+ * // Directed simple graph on 10 vertices with 20 edges.
+ * auto directed_gen = tgen::graph(10, 20, true);
+ * ```
+ *
+ * @fn wgraph::wgraph(int n, int m, bool is_directed = false, bool has_self_loops = false);
+ */
+
+
+/**
+ * @brief Adds a preset edge that must appear in the generated graph.
+ *
+ * @param u Endpoint (head if directed).
+ * @param v Endpoint (tail if directed).
+ *
+ * The number of preset edges must not exceed @tt{m}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(log m)} amortized.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Generator on 6 vertices with 8 edges and edge (0,5) forced.
+ * auto gen = tgen::graph(6, 8).add_edge(0, 5);
+ * ```
+ *
+ * @fn wgraph::add_edge(int u, int v);
+ */
+
+
+/**
+ * @brief Generates a uniformly random graph satisfying the constraints.
+ *
+ * @return A @tt{tgen::wgraph::value} with @tt{m} distinct edges, including all presets.
+ *
+ * Preset edges are included first; remaining edges are sampled uniformly from admissible pairs until @tt{m} distinct edges exist.
+ *
+ * @throws std::runtime_error if there are not @tt{m} valid edges to generate.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m log n)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints a random labeled graph on 4 vertices with 5 edges.
+ * std::cout << tgen::graph(4, 5).gen();
+ * ```
+ *
+ * @fn wgraph::gen() const;
+ */
+
+
+/**
+ * @brief Random connected undirected graph extending preset edges.
+ *
+ * @return A connected @tt{tgen::wgraph::value} with exactly @tt{m} edges.
+ *
+ * First, edges are chosen to connect the connected components induced by the preset edges, uniformly at random.
+ * Then, remaining edges are chosen uniformly at random.
+ *
+ * @note This operation is not uniformly random.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m log n)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Random connected graph on 12 vertices with 14 edges.
+ * std::cout << tgen::graph(12, 14).get_connected();
+ * ```
+ *
+ * @fn wgraph::get_connected() const;
+ */
+
+
+/**
+ * @brief Random directed acyclic graph extending preset edges.
+ *
+ * @return A DAG @tt{tgen::wgraph::value} with exactly @tt{m} edges.
+ *
+ * Preset edges must be acyclic. Remaining edges respect a random topological order (randomized Kahn).
+ *
+ * @throws std::runtime_error preset edges forms a cycle.
+ *
+ * @note This operation is not uniformly random.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m log n)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Random DAG on 10 vertices with 15 edges.
+ * std::cout << tgen::graph(10, 15, true).get_acyclic();
+ * ```
+ *
+ * @fn wgraph::get_acyclic() const;
+ */
+
+
+/**
+ * @brief Random skewed connected undirected graph (large diameter).
+ *
+ * @param elongation Passed to @tt{tgen::wnext}; controls how star-like or path-like the spanning tree is.
+ * @param spread Maximum walk length toward the root when sampling an extra edges.
+ *
+ * @pre @tt{@pname{spread} >= 2}.
+ *
+ * @return A connected skewed @tt{tgen::wgraph::value} with exactly @tt{m} edges.
+ *
+ * First, builds a skewed spanning tree with @tt{tgen::wtree::get_skewed(@pname{elongation})}.
+ * Then, the remaining edges @tt{(u, v)} are generated with the following procedure.
+ * Vertex @tt{u} is random, and vertex @tt{v} is the result of walking @tt{tgen::next(2, @pname{spread})} parent edges
+ * in the spanning tree.
+ *
+ * If @pname{elongation} is small (negative), the spanning tree tends to be star-like and the graph tends to have
+ * small diameter. If @pname{elongation} is large (positive), the spanning tree tends to be path-like and vertices
+ * @tt{0} and @tt{n - 1} tend to be far apart.
+ *
+ * @note This operation is not uniformly random.
+ *
+ * @warning Does not support preset edges, self-loops, or directed mode.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n log n + m log^2 n)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Random skewed connected graph.
+ * std::cout << tgen::graph(20, 25).get_skewed(10, 3);
+ * ```
+ *
+ * @fn wgraph::get_skewed(int elongation, int spread) const;
+ */
+
+
+/**
+ * @brief Generates a uniformly random bipartite graph.
+ *
+ * @param n1 Size of the left side.
+ * @param n2 Size of the right side.
+ * @param m Target edge count.
+ *
+ * @return A bipartite @tt{tgen::wgraph::value} with @tt{n1 + n2} vertices and @tt{m} edges.
+ *
+ * The vertices on the left side are indexed in @tt{[0, @pname{n1})},
+ * and those on right side in @tt{[@pname{n1}, @pname{n1} + @pname{n2})}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n1} + @pname{n2} + @pname{m} log(@pname{n1} + @pname{n2}))}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Bipartite graph with 5 vertices and 5 edges.
+ * std::cout << tgen::graph::gen_bipartite(2, 3, 5);
+ * ```
+ *
+ * @fn wgraph::gen_bipartite(int n1, int n2, int m);
+ */
+
+
+
+
+
+/**
+ * @ingroup graph
+ * @brief Labeled graph value.
+ *
+ * Adjacency lists are symmetric for undirected graphs; the edge list @tt{tgen::wgraph::value::edges}
+ * lists each undirected edge once as @tt{(u, v)} with @tt{u <= v}. Directed graphs list each directed edge once.
+ *
+ * It can be printed through @tt{@namespace{std}::cout}.
+ *
+ * @struct wgraph::value;
+ */
+
+
+/**
+ * @brief Builds a graph from an adjacency list.
+ *
+ * @param adj Adjacency list; @tt{adj[u]} contains every neighbor of @tt{u} (out-neighbors if directed).
+ * @param is_directed If false, @tt{adj} must be symmetric and each undirected edge must appear in both directions.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Triangle as undirected graph from adjacency.
+ * std::vector<std::set<int>> a(3);
+ * a[0] = {1, 2};
+ * a[1] = {0, 2};
+ * a[2] = {0, 1};
+ * tgen::graph::value g(a);
+ * ```
+ *
+ * @fn wgraph::value::value(const std::vector<std::set<int>> &adj, bool is_directed = false);
+ */
+
+
+/**
+ * @brief Builds a graph from number of vertices and edge list.
+ *
+ * @param n Number of vertices.
+ * @param edges List of edges.
+ * @param is_directed If the graph is directed.
+ *
+ * For undirected graphs, each edge @tt{(u, v)} should appear once with @tt{u <= v}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m log n)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // 2 P_2.
+ * tgen::graph::value g(4, {{0, 1}, {2, 3}});
+ * ```
+ *
+ * @fn wgraph::value::value(int n, const std::vector<std::pair<int, int>> &edges = {}, bool is_directed = false);
+ */
+
+
+/**
+ * @brief Number of vertices.
+ *
+ * @return The number of vertices.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Vertex count of a path on five vertices.
+ * auto g = tgen::graph::value(5, {{0, 1}, {1, 2}, {2, 3}, {3, 4}});
+ * std::cout << g.n() << std::endl; // Prints "5".
+ * ```
+ *
+ * @fn wgraph::value::n() const;
+ */
+
+
+/**
+ * @brief Number of edges.
+ *
+ * @return The number of edges (size of @tt{edges()}).
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Edge count of a path on four vertices.
+ * auto g = tgen::graph::value(4, {{0, 1}, {1, 2}, {2, 3}});
+ * std::cout << g.m() << std::endl; // Prints "3".
+ * ```
+ *
+ * @fn wgraph::value::m() const;
+ */
+
+
+/**
+ * @brief If the graph is directed.
+ *
+ * @return True if edges are directed.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Directed flag: same edge list, undirected vs directed semantics.
+ * auto u = tgen::graph::value(3, {{0, 1}}, false);
+ * auto d = tgen::graph::value(3, {{0, 1}}, true);
+ * std::cout << u.is_directed() << d.is_directed() << std::endl; // Prints "01".
+ * ```
+ *
+ * @fn wgraph::value::is_directed() const;
+ */
+
+
+/**
+ * @brief Adjacency list.
+ *
+ * @return Constant reference to the adjacency list.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Degree of vertex 1 in a P_3.
+ * auto g = tgen::graph::value(3, {{0, 1}, {1, 2}});
+ * std::cout << g.adj()[1].size() << std::endl; // Prints "2".
+ * ```
+ *
+ * @fn wgraph::value::adj() const;
+ */
+
+
+/**
+ * @brief Edge list.
+ *
+ * @return Constant reference to the edge list.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // List every edge of a path on four vertices.
+ * for (const auto &[u, v] : tgen::graph::value(4, {{0, 1}, {1, 2}, {2, 3}}).edges())
+ *     std::cout << u << " " << v << "\n";
+ * ```
+ *
+ * @fn wgraph::value::edges() const;
+ */
+
+
+/**
+ * @brief Optional vertex weights.
+ *
+ * @return Constant reference to the optional vertex-weight vector.
+ *
+ * Absent when this graph has no vertex weights.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // First vertex weight after attaching integer weights.
+ * auto g = tgen::graph::value(2, {{0, 1}}).set_vertex_weights({7, 8});
+ * std::cout << (*g.vertex_weights())[0] << std::endl; // Prints "7".
+ * ```
+ *
+ * @fn wgraph::value::vertex_weights() const;
+ */
+
+
+/**
+ * @brief Optional edge weights.
+ *
+ * @return Constant reference to the optional edge-weight vector, aligned with @tt{edges()}.
+ * 
+ * Index @tt{i} corresponds to @tt{edges()[i]}. Absent when the tree has no edge weights.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // First edge weight aligned with the edge list order.
+ * auto g = tgen::graph::value(3, {{0, 1}, {1, 2}}).set_edge_weights({30, 40});
+ * std::cout << (*g.edge_weights())[0] << std::endl; // Prints "30".
+ * ```
+ *
+ * @fn wgraph::value::edge_weights() const;
+ */
+
+
+/**
+ * @brief Attaches vertex weights.
+ *
+ * @param vertex_weights One weight per vertex (@tt{n} values).
+ *
+ * @return A @tt{tgen::wgraph::value} with @pname{vertex_weights} attached. The weight type is deduced.
+ *
+ * Immutable style: returns a copy with weights set (weight type deduced); does not modify @tt{*this}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Copy with vertex weights; stream shows weight line then edges.
+ * auto g = tgen::graph::value(3, {{0, 1}, {1, 2}});
+ * auto w = g.set_vertex_weights({1, 2, 3});
+ * std::cout << w; // Prints "1 2 3\n0 1\n1 2\n".
+ * ```
+ *
+ * @fn wgraph::value::set_vertex_weights(const std::vector<int> &vertex_weights) const;
+ */
+
+
+/**
+ * @brief Attaches edge weights.
+ *
+ * @param edge_weights One weight per edge, in the same order as @tt{edges()}.
+ *
+ * @return A copy of this graph with @pname{edge_weights} attached. The weight type is deduced.
+ *
+ * Immutable style: returns a copy with weights set (weight type deduced); does not modify @tt{*this}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Copy with edge weights; stream shows each edge with its weight.
+ * auto g = tgen::graph::value(3, {{0, 1}, {1, 2}});
+ * auto w = g.set_edge_weights({9, 10});
+ * std::cout << w; // Prints "0 1 9\n1 2 10\n".
+ * ```
+ *
+ * @fn wgraph::value::set_edge_weights(const std::vector<int> &edge_weights) const;
+ */
+
+
+/**
+ * @brief Adds 1 for printing.
+ *
+ * This makes it so, when given to @tt{@namespace{std}::@type{cout}}, the graph will be printed with labels
+ * 1-based. Weights are not affected.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Stream edges with vertex indices shifted by one for output only.
+ * auto g = tgen::graph::value(3, {{0, 1}, {1, 2}});
+ * std::cout << g.add_1(); // Prints "1 2\n2 3\n".
+ * ```
+ *
+ * @fn wgraph::value::add_1();
+ */
+
+
+/**
+ * @brief Prints number of vertices and edges before edge list.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Stream with a leading line giving vertex count and edge count.
+ * auto g = tgen::graph::value(3, {{0, 1}, {1, 2}});
+ * std::cout << g.print_nm(); // Prints "3 2\n0 1\n1 2\n".
+ * ```
+ *
+ * @fn wgraph::value::print_nm();
+ */
+
+
+/**
+ * @brief Adds new isolated vertices.
+ *
+ * @param k Number of vertices to append.
+ * @param new_vertex_weights Optional weights for the new vertices (required if the graph already has vertex weights).
+ *
+ * #### Complexity
+ *
+ * @tt{O(k)} amortized.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Append one isolated vertex; total vertex count becomes three.
+ * tgen::graph::value g(2, {{0, 1}});
+ * g.add_vertices(1);
+ * std::cout << g.n() << std::endl; // Prints "3".
+ * ```
+ *
+ * @fn wgraph::value::add_vertices(int k, std::optional<std::vector<int>> new_vertex_weights = std::nullopt);
+ */
+
+
+/**
+ * @brief Adds an edge between two vertices.
+ *
+ * @param u First endpoint (tail if directed).
+ * @param v Second endpoint (head if directed).
+ * @param w Optional edge weight (required iff the graph already has edge weights).
+ *
+ * If the edge is already present, does nothing.
+ *
+ * #### Complexity
+ *
+ * @tt{O(log n)} amortized.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Add a second edge; edge count becomes two.
+ * tgen::graph::value g(3, {{0, 1}});
+ * g.add_edge(1, 2);
+ * std::cout << g.m() << std::endl; // Prints "2".
+ * ```
+ *
+ * @fn wgraph::value::add_edge(int u, int v, std::optional<int> w = std::nullopt);
+ */
+
+
+/**
+ * @brief Shuffles vertices except given vertices, and edge order.
+ *
+ * @param indices Vertex ids to keep fixed; every other vertex is relabeled by a random permutation.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Random relabel of P_5 maintaining 0 as one of its exteme points.
+ * std::cout << tgen::P(5).shuffle_except({0});
+ * ```
+ *
+ * @fn wgraph::value::shuffle_except(std::set<int> indices);
+ */
+
+
+/**
+ * @brief Shuffles all vertices and edge order.
+ *
+ * Shuffles all vertices and edge order. Equivalent to @tt{@ref shuffle_except({})}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Random relabel of P_5.
+ * std::cout << tgen::P(5).shuffle();
+ * ```
+ *
+ * @fn wgraph::value::shuffle();
+ */
+
+
+/**
+ * @brief Links two graphs by an new edge.
+ *
+ * @param rhs Second graph.
+ * @param new_u Endpoint in this graph.
+ * @param new_v Endpoint in @pname{rhs} before relabeling.
+ * @param new_w Optional weight of the connecting edge.
+ *
+ * Vertices on @pname{rhs} are shifted by the current @tt{n()}.
+ * Weight usage must be consistent.
+ *
+ * #### Complexity
+ *
+ * @tt{O(rhs.n() + rhs.m() log n)} amortized.
+ *
+ * That is, the complexity depends mostly on the @pname{rhs} graph.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Connect two single-edge graphs with one new bridge edge; four vertices total.
+ * tgen::graph::value a(2, {{0, 1}});
+ * tgen::graph::value b(2, {{0, 1}});
+ * a.link(b, 0, 0);
+ * std::cout << a.n() << std::endl; // Prints "4".
+ * ```
+ *
+ * @fn wgraph::value::link(const value &rhs, int new_u, int new_v, std::optional<int> new_w = std::nullopt);
+ */
+
+
+/**
+ * @brief Glues another graph on given vertices.
+ *
+ * @param rhs Other graph to be glued.
+ * @param index_pairs Set of @tt{(l, r)} pairs: vertex @tt{l} is glued to vertex @tt{r} in @pname{rhs}.
+ *
+ * Gluing one vertex to another means they are considered to be the same vertex, maintaining the label
+ * it had in this graph. Other vertices are shifted accordingly.
+ *
+ * #### Complexity
+ *
+ * @tt{O(rhs.n() + rhs.m() log n)} amortized.
+ *
+ * That is, the complexity depends mostly on the @pname{rhs} graph.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Glues the edge of a P_3 onto the certer of another P_3.
+ * auto g = tgen::P(3).glue(tgen::P(3), {{0, 1}});
+ * ```
+ *
+ * @fn wgraph::value::glue(const value &rhs, std::set<std::pair<int, int>> index_pairs);
+ */
+
+
+/**
+ * @brief Disjoint union with another graph.
+ *
+ * #### Complexity
+ *
+ * @tt{O(rhs.n() + rhs.m() log n)} amortized.
+ *
+ * That is, the complexity depends mostly on the @pname{rhs} graph.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Disjoint union of two P_2.
+ * tgen::graph::value a(2, {{0, 1}});
+ * tgen::graph::value b(2, {{0, 1}});
+ * a.disjoint_union(b);
+ * std::cout << a.n() << std::endl; // Prints "4".
+ * ```
+ *
+ * @fn wgraph::value::disjoint_union(const value &rhs);
+ */
+
+
+/**
+ * @brief Random subgraph with a fixed number of edges.
+ *
+ * @param num_edges Number of edges to keep (subset of current edges).
+ *
+ * The edges are chosen uniformly as a subset of the current edges.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Random four-edge subgraph of the complete graph on five vertices.
+ * tgen::graph::value g = tgen::K(5);
+ * std::cout << g.random_subgraph(4).m() << std::endl; // Prints "4".
+ * ```
+ *
+ * @fn wgraph::value::random_subgraph(int num_edges);
+ */
+
+
+/**
+ * @brief Random connected subgraph with a fixed number of edges.
+ *
+ * @param num_edges Number of edges to keep (subset of current edges).
+ *
+ * First, picks a random spanning tree via randomized Prim.
+ * Then, extra edges are chosen uniformly at random.
+ *
+ * @note This operation is not uniformly random.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Random connected eight-edge subgraph of the complete graph on six vertices.
+ * tgen::graph::value g = tgen::K(6);
+ * std::cout << g.random_connected_subgraph(8).m() << std::endl; // Prints "8".
+ * ```
+ *
+ * @fn wgraph::value::random_connected_subgraph(int num_edges);
+ */
+
+
+/**
+ * @brief Graph complement of unweighted graph.
+ *
+ * @return Complement graph.
+ *
+ * Immutable style: returns a copy with the complement with the same @tt{n}, @tt{is_directed}, and printing flags;
+ * does not modify @tt{*this}.
+ *
+ * Self loops are maintained.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n^2)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Complement of a path on 4 vertices has three edges (the missing chords).
+ * tgen::graph::value p = tgen::P(4);
+ * std::cout << (!p).m() << std::endl; // Prints "3".
+ * ```
+ *
+ * @fn wgraph::value::operator!() const;
+ */
+
+
+/**
+ * @brief Concatenates two graphs (disjoint union).
+ *
+ * Immutable style: returns a copy with the disjoint union;
+ * does not modify @tt{*this}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m log n)} for the combined size.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Concatenate two disjoint edges; total vertex count is four.
+ * tgen::graph::value a(2, {{0, 1}});
+ * tgen::graph::value b(2, {{0, 1}});
+ * std::cout << (a + b).n() << std::endl; // Prints "4".
+ * ```
+ *
+ * @fn wgraph::value::operator+(const value &rhs) const;
+ */
+
+
+/**
+ * @brief Converts the graph to @namespace{std} types.
+ *
+ * @return @tt{(n, m, adj)} as @tt{@namespace{std}::@type{tuple}}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Tuple holds vertex count, edge count, and adjacency lists.
+ * auto [n, m, adj] = tgen::graph::value(3, {{0, 1}, {1, 2}}).to_std();
+ * std::cout << n << " " << m << std::endl; // Prints "3 2".
+ * ```
+ *
+ * @fn wgraph::value::to_std() const;
+ */
+
+
+/**
+ * @brief Prints the graph to an output stream.
+ *
+ * @param out Output stream.
+ * @param val Graph to write.
+ *
+ * Optional @tt{n m} line when @tt{print_nm} is set, optional vertex-weight line, then edges (with optional edge weights).
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Prints a three-vertex path as edge lines.
+ * std::cout << tgen::graph::value(3, {{0, 1}, {1, 2}}).print_nm();
+ * ```
+ * ```
+ * 3 2
+ * 0 1
+ * 1 2
+ * ```
+ *
+ * @fn wgraph::value::operator<<(std::ostream &out, const value &val);
+ */
+
+
+
+
+
+/**
+ * @ingroup graph
+ * @brief Complete undirected graph.
+ *
+ * @param n Number of vertices.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n}^2)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Complete graph on four vertices (all pairs adjacent).
+ * std::cout << tgen::K(4);
+ * ```
+ *
+ * @fn K(int n);
+ */
+
+
+/**
+ * @ingroup graph
+ * @brief Path undirected graph.
+ *
+ * @param n Number of vertices.
+ *
+ * The edges of the path are vertices @tt{0} and @tt{@pname{n} - 1}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Path on five vertices.
+ * std::cout << tgen::P(5);
+ * ```
+ *
+ * @fn P(int n);
+ */
+
+
+/**
+ * @ingroup graph
+ * @brief Cycle undirected graph.
+ *
+ * @param n Number of vertices.
+ *
+ * @pre @tt{@pname{n} >= 3}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Cycle on five vertices.
+ * std::cout << tgen::C(5);
+ * ```
+ *
+ * @fn C(int n);
+ */
+
+
+/**
+ * @ingroup graph
+ * @brief Star undirected graph.
+ *
+ * @param n Total number of vertices.
+ *
+ * The center of the star is vertex @tt{0}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Star with four leaves.
+ * std::cout << tgen::S(5);
+ * ```
+ *
+ * @fn S(int n);
+ */
+
+
+/**
+ * @ingroup graph
+ * @brief Complete bipartite undirected graph.
+ *
+ * @param n1 Number of vertices on the left side.
+ * @param n2 Number of vertices on the right side.
+ *
+ * The vertices on the left side are indexed in @tt{[0, @pname{n1})},
+ * and those on right side in @tt{[@pname{n1}, @pname{n1} + @pname{n2})}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n1} * @pname{n2})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Complete bipartite graph between parts of size two and three.
+ * std::cout << tgen::K(2, 3);
+ * ```
+ *
+ * @fn K(int n1, int n2);
+ */
+
+};

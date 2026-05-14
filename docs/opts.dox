@@ -69,7 +69,7 @@ namespace tgen {
  *
  * ```cpp
  * // Checks if there is an opt at 0.
- * if (tgen::has_opt(0)) std::cout << "opt found!" << std::endl;
+ * if (tgen::has_opt(0)) std::cout << "opt found!" << std::endl; // Prints "opt found!".
  * ```
  *
  * @fn has_opt(std::size_t index);
@@ -88,7 +88,7 @@ namespace tgen {
  *
  * ```cpp
  * // Checks if there is an opt with "q".
- * if (tgen::has_opt("q")) std::cout << "q found!" << std::endl;
+ * if (tgen::has_opt("q")) std::cout << "q found!" << std::endl; // Prints "q found!".
  * ```
  *
  * @fn has_opt(const std::string &key);

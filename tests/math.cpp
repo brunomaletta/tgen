@@ -149,12 +149,10 @@ TEST(math_test, factor_by_prime) {
 TEST(math_test, modular_inverse_invalid) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(
-		tgen::math::modular_inverse(0, 5),
-		"math: remainder must be positive and smaller than the mod");
-	EXPECT_THROW_TGEN_PREFIX(
-		tgen::math::modular_inverse(5, 5),
-		"math: remainder must be positive and smaller than the mod");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::modular_inverse(0, 5),
+							 "math: modular inverse requires 0 < value < mod");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::modular_inverse(5, 5),
+							 "math: modular inverse requires 0 < value < mod");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::modular_inverse(2, 6),
 							 "math: remainder and mod must be coprime");
 }

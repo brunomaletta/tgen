@@ -71,10 +71,8 @@ namespace tgen {
  *
  * ```cpp
  * std::tuple<int, double, std::string> tu = {5, 0.1, "str"};
- * std::cout << tgen::print(tu);
- * // "5 0.1 str"
- * std::cout << tgen::print({{1, 2}, {3, 4}}, ',');
- * // "1,2\n3,4"
+ * std::cout << tgen::print(tu); // Prints "5 0.1 str".
+ * std::cout << tgen::print({{1, 2}, {3, 4}}, ','); // Prints "1,2\n3,4".
  * ```
  *
  * @struct print;
@@ -114,10 +112,8 @@ namespace tgen {
  *
  * ```cpp
  * std::tuple<int, double, std::string> tu = {5, 0.1, "str"};
- * std::cout << tgen::println(tu);
- * // "5 0.1 str\n"
- * std::cout << tgen::print({{1, 2}, {3, 4}}, ',');
- * // "1,2\n3,4\n"
+ * std::cout << tgen::println(tu); // Prints "5 0.1 str\n".
+ * std::cout << tgen::print({{1, 2}, {3, 4}}, ','); // Prints "1,2\n3,4\n".
  * ```
  *
  * @struct println;
@@ -159,8 +155,7 @@ namespace tgen {
  * ```cpp
  * std::vector<int> a = {1, 2};
  * tgen::list::value b = {3, 4};
- * std::cout << tgen::print_cols(a, b));
- * // "1,3\n2,4\n"
+ * std::cout << tgen::print_cols(a, b)); // Prints "1,3\n2,4\n".
  * ```
  *
  * @struct print_cols;
@@ -351,7 +346,7 @@ namespace tgen {
  * tgen::weighted_sampler sampler(std::vector<int>{1, 3, 6});
  * for (int i = 0; i < 100; ++i)
  *     std::cout << sampler.next() << " ";
- * // "2 1 2 0 2 1 1 2 2 1 2 2 1 2 2 ..."
+ * // Prints e.g. "2 1 2 0 2 1 1 2 2 1 2 2 1 2 2 ...".
  *
  * // Fractional probabilities also work.
  * tgen::weighted_sampler probs(std::vector<double>{0.1, 0.3, 0.6});
@@ -694,8 +689,7 @@ namespace tgen {
  * // Prints current size of distinct generator.
  * tgen::distinct_range u(5, 10);
  * u.gen(), u.gen();
- * std::cout << u.size() << std::endl;
- * // "4"
+ * std::cout << u.size() << std::endl; // Prints "4".
  * ```
  *
  * @fn distinct_range::size();
@@ -824,8 +818,7 @@ namespace tgen {
  * std::set<int> s = {3, 5, 9};
  * tgen::distinct_container u(s);
  * u.gen();
- * std::cout << u.size() << std::endl;
- * // "2"
+ * std::cout << u.size() << std::endl; // Prints "2".
  * ```
  *
  * @fn distinct_container::size();
@@ -1221,7 +1214,7 @@ namespace tgen {
  *
  * ```cpp
  * // Checks if one string is lexicographically smaller than the other.
- * std::cout << (tgen::str::value("aba") < tgen::str::value("abc")) << std::endl;
+ * std::cout << (tgen::str::value("aba") < tgen::str::value("abc")) << std::endl; // Prints "1".
  * ```
  *
  * @fn gen_value_base::operator<(const Val &rhs) const;

@@ -13,12 +13,10 @@ namespace tgen {
  *
  * ```cpp
  * // Prints a random 1-based permutation of size 10 that starts with 2.
- * std::cout << tgen::permutation(10).fix(0, 1).gen().add_1() << std::endl;
- * // "2 7 10 4 3 9 1 5 8 6"
+ * std::cout << tgen::permutation(10).fix(0, 1).gen().add_1() << std::endl; // Prints "2 7 10 4 3 9 1 5 8 6".
  * 
  * // Prints a random permutation of size 5 with only one cycle.
- * std::cout << tgen::permutation(5).cycles({5}).gen() << std::endl;
- * // "1 4 3 0 2"
+ * std::cout << tgen::permutation(5).cycles({5}).gen() << std::endl; // Prints "1 4 3 0 2".
  * 
  * // Prints the inverse of a random odd permutation of size 5.
  * std::cout <<
@@ -26,7 +24,7 @@ namespace tgen {
  *         .gen_until([](const auto &perm) { return perm.parity() == -1; }, 100)
  *     .inverse()
  *   << std::endl;
- * // "4 2 3 1 0"
+ * // Prints "4 2 3 1 0".
  * ```
  */
 

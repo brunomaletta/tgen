@@ -317,6 +317,24 @@ TEST(graph_test, value_edge_list_dedupes_undirected) {
 	EXPECT_TRUE((graph_gen_result_valid(g, 3, 2, false, false)));
 }
 
+TEST(graph_test, value_from_adjacency_list) {
+	tgen::register_gen();
+
+	std::vector<std::set<int>> tri(3);
+	tri[0] = {1, 2};
+	tri[1] = {0, 2};
+	tri[2] = {0, 1};
+	tgen::graph::value gu(tri);
+
+	EXPECT_TRUE((graph_gen_result_valid(gu, 3, 3, false, false)));
+
+	std::vector<std::set<int>> dir(3);
+	dir[0] = {1};
+	tgen::graph::value gd(dir, true);
+
+	EXPECT_TRUE((graph_gen_result_valid(gd, 3, 1, true, false)));
+}
+
 TEST(graph_test, gen_bipartite) {
 	tgen::register_gen();
 
@@ -324,10 +342,14 @@ TEST(graph_test, gen_bipartite) {
 	// budget, so gen() adds no further edges and the graph stays bipartite.
 	for (int it = 0; it < 30; ++it) {
 		const int n1 = 4, n2 = 5;
-		auto g = tgen::graph::gen_bipartite(n1, n2, 11);
-
-		EXPECT_TRUE((graph_gen_result_valid(g, n1 + n2, 11, false, false)));
-		EXPECT_TRUE(is_bipartite(g));
+		std::vector<tgen::graph::value> gs = {
+			tgen::graph::gen_bipartite(n1, n2, 11),
+			tgen::wgraph<int, int>::gen_bipartite(n1, n2, 11),
+		};
+		for (const auto &g : gs) {
+			EXPECT_TRUE((graph_gen_result_valid(g, n1 + n2, 11, false, false)));
+			EXPECT_TRUE(is_bipartite(g));
+		}
 	}
 }
 
@@ -673,8 +695,7 @@ TEST(graph_test, gen_uniform_labeled_graphs_small) {
 TEST(graph_test, weight_type_aliases) {
 	tgen::register_gen();
 
-	EXPECT_TRUE((std::is_base_of_v<tgen::wgraph<int, int>, tgen::graph>));
-	EXPECT_TRUE(!(std::is_same_v<tgen::graph, tgen::wgraph<int, int>>));
+	EXPECT_TRUE((std::is_same_v<tgen::graph, tgen::wgraph<int, int>>));
 	EXPECT_TRUE(
 		(std::is_same_v<tgen::vgraph<double>, tgen::wgraph<double, int>>));
 	EXPECT_TRUE(

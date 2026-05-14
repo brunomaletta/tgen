@@ -46,16 +46,14 @@ namespace tgen {
  *
  * ```cpp
  * // Prints a random string of 20 lower and uppercase letters.
- * std::cout << tgen::str(20, "[a-zA-Z]").gen() << std::endl;
- * // "OewztXVHjOvOTZwYWRrf"
+ * std::cout << tgen::str(20, "[a-zA-Z]").gen() << std::endl; // Prints "OewztXVHjOvOTZwYWRrf".
  * ```
  *
  * Prints 2 uniformly random numbers in @tt{[0, 10^n]}.
  *
  * ```cpp
  * auto leq1eN = tgen::str("0 | [1-9][0-9]{0,%d} | 10{%d}", n-1, n);
- * std::cout << leq1eN.gen() << " " << leq1eN.gen() << std::endl;
- * // "843 647", for n = 3
+ * std::cout << leq1eN.gen() << " " << leq1eN.gen() << std::endl; // Prints "843 647".
  * ```
  */
 

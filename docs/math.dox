@@ -123,8 +123,7 @@ namespace tgen::math {
  *
  * ```cpp
  * auto inv = tgen::math::modular_inverse(3, 10);
- * std::cout << 3 * inv % 10 << std::endl;
- * // "1"
+ * std::cout << 3 * inv % 10 << std::endl; // Prints "1".
  * ```
  *
  * @fn modular_inverse(uint64_t a, uint64_t mod);
@@ -149,8 +148,7 @@ namespace tgen::math {
  * #### Examples
  *
  * ```cpp
- * std::cout << tgen::math::totient(10) << std::endl;
- * // "4"
+ * std::cout << tgen::math::totient(10) << std::endl; // Prints "4".
  * ```
  *
  * @fn totient(uint64_t n);
@@ -208,7 +206,7 @@ namespace tgen::math {
  *
  * ```cpp
  * // Prints largest highly composite number that fits in 64 bits.
- * std::cout << tgen::math::highly_composites().back() << std::endl;
+ * std::cout << tgen::math::highly_composites().back() << std::endl; // Prints "18401055938125660800".
  * ```
  *
  * @fn highly_composites();
@@ -227,7 +225,7 @@ namespace tgen::math {
  *
  * ```cpp
  * // Prints largest highly composite number up to 1e12.
- * std::cout << tgen::math::highly_composite_upto(1e12) << std::endl;
+ * std::cout << tgen::math::highly_composite_upto(1e12) << std::endl; // Prints "963761198400".
  * ```
  *
  * @fn highly_composite_upto(uint64_t right);
@@ -331,8 +329,7 @@ namespace tgen::math {
  * #### Examples
  *
  * ```cpp
- * std::cout << tgen::math::num_divisors(12) << std::endl;
- * // "6"
+ * std::cout << tgen::math::num_divisors(12) << std::endl; // Prints "6".
  * ```
  *
  * @fn num_divisors(uint64_t n);
@@ -584,7 +581,7 @@ namespace tgen::math {
  *
  * ```cpp
  * // Prints 5th Fibonacci number.
- * std::cout << tgen::math::fibonacci()[5] << std::endl;
+ * std::cout << tgen::math::fibonacci()[5] << std::endl; // Prints "5".
  * ```
  *
  * @fn fibonacci();
