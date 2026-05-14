@@ -86,7 +86,7 @@ namespace tgen {
  *
  * ```cpp
  * // Skewed connected graph on 10 vertices with 15 edges (elongation 100, spread 2).
- * std::cout << graph(10, 15).get_skewed(100, 2);
+ * std::cout << tgen::graph(10, 15).get_skewed(100, 2);
  * ```
  * ```
  * 0 1

@@ -21,7 +21,7 @@ namespace tgen {
  * tgen::shuffle(v.begin(), v.end());
  *
  * // Chooses a subsequence of length 5.
- * v = tgen::choose(5, v);
+ * v = tgen::choose(v, 5);
  * ```
  */
 
@@ -41,6 +41,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
+ * int a = 2, b = 2;
  * // Without error message:
  * tgen_ensure(a == b);
  * // With error message:
@@ -63,8 +64,8 @@ namespace tgen {
  * @tt{@namespace{std}::cout << @namespace{tgen}::println(x)} to
  * print @tt{x} and @tt{\\n}. Works with @tt{@namespace{std}::initializer_list}.
  *
- * Prints @tt{@namespace{std}::pair}, @tt{@namespace{std}::tuple} and containers nicely (separade by a space).
- * Matrices (@tt{container<container<T>>}) are also handleled nicely, printing one
+ * Prints @tt{@namespace{std}::pair}, @tt{@namespace{std}::tuple} and containers nicely (separated by a space).
+ * Matrices (@tt{container<container<T>>}) are also handled nicely, printing one
  * row per line.
  *
  * ### Examples
@@ -80,7 +81,7 @@ namespace tgen {
 
 
 /**
- * @brief Cretes a printer object.
+ * @brief Creates a printer object.
  *
  * @param val Value to be printed.
  * @param sep Separator for values printed in the same line.
@@ -121,7 +122,7 @@ namespace tgen {
 
 
 /**
- * @brief Cretes a printer object that prints on a new line.
+ * @brief Creates a printer object that prints on a new line.
  *
  * @param val Value to be printed.
  * @param sep Separator for values printed in the same line.
@@ -145,7 +146,7 @@ namespace tgen {
 
 /**
  * @ingroup base
- * @brief Printer helper for printing containers or sequantial generator elements as columns.
+ * @brief Printer helper for printing containers or sequential generator elements as columns.
  *
  * If you pass multiple parameters for the printer, it will print the @tt{i}-th element of each
  * on the @tt{i}-th line.
@@ -154,8 +155,8 @@ namespace tgen {
  *
  * ```cpp
  * std::vector<int> a = {1, 2};
- * tgen::list::value b = {3, 4};
- * std::cout << tgen::print_cols(a, b)); // Prints "1,3\n2,4\n".
+ * tgen::list<int>::value b{3, 4};
+ * std::cout << tgen::print_cols(a, b); // Prints "1,3\n2,4\n".
  * ```
  *
  * @struct print_cols;
@@ -163,7 +164,7 @@ namespace tgen {
 
 
 /**
- * @brief Cretes a printer object that prints as columns.
+ * @brief Creates a printer object that prints as columns.
  *
  * @param args Arguments. Each argument should be either a container or a generator value that has @tt{tgen::is_sequential}.
  *
@@ -603,7 +604,7 @@ namespace tgen {
  *
  * ```cpp
  * // Generates chars with custom odds.
- * int value = tgen::pick_by_distribution({"a", "b", "c"}, {1, 2, 3});
+ * char value = tgen::pick_by_distribution({'a', 'b', 'c'}, {1, 2, 3});
  * ```
  *
  * @fn pick_by_distribution(const C &container, std::vector<T> distribution);
@@ -629,7 +630,7 @@ namespace tgen {
  *
  * ```cpp
  * std::vector<int> v = {1, 2, 3, 4, 5};
- * v = tgen::choose(3, v); // Chooses 3 elements from v.
+ * v = tgen::choose(v, 3); // Chooses 3 elements from v.
  * ```
  *
  * @fn choose(const C &container, int k);
@@ -984,9 +985,9 @@ namespace tgen {
  *     std::cout << g.gen() << std::endl;
  *
  * // Generates some random distinct primes in [1, 100].
- * g = tgen::distinct(gen_prime, 1, 100);
+ * auto gp = tgen::distinct(tgen::math::gen_prime, 1, 100);
  * for (int i = 0; i < 10; ++i)
- *     std::cout << g.gen() << std::endl;
+ *     std::cout << gp.gen() << std::endl;
  * ```
  *
  * @fn distinct::gen();
@@ -1090,8 +1091,9 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Creates distinct generator of strings of size n.
- * tgen::distinct g = tgen::str("[a-z]{%d}", n).gen_list();
+ * // Creates and prints a list of 3 calls to the regex string generator.
+ * auto lst = tgen::str("[a-z]{%d}", 5).gen_list(3);
+ * std::cout << lst << std::endl;
  * ```
  *
  * @fn gen_base::gen_list(int size, Args &&...args) const;
@@ -1143,8 +1145,8 @@ namespace tgen {
  * 
  * // Prints a random odd permutation of size 5 with one cycle.
  * std::cout <<
- *     tgen::permutation(5)
- *         .gen_until([](const auto &perm) { return perm.parity() == -1; }, 100, {5})
+ *     tgen::permutation(5).cycles({5})
+ *         .gen_until([](const auto &perm) { return perm.parity() == -1; }, 100)
  * 	 << std::endl;
  *
  * // Prints a string of 10 letters that starts and ends with the same character.
@@ -1174,10 +1176,10 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Creates distinct generator of strings of size n.
- * tgen::distinct g = tgen::str("[a-z]{%d}", n).distinct();
+ * // Creates distinct generator of strings with 5 lowercase letters.
+ * auto g = tgen::str("[a-z]{%d}", 5).distinct();
  * // Creates distinct generator of permutations with cycles of sizes 1 and 2.
- * u = tgen::permutation(3).cycles({1, 2}).distinct();
+ * auto u = tgen::permutation(3).cycles({1, 2}).distinct();
  * ```
  *
  * @fn gen_base::distinct(Args &&...args) const;

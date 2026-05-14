@@ -136,8 +136,8 @@ std::cout <<
 Random DNA sequence of length 8 with no equal adjacent values.
 
 ```cpp
-auto s2 = tgen::list(8, {'A','C','G','T'});
-for (int i = 1; i < 8; i++) s2.different(i-1, i);
+auto s2 = tgen::list<char>(8, {'A','C','G','T'});
+for (int i = 1; i < 8; i++) s2.different(i - 1, i);
 std::cout << s2.gen() << std::endl;
 ```
 

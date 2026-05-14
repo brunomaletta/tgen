@@ -11,6 +11,7 @@ namespace tgen {
  * Prints 10 different pairs of values from 1 to n, with first <= second.
  *
  * ```cpp
+ * const int n = 100;
  * std::cout <<
  *     tgen::pair<int>(1, n).leq().distinct().gen_list(10).separator('\n') << std::endl;
  * ```
@@ -247,7 +248,7 @@ namespace tgen {
  *
  * ```cpp
  * // Prints the first element of a pair.
- * tgen::pair<int>::value val = {2, 3};
+ * tgen::pair<int>::value val(2, 3);
  * std::cout << val.first() << std::endl; // Prints "2".
  * ```
  *
@@ -264,7 +265,7 @@ namespace tgen {
  *
  * ```cpp
  * // Prints the second element of a pair.
- * tgen::pair<int>::value val = {2, 3};
+ * tgen::pair<int>::value val(2, 3);
  * std::cout << val.second() << std::endl; // Prints "3".
  * ```
  *
@@ -283,7 +284,7 @@ namespace tgen {
  *
  * ```cpp
  * // Prints a pair, separated by comma.
- * tgen::pair<int>::value val = {2, 3};
+ * tgen::pair<int>::value val(2, 3);
  * std::cout << val.separator(',') << std::endl; // Prints "2,3".
  * ```
  *
@@ -302,7 +303,7 @@ namespace tgen {
  * ```cpp
  * // Prints a pair.
  * std::cout <<
- *     tgen::pair<int>::value({2, 3}) << std::endl; // Prints "2 3".
+ *     tgen::pair<int>::value(2, 3) << std::endl; // Prints "2 3".
  * ```
  *
  * @fn pair::value::operator<<(std::ostream &out, const value &val);
@@ -318,7 +319,7 @@ namespace tgen {
  *
  * ```cpp
  * // Converts the pair to std::pair.
- * std::pair<int, int> p = tgen::pair<int>::value({2, 3}).to_std();
+ * std::pair<int, int> p = tgen::pair<int>::value(2, 3).to_std();
  * // p = {2, 3}.
  * ```
  *
