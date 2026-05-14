@@ -110,6 +110,32 @@ std::cout <<
 67 96 80 11 46 52 42 2 93 1 28 3 48 82 90 99 53 98 94 88
 ```
 
+Skewed connected graph on 10 vertices and 15 edges.
+
+```cpp
+std::cout << tgen::graph(10, 15).get_skewed(100, 2);
+```
+
+```
+0 1
+1 2
+2 3
+3 4
+4 5
+5 6
+6 7
+7 8
+8 9
+1 3
+6 8
+7 9
+5 7
+4 6
+2 4
+```
+
+@image html graph4.svg "Generated graph" width=600
+
 Random palindrome of length 7.
 
 ```cpp
