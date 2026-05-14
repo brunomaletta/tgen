@@ -57,6 +57,12 @@ std::cout << tgen::permutation(5).cycles({5}).gen().add_1() << std::endl;
 
 // Generates q distinct range queries.
 std::cout << tgen::pair(1, n).leq().distinct().gen_list(q) << std::endl;
+
+// Random skewed tree on 10 vertices (elongation 3; large diameter).
+std::cout << tgen::tree(10).get_skewed(3) << std::endl;
+
+// Random connected simple graph on 8 vertices and 10 edges, including (0,1).
+std::cout << tgen::graph(8, 10).add_edge(0, 1).get_connected() << std::endl;
 ```
 
 -  **Adversarial generation**: generate worst-case inputs.
@@ -64,6 +70,9 @@ std::cout << tgen::pair(1, n).leq().distinct().gen_list(q) << std::endl;
 ```cpp
 // Generates array that forces collision on std::unordered_set.
 std::cout << tgen::print(tgen::hack::std_unordered(1e6)) << std::endl;
+
+// Two binary strings with the same polynomial hash (base 31, mod 1e9+7).
+std::cout << tgen::print(tgen::hack::polynomial_hash_hack(2, 31, 1e9+7), '\n') << std::endl;
 ```
 
 No loops. No backtracking. No custom generator code.
