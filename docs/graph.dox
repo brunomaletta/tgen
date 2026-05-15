@@ -232,6 +232,27 @@ namespace tgen {
 
 
 /**
+ * @brief Adds all edges from another graph as preset edges.
+ *
+ * @param rhs Graph to take edges from.
+ *
+ * #### Complexity
+ *
+ * @tt{O(rhs.m() log m)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Generator whose output is a path on 4 vertices with an extra edge.
+ * auto g = tgen::graph(4, 4).add_edges_from(tgen::P(4));
+ * std::cout << g.gen().m() << std::endl; // Prints "4".
+ * ```
+ *
+ * @fn wgraph::add_edges_from(const value &rhs);
+ */
+
+
+/**
  * @brief Generates a uniformly random graph satisfying the constraints.
  *
  * @return A @tt{tgen::wgraph::value} with @tt{m} distinct edges, including all presets.

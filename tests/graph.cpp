@@ -646,6 +646,25 @@ TEST(graph_test, value_add_vertices_and_add_edge) {
 	EXPECT_TRUE((graph_gen_result_valid(g, 5, 5, false, false)));
 }
 
+TEST(graph_test, add_edges_from) {
+	tgen::register_gen();
+
+	auto g = tgen::graph(4, 3).add_edges_from(tgen::P(4)).gen();
+
+	const std::set<std::pair<int, int>> es(g.edges().begin(), g.edges().end());
+	EXPECT_TRUE(
+		(es == std::set<std::pair<int, int>>({{0, 1}, {1, 2}, {2, 3}})));
+	EXPECT_TRUE((graph_gen_result_valid(g, 4, 3, false, false)));
+}
+
+TEST(graph_test, add_edges_from_directedness_mismatch) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::graph(3, 2).add_edges_from(tgen::graph::value(3, {{0, 1}}, true)),
+		"wgraph: graphs must have the same is_directed value");
+}
+
 TEST(graph_test, print_edge_list) {
 	tgen::register_gen();
 

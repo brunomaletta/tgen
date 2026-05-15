@@ -5205,6 +5205,17 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		}
 	};
 
+	// Adds all edges from `rhs` as preset edges.
+	// O(rhs.m * log m).
+	wgraph &add_edges_from(const value &rhs) {
+		tgen_ensure(is_directed_ == rhs.is_directed(),
+					"wgraph: graphs must have the same is_directed value");
+
+		for (auto [u, v] : rhs.edges())
+			add_edge(u, v);
+		return *this;
+	}
+
 	// Generates graph value.
 	// O(n + m log n).
 	value gen() const {

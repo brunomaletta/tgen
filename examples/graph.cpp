@@ -20,4 +20,10 @@ int main(int argc, char **argv) {
 	std::cout << tgen::tree(4).gen().set_vertex_weights<std::string>(
 					 {"a", "ab", "b", "abc"})
 			  << std::endl;
+
+	std::cout << graph(10, 15, true)
+					 .add_edges_from(tgen::P(10, true))
+					 .get_acyclic()
+					 .shuffle_except({0, 9})
+			  << std::endl;
 }
