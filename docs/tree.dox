@@ -388,7 +388,7 @@ namespace tgen {
  *
  * @param vertex_weights One weight per vertex (@tt{n} values).
  *
- * @return A @tt{tgen::wtree::value} with @pname{vertex_weights} attached. The weight type is deduced.
+ * @return A copy of this tree with @pname{vertex_weights} attached. The weight type is deduced.
  *
  * Immutable style: returns a copy with weights set (weight type deduced); does not modify @tt{*this}.
  *
@@ -458,10 +458,29 @@ namespace tgen {
 
 
 /**
+ * @brief Prints the number of vertices before the tree.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Stream with a leading line giving the vertex count.
+ * auto t = tgen::tree::value(3, {{0, 1}, {1, 2}});
+ * std::cout << t.print_n(); // Prints "3\n0 1\n1 2\n".
+ * ```
+ *
+ * @fn wtree::value::print_n();
+ */
+
+
+/**
  * @brief Prints in parent format instead of edge list.
  *
- * @param root Root choice: @tt{-1} uses vertex @tt{0} and omits its parent; @tt{n()} picks a
- *             random root; otherwise an explicit root in @tt{[0, n())}.
+ * @param root Root choice: @tt{-1} uses vertex @tt{0} and omits its parent; @tt{n} picks a
+ *             random root; otherwise an explicit root in @tt{[0, n)}.
  *
  * Incompatible with edge weights.
  *
@@ -531,12 +550,12 @@ namespace tgen {
  * @param new_v Endpoint in @pname{rhs} before relabeling.
  * @param new_w Optional weight of the connecting edge.
  *
- * Vertices on @pname{rhs} are shifted by the current @tt{n()}.
+ * Vertices on @pname{rhs} are shifted by the current @tt{n}.
  * Weight usage must be consistent.
  *
  * #### Complexity
  *
- * @tt{O(rhs.n() * log n)} amortized.
+ * @tt{O(rhs.n * log n)} amortized.
  *
  * That is, the complexity depends mostly on the @pname{rhs} tree.
  *
@@ -565,7 +584,7 @@ namespace tgen {
  *
  * #### Complexity
  *
- * @tt{O(rhs.n() * log n)} amortized.
+ * @tt{O(rhs.n * log n)} amortized.
  *
  * That is, the complexity depends mostly on the @pname{rhs} tree.
  *
@@ -595,7 +614,7 @@ namespace tgen {
  *
  * #### Complexity
  *
- * @tt{O(rhs.n() * log n)} amortized.
+ * @tt{O(rhs.n * log n)} amortized.
  *
  * That is, the complexity depends mostly on the @pname{rhs} tree.
  *
@@ -636,8 +655,9 @@ namespace tgen {
  * @param out Output stream.
  * @param val Tree to write.
  *
- * Optional vertex-weight line, then edges (with optional edge weights), or parent format when
- * @tt{tgen::wtree::value::print_parents} is set.
+ * Optional @tt{n} line when @tt{@ref print_n} is set, optional vertex-weight line, then edges
+ * (with optional edge weights), or parent format when @tt{@ref print_parents}
+ * is set.
  *
  * #### Complexity
  *

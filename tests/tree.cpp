@@ -312,6 +312,10 @@ TEST(tree_test, print_edge_list) {
 	EXPECT_EQ((std::ostringstream() << ta.add_1()).str(),
 			  "1 2\n2 3\n1 4\n4 5\n");
 
+	auto tn = t;
+	EXPECT_EQ((std::ostringstream() << tn.print_n()).str(),
+			  "5\n0 1\n1 2\n0 3\n3 4\n");
+
 	auto tb = t;
 	EXPECT_EQ((std::ostringstream() << tb.print_parents(-1)).str(),
 			  "0 1 0 3\n");

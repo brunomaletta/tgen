@@ -586,7 +586,7 @@ namespace tgen {
  *
  * @param vertex_weights One weight per vertex (@tt{n} values).
  *
- * @return A @tt{tgen::wgraph::value} with @pname{vertex_weights} attached. The weight type is deduced.
+ * @return A copy of this graph with @pname{vertex_weights} attached. The weight type is deduced.
  *
  * Immutable style: returns a copy with weights set (weight type deduced); does not modify @tt{*this}.
  *
@@ -771,12 +771,12 @@ namespace tgen {
  * @param new_v Endpoint in @pname{rhs} before relabeling.
  * @param new_w Optional weight of the connecting edge.
  *
- * Vertices on @pname{rhs} are shifted by the current @tt{n()}.
+ * Vertices on @pname{rhs} are shifted by the current @tt{n}.
  * Weight usage must be consistent.
  *
  * #### Complexity
  *
- * @tt{O(rhs.n() + rhs.m() log n)} amortized.
+ * @tt{O(rhs.n + rhs.m log n)} amortized.
  *
  * That is, the complexity depends mostly on the @pname{rhs} graph.
  *
@@ -805,7 +805,7 @@ namespace tgen {
  *
  * #### Complexity
  *
- * @tt{O(rhs.n() + rhs.m() log n)} amortized.
+ * @tt{O(rhs.n + rhs.m log n)} amortized.
  *
  * That is, the complexity depends mostly on the @pname{rhs} graph.
  *
@@ -832,7 +832,7 @@ namespace tgen {
  *
  * #### Complexity
  *
- * @tt{O(rhs.n() + rhs.m() log n)} amortized.
+ * @tt{O(rhs.n + rhs.m log n)} amortized.
  *
  * That is, the complexity depends mostly on the @pname{rhs} graph.
  *
@@ -852,7 +852,7 @@ namespace tgen {
  *
  * #### Complexity
  *
- * @tt{O(rhs.n() + rhs.m() log n)} amortized.
+ * @tt{O(rhs.n + rhs.m log n)} amortized.
  *
  * That is, the complexity depends mostly on the @pname{rhs} graph.
  *

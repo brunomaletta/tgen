@@ -4000,7 +4000,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		int n_;									 // Number of vertices.
 		std::vector<std::set<int>> adj_;		 // Adjacency list.
 		std::vector<std::pair<int, int>> edges_; // Edge list.
-		bool add_1_; // If should add 1 for printing vertex ids.
+		bool add_1_;   // If should add 1 for printing vertex ids.
+		bool print_n_; // If should print n.
 		std::optional<int> print_parents_; // If should print in parent style
 										   // (stores the root).
 		std::optional<std::vector<VWeight>> vertex_weights_; // Vertex weights.
@@ -4012,7 +4013,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// O(n).
 		value(const std::vector<std::set<int>> &adj)
 			: n_(static_cast<int>(adj.size())), adj_(adj), add_1_(false),
-			  dsu_(n_) {
+			  print_n_(false), dsu_(n_) {
 			for (int u = 0; u < n_; ++u)
 				for (auto v : adj[u]) {
 					tgen_ensure(
@@ -4031,7 +4032,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// Creates value from `n` and edge list.
 		// O(n).
 		value(int n, const std::vector<std::pair<int, int>> &edges)
-			: n_(n), adj_(n), edges_(edges), add_1_(false), dsu_(n) {
+			: n_(n), adj_(n), edges_(edges), add_1_(false), print_n_(false),
+			  dsu_(n) {
 			for (auto [u, v] : edges) {
 				tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n,
 							"wtree: value: vertices must be indexed in [0, n)");
@@ -4059,6 +4061,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 
 			typename wtree<NewVWeight, NewEWeight>::value new_tree(adj_);
 			new_tree.add_1_ = add_1_;
+			new_tree.print_n_ = print_n_;
 			new_tree.print_parents_ = print_parents_;
 			return new_tree;
 		}
@@ -4112,6 +4115,13 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// O(1).
 		value &add_1() {
 			add_1_ = true;
+			return *this;
+		}
+
+		// Prints `n` on a new line before printing the tree.
+		// O(1).
+		value &print_n() {
+			print_n_ = true;
 			return *this;
 		}
 
@@ -4367,6 +4377,9 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// Prints to std::ostream.
 		// O(n).
 		friend std::ostream &operator<<(std::ostream &out, const value &val) {
+			if (val.print_n_)
+				out << val.n() << '\n';
+
 			// Prints vertex weights.
 			if (val.vertex_weights()) {
 				for (int i = 0; i < val.n(); ++i) {
