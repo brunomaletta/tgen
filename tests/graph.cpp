@@ -111,6 +111,28 @@ bool is_bipartite(const tgen::graph::value &g) {
 	return true;
 }
 
+template <typename Graph> bool is_weakly_connected(const Graph &g, int root) {
+	if (g.n() <= 0)
+		return false;
+	std::vector<bool> vis(g.n(), false);
+	std::queue<int> q;
+	q.push(root);
+	vis[root] = true;
+	int seen = 0;
+	while (!q.empty()) {
+		int u = q.front();
+		q.pop();
+		++seen;
+		for (int v : g.adj()[u]) {
+			if (!vis[v]) {
+				vis[v] = true;
+				q.push(v);
+			}
+		}
+	}
+	return seen == g.n();
+}
+
 bool is_dag(const tgen::graph::value &g) {
 	if (!g.is_directed())
 		return false;
@@ -337,9 +359,6 @@ TEST(graph_test, gen_skewed_connected) {
 
 		EXPECT_TRUE((graph_gen_result_valid(g, 11, 14, false, false)));
 		EXPECT_TRUE(is_connected_undirected(g));
-		EXPECT_TRUE((graph_gen_result_valid(
-			tgen::wgraph<int, int>::gen_skewed(11, 14, 3, 6), 11, 14, false,
-			false)));
 	}
 }
 
@@ -352,6 +371,32 @@ TEST(graph_test, gen_skewed_is_tree_when_m_is_n_minus_one) {
 
 			EXPECT_TRUE((graph_gen_result_valid(g, n, n - 1, false, false)));
 			EXPECT_TRUE(is_connected_undirected(g));
+		}
+	}
+}
+
+TEST(graph_test, gen_skewed_directed_is_dag) {
+	tgen::register_gen();
+
+	for (int it = 0; it < 25; ++it) {
+		auto g = tgen::graph::gen_skewed(11, 14, 3, 6, true);
+
+		EXPECT_TRUE((graph_gen_result_valid(g, 11, 14, true, false)));
+		EXPECT_TRUE(is_dag(g));
+		EXPECT_TRUE(is_weakly_connected(g, 0));
+	}
+}
+
+TEST(graph_test, gen_skewed_directed_tree_when_m_is_n_minus_one) {
+	tgen::register_gen();
+
+	for (int n = 2; n <= 14; ++n) {
+		for (int el = -4; el <= 4; ++el) {
+			auto g = tgen::graph::gen_skewed(n, n - 1, el, 2, true);
+
+			EXPECT_TRUE((graph_gen_result_valid(g, n, n - 1, true, false)));
+			EXPECT_TRUE(is_dag(g));
+			EXPECT_TRUE(is_weakly_connected(g, 0));
 		}
 	}
 }

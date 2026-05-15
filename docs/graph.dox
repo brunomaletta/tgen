@@ -143,7 +143,7 @@ namespace tgen {
  *
  * There are other static generation methods:
  * - For uniformly random bipartite graphs: @tt{tgen::wgraph::gen_bipartite};
- * - For random skewed connected undirected graphs: @tt{tgen::wgraph::gen_skewed}.
+ * - For random skewed connected graphs: @tt{tgen::wgraph::gen_skewed}.
  *
  * There are also structured, non-uniform operations:
  * - For random connected undirected graphs: @tt{tgen::wgraph::get_connected};
@@ -328,25 +328,28 @@ namespace tgen {
 
 
 /**
- * @brief Random skewed connected undirected graph (large diameter).
+ * @brief Random skewed connected graph (large diameter).
  *
  * @param n Vertex count.
  * @param m Edge count.
  * @param elongation Passed to @tt{tgen::wnext}; controls how star-like or path-like the spanning tree is.
- * @param spread Maximum walk length toward the root when sampling an extra edges.
+ * @param spread Maximum walk length toward the root when sampling an extra edge.
+ * @param is_directed If @tt{true}, orients every edge down spanning tree.
  *
  * @pre @tt{@pname{spread} >= 2}.
  *
  * @return A connected skewed @tt{tgen::wgraph::value} with exactly @tt{m} edges.
  *
  * First, builds a skewed spanning tree with @tt{tgen::wtree::gen_skewed(n, @pname{elongation})}.
- * Then, the remaining edges @tt{(u, v)} are generated with the following procedure.
+ * Then, the remaining edges @tt{(v, u)} are generated with the following procedure.
  * Vertex @tt{u} is random, and vertex @tt{v} is the result of walking @tt{tgen::next(2, @pname{spread})} parent edges
  * in the spanning tree.
  *
  * If @pname{elongation} is small (negative), the spanning tree tends to be star-like and the graph tends to have
  * small diameter. If @pname{elongation} is large (positive), the spanning tree tends to be path-like and vertices
  * @tt{0} and @tt{n - 1} tend to be far apart.
+ *
+ * When @pname{is_directed} is @tt{true}, the result is a directed acyclic graph weakly connected with root @tt{0}.
  *
  * @note This operation is not uniformly random.
  *
@@ -357,11 +360,14 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Random skewed connected graph.
+ * // Random skewed connected undirected graph.
  * std::cout << tgen::graph::gen_skewed(20, 25, 10, 3);
+ *
+ * // Random skewed directed acyclic graph (edges oriented away from the root).
+ * std::cout << tgen::graph::gen_skewed(20, 25, 10, 3, true);
  * ```
  *
- * @fn wgraph::gen_skewed(int n, int m, int elongation, int spread);
+ * @fn wgraph::gen_skewed(int n, int m, int elongation, int spread, bool is_directed = false);
  */
 
 

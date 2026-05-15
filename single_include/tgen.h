@@ -5397,24 +5397,26 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		return acyclic;
 	}
 
-	// Generates a (not uniformly) random skewed undirected connected graph.
+	// Generates a (not uniformly) random skewed connected graph.
 	// 1. Builds the same skewed labeled tree as wtree::gen_skewed(n,
 	//    elongation)(root 0, parent(i) = wnext(i, elongation) for i >= 1).
+	//    If is_directed, tree edges are oriented down the tree.
 	// 2. Adds the remaining edges: pick an endpoint u uniformly;
 	//    pick k uniformly in [1, spread]; walk from u toward the root k
-	//    times along tree parents to get v; add edge (u, v).
+	//    times along tree parents to get v; add edge (v, u).
 	// If elongation is small, generates a graph with small diameter.
 	// If elongation is large, generates a graph with large diameter, with
 	// vertices 0 and n-1 being far apart.
 	// O(n log n + m log^2 n).
-	static value gen_skewed(int n, int m, int elongation, int spread) {
+	static value gen_skewed(int n, int m, int elongation, int spread,
+							bool is_directed = false) {
 		tgen_ensure(
 			m >= n - 1,
 			"wgraph: skewed graph needs at least n - 1 edges to be connected");
 		tgen_ensure(spread >= 2,
 					"wgraph: gen_skewed spread must be at least 2");
 
-		value skewed(n);
+		value skewed(n, {}, is_directed);
 
 		std::vector<int> parent(n), depth(n, 0);
 		parent[0] = 0;
@@ -5422,7 +5424,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			int p = wnext<int>(i, elongation);
 			parent[i] = p;
 			depth[i] = depth[p] + 1;
-			skewed.add_edge(i, p);
+			skewed.add_edge(p, i);
 		}
 
 		// Binary lifting.
@@ -5457,7 +5459,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		distinct extra_edges([&]() -> std::pair<int, int> {
 			int u = vertex_choice.next();
 			int k = next(2, spread);
-			return {u, kth_parent(u, k)};
+			return {kth_parent(u, k), u};
 		});
 
 		// Adds the remaining edges.
