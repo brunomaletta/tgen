@@ -4521,22 +4521,18 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		return value(n_, new_edges);
 	}
 
-	// Skewed tree.
+	// Generates a (not uniformly) random skewed tree.
 	// Vertex 0 is the root. For each i in 1 .. n-1, parent(i) is
 	// wnext(i, elongation), i.e. a value in [0, i) with skew controlled by
 	// elongation (see wnext).
-	// Preset edges are not supported.
 	// If elongation is small enough, generates a star (center 0).
 	// If elongation is large enough, generates a path (endpoints 0 and n-1).
 	// O(n).
-	value get_skewed(int elongation) const {
-		tgen_ensure(edges_.empty(),
-					"wtree: get_skewed does not support preset edges");
-
+	static value gen_skewed(int n, int elongation) {
 		std::vector<std::pair<int, int>> edges;
-		for (int i = 1; i < n_; ++i)
+		for (int i = 1; i < n; ++i)
 			edges.emplace_back(i, wnext<int>(i, elongation));
-		return value(n_, edges);
+		return value(n, edges);
 	}
 };
 
@@ -5401,35 +5397,28 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		return acyclic;
 	}
 
-	// Skewed undirected connected graph.
-	// 1. Builds the same skewed labeled tree as wtree::get_skewed(elongation)
-	//    (root 0, parent(i) = wnext(i, elongation) for i >= 1).
+	// Generates a (not uniformly) random skewed undirected connected graph.
+	// 1. Builds the same skewed labeled tree as wtree::gen_skewed(n,
+	//    elongation)(root 0, parent(i) = wnext(i, elongation) for i >= 1).
 	// 2. Adds the remaining edges: pick an endpoint u uniformly;
 	//    pick k uniformly in [1, spread]; walk from u toward the root k
 	//    times along tree parents to get v; add edge (u, v).
-	// Preset edges are not supported.
 	// If elongation is small, generates a graph with small diameter.
 	// If elongation is large, generates a graph with large diameter, with
 	// vertices 0 and n-1 being far apart.
 	// O(n log n + m log^2 n).
-	value get_skewed(int elongation, int spread) const {
-		tgen_ensure(!is_directed_,
-					"wgraph: get_skewed is only for undirected graphs");
-		tgen_ensure(!has_self_loops_,
-					"wgraph: get_skewed does not support self-loops");
-		tgen_ensure(edges_.empty(),
-					"wgraph: get_skewed does not support preset edges");
+	static value gen_skewed(int n, int m, int elongation, int spread) {
 		tgen_ensure(
-			m_ >= n_ - 1,
+			m >= n - 1,
 			"wgraph: skewed graph needs at least n - 1 edges to be connected");
 		tgen_ensure(spread >= 2,
-					"wgraph: get_skewed spread must be at least 2");
+					"wgraph: gen_skewed spread must be at least 2");
 
-		value skewed(n_);
+		value skewed(n);
 
-		std::vector<int> parent(n_), depth(n_, 0);
+		std::vector<int> parent(n), depth(n, 0);
 		parent[0] = 0;
-		for (int i = 1; i < n_; ++i) {
+		for (int i = 1; i < n; ++i) {
 			int p = wnext<int>(i, elongation);
 			parent[i] = p;
 			depth[i] = depth[p] + 1;
@@ -5439,14 +5428,14 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// Binary lifting.
 
 		int lg = 1;
-		while ((1 << lg) <= n_)
+		while ((1 << lg) <= n)
 			++lg;
 
-		std::vector<std::vector<int>> up(lg, std::vector<int>(n_));
-		for (int v = 0; v < n_; ++v)
+		std::vector<std::vector<int>> up(lg, std::vector<int>(n));
+		for (int v = 0; v < n; ++v)
 			up[0][v] = parent[v];
 		for (int j = 1; j < lg; ++j)
-			for (int v = 0; v < n_; ++v)
+			for (int v = 0; v < n; ++v)
 				up[j][v] = up[j - 1][up[j - 1][v]];
 
 		// O(log k).
@@ -5472,7 +5461,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		});
 
 		// Adds the remaining edges.
-		while (skewed.m() < m_) {
+		while (skewed.m() < m) {
 			std::pair<int, int> edge;
 			try {
 				edge = extra_edges.gen();
@@ -5489,8 +5478,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		return skewed;
 	}
 
-	// Uniformly random bipartite graph. The first side has vertices 0 .. n1-1,
-	// the second n1 .. n1+n2-1.
+	// Generates a uniformly random bipartite graph. The first side has vertices
+	// 0 .. n1-1, the second n1 .. n1+n2-1.
 	// O(n1 + n2 + m log n).
 	static value gen_bipartite(int n1, int n2, int m) {
 		tgen_ensure(m <= static_cast<long long>(n1) * n2,
@@ -5808,8 +5797,8 @@ inline std::vector<std::string> string_set(int size) {
 
 namespace misc {
 
-// Generates a random balanced parentheses sequence with k '(' and k ')'.
-// Valid means that for no prefix there are more ')' than '('.
+// Generates a uniformly random balanced parentheses sequence with k '(' and k
+// ')'. Valid means that for no prefix there are more ')' than '('.
 // O(size).
 inline std::string gen_parenthesis(int size) {
 	tgen_ensure(size > 0 and size % 2 == 0,

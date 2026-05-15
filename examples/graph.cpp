@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
 	std::cout << graph(10, 15, true).get_acyclic();
 	std::cout << std::endl;
 
-	std::cout << graph(10, 15).get_skewed(100, 2);
+	std::cout << graph::gen_skewed(10, 15, 100, 2);
 	std::cout << std::endl;
 
 	std::cout << tgen::tree(4).gen().set_vertex_weights<std::string>(

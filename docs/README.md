@@ -113,7 +113,7 @@ std::cout <<
 Skewed connected graph on 10 vertices and 15 edges.
 
 ```cpp
-std::cout << tgen::graph(10, 15).get_skewed(100, 2);
+std::cout << tgen::graph::gen_skewed(10, 15, 100, 2);
 ```
 
 ```

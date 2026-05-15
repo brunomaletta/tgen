@@ -86,7 +86,7 @@ namespace tgen {
  *
  * ```cpp
  * // Skewed connected graph on 10 vertices with 15 edges (elongation 100, spread 2).
- * std::cout << tgen::graph(10, 15).get_skewed(100, 2);
+ * std::cout << tgen::graph::gen_skewed(10, 15, 100, 2);
  * ```
  * ```
  * 0 1
@@ -142,12 +142,12 @@ namespace tgen {
  * @tt{tgen::wgraph::gen}.
  *
  * There are other static generation methods:
- * - For uniformly random bipartite graphs: @tt{tgen::wgraph::gen_bipartite}.
+ * - For uniformly random bipartite graphs: @tt{tgen::wgraph::gen_bipartite};
+ * - For random skewed connected undirected graphs: @tt{tgen::wgraph::gen_skewed}.
  *
  * There are also structured, non-uniform operations:
  * - For random connected undirected graphs: @tt{tgen::wgraph::get_connected};
  * - For random directed acyclic graphs: @tt{tgen::wgraph::get_acyclic};
- * - For random skewed connected undirected graphs: @tt{tgen::wgraph::get_skewed}.
  *
  * @struct wgraph;
  */
@@ -330,6 +330,8 @@ namespace tgen {
 /**
  * @brief Random skewed connected undirected graph (large diameter).
  *
+ * @param n Vertex count.
+ * @param m Edge count.
  * @param elongation Passed to @tt{tgen::wnext}; controls how star-like or path-like the spanning tree is.
  * @param spread Maximum walk length toward the root when sampling an extra edges.
  *
@@ -337,7 +339,7 @@ namespace tgen {
  *
  * @return A connected skewed @tt{tgen::wgraph::value} with exactly @tt{m} edges.
  *
- * First, builds a skewed spanning tree with @tt{tgen::wtree::get_skewed(@pname{elongation})}.
+ * First, builds a skewed spanning tree with @tt{tgen::wtree::gen_skewed(n, @pname{elongation})}.
  * Then, the remaining edges @tt{(u, v)} are generated with the following procedure.
  * Vertex @tt{u} is random, and vertex @tt{v} is the result of walking @tt{tgen::next(2, @pname{spread})} parent edges
  * in the spanning tree.
@@ -348,8 +350,6 @@ namespace tgen {
  *
  * @note This operation is not uniformly random.
  *
- * @warning Does not support preset edges, self-loops, or directed mode.
- *
  * #### Complexity
  *
  * @tt{O(n log n + m log^2 n)}.
@@ -358,10 +358,10 @@ namespace tgen {
  *
  * ```cpp
  * // Random skewed connected graph.
- * std::cout << tgen::graph(20, 25).get_skewed(10, 3);
+ * std::cout << tgen::graph::gen_skewed(20, 25, 10, 3);
  * ```
  *
- * @fn wgraph::get_skewed(int elongation, int spread) const;
+ * @fn wgraph::gen_skewed(int n, int m, int elongation, int spread);
  */
 
 

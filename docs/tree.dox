@@ -42,11 +42,11 @@ namespace tgen {
  * ```
  * @image html tree1.svg "Example generated tree" width=600
  *
- * Skewed tree (vertex @tt{0} implicit root; see @tt{tgen::wtree::get_skewed}).
+ * Skewed tree (vertex @tt{0} implicit root; see @tt{tgen::wtree::gen_skewed}).
  *
  * ```cpp
  * // Prints a skewed random tree on 10 vertices (elongation 3).
- * std::cout << tgen::tree(10).get_skewed(3);
+ * std::cout << tgen::tree::gen_skewed(10, 3);
  * ```
  * ```
  * 1 0
@@ -91,8 +91,8 @@ namespace tgen {
  * uniformly random @tt{tgen::wtree::value} from that set (satisfying the
  * constraints) is produced by @tt{tgen::wtree::gen}.
  *
- * There are also structured, non-uniform operations:
- * - For random skewed trees (with large diameter): @tt{tgen::wtree::get_skewed}.
+ * There are also structured, non-uniform static generation methods:
+ * - For random skewed trees (with large diameter): @tt{tgen::wtree::gen_skewed}.
  *
  * @struct wtree;
  */
@@ -194,9 +194,10 @@ namespace tgen {
 /**
  * @brief Random skewed tree (large diameter).
  *
+ * @param n Vertex count.
  * @param elongation Passed to @tt{tgen::wnext}; controls how star-like or path-like the tree is.
  *
- * @return A random skewed @tt{tgen::wtree::value}.
+ * @return A random skewed @tt{tgen::wtree::value} on @tt{n} vertices.
  *
  * For each @tt{i} from @tt{1} to @tt{n-1}, the parent of @tt{i} is
  * @tt{tgen::wnext(i, @pname{elongation})}, in @tt{[0, i)}.
@@ -206,9 +207,6 @@ namespace tgen {
  *
  * @note This operation is not uniformly random.
  *
- * @warning Does not support preset edges. That is, you can not add a @tt{tgen::wtree::add_edge} restriction
- *          before calling this function.
- *
  * #### Complexity
  *
  * @tt{O(n)}.
@@ -217,10 +215,10 @@ namespace tgen {
  *
  * ```cpp
  * // Prints a random skewed tree on 50 vertices, likely similar to a path.
- * std::cout << tgen::tree(50).get_skewed(10);
+ * std::cout << tgen::tree::gen_skewed(50, 10);
  * ```
  *
- * @fn wtree::get_skewed(int elongation) const;
+ * @fn wtree::gen_skewed(int n, int elongation);
  */
 
 

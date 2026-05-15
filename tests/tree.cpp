@@ -135,20 +135,16 @@ TEST(tree_test, gen_with_preset_edges) {
 	}
 }
 
-TEST(tree_test, get_skewed_is_tree) {
+TEST(tree_test, gen_skewed_is_tree) {
 	tgen::register_gen();
 
 	for (int n = 2; n <= 15; ++n) {
-		for (int el = -5; el <= 5; ++el)
-			EXPECT_TRUE(is_tree_shape(tgen::tree(n).get_skewed(el)));
+		for (int el = -5; el <= 5; ++el) {
+			EXPECT_TRUE(is_tree_shape(tgen::tree::gen_skewed(n, el)));
+			EXPECT_TRUE(
+				is_tree_shape(tgen::wtree<int, int>::gen_skewed(n, el)));
+		}
 	}
-}
-
-TEST(tree_test, get_skewed_rejects_preset_edges) {
-	tgen::register_gen();
-
-	EXPECT_THROW_TGEN_PREFIX(tgen::tree(5).add_edge(0, 1).get_skewed(1),
-							 "wtree: get_skewed does not support preset edges");
 }
 
 TEST(tree_test, value_constructor_rejects_cycle) {

@@ -329,36 +329,31 @@ TEST(graph_test, get_acyclic_cycle_in_preset) {
 							 "wgraph: preset edges contain a directed cycle");
 }
 
-TEST(graph_test, get_skewed_connected) {
+TEST(graph_test, gen_skewed_connected) {
 	tgen::register_gen();
 
 	for (int it = 0; it < 25; ++it) {
-		auto g = tgen::graph(11, 14).get_skewed(3, 6);
+		auto g = tgen::graph::gen_skewed(11, 14, 3, 6);
 
 		EXPECT_TRUE((graph_gen_result_valid(g, 11, 14, false, false)));
 		EXPECT_TRUE(is_connected_undirected(g));
+		EXPECT_TRUE((graph_gen_result_valid(
+			tgen::wgraph<int, int>::gen_skewed(11, 14, 3, 6), 11, 14, false,
+			false)));
 	}
 }
 
-TEST(graph_test, get_skewed_is_tree_when_m_is_n_minus_one) {
+TEST(graph_test, gen_skewed_is_tree_when_m_is_n_minus_one) {
 	tgen::register_gen();
 
 	for (int n = 2; n <= 14; ++n) {
 		for (int el = -4; el <= 4; ++el) {
-			auto g = tgen::graph(n, n - 1).get_skewed(el, 2);
+			auto g = tgen::graph::gen_skewed(n, n - 1, el, 2);
 
 			EXPECT_TRUE((graph_gen_result_valid(g, n, n - 1, false, false)));
 			EXPECT_TRUE(is_connected_undirected(g));
 		}
 	}
-}
-
-TEST(graph_test, get_skewed_rejects_preset_edges) {
-	tgen::register_gen();
-
-	EXPECT_THROW_TGEN_PREFIX(
-		tgen::graph(5, 6).add_edge(0, 1).get_skewed(1, 2),
-		"wgraph: get_skewed does not support preset edges");
 }
 
 TEST(graph_test, value_edge_list_dedupes_undirected) {
