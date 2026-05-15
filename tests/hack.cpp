@@ -145,3 +145,44 @@ TEST(hack_test, string_set) {
 		sum += s.size();
 	EXPECT_TRUE(sum == size);
 }
+
+TEST(hack_test, exponential_dijkstra_bug_invalid) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::exponential_dijkstra_bug(2),
+		"hack: expo_dijkstra_bug: needs at least 3 vertices");
+}
+
+TEST(hack_test, exponential_dijkstra_bug) {
+	tgen::register_gen();
+
+	for (int n : {3, 4, 10, 100}) {
+		auto g = tgen::hack::exponential_dijkstra_bug(n);
+		EXPECT_TRUE(graph_gen_result_valid(g, n, 2 * (n - 2), true, false));
+		ASSERT_TRUE(g.edge_weights().has_value());
+		for (int i = 0; i < g.m(); ++i)
+			EXPECT_EQ((*g.edge_weights())[i], 1);
+	}
+}
+
+TEST(hack_test, quadratic_dijkstra_bug_invalid) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::quadratic_dijkstra_bug(3),
+		"hack: quadratic_dijkstra_bug: needs at least 4 vertices");
+}
+
+TEST(hack_test, quadratic_dijkstra_bug) {
+	tgen::register_gen();
+
+	for (int n : {4, 5, 10, 100}) {
+		auto g = tgen::hack::quadratic_dijkstra_bug(n);
+		int mid = n / 2;
+		int edges = n + mid - 3;
+		EXPECT_TRUE(graph_gen_result_valid(g, n, edges, true, false));
+		ASSERT_TRUE(g.edge_weights().has_value());
+		ASSERT_EQ(static_cast<int>(g.edge_weights()->size()), edges);
+	}
+}

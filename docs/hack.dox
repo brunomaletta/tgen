@@ -217,4 +217,59 @@ namespace tgen::hack {
  * @fn string_set(int size);
  */
 
+
+/**
+ * @ingroup hack
+ * @brief Directed weighted graph for Dijkstra with non-strict relaxation.
+ *
+ * @param n Number of vertices.
+ *
+ * @pre @tt{@pname{n} >= 3}.
+ *
+ * Forces @tt{Omega(2^{@pname{n}/2})} time on Dijkstra from @tt{0} if relaxation
+ * uses @tt{d + w <= dist[j]} instead of @tt{<}.
+ *
+ * @return An @tt{egraph<int>::value} with @tt{m = 2(@pname{n} - 2)} directed edges, all with weight @tt{1}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto g = tgen::hack::expo_dijkstra_bug(10000);
+ * ```
+ *
+ * @fn exponential_dijkstra_bug(int n);
+ */
+
+
+/**
+ * @ingroup hack
+ * @brief Directed weighted graph for Dijkstra without a stale-heap check.
+ *
+ * @param n Number of vertices.
+ *
+ * @pre @tt{@pname{n} >= 4}.
+ *
+ * Forces @tt{Omega(@pname{n}^2)} time on Dijkstra from @tt{0} if the heap pop
+ * does not skip stale entries (@tt{if (d > dist[i]) continue}).
+ *
+ * @return An @tt{egraph<int>::value} with @tt{m = @pname{n} + floor(@pname{n}/2) - 3}
+ *         directed edges, with weights at most @tt{@pname{n}}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto g = tgen::hack::quadratic_dijkstra_bug(300000);
+ * ```
+ *
+ * @fn quadratic_dijkstra_bug(int n);
+ */
+
 };

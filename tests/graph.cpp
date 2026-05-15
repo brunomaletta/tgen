@@ -171,51 +171,6 @@ long long max_graph_edges(int n, bool directed, bool self_loops) {
 	return self_loops ? 1LL * n * (n + 1) / 2 : 1LL * n * (n - 1) / 2;
 }
 
-// Validates graph value: n/m/directed, edges vs adjacency, distinctness,
-// self-loop policy, and degree sums (undirected accounts for self-loops).
-template <typename Graph>
-bool graph_gen_result_valid(const Graph &g, int n, int m, bool directed,
-							bool allow_self_loops) {
-	if (g.n() != n or g.m() != m or g.is_directed() != directed)
-		return false;
-	if (static_cast<int>(g.edges().size()) != m)
-		return false;
-
-	std::set<std::pair<int, int>> seen;
-	int n_self = 0;
-	for (auto [u, v] : g.edges()) {
-		if (u < 0 or u >= n or v < 0 or v >= n)
-			return false;
-		if (!allow_self_loops and u == v)
-			return false;
-		if (!directed and u > v)
-			return false;
-		if (!g.adj()[u].count(v))
-			return false;
-		if (!directed and u != v and !g.adj()[v].count(u))
-			return false;
-
-		const std::pair<int, int> key =
-			directed ? std::pair(u, v) : std::pair(u, v);
-		if (!seen.insert(key).second)
-			return false;
-		if (u == v)
-			++n_self;
-	}
-
-	long long sum_deg = 0;
-	for (const auto &adj_u : g.adj())
-		sum_deg += static_cast<long long>(adj_u.size());
-	if (!directed) {
-		if (sum_deg != 2LL * m - n_self)
-			return false;
-	} else {
-		if (sum_deg != m)
-			return false;
-	}
-	return true;
-}
-
 // Brute-force isomorphism for small n (used to validate shuffle).
 template <typename Graph>
 bool graphs_isomorphic(const Graph &a, const Graph &b) {
