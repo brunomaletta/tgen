@@ -156,9 +156,18 @@ dl.section.warning dt::before {
 
 /* Return‑type column: give it a preferred width and cap it */
 td.memItemLeft {
-    width: 25%;                /* hint: aim for ~40% of table width */
+    width: 32%;
     white-space: normal;
     overflow-wrap: break-word;
+}
+
+/* Function lists: span full content width (desktop) */
+@media screen and (min-width: 768px) {
+    table.memberdecls {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
 }
 
 
@@ -183,6 +192,7 @@ td.memItemLeft {
    ========================================================= */
 
 :root {
+    --content-maxwidth: 1280px;
     --tgen-primitive: #C586C0;              /* int, uint64_t */
     --tgen-keyword:   #569CD6;              /* const, constexpr, auto */
     --tgen-type:      #4EC9B0;              /* vector, pair, string */
@@ -485,6 +495,13 @@ html.dark-mode .tgen-code {
 
 
 
+
+/* Main page README logo */
+#logo {
+    width: 420px;
+    max-width: 90%;
+    height: auto;
+}
 
 /* LOGO - Light mode (default) */
 html.light-mode #logo {

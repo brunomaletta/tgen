@@ -315,6 +315,8 @@ namespace tgen {
  *
  * @return A @texttt{@namespace{std}::@type{pair}} representing the pair.
  *
+ * @tt{to_std()} is called recursevely on type @tt{T}, if it applies.
+ *
  * #### Examples
  *
  * ```cpp

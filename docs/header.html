@@ -61,7 +61,16 @@ $extrastylesheet
 	var CPP_KEYWORDS = new Set([
 		'#define',
 		'const', 'constexpr', 'static', 'volatile', 'mutable',
-		'typename', 'class', 'struct', 'signed', 'unsigned'
+		'typename', 'class', 'struct', 'signed', 'unsigned', 'using'
+	]);
+
+	// Lowercase / snake_case tgen API names (not matched by PascalCase rules).
+	var TGEN_TYPES = new Set([
+		'list', 'str', 'pair', 'permutation',
+		'graph', 'tree', 'wgraph', 'wtree', 'vgraph', 'egraph', 'vtree', 'etree',
+		'print', 'println', 'distinct', 'opt',
+		'is_sequential', 'has_subset_defined', 'is_generator_value',
+		'gen_base', 'gen_value_base'
 	]);
 
 	var HIGHLIGHT_TYPE_SPLIT_RE =
@@ -104,11 +113,13 @@ $extrastylesheet
 
 	function applyMemberDeclColumnWidths() {
 		document.querySelectorAll('table.memberdecls').forEach(function (table) {
+			table.style.width = '100%';
+			table.style.tableLayout = 'fixed';
 			var colgroup = document.createElement('colgroup');
 			var c0 = document.createElement('col');
 			var c1 = document.createElement('col');
-			c0.style.width = '300px';
-			c1.style.width = 'auto';
+			c0.style.width = '340px';
+			c1.style.width = '';
 			colgroup.appendChild(c0);
 			colgroup.appendChild(c1);
 			table.insertBefore(colgroup, table.firstChild);
@@ -299,8 +310,8 @@ $extrastylesheet
 				else if (CPP_KEYWORDS.has(tok)) cls = 'keyword';
 				else if (tok === 'std' || tok === 'tgen' || tok === 'detail') cls = 'namespace';
 				else if (/^[A-Z]\w*$/.test(tok)) cls = 'type';
+				else if (TGEN_TYPES.has(tok) || tok === 'value') cls = 'type';
 				else if (STL_TYPES_EXTENDED_RE.test(tok)) cls = 'type';
-				else if (tok === 'compiler_value') cls = 'type';
 				else if (/^[A-Za-z_]\w*$/.test(tok) && /[A-Z]/.test(tok.slice(1))) cls = 'type';
 
 				if (cls) {
@@ -350,8 +361,9 @@ $extrastylesheet
 		if (/^(auto|void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 			return 'keywordtype';
 		if (/^[A-Z]\w*$/.test(tok)) return 'type';
+		if (TGEN_TYPES.has(tok) || tok === 'value') return 'type';
 		if (STL_TYPES_RE.test(tok)) return 'type';
-		if (/^(#define|struct|const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok))
+		if (/^(#define|struct|const|constexpr|static|inline|volatile|mutable|noexcept|using)$/.test(tok))
 			return 'keyword';
 		if (tok === 'std' || tok === 'tgen' || tok === 'detail') return 'namespace';
 		return null;
@@ -409,12 +421,12 @@ $extrastylesheet
 			return 'paramdefval';
 		}
 
-		if (/^(const|constexpr|static|inline|volatile|mutable|noexcept)$/.test(tok)) return 'keyword';
+		if (/^(const|constexpr|static|inline|volatile|mutable|noexcept|using)$/.test(tok)) return 'keyword';
 		if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(tok))
 			return 'keywordtype';
 		if (/^[A-Z]\w*$/.test(tok)) return 'type';
+		if (TGEN_TYPES.has(tok) || tok === 'value') return 'type';
 		if (STL_TYPES_RE.test(tok)) return 'type';
-		if (tok === 'compiler_value') return 'type';
 		if (/^[a-zA-Z_]\w*$/.test(tok)) return 'paramname';
 		return null;
 	}
@@ -475,12 +487,12 @@ $extrastylesheet
 				return 'type';
 		}
 
-		if (/^(const|constexpr|static|inline|volatile|mutable|noexcept|typename|class|struct|signed|unsigned)$/.test(t))
+		if (/^(const|constexpr|static|inline|volatile|mutable|noexcept|typename|class|struct|signed|unsigned|using)$/.test(t))
 			return 'keyword';
 		if (/^(void|bool|char|int|short|long|float|double|size_t|u?int\d+_t)$/.test(t)) return 'keywordtype';
 		if (/^[A-Z]\w*$/.test(t)) return 'type';
+		if (TGEN_TYPES.has(t) || t === 'value') return 'type';
 		if (STL_TYPES_RE.test(t)) return 'type';
-		if (t === 'compiler_value') return 'type';
 		if (t === 'std' || t === 'tgen' || t === 'detail') return 'namespace';
 		if (/^[A-Za-z_]\w*$/.test(t) && /[A-Z]/.test(t.slice(1))) return 'type';
 		return 'paramname';

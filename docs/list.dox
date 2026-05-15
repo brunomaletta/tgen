@@ -494,6 +494,8 @@ namespace tgen {
  *
  * @return A @texttt{@namespace{std}::@type{vector}} representing the list.
  *
+ * @tt{to_std()} is called recursevely on type @tt{T}, if it applies.
+ *
  * #### Examples
  *
  * ```cpp
