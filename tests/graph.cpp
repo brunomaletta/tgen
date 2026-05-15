@@ -35,6 +35,59 @@ template <typename Graph> bool is_connected_undirected(const Graph &g) {
 	return seen == g.n();
 }
 
+template <typename Graph>
+std::vector<std::vector<int>> connected_components(const Graph &g) {
+	std::vector<bool> vis(g.n(), false);
+	std::vector<std::vector<int>> components;
+	std::queue<int> q;
+	for (int s = 0; s < g.n(); ++s) {
+		if (vis[s])
+			continue;
+		components.emplace_back();
+		vis[s] = true;
+		q.push(s);
+		while (!q.empty()) {
+			int u = q.front();
+			q.pop();
+			components.back().push_back(u);
+			for (int v : g.adj()[u]) {
+				if (!vis[v]) {
+					vis[v] = true;
+					q.push(v);
+				}
+			}
+		}
+	}
+	return components;
+}
+
+template <typename Graph>
+bool is_connected_on_vertices(const Graph &g,
+							  const std::vector<int> &vertices) {
+	if (vertices.size() <= 1)
+		return true;
+	std::vector<bool> in_comp(g.n(), false);
+	for (int v : vertices)
+		in_comp[v] = true;
+	std::vector<bool> vis(g.n(), false);
+	std::queue<int> q;
+	q.push(vertices[0]);
+	vis[vertices[0]] = true;
+	int seen = 0;
+	while (!q.empty()) {
+		int u = q.front();
+		q.pop();
+		++seen;
+		for (int v : g.adj()[u]) {
+			if (in_comp[v] && !vis[v]) {
+				vis[v] = true;
+				q.push(v);
+			}
+		}
+	}
+	return seen == static_cast<int>(vertices.size());
+}
+
 bool is_bipartite(const tgen::graph::value &g) {
 	std::vector<int> color(g.n(), -1);
 	for (int s = 0; s < g.n(); ++s) {
@@ -462,6 +515,27 @@ TEST(graph_test, random_connected_subgraph) {
 	EXPECT_TRUE((edges_subset_of_edge_list(g, orig)));
 	EXPECT_TRUE(is_connected_undirected(g));
 	EXPECT_TRUE((graph_gen_result_valid(g, 9, 15, false, false)));
+}
+
+TEST(graph_test, random_connected_subgraph_disconnected) {
+	tgen::register_gen();
+
+	auto g = tgen::graph(6, 10).gen();
+	tgen::graph::value other = tgen::graph(6, 10).gen();
+	g.disjoint_union(other);
+
+	const auto components_before = connected_components(g);
+	const int min_edges = g.n() - static_cast<int>(components_before.size());
+	const int keep_edges = std::min(g.m(), min_edges + 2);
+	const std::set<std::pair<int, int>> orig(g.edges().begin(),
+											 g.edges().end());
+	g.random_connected_subgraph(keep_edges);
+
+	EXPECT_TRUE((edges_subset_of_edge_list(g, orig)));
+	EXPECT_EQ(connected_components(g).size(), components_before.size());
+	for (const auto &verts : components_before)
+		EXPECT_TRUE(is_connected_on_vertices(g, verts));
+	EXPECT_TRUE((graph_gen_result_valid(g, g.n(), keep_edges, false, false)));
 }
 
 TEST(graph_test, directed_gen_distinct_edges) {

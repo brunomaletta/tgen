@@ -894,12 +894,16 @@ namespace tgen {
 
 
 /**
- * @brief Random connected subgraph with a fixed number of edges.
+ * @brief Random subgraph with a fixed number of edges that keeps components connected.
  *
  * @param num_edges Number of edges to keep (subset of current edges).
  *
- * First, picks a random spanning tree via randomized Prim.
+ * First, picks a random spanning forest via randomized Prim on each connected
+ * component (so the number of connected components does not increase).
  * Then, extra edges are chosen uniformly at random.
+ *
+ * Requires at least @tt{n - c} edges, where @tt{c} is the number of connected
+ * components in the current graph.
  *
  * @note This operation is not uniformly random.
  *
