@@ -1018,11 +1018,13 @@ namespace tgen {
 
 /**
  * @ingroup graph
- * @brief Path undirected graph.
+ * @brief Path graph.
  *
  * @param n Number of vertices.
+ * @param is_directed If @tt{true}, edges are @tt{i -> i+1} for @tt{i} in
+ * @tt{[0, @pname{n} - 2)}; otherwise the graph is undirected.
  *
- * The edges of the path are vertices @tt{0} and @tt{@pname{n} - 1}.
+ * The endpoints of the path are vertices @tt{0} and @tt{@pname{n} - 1}.
  *
  * #### Complexity
  *
@@ -1031,19 +1033,24 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Path on five vertices.
+ * // Undirected path on five vertices.
  * std::cout << tgen::P(5);
+ *
+ * // Directed path on five vertices (0 -> 1 -> ... -> 4).
+ * std::cout << tgen::P(5, true);
  * ```
  *
- * @fn P(int n);
+ * @fn P(int n, bool is_directed = false);
  */
 
 
 /**
  * @ingroup graph
- * @brief Cycle undirected graph.
+ * @brief Cycle graph.
  *
  * @param n Number of vertices.
+ * @param is_directed If @tt{true}, edges are @tt{i -> (i+1) % @pname{n}};
+ * otherwise the graph is undirected.
  *
  * @pre @tt{@pname{n} >= 3}.
  *
@@ -1054,11 +1061,14 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Cycle on five vertices.
+ * // Undirected cycle on five vertices.
  * std::cout << tgen::C(5);
+ *
+ * // Directed cycle on five vertices.
+ * std::cout << tgen::C(5, true);
  * ```
  *
- * @fn C(int n);
+ * @fn C(int n, bool is_directed = false);
  */
 
 

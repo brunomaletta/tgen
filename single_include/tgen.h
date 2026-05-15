@@ -5505,9 +5505,10 @@ inline graph::value K(int n) { return graph(n, n * (n - 1) / 2).gen(); }
 
 // Path.
 // Path with `n` vertices. The edges of the path are 0 and n-1.
+// If directed, edges are i -> i+1 for i in [0, n-2).
 // O(n).
-inline graph::value P(int n) {
-	graph g(n, n - 1);
+inline graph::value P(int n, bool is_directed = false) {
+	graph g(n, n - 1, is_directed);
 	for (int i = 0; i + 1 < n; ++i)
 		g.add_edge(i, i + 1);
 	return g.gen();
@@ -5515,11 +5516,12 @@ inline graph::value P(int n) {
 
 // Cycle.
 // n >= 3.
+// If directed, edges are i -> (i+1) % n.
 // O(n).
-inline graph::value C(int n) {
+inline graph::value C(int n, bool is_directed = false) {
 	tgen_ensure(n >= 3, "graph: cycle size must be at least 3");
 
-	graph g(n, n);
+	graph g(n, n, is_directed);
 	for (int i = 0; i < n; ++i)
 		g.add_edge(i, (i + 1) % n);
 	return g.gen();

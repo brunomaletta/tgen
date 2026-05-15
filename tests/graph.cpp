@@ -375,6 +375,16 @@ TEST(graph_test, standard_graphs) {
 		}
 	}
 	{
+		auto p = tgen::P(6, true);
+		EXPECT_TRUE((graph_gen_result_valid(p, 6, 5, true, false)));
+
+		EXPECT_TRUE(p.adj()[0].size() == 1 and p.adj()[0].count(1));
+		EXPECT_TRUE(p.adj()[5].empty());
+		for (int i = 1; i < p.n() - 1; ++i) {
+			EXPECT_EQ(p.adj()[i], std::set<int>({i + 1}));
+		}
+	}
+	{
 		auto c = tgen::C(5);
 		EXPECT_TRUE((graph_gen_result_valid(c, 5, 5, false, false)));
 		EXPECT_TRUE(is_connected_undirected(c));
@@ -382,6 +392,14 @@ TEST(graph_test, standard_graphs) {
 		for (int i = 0; i < c.n(); ++i) {
 			EXPECT_TRUE(c.adj()[i].size() == 2);
 			EXPECT_TRUE(c.adj()[i].count((i + 1) % c.n()));
+		}
+	}
+	{
+		auto c = tgen::C(5, true);
+		EXPECT_TRUE((graph_gen_result_valid(c, 5, 5, true, false)));
+
+		for (int i = 0; i < c.n(); ++i) {
+			EXPECT_EQ(c.adj()[i], std::set<int>({(i + 1) % c.n()}));
 		}
 	}
 	{
