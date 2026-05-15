@@ -774,7 +774,7 @@ namespace tgen {
 
 
 /**
- * @brief Glues another graph on given vertices.
+ * @brief Glues another graph at given vertex pairs.
  *
  * @param rhs Other graph to be glued.
  * @param index_pairs Set of @tt{(l, r)} pairs: vertex @tt{l} is glued to vertex @tt{r} in @pname{rhs}.
@@ -796,6 +796,33 @@ namespace tgen {
  * ```
  *
  * @fn wgraph::value::glue(const value &rhs, std::set<std::pair<int, int>> index_pairs);
+ */
+
+
+/**
+ * @brief Glues another graph at given vertices.
+ *
+ * @param rhs Other graph to be glued.
+ * @param indices Set of vertex labels: for each @tt{i} in @pname{indices}, vertex @tt{i} is glued to vertex @tt{i}
+ *                in @pname{rhs}.
+ *
+ * Gluing one vertex to another means they are considered to be the same vertex, maintaining the label
+ * it had in this graph. Other vertices are shifted accordingly.
+ *
+ * #### Complexity
+ *
+ * @tt{O(rhs.n() + rhs.m() log n)} amortized.
+ *
+ * That is, the complexity depends mostly on the @pname{rhs} graph.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Glues to C_3 at vertex 0.
+ * std::cout << C(3).glue(C(3), {0}).n() << std::endl; // Prints "5".
+ * ```
+ *
+ * @fn wgraph::value::glue(const value &rhs, std::set<int> indices);
  */
 
 

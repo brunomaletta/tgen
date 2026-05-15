@@ -536,7 +536,7 @@ namespace tgen {
  *
  * #### Complexity
  *
- * @tt{O(rhs.n() + rhs.edges().size() * log n)} amortized.
+ * @tt{O(rhs.n() * log n)} amortized.
  *
  * That is, the complexity depends mostly on the @pname{rhs} tree.
  *
@@ -555,7 +555,7 @@ namespace tgen {
 
 
 /**
- * @brief Glues another tree on given vertices.
+ * @brief Glues another tree at given vertex pairs.
  *
  * @param rhs Other tree to be glued.
  * @param index_pairs Set of @tt{(l, r)} pairs: vertex @tt{l} is glued to vertex @tt{r} in @pname{rhs}.
@@ -565,7 +565,7 @@ namespace tgen {
  *
  * #### Complexity
  *
- * @tt{O(rhs.n() + rhs.edges().size() * log n)} amortized.
+ * @tt{O(rhs.n() * log n)} amortized.
  *
  * That is, the complexity depends mostly on the @pname{rhs} tree.
  *
@@ -580,6 +580,36 @@ namespace tgen {
  * ```
  *
  * @fn wtree::value::glue(const value &rhs, std::set<std::pair<int, int>> index_pairs);
+ */
+
+
+/**
+ * @brief Glues another tree at given vertices.
+ *
+ * @param rhs Other tree to be glued.
+ * @param indices Set of vertex labels: for each @tt{i} in @pname{indices}, vertex @tt{i} is glued to vertex
+ *                @tt{i} in @pname{rhs}.
+ *
+ * Gluing one vertex to another means they are considered to be the same vertex, maintaining the label
+ * it had in this graph. Other vertices are shifted accordingly.
+ *
+ * #### Complexity
+ *
+ * @tt{O(rhs.n() * log n)} amortized.
+ *
+ * That is, the complexity depends mostly on the @pname{rhs} tree.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Glues two 3-vertex paths at vertex 0.
+ * tgen::tree::value a(3, {{0, 1}, {1, 2}});
+ * tgen::tree::value b(3, {{0, 1}, {1, 2}});
+ * a.glue(b, {0});
+ * std::cout << a.n() << std::endl; // Prints "5".
+ * ```
+ *
+ * @fn wtree::value::glue(const value &rhs, std::set<int> indices);
  */
 
 
