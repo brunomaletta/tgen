@@ -649,13 +649,28 @@ template <typename... Args> struct print_cols {
  * Global random operations.
  */
 
+namespace detail {
+// libstdc++ accepts std::uniform_int_distribution with narrow integral types
+// (char/signed char/unsigned char/short/bool), but libc++ rejects them with a
+// hard static_assert ("IntType must be a supported integer type"). Promote such
+// types to a width the standard guarantees, preserving signedness, so the same
+// `next<T>` works across both standard libraries (e.g. Apple clang / libc++).
+template <typename T>
+using uniform_int_t = std::conditional_t<
+	(sizeof(T) >= sizeof(short)), T,
+	std::conditional_t<std::is_signed_v<T>, int, unsigned int>>;
+} // namespace detail
+
 // Returns a uniformly random number in [0, right)
 // O(1).
 template <typename T> T next(T right) {
 	detail::ensure_registered();
 	if constexpr (std::is_integral_v<T>) {
 		tgen_ensure(right >= 1, "value for `next` must be valid");
-		return std::uniform_int_distribution<T>(0, right - 1)(detail::rng);
+		return static_cast<T>(
+			std::uniform_int_distribution<detail::uniform_int_t<T>>(
+				0,
+				static_cast<detail::uniform_int_t<T>>(right) - 1)(detail::rng));
 	} else if constexpr (std::is_floating_point_v<T>) {
 		tgen_ensure(right >= 0, "value for `next` must be valid");
 		return std::uniform_real_distribution<T>(0, right)(detail::rng);
@@ -670,7 +685,10 @@ template <typename T> T next(T left, T right) {
 	detail::ensure_registered();
 	tgen_ensure(left <= right, "range for `next` must be valid");
 	if constexpr (std::is_integral_v<T>)
-		return std::uniform_int_distribution<T>(left, right)(detail::rng);
+		return static_cast<T>(
+			std::uniform_int_distribution<detail::uniform_int_t<T>>(
+				static_cast<detail::uniform_int_t<T>>(left),
+				static_cast<detail::uniform_int_t<T>>(right))(detail::rng));
 	else if constexpr (std::is_floating_point_v<T>)
 		return std::uniform_real_distribution<T>(left, right)(detail::rng);
 	else
