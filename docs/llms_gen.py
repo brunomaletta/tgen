@@ -24,6 +24,24 @@ import re
 
 _SECT_TAGS = {"sect1": 2, "sect2": 3, "sect3": 4, "sect4": 5}
 
+_PARAMLIST_LABELS = {
+    "param": "Parameters",
+    "templateparam": "Template parameters",
+    "retval": "Return values",
+    "exception": "Exceptions",
+}
+
+_SIMPLESECT_LABELS = {
+    "return": "Returns",
+    "note": "Note",
+    "warning": "Warning",
+    "see": "See also",
+    "since": "Since",
+    "pre": "Precondition",
+    "post": "Postcondition",
+    "attention": "Attention",
+}
+
 
 def _text(s):
     return s if s else ""
@@ -93,6 +111,33 @@ def _render_section(node):
     return render_children(node)
 
 
+def _render_parameterlist(node):
+    label = _PARAMLIST_LABELS.get(node.get("kind"), "Parameters")
+    lines = ["\n**%s:**\n\n" % label]
+    for item in node.findall("parameteritem"):
+        names = []
+        for nl in item.findall("parameternamelist"):
+            for pn in nl.findall("parametername"):
+                names.append("".join(pn.itertext()).strip())
+        desc_el = item.find("parameterdescription")
+        desc = render_children(desc_el).strip() if desc_el is not None else ""
+        desc = re.sub(r"\n+", " ", desc).strip()
+        name_str = ", ".join("`%s`" % n for n in names if n)
+        if desc:
+            lines.append("- %s — %s\n" % (name_str, desc))
+        else:
+            lines.append("- %s\n" % name_str)
+    lines.append("\n")
+    return "".join(lines)
+
+
+def _render_simplesect(node):
+    label = _SIMPLESECT_LABELS.get(node.get("kind"), "Note")
+    body = render_children(node).strip()
+    body = re.sub(r"\n+", " ", body).strip()
+    return "\n**%s:** %s\n" % (label, body)
+
+
 def render_node(node):
     """Render a single XML element to markdown. Never silently drops content."""
     tag = node.tag
@@ -116,6 +161,10 @@ def render_node(node):
         return _render_list(node, ordered=False)
     if tag == "orderedlist":
         return _render_list(node, ordered=True)
+    if tag == "parameterlist":
+        return _render_parameterlist(node)
+    if tag == "simplesect":
+        return _render_simplesect(node)
     if tag == "linebreak":
         return "\n"
     if tag == "sp":

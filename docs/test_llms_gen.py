@@ -117,5 +117,44 @@ class RenderInlineTest(unittest.TestCase):
         self.assertIn("Only detail.", out)
 
 
+class ParameterAndSimpleSectTest(unittest.TestCase):
+    def test_parameterlist_and_return(self):
+        xml = (
+            "<detaileddescription><para>"
+            '<parameterlist kind="param"><parameteritem>'
+            "<parameternamelist><parametername>size</parametername></parameternamelist>"
+            "<parameterdescription><para>length</para></parameterdescription>"
+            "</parameteritem></parameterlist>"
+            '<simplesect kind="return"><para>a generator</para></simplesect>'
+            "</para></detaileddescription>"
+        )
+        out = llms_gen.render_description(None, el(xml))
+        self.assertIn("**Parameters:**", out)
+        self.assertIn("`size` — length", out)
+        self.assertIn("**Returns:** a generator", out)
+
+    def test_templateparam_label(self):
+        xml = (
+            "<detaileddescription><para>"
+            '<parameterlist kind="templateparam"><parameteritem>'
+            "<parameternamelist><parametername>T</parametername></parameternamelist>"
+            "<parameterdescription><para>the type</para></parameterdescription>"
+            "</parameteritem></parameterlist>"
+            "</para></detaileddescription>"
+        )
+        out = llms_gen.render_description(None, el(xml))
+        self.assertIn("**Template parameters:**", out)
+        self.assertIn("`T` — the type", out)
+
+    def test_simplesect_note(self):
+        xml = (
+            "<detaileddescription><para>"
+            '<simplesect kind="note"><para>be careful</para></simplesect>'
+            "</para></detaileddescription>"
+        )
+        out = llms_gen.render_description(None, el(xml))
+        self.assertIn("**Note:** be careful", out)
+
+
 if __name__ == "__main__":
     unittest.main()
