@@ -40,7 +40,7 @@ jobs:
           sudo mv doxygen-${DOXYGEN_VERSION}/bin/doxygen /usr/local/bin/
 
       - name: Build documentation
-        run: make doc
+        run: make doc llms
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

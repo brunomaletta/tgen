@@ -6,6 +6,7 @@ DOC_HTML_DIR  := $(DOC_BUILD_DIR)
 DOC_INDEX     := $(abspath $(DOC_HTML_DIR)/index.html)
 DOC_SRC_DIR   := docs
 THEME_DIR     := docs/doxygen-awesome-css
+LLM_BASE_URL  ?= https://rsalesc.github.io/tgen
 
 # Extra argv for runnable examples, e.g. make graph ARGS='--seed 1'   (also works with graph-asan, etc.)
 ARGS ?=
@@ -71,7 +72,7 @@ $(eval $(call EXAMPLE_LINK_RULE,range_queries,range_queries.cpp,$(CXX_GCC)))
 $(eval $(call EXAMPLE_LINK_RULE,unordered_clang,unordered_set.cpp,$(CXX_CLANG)))
 $(eval $(call EXAMPLE_DEBUG_RULE,sample_debug,all.cpp,$(CXX_GCC)))
 
-.PHONY: all doc doc-rebuild clean-doc opendoc lint lint-check test test_clang test_asan \
+.PHONY: all doc llms doc-rebuild clean-doc opendoc lint lint-check test test_clang test_asan \
 	sample sample_debug unordered range_queries unordered_clang graph cloc \
 	help print-% %-asan
 
@@ -139,6 +140,24 @@ doc:
 	# GitHub Pages safety
 	touch $(DOC_HTML_DIR)/.nojekyll
 
+	$(MAKE) llms
+
+# LLM-friendly markdown docs: a second, XML-only Doxygen run + a python converter.
+# Leaves the HTML build untouched. Output: $(DOC_HTML_DIR)/llms.txt and $(DOC_HTML_DIR)/llms/*.md
+llms:
+	mkdir -p $(DOC_HTML_DIR)
+	cd $(DOC_SRC_DIR) && { \
+	printf '%s\n' '@INCLUDE = Doxyfile' 'GENERATE_HTML=NO' 'GENERATE_XML=YES' \
+		'GENERATE_LATEX=NO' 'GENERATE_DOCBOOK=NO' \
+		'OUTPUT_DIRECTORY=build' 'XML_OUTPUT=xml' \
+		'NUM_PROC_THREADS = $(NPROCS)' 'DOT_NUM_THREADS = $(NPROCS)'; \
+	} | doxygen -
+	python3 $(DOC_SRC_DIR)/llms_gen.py \
+		--xml $(DOC_BUILD_DIR)/xml \
+		--out $(DOC_HTML_DIR) \
+		--base-url '$(LLM_BASE_URL)'
+	rm -rf $(DOC_BUILD_DIR)/xml
+
 doc-rebuild:
 	$(MAKE) clean-doc doc
 
@@ -199,7 +218,7 @@ help:
 	@echo " + argv:   make graph ARGS='…'   (sample, graph, graph-asan, …)"
 	@echo " + ASan:   make graph ASAN=1   or   make graph-asan   (same for sample-asan, unordered-asan, …)"
 	@echo "           Binaries: build/examples/rel/… and build/examples/asan/… (see ASAN=1)"
-	@echo "Docs:      make doc | doc-rebuild | opendoc | clean-doc   (doc-rebuild = clean + doc)"
+	@echo "Docs:      make doc | doc-rebuild | opendoc | clean-doc | llms   (doc also builds llms; doc-rebuild = clean + doc)"
 	@echo "Other:     make lint | lint-check | clean | cloc | print-CXXFLAGS_COMMON"
 
 print-%:
