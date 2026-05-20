@@ -119,6 +119,73 @@ class RenderInlineTest(unittest.TestCase):
         self.assertIn("Only detail.", out)
 
 
+class VisibilityScopedTagTest(unittest.TestCase):
+    def test_htmlonly_content_dropped(self):
+        xml = (
+            "<para>before<htmlonly><script>junk()</script></htmlonly>after</para>"
+        )
+        out = llms_gen.render_node(el(xml))
+        self.assertIn("before", out)
+        self.assertIn("after", out)
+        self.assertNotIn("junk", out)
+        self.assertNotIn("<script", out)
+
+    def test_latexonly_content_dropped(self):
+        xml = "<para>a<latexonly>\\latex{cmd}</latexonly>b</para>"
+        out = llms_gen.render_node(el(xml))
+        self.assertIn("a", out)
+        self.assertIn("b", out)
+        self.assertNotIn("latex", out)
+
+
+class DashEntityTest(unittest.TestCase):
+    def test_ndash_and_mdash(self):
+        xml = "<para>use <ndash/>flag and <mdash/>x</para>"
+        out = llms_gen.render_node(el(xml))
+        self.assertIn("--flag", out)
+        self.assertIn("---x", out)
+
+
+class SimpleSectBlockTest(unittest.TestCase):
+    def test_simplesect_preserves_code_block(self):
+        xml = (
+            '<simplesect kind="note"><para>see'
+            '<programlisting filename=".cpp"><codeline>'
+            '<highlight class="normal">int x;</highlight>'
+            "</codeline></programlisting></para></simplesect>"
+        )
+        out = llms_gen.render_node(el(xml))
+        self.assertIn("**Note:**", out)
+        self.assertIn("```cpp\nint x;", out)
+
+
+class ErrorHandlingTest(unittest.TestCase):
+    def test_discover_groups_missing_dir_exits(self):
+        with self.assertRaises(SystemExit):
+            llms_gen.discover_groups("/no/such/dir")
+
+    def test_generate_missing_dir_exits(self):
+        with tempfile.TemporaryDirectory() as out:
+            with self.assertRaises(SystemExit):
+                llms_gen.generate("/no/such/dir", out, "https://example.com/")
+
+    def test_load_compounddef_malformed_exits(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "bad.xml")
+            with open(path, "w") as f:
+                f.write("<compounddef><not-closed>")
+            with self.assertRaises(SystemExit):
+                llms_gen._load_compounddef(d, "bad")
+
+    def test_validate_missing_module_exits(self):
+        with tempfile.TemporaryDirectory() as out:
+            with open(os.path.join(out, "llms.txt"), "w") as f:
+                f.write("# tgen\n")
+            incomplete = [m for m in llms_gen.EXPECTED_MODULES if m != "list"]
+            with self.assertRaises(SystemExit):
+                llms_gen._validate(out, incomplete)
+
+
 class MemberAndGroupTest(unittest.TestCase):
     def _member(self):
         xml = (
@@ -241,6 +308,15 @@ class SmokeXmlTest(unittest.TestCase):
             self.assertNotIn("@tt{", listmd)
             self.assertNotIn("@pname{", listmd)
             self.assertIsNone(llms_gen.MARKUP_RE.search(listmd))
+
+            with open(os.path.join(out, "llms", "base.md")) as f:
+                basemd = f.read()
+            for junk in ("<script", "wnext-viz", "addEventListener", "getElementById"):
+                self.assertNotIn(junk, basemd)
+
+            with open(os.path.join(out, "llms", "opts.md")) as f:
+                optsmd = f.read()
+            self.assertIn("--", optsmd)
 
 
 if __name__ == "__main__":

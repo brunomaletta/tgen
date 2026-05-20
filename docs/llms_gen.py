@@ -47,7 +47,23 @@ EXPECTED_MODULES = [
     "misc",
 ]
 
+# Titled markdown headings nest as sect1..sect4; only the innermost carries a
+# <title>. Doxygen has no sect5/sect6, so a titled section deeper than sect4
+# would fall through render_node's catch-all (children rendered, heading lost)
+# -- a documented limitation; the current XML has no such case.
 _SECT_TAGS = {"sect1": 2, "sect2": 3, "sect3": 4, "sect4": 5}
+
+# Visibility-scoped output blocks whose contents target a non-markdown format
+# (raw HTML/JS, LaTeX, etc.). Their inner content is dropped entirely so e.g.
+# an interactive <htmlonly> widget never leaks into the generated markdown.
+_SKIP_TAGS = {
+    "htmlonly",
+    "manonly",
+    "latexonly",
+    "rtfonly",
+    "xmlonly",
+    "docbookonly",
+}
 
 _PARAMLIST_LABELS = {
     "param": "Parameters",
@@ -160,14 +176,24 @@ def _render_parameterlist(node):
 
 def _render_simplesect(node):
     label = _SIMPLESECT_LABELS.get(node.get("kind"), "Note")
+    # Preserve block content (code fences, lists) verbatim: only trim outer
+    # whitespace rather than squashing all newlines, so a fenced block or a
+    # bullet list inside a @note/@warning keeps its own lines.
     body = render_children(node).strip()
-    body = re.sub(r"\n+", " ", body).strip()
     return "\n**%s:** %s\n" % (label, body)
 
 
 def render_node(node):
     """Render a single XML element to markdown. Never silently drops content."""
     tag = node.tag
+    if tag in _SKIP_TAGS:
+        # Drop format-specific content (raw HTML/JS, LaTeX, ...) entirely; the
+        # element's own tail is appended by the caller's render loop.
+        return ""
+    if tag == "ndash":
+        return "--"
+    if tag == "mdash":
+        return "---"
     if tag == "para":
         return render_children(node).strip() + "\n\n"
     if tag == "computeroutput":
@@ -270,11 +296,29 @@ def render_compound_members(compounddef):
     return "\n\n".join(parts)
 
 
+def _die(path, reason):
+    """Exit non-zero with a clear ``tgen llms_gen: <path>: <reason>`` message."""
+    sys.stderr.write("tgen llms_gen: %s: %s\n" % (path, reason))
+    sys.exit(1)
+
+
+def _parse_xml(path):
+    """Parse an XML file, exiting cleanly on missing/unreadable/malformed input."""
+    try:
+        return ET.parse(path).getroot()
+    except FileNotFoundError:
+        _die(path, "file not found")
+    except OSError as exc:
+        _die(path, str(exc))
+    except ET.ParseError as exc:
+        _die(path, "malformed XML (%s)" % exc)
+
+
 def _load_compounddef(xml_dir, refid):
     path = os.path.join(xml_dir, refid + ".xml")
     if not os.path.isfile(path):
         return None
-    return ET.parse(path).getroot().find("compounddef")
+    return _parse_xml(path).find("compounddef")
 
 
 def _compounddef_brief(compounddef):
@@ -337,7 +381,7 @@ def render_group(xml_dir, compounddef):
 
 def discover_groups(xml_dir):
     """Return ``[(name, refid), ...]`` for group compounds, in index order."""
-    root = ET.parse(os.path.join(xml_dir, "index.xml")).getroot()
+    root = _parse_xml(os.path.join(xml_dir, "index.xml"))
     groups = []
     for compound in root.findall("compound"):
         if compound.get("kind") == "group":
