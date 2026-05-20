@@ -6,7 +6,7 @@ DOC_HTML_DIR  := $(DOC_BUILD_DIR)
 DOC_INDEX     := $(abspath $(DOC_HTML_DIR)/index.html)
 DOC_SRC_DIR   := docs
 THEME_DIR     := docs/doxygen-awesome-css
-LLM_BASE_URL  ?= https://rsalesc.github.io/tgen
+LLM_BASE_URL  ?= https://brunomaletta.github.io/tgen
 
 # Extra argv for runnable examples, e.g. make graph ARGS='--seed 1'   (also works with graph-asan, etc.)
 ARGS ?=

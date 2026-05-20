@@ -476,7 +476,7 @@ def main(argv=None):
     )
     parser.add_argument(
         "--base-url",
-        default="https://rsalesc.github.io/tgen",
+        default="https://brunomaletta.github.io/tgen",
         help="absolute base URL for generated links",
     )
     args = parser.parse_args(argv)
