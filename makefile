@@ -158,8 +158,12 @@ llms:
 		--base-url '$(LLM_BASE_URL)'
 	rm -rf $(DOC_BUILD_DIR)/xml
 
+# Two separate sub-makes (not `$(MAKE) clean-doc doc`): `MAKEFLAGS += -j$(NPROCS)`
+# forces the sub-make parallel, so passing both goals at once lets clean-doc's
+# `rm -rf docs/build` race the doc recipe writing into docs/build. The `&&`
+# guarantees the wipe finishes before the build starts.
 doc-rebuild:
-	$(MAKE) clean-doc doc
+	$(MAKE) clean-doc && $(MAKE) doc
 
 clean-doc:
 	rm -rf $(DOC_BUILD_DIR)
