@@ -7,6 +7,8 @@ Run from inside ``docs/``::
 Stdlib only (``unittest`` + ``xml.etree``); no pip dependencies.
 """
 
+import os
+import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 
@@ -204,6 +206,41 @@ class ParameterAndSimpleSectTest(unittest.TestCase):
         )
         out = llms_gen.render_description(None, el(xml))
         self.assertIn("**Note:** be careful", out)
+
+
+class SmokeXmlTest(unittest.TestCase):
+    XML_DIR = os.path.join(os.path.dirname(__file__), "build", "xml")
+
+    def setUp(self):
+        if not os.path.isdir(self.XML_DIR):
+            self.skipTest("real XML not generated at build/xml")
+
+    def test_discover_groups(self):
+        groups = llms_gen.discover_groups(self.XML_DIR)
+        names = [n for n, _ in groups]
+        for expected in llms_gen.EXPECTED_MODULES:
+            self.assertIn(expected, names)
+
+    def test_generate_full(self):
+        with tempfile.TemporaryDirectory() as out:
+            llms_gen.generate(self.XML_DIR, out, "https://example.com/tgen/")
+            index = os.path.join(out, "llms.txt")
+            self.assertTrue(os.path.isfile(index))
+            with open(index) as f:
+                idx = f.read()
+            self.assertIn("# tgen", idx)
+            self.assertIn("## Modules", idx)
+            for expected in llms_gen.EXPECTED_MODULES:
+                self.assertTrue(
+                    os.path.isfile(os.path.join(out, "llms", expected + ".md")),
+                    expected,
+                )
+            with open(os.path.join(out, "llms", "list.md")) as f:
+                listmd = f.read()
+            self.assertIn("```cpp", listmd)
+            self.assertNotIn("@tt{", listmd)
+            self.assertNotIn("@pname{", listmd)
+            self.assertIsNone(llms_gen.MARKUP_RE.search(listmd))
 
 
 if __name__ == "__main__":

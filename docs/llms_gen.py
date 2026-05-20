@@ -18,11 +18,34 @@ Notes on this project's actual XML (Doxygen 1.17.0):
   * The ``@tt{}`` / ``@pname{}`` family of aliases expand to spans that are
     stripped in XML output, leaving only their (often auto-linked) inner text,
     so there is no leftover ``@...{`` markup to handle for them.
+  * Typed-generator groups (list, str, tree, ...) have no direct members; their
+    API lives in ``<innerclass>`` structs which must be loaded and rendered.
 """
 
+import argparse
 import os
 import re
+import sys
 import xml.etree.ElementTree as ET
+
+# Matches any leftover unconverted Doxygen alias markup, e.g. ``@tt{``.
+MARKUP_RE = re.compile(r"@[a-zA-Z]+\{")
+
+# Modules that MUST be present in the generated output (subset check). Extra
+# groups (e.g. ``generator_value_op``) are allowed and must not cause failure.
+EXPECTED_MODULES = [
+    "base",
+    "opts",
+    "list",
+    "pair",
+    "permutation",
+    "str",
+    "tree",
+    "graph",
+    "math",
+    "hack",
+    "misc",
+]
 
 _SECT_TAGS = {"sect1": 2, "sect2": 3, "sect3": 4, "sect4": 5}
 
@@ -76,6 +99,8 @@ def _render_codeline_text(node):
     for child in node:
         if child.tag == "sp":
             parts.append(" ")
+        elif child.tag == "highlight":
+            parts.append(_render_codeline_text(child))
         else:
             parts.append(_render_codeline_text(child))
         parts.append(_text(child.tail))
@@ -303,3 +328,121 @@ def render_group(xml_dir, compounddef):
             parts.append(inner_members + "\n\n")
 
     return _collapse("".join(parts)) + "\n"
+
+
+# --------------------------------------------------------------------------
+# Index discovery + generation + validation
+# --------------------------------------------------------------------------
+
+
+def discover_groups(xml_dir):
+    """Return ``[(name, refid), ...]`` for group compounds, in index order."""
+    root = ET.parse(os.path.join(xml_dir, "index.xml")).getroot()
+    groups = []
+    for compound in root.findall("compound"):
+        if compound.get("kind") == "group":
+            refid = compound.get("refid")
+            name = compound.findtext("name", "").strip()
+            groups.append((name, refid))
+    return groups
+
+
+def generate(xml_dir, out_dir, base_url):
+    llms_dir = os.path.join(out_dir, "llms")
+    os.makedirs(llms_dir, exist_ok=True)
+
+    entries = []
+    for name, refid in discover_groups(xml_dir):
+        compounddef = _load_compounddef(xml_dir, refid)
+        if compounddef is None:
+            continue
+        md = render_group(xml_dir, compounddef)
+        leftover = MARKUP_RE.search(md)
+        if leftover:
+            sys.stderr.write(
+                "tgen llms_gen: unconverted Doxygen markup %r in module %r\n"
+                % (leftover.group(0), name)
+            )
+            sys.exit(1)
+        with open(os.path.join(llms_dir, name + ".md"), "w") as f:
+            f.write(md)
+        entries.append((name, group_brief(compounddef)))
+
+    _write_index(out_dir, base_url, entries)
+    _validate(out_dir, [n for n, _ in entries])
+    return entries
+
+
+def _write_index(out_dir, base_url, entries):
+    base = base_url.rstrip("/")
+    lines = [
+        "# tgen\n",
+        "\n",
+        "> tgen is a header-only C++17 library for writing random testcase "
+        "generators, emphasizing declarative constraints, provably uniform "
+        "sampling, and adversarial (\"hack\") generation. The core pipeline is "
+        "generator -> `.gen()` -> value operations: a generator describes the "
+        "set of valid objects under constraints, `.gen()` samples one uniformly "
+        "at random, and value operations mutate the sampled value. The whole "
+        "library is a single header, `single_include/tgen.h`.\n",
+        "\n",
+        "## Modules\n",
+        "\n",
+    ]
+    for name, brief in entries:
+        url = "%s/llms/%s.md" % (base, name)
+        if brief:
+            lines.append("- [%s](%s) — %s\n" % (name, url, brief))
+        else:
+            lines.append("- [%s](%s)\n" % (name, url))
+    lines.append("\n")
+    lines.append("## Source\n")
+    lines.append("\n")
+    lines.append(
+        "- [single_include/tgen.h]"
+        "(https://github.com/rsalesc/tgen/blob/main/single_include/tgen.h) — "
+        "the entire library (one header).\n"
+    )
+    with open(os.path.join(out_dir, "llms.txt"), "w") as f:
+        f.write("".join(lines))
+
+
+def _validate(out_dir, generated_names):
+    ok = True
+    missing = [m for m in EXPECTED_MODULES if m not in generated_names]
+    if missing:
+        sys.stderr.write(
+            "tgen llms_gen: missing expected modules: %s\n" % ", ".join(missing)
+        )
+        ok = False
+    if not os.path.isfile(os.path.join(out_dir, "llms.txt")):
+        sys.stderr.write("tgen llms_gen: llms.txt was not written\n")
+        ok = False
+    if not ok:
+        sys.exit(1)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(
+        description="Convert Doxygen XML into LLM-friendly markdown docs."
+    )
+    parser.add_argument("--xml", required=True, help="Doxygen XML output dir")
+    parser.add_argument(
+        "--out", required=True, help="output dir for llms.txt + llms/"
+    )
+    parser.add_argument(
+        "--base-url",
+        default="https://rsalesc.github.io/tgen",
+        help="absolute base URL for generated links",
+    )
+    args = parser.parse_args(argv)
+
+    entries = generate(args.xml, args.out, args.base_url)
+    print(
+        "tgen llms_gen: wrote %d modules to %s"
+        % (len(entries), os.path.join(args.out, "llms"))
+    )
+
+
+if __name__ == "__main__":
+    main()
