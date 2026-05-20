@@ -117,6 +117,56 @@ class RenderInlineTest(unittest.TestCase):
         self.assertIn("Only detail.", out)
 
 
+class MemberAndGroupTest(unittest.TestCase):
+    def _member(self):
+        xml = (
+            '<memberdef kind="function" id="m1">'
+            "<type>bool</type>"
+            "<definition>bool tgen::math::is_prime</definition>"
+            "<argsstring>(uint64_t n)</argsstring>"
+            "<name>is_prime</name>"
+            "<briefdescription><para>Checks if prime.</para></briefdescription>"
+            "<detaileddescription>"
+            '<para><parameterlist kind="param"><parameteritem>'
+            "<parameternamelist><parametername>n</parametername></parameternamelist>"
+            "<parameterdescription><para>Number.</para></parameterdescription>"
+            "</parameteritem></parameterlist>"
+            '<simplesect kind="return"><para>If prime.</para></simplesect></para>'
+            "</detaileddescription>"
+            "</memberdef>"
+        )
+        return el(xml)
+
+    def test_member_signature(self):
+        sig = llms_gen._member_signature(self._member())
+        self.assertIn("is_prime", sig)
+        self.assertIn("uint64_t n", sig)
+        self.assertIn("bool", sig)
+
+    def test_render_member(self):
+        out = llms_gen.render_member(self._member())
+        self.assertIn("#### `is_prime`", out)
+        self.assertIn("```cpp", out)
+        self.assertIn("Checks if prime.", out)
+        self.assertIn("**Returns:** If prime.", out)
+
+    def test_render_compound_members_skips_variables(self):
+        compound = el(
+            '<compounddef kind="struct">'
+            '<sectiondef kind="public-func">'
+            + ET.tostring(self._member(), encoding="unicode")
+            + "</sectiondef>"
+            '<sectiondef kind="public-attrib">'
+            '<memberdef kind="variable" id="v1"><name>field</name>'
+            "<type>int</type></memberdef>"
+            "</sectiondef>"
+            "</compounddef>"
+        )
+        members = llms_gen.render_compound_members(compound)
+        self.assertIn("is_prime", members)
+        self.assertNotIn("field", members)
+
+
 class ParameterAndSimpleSectTest(unittest.TestCase):
     def test_parameterlist_and_return(self):
         xml = (

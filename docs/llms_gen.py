@@ -20,7 +20,9 @@ Notes on this project's actual XML (Doxygen 1.17.0):
     so there is no leftover ``@...{`` markup to handle for them.
 """
 
+import os
 import re
+import xml.etree.ElementTree as ET
 
 _SECT_TAGS = {"sect1": 2, "sect2": 3, "sect3": 4, "sect4": 5}
 
@@ -195,3 +197,109 @@ def render_description(*nodes):
             continue
         parts.append(render_children(node))
     return _collapse("\n\n".join(parts))
+
+
+# --------------------------------------------------------------------------
+# Member / group / inner-struct rendering
+# --------------------------------------------------------------------------
+
+
+def _member_signature(m):
+    type_el = m.find("type")
+    type_str = "".join(type_el.itertext()).strip() if type_el is not None else ""
+    def_el = m.find("definition")
+    def_str = "".join(def_el.itertext()).strip() if def_el is not None else ""
+    args_el = m.find("argsstring")
+    args_str = "".join(args_el.itertext()).strip() if args_el is not None else ""
+
+    # ``definition`` usually already starts with the return type; prefer it.
+    if def_str:
+        sig = def_str + args_str
+    else:
+        name_el = m.find("name")
+        name = "".join(name_el.itertext()).strip() if name_el is not None else ""
+        sig = (type_str + " " + name).strip() + args_str
+    return re.sub(r"\s+", " ", sig).strip()
+
+
+def render_member(m):
+    name_el = m.find("name")
+    name = "".join(name_el.itertext()).strip() if name_el is not None else ""
+    sig = _member_signature(m)
+    desc = render_description(
+        m.find("briefdescription"), m.find("detaileddescription")
+    )
+    out = ["#### `%s`\n\n" % name, "```cpp\n%s\n```\n" % sig]
+    if desc:
+        out.append("\n" + desc + "\n")
+    return _collapse("".join(out)) + "\n"
+
+
+def render_compound_members(compounddef):
+    """Render every ``memberdef[kind="function"]`` across all sectiondefs."""
+    parts = []
+    for sectiondef in compounddef.findall("sectiondef"):
+        for m in sectiondef.findall("memberdef"):
+            if m.get("kind") == "function":
+                parts.append(render_member(m))
+    return "\n\n".join(parts)
+
+
+def _load_compounddef(xml_dir, refid):
+    path = os.path.join(xml_dir, refid + ".xml")
+    if not os.path.isfile(path):
+        return None
+    return ET.parse(path).getroot().find("compounddef")
+
+
+def _compounddef_brief(compounddef):
+    brief = compounddef.find("briefdescription")
+    if brief is None:
+        return ""
+    return _collapse(render_children(brief))
+
+
+def group_brief(compounddef):
+    """One-line brief for the group (newlines collapsed to spaces)."""
+    text = _compounddef_brief(compounddef)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def render_group(xml_dir, compounddef):
+    title_el = compounddef.find("title")
+    title = (
+        "".join(title_el.itertext()).strip()
+        if title_el is not None
+        else compounddef.findtext("compoundname", "")
+    )
+    parts = ["# %s\n\n" % title]
+
+    desc = render_description(
+        compounddef.find("briefdescription"),
+        compounddef.find("detaileddescription"),
+    )
+    if desc:
+        parts.append(desc + "\n\n")
+
+    own_members = render_compound_members(compounddef)
+    if own_members.strip():
+        parts.append("## API\n\n")
+        parts.append(own_members + "\n\n")
+
+    for innerclass in compounddef.findall("innerclass"):
+        refid = innerclass.get("refid")
+        inner = _load_compounddef(xml_dir, refid)
+        if inner is None:
+            continue
+        struct_name = inner.findtext("compoundname", "").strip()
+        parts.append("## `%s`\n\n" % struct_name)
+        inner_desc = render_description(
+            inner.find("briefdescription"), inner.find("detaileddescription")
+        )
+        if inner_desc:
+            parts.append(inner_desc + "\n\n")
+        inner_members = render_compound_members(inner)
+        if inner_members.strip():
+            parts.append(inner_members + "\n\n")
+
+    return _collapse("".join(parts)) + "\n"
