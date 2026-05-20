@@ -7,3 +7,6 @@ docs/build/
 # VsCode
 .vscode
 Testing
+
+# Python (docs/llms_gen.py tooling)
+__pycache__/
