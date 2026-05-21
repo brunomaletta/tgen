@@ -6,9 +6,6 @@ namespace tgen {
  * @defgroup permutation Permutations
  * @brief Generation of permutations.
  *
- * Its values have the properties:
- * - @tt{tgen::is_sequential}
- *
  * ### Examples
  *
  * ```cpp
@@ -128,7 +125,7 @@ namespace tgen {
  *
  * @brief Permutation value.
  *
- * It can be deterministically operated upon and printed through @tt{@namespace{std}::cout}.
+ * It can be printed through @tt{@namespace{std}::cout}.
  *
  * @struct permutation::value;
  */
@@ -306,6 +303,69 @@ namespace tgen {
  * ```
  *
  * @fn permutation::value::add_1();
+ */
+
+
+/**
+ * @brief Shuffles the permutation.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::permutation::value val = {2, 0, 1};
+ * std::cout << val.shuffle() << std::endl;
+ * ```
+ *
+ * @fn permutation::value::shuffle();
+ */
+
+
+/**
+ * @brief Returns a uniformly random element.
+ *
+ * @return A uniformly random element from the permutation.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::permutation::value val = {2, 0, 1};
+ * std::cout << val.pick() << std::endl;
+ * ```
+ *
+ * @fn permutation::value::pick() const;
+ */
+
+
+/**
+ * @brief Returns a random element from the permutation with given probabilities.
+ *
+ * @param distribution Probability distribution.
+ *
+ * @return A random element from the permutation, chosen with probability proportional to @tt{@pname{distribution}}.
+ *
+ * @warning For integral @tt{Dist}, assumes that the sum of @pname{distribution}
+ *          fits in type @tt{@type{unsigned} __int128}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::permutation::value val = {2, 0, 1};
+ * std::cout << val.pick_by_distribution({1, 2, 3}) << std::endl;
+ * ```
+ *
+ * @fn permutation::value::pick_by_distribution(const std::vector<Dist> &distribution) const;
  */
 
 

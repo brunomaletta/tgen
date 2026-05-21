@@ -6,10 +6,6 @@ namespace tgen {
  * @defgroup str Strings
  * @brief Generation of strings.
  *
- * Its values have the properties:
- * - @tt{tgen::is_sequential}
- * - @tt{tgen::has_subset_defined}
- *
  * ## Regex
  *
  * Regex syntax compatible with testlib's regex.
@@ -400,7 +396,7 @@ namespace tgen {
  * @ingroup str
  * @brief String value.
  *
- * It can be deterministically operated upon and printed through @tt{@namespace{std}::cout}.
+ * It can be printed through @tt{@namespace{std}::cout}.
  *
  * @struct str::value;
  */
@@ -557,6 +553,91 @@ namespace tgen {
  * ```
  *
  * @fn str::value::operator+(const value &rhs) const;
+ */
+
+
+/**
+ * @brief Shuffles the string.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::str::value val("abc");
+ * std::cout << val.shuffle() << std::endl;
+ * ```
+ *
+ * @fn str::value::shuffle();
+ */
+
+
+/**
+ * @brief Returns a uniformly random element.
+ *
+ * @return A uniformly random element from the string.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::str::value val("abc");
+ * std::cout << val.pick() << std::endl;
+ * ```
+ *
+ * @fn str::value::pick() const;
+ */
+
+
+/**
+ * @brief Returns a random element from the string with given probabilities.
+ *
+ * @param distribution Probability distribution.
+ *
+ * @return A random element from the string, chosen with probability proportional to @tt{@pname{distribution}}.
+ *
+ * @warning For integral @tt{Dist}, assumes that the sum of @pname{distribution}
+ *          fits in type @tt{@type{unsigned} __int128}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::str::value val("abc");
+ * std::cout << val.pick_by_distribution({1, 2, 3}) << std::endl;
+ * ```
+ *
+ * @fn str::value::pick_by_distribution(const std::vector<Dist> &distribution) const;
+ */
+
+
+/**
+ * @brief Chooses a uniformly random subsequence of given length.
+ *
+ * @param k Subsequence length.
+ *
+ * @return A uniformly random subsequence of length @pname{k}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::str::value val("abc");
+ * std::cout << val.choose(2) << std::endl;
+ * ```
+ *
+ * @fn str::value::choose(int k) const;
  */
 
 

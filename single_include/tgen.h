@@ -181,9 +181,6 @@ template <typename> inline constexpr bool dependent_false_v = false;
 // If type is sequential (list-like).
 using is_sequential_tag = void;
 
-// If it makes sense to have a subset of the type.
-using has_subset_defined_tag = void;
-
 /*
  * Unique rng to use.
  */
@@ -453,14 +450,6 @@ struct is_sequential<
 	T, std::void_t<typename std::decay_t<T>::tgen_is_sequential_tag>>
 	: std::true_type {};
 
-// Detects generator values with defined subset.
-template <typename T, typename = void>
-struct has_subset_defined : std::false_type {};
-template <typename T>
-struct has_subset_defined<
-	T, std::void_t<typename std::decay_t<T>::tgen_has_subset_defined_tag>>
-	: std::true_type {};
-
 /*
  * Easier printing.
  */
@@ -650,6 +639,7 @@ template <typename... Args> struct print_cols {
  */
 
 namespace detail {
+
 // libstdc++ accepts std::uniform_int_distribution with narrow integral types
 // (char/signed char/unsigned char/short/bool), but libc++ rejects them with a
 // hard static_assert ("IntType must be a supported integer type"). Promote such
@@ -932,14 +922,6 @@ template <typename It> void shuffle(It first, It last) {
 		std::iter_swap(i, first + next(0, static_cast<int>(i - first)));
 }
 
-// Shuffles sequential generator value uniformly.
-// O(|val|).
-template <typename Val, std::enable_if_t<is_sequential<Val>::value, int> = 0>
-void shuffle(Val &val) {
-	for (int i = 0; i < val.size(); ++i)
-		std::swap(val[i], val[next(0, val.size() - 1)]);
-}
-
 // Shuffles container uniformly.
 // O(|container|).
 template <typename C, std::enable_if_t<!is_generator_value<C>::value, int> = 0>
@@ -960,15 +942,6 @@ template <typename T>
 	return shuffled(std::vector<T>(il));
 }
 
-// Shuffles sequential generator value uniformly.
-// O(n).
-template <typename Val, std::enable_if_t<is_sequential<Val>::value, int> = 0>
-[[nodiscard]] Val shuffled(const Val &val) {
-	Val new_val = val;
-	shuffle(new_val);
-	return new_val;
-}
-
 // Returns a random element from [first, last) uniformly.
 // O(1) for random_access_iterator, O(|last - first|) otherwise.
 template <typename It> typename It::value_type pick(It first, It last) {
@@ -986,13 +959,6 @@ typename C::value_type pick(const C &container) {
 }
 template <typename T> T pick(const std::initializer_list<T> &il) {
 	return pick(std::vector<T>(il));
-}
-
-// Returns a random element from sequential generator value uniformly.
-// O(1).
-template <typename Val, std::enable_if_t<is_sequential<Val>::value, int> = 0>
-typename Val::value_type pick(const Val &val) {
-	return val[next<int>(0, val.size() - 1)];
 }
 
 // Returns container[i] with probability proportional to distribution[i].
@@ -1026,24 +992,6 @@ T pick_by_distribution(const std::initializer_list<T> &il,
 								std::vector<U>(distribution));
 }
 
-// Returns val[i] with probability proportional to distribution[i].
-// O(1).
-template <typename Val, typename T,
-		  std::enable_if_t<is_sequential<Val>::value, int> = 0>
-typename Val::value_type
-pick_by_distribution(const Val &val, const std::vector<T> &distribution) {
-	tgen_ensure(static_cast<size_t>(val.size()) == distribution.size(),
-				"value and distribution must have the same size");
-	return val[next_by_distribution(distribution)];
-}
-template <typename Val, typename T,
-		  std::enable_if_t<is_sequential<Val>::value, int> = 0>
-typename Val::value_type
-pick_by_distribution(const Val &val,
-					 const std::initializer_list<T> &distribution) {
-	return pick_by_distribution(val, std::vector<T>(distribution));
-}
-
 // Chooses k values uniformly from container, as in a subsequence of size k.
 // Returns a copy. O(|container|).
 template <typename C, std::enable_if_t<!is_generator_value<C>::value, int> = 0>
@@ -1064,27 +1012,6 @@ C choose(const C &container, int k) {
 template <typename T>
 std::vector<T> choose(const std::initializer_list<T> &il, int k) {
 	return choose(std::vector<T>(il), k);
-}
-
-// Chooses k values uniformly from sequential generator value, as in a
-// subsequence of size k.
-// O(n).
-template <typename Val, std::enable_if_t<is_sequential<Val>::value and
-											 has_subset_defined<Val>::value,
-										 int> = 0>
-Val choose(const Val &val, int k) {
-	tgen_ensure(0 < k and k <= static_cast<int>(val.size()),
-				"number of elements to choose must be valid");
-	std::vector<typename Val::value_type> new_vec;
-	int need = k;
-	for (int i = 0; need > 0; ++i) {
-		int left = val.size() - i;
-		if (next(1, left) <= need) {
-			new_vec.push_back(val[i]);
-			need--;
-		}
-	}
-	return Val(new_vec);
 }
 
 // Number distinct generator for integral types.
@@ -1623,7 +1550,6 @@ template <typename T> struct list : gen_base<list<T>> {
 	// Operations on a value are not random.
 	struct value : gen_value_base<value> {
 		using tgen_is_sequential_tag = detail::is_sequential_tag;
-		using tgen_has_subset_defined_tag = detail::has_subset_defined_tag;
 
 		using value_type = T;			 // Value type, for templates.
 		using std_type = std::vector<T>; // std type for value.
@@ -1676,6 +1602,49 @@ template <typename T> struct list : gen_base<list<T>> {
 			std::vector<T> new_vec = vec_;
 			for (int i = 0; i < rhs.size(); ++i)
 				new_vec.push_back(rhs[i]);
+			return value(new_vec);
+		}
+
+		// Shuffles list uniformly.
+		// O(n).
+		value &shuffle() {
+			for (int i = 0; i < size(); ++i)
+				std::swap(vec_[i], vec_[next(0, size() - 1)]);
+			return *this;
+		}
+
+		// Returns a random element uniformly.
+		// O(1).
+		T pick() const { return vec_[next<int>(0, size() - 1)]; }
+
+		// Returns vec_[i] with probability proportional to distribution[i].
+		// O(1).
+		template <typename Dist>
+		T pick_by_distribution(const std::vector<Dist> &distribution) const {
+			tgen_ensure(static_cast<size_t>(size()) == distribution.size(),
+						"value and distribution must have the same size");
+			return vec_[next_by_distribution(distribution)];
+		}
+		template <typename Dist>
+		T pick_by_distribution(
+			const std::initializer_list<Dist> &distribution) const {
+			return pick_by_distribution(std::vector<Dist>(distribution));
+		}
+
+		// Chooses k values uniformly, as in a subsequence of size k.
+		// O(n).
+		value choose(int k) const {
+			tgen_ensure(0 < k and k <= size(),
+						"number of elements to choose must be valid");
+			std::vector<T> new_vec;
+			int need = k;
+			for (int i = 0; need > 0; ++i) {
+				int left = size() - i;
+				if (next(1, left) <= need) {
+					new_vec.push_back(vec_[i]);
+					need--;
+				}
+			}
 			return value(new_vec);
 		}
 
@@ -2147,6 +2116,32 @@ struct permutation : gen_base<permutation> {
 		value &add_1() {
 			add_1_ = true;
 			return *this;
+		}
+
+		// Shuffles permutation uniformly.
+		// O(n).
+		value &shuffle() {
+			for (int i = 0; i < size(); ++i)
+				std::swap(vec_[i], vec_[next(0, size() - 1)]);
+			return *this;
+		}
+
+		// Returns a random element uniformly.
+		// O(1).
+		int pick() const { return vec_[next<int>(0, size() - 1)]; }
+
+		// Returns vec_[i] with probability proportional to distribution[i].
+		// O(1).
+		template <typename Dist>
+		int pick_by_distribution(const std::vector<Dist> &distribution) const {
+			tgen_ensure(static_cast<size_t>(size()) == distribution.size(),
+						"value and distribution must have the same size");
+			return vec_[next_by_distribution(distribution)];
+		}
+		template <typename Dist>
+		int pick_by_distribution(
+			const std::initializer_list<Dist> &distribution) const {
+			return pick_by_distribution(std::vector<Dist>(distribution));
 		}
 
 		// Prints to std::ostream, separated by sep_.
@@ -3479,7 +3474,6 @@ struct str : gen_base<str> {
 	// str value.
 	struct value : gen_value_base<value> {
 		using tgen_is_sequential_tag = detail::is_sequential_tag;
-		using tgen_has_subset_defined_tag = detail::has_subset_defined_tag;
 
 		using value_type = char;
 		using std_type = std::string;
@@ -3538,6 +3532,49 @@ struct str : gen_base<str> {
 		// Linear.
 		value operator+(const value &rhs) const {
 			return value(str_ + rhs.str_);
+		}
+
+		// Shuffles string uniformly.
+		// O(n).
+		value &shuffle() {
+			for (int i = 0; i < size(); ++i)
+				std::swap(str_[i], str_[next(0, size() - 1)]);
+			return *this;
+		}
+
+		// Returns a random character uniformly.
+		// O(1).
+		char pick() const { return str_[next<int>(0, size() - 1)]; }
+
+		// Returns str_[i] with probability proportional to distribution[i].
+		// O(1).
+		template <typename Dist>
+		char pick_by_distribution(const std::vector<Dist> &distribution) const {
+			tgen_ensure(static_cast<size_t>(size()) == distribution.size(),
+						"value and distribution must have the same size");
+			return str_[next_by_distribution(distribution)];
+		}
+		template <typename Dist>
+		char pick_by_distribution(
+			const std::initializer_list<Dist> &distribution) const {
+			return pick_by_distribution(std::vector<Dist>(distribution));
+		}
+
+		// Chooses k characters uniformly, as in a subsequence of size k.
+		// O(n).
+		value choose(int k) const {
+			tgen_ensure(0 < k and k <= size(),
+						"number of elements to choose must be valid");
+			std::string new_str;
+			int need = k;
+			for (int i = 0; need > 0; ++i) {
+				int left = size() - i;
+				if (next(1, left) <= need) {
+					new_str.push_back(str_[i]);
+					need--;
+				}
+			}
+			return value(new_str);
 		}
 
 		// Prints to std::ostream.

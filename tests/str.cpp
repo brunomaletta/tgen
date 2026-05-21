@@ -3,6 +3,7 @@
 #include "../single_include/tgen.h"
 #include "tgen_test_utility.h"
 
+#include <algorithm>
 #include <set>
 #include <sstream>
 #include <string>
@@ -170,6 +171,50 @@ TEST(str_test, value_ops) {
 	EXPECT_EQ((a + b).to_std(), "abcd");
 
 	EXPECT_EQ((std::ostringstream() << tgen::str::value("xyz")).str(), "xyz");
+}
+
+TEST(str_test, value_shuffle_pick_choose) {
+	tgen::register_gen();
+
+	tgen::str::value inst("aabc");
+	std::string sorted = inst.to_std();
+	std::sort(sorted.begin(), sorted.end());
+
+	for (int i = 0; i < 100; ++i) {
+		inst.shuffle();
+		std::string cur = inst.to_std();
+		std::sort(cur.begin(), cur.end());
+		EXPECT_EQ(cur, sorted);
+	}
+
+	for (int i = 0; i < 100; ++i) {
+		char c = inst.pick();
+		EXPECT_NE(inst.to_std().find(c), std::string::npos);
+	}
+
+	tgen::str::value dist_inst("abc");
+	expect_distribution(
+		[&] { return dist_inst.pick_by_distribution({1, 2, 3}) - 'a'; },
+		{1, 2, 3});
+
+	EXPECT_THROW_TGEN_PREFIX(inst.pick_by_distribution({1, 2}),
+							 "value and distribution must have the same size");
+
+	for (int i = 0; i < 100; ++i) {
+		int k = tgen::next<int>(1, inst.size());
+		auto sub = inst.choose(k);
+		EXPECT_EQ(sub.size(), k);
+		int idx = 0;
+		for (int j = 0; j < inst.size(); ++j)
+			if (idx < sub.size() and sub[idx] == inst[j])
+				++idx;
+		EXPECT_EQ(idx, sub.size());
+	}
+
+	EXPECT_THROW_TGEN_PREFIX(static_cast<void>(inst.choose(0)),
+							 "number of elements to choose must be valid");
+	EXPECT_THROW_TGEN_PREFIX(static_cast<void>(inst.choose(inst.size() + 1)),
+							 "number of elements to choose must be valid");
 }
 
 TEST(str_test, value_index_out_of_bounds) {

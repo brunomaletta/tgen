@@ -60,21 +60,21 @@ The returned value can also be modified by some deterministic operations (specif
 inst.reverse();
 ```
 
-Finally, there can be random operations defined for the generator value.
+Finally, there can also be random operations.
 
 ```cpp
-std::cout << tgen::pick(inst) << std::endl;
+std::cout << inst.pick() << std::endl;
 ```
 
 Combining everything into one line:
 
 ```cpp
-std::cout << tgen::pick(
-	tgen::list<int>(10, 1, 100)
-	.equal(0, 1)
-	.gen()
-	.reverse()
-) << std::endl;
+std::cout << tgen::list<int>(10, 1, 100)
+				 .equal(0, 1)
+				 .gen()
+				 .reverse()
+				 .pick()
+		  << std::endl;
 ```
 
 ## Examples

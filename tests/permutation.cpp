@@ -6,6 +6,20 @@
 #include <sstream>
 #include <vector>
 
+namespace {
+
+bool is_permutation(const tgen::permutation::value &p) {
+	std::vector<bool> vis(p.size(), false);
+	for (int i = 0; i < p.size(); ++i) {
+		if (p[i] < 0 or p[i] >= p.size() or vis[p[i]])
+			return false;
+		vis[p[i]] = true;
+	}
+	return true;
+}
+
+} // namespace
+
 TEST(permutation_test, constructor_size_zero) {
 	tgen::register_gen();
 
@@ -66,6 +80,30 @@ TEST(permutation_test, value_ops) {
 
 	EXPECT_EQ((std::ostringstream() << inst.add_1().separator(',')).str(),
 			  std::string("1,2,3"));
+}
+
+TEST(permutation_test, value_shuffle_pick) {
+	tgen::register_gen();
+
+	tgen::permutation::value inst({1, 0, 2});
+	EXPECT_TRUE(is_permutation(inst));
+
+	for (int i = 0; i < 100; ++i) {
+		inst.shuffle();
+		EXPECT_TRUE(is_permutation(inst));
+	}
+
+	inst.sort();
+	for (int i = 0; i < 100; ++i) {
+		int x = inst.pick();
+		EXPECT_GE(x, 0);
+		EXPECT_LT(x, inst.size());
+	}
+	expect_distribution([&] { return inst.pick_by_distribution({1, 2, 3}); },
+						{1, 2, 3});
+
+	EXPECT_THROW_TGEN_PREFIX(inst.pick_by_distribution({1, 2}),
+							 "value and distribution must have the same size");
 }
 
 TEST(permutation_test, gen_invalid) {

@@ -166,7 +166,8 @@ namespace tgen {
 /**
  * @brief Creates a printer object that prints as columns.
  *
- * @param args Arguments. Each argument should be either a container or a generator value that has @tt{tgen::is_sequential}.
+ * @param args Arguments. Each argument should be either a container or a sequential generator value
+ * (e.g. @ref list::value, @ref str::value, @ref permutation::value).
  *
  * @fn print_cols::print_cols(const Args &...args);
  */
@@ -427,7 +428,8 @@ namespace tgen {
  * @return @tt{i} in @tt{[0, @pname{distribution}.size()-]} with probability proportional to
  *         @tt{@pname{distribution}[i]}.
  *
- * @warning Assumes that the sum of @pname{distribution} fits in type @tt{@type{unsigned} __int128}.
+ * @warning For integral @tt{T}, assumes that the sum of @pname{distribution}
+ *          fits in type @tt{@type{unsigned} __int128}.
  *
  * If many indices are needed from the same distribution, prefer
  * @ref many_by_distribution, or build a @ref tgen::weighted_sampler once and
@@ -594,7 +596,8 @@ namespace tgen {
  * @return For @tt{i} in @tt{[0, @pname{container}.size()-1]}, @tt{@pname{container}[i]} with probability
  *         proportional to @tt{@pname{distribution}[i]}.
  *
- * @warning Assumes that the sum of @pname{distribution} fits in type @tt{T}.
+ * @warning For integral @tt{T}, assumes that the sum of @pname{distribution}
+ *          fits in type @tt{@type{unsigned} __int128}.
  *
  * #### Complexity
  *
@@ -608,6 +611,7 @@ namespace tgen {
  * ```
  *
  * @fn pick_by_distribution(const C &container, std::vector<T> distribution);
+ * @fn pick_by_distribution(const C &container, const std::initializer_list<T> &distribution);
  */
 
 
@@ -1227,183 +1231,10 @@ namespace tgen {
 
 
 /**
- * @defgroup generator_value_op Generator Value Operations
- * @ingroup base
- * @brief Operations for @tt{tgen} generator values.
- *
- * ### Examples
- *
- * ```cpp
- * // Shuffles and prints a list.
- * tgen::list<int>::value val = {3, 1, 2};
- * std::cout << tgen::shuffled(val) << std::endl;
- *
- * // Prints a random element from val.
- * std::cout << tgen::pick(val) << std::endl;
- * ```
- */
-
-
-/**
- * @ingroup generator_value_op
- * @brief Shuffles a list-like value.
- *
- * @tparam Val List-like value type, deduced automatically.
- *
- * @param val The list to shuffle.
- *
- * #### Complexity
- *
- * @tt{O(|@pname{val}|)}.
- *
- * #### Examples
- *
- * ```cpp
- * // Shuffles a list.
- * tgen::list<int>::value val = {3, 1, 2};
- * tgen::shuffle(val);
- * ```
- *
- * @fn shuffle(Val &val);
- */
-
-
-/**
- * @ingroup generator_value_op
- * @brief Shuffles a list-like value.
- *
- * @tparam Val List-like value type, deduced automatically.
- *
- * @param val The original value.
- *
- * @return The shuffled value.
- *
- * #### Complexity
- *
- * @tt{O(|@pname{val}|)}.
- *
- * #### Examples
- *
- * ```cpp
- * // Shuffles and prints a list.
- * tgen::list<int>::value val = {3, 1, 2};
- * std::cout << tgen::shuffled(val) << std::endl;
- * ```
- *
- * @fn shuffled(const Val &val);
- */
-
-
-/**
- * @ingroup generator_value_op
- * @brief Chooses a random element from a list-like value.
- *
- * @tparam Val List-like value type, deduced automatically.
- *
- * @param val The original value.
- *
- * @return A uniformly random element from the value.
- *
- * #### Complexity
- *
- * @tt{O(1)}.
- *
- * #### Examples
- *
- * ```cpp
- * // Prints a random element from val.
- * tgen::list<int>::value val = {3, 1, 2};
- * std::cout << tgen::pick(val) << std::endl;
- * ```
- *
- * @fn pick(const Val &val);
- */
-
-
-/**
- * @ingroup generator_value_op
- * @brief Chooses a random element from a list-like value.
- *
- * @tparam Val List-like value type, deduced automatically.
- *
- * @param val The value to choose from.
- * @param distribution The probability distribution.
- *
- * @return A uniformly random element from the value.
- *
- * #### Complexity
- *
- * @tt{O(1)}.
- *
- * #### Examples
- *
- * ```cpp
- * // Prints a random element from val with given odds.
- * tgen::list<int>::value val = {3, 1, 2};
- * std::cout << tgen::pick_by_distribution(val, {1, 2, 3}) << std::endl;
- * ```
- *
- * @fn pick_by_distribution(const Val &val, const std::vector<T> &distribution);
- */
-
-
-/**
- * @ingroup generator_value_op
- * @brief Chooses some values from a list-like value, as in a sublist of fixed length.
- *
- * @tparam Val List-like value type, deduced automatically.
- *
- * @param val The original list.
- * @param k The size of the sublist.
- *
- * @return A uniformly random subsequence of length @pname{k}.
- *
- * #### Complexity
- *
- * @tt{O(|@pname{val}|)}.
- *
- * #### Examples
- *
- * ```cpp
- * // Prints a subsequence of length 2 from val.
- * tgen::list<int>::value val = {3, 1, 2};
- * std::cout << tgen::choose(val, 2) << std::endl;
- * ```
- *
- * @fn choose(const Val &val, int k);
- */
-
-
-
-
-
-/**
- * @brief If type is associative container.
- *
- * True for @tt{@namespace{std}::@type{set}}, @tt{@namespace{std}::@type{map}}, etc.
- *
- * @struct is_associative_container;
- */
-
-
-/**
  * @brief If type is a @tt{tgen} generator value.
  *
  * @struct is_generator_value;
  */
 
-
-/**
- * @brief If type is a list-like @tt{tgen} generator value.
- *
- * @struct is_sequential;
- */
-
-
-/**
- * @brief If type is defined for a subset of itself, for @tt{tgen} generator value.
- *
- * @struct has_subset_defined;
- */
 
 };

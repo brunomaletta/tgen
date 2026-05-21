@@ -6,10 +6,6 @@ namespace tgen {
  * @defgroup list Lists
  * @brief Generation of lists for integral types.
  *
- * Its values have the properties:
- * - @tt{tgen::is_sequential}
- * - @tt{tgen::has_subset_defined}
- *
  * ### Examples
  *
  *  Random 20 distinct values from 1 to 100.
@@ -326,8 +322,7 @@ namespace tgen {
  * @ingroup list
  * @brief List value.
  *
- * It can be deterministically operated upon (see @ref generator_value_op for random operations) 
- * and printed through @tt{@namespace{std}::cout}.
+ * It can be printed through @tt{@namespace{std}::cout}.
  *
  * @struct list::value;
  */
@@ -469,6 +464,94 @@ namespace tgen {
  * ```
  *
  * @fn list::value::operator+(const value& rhs) const;
+ */
+
+
+/**
+ * @brief Shuffles the list in place.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::list<int>::value val = {3, 1, 2};
+ * std::cout << val.shuffle() << std::endl;
+ * ```
+ *
+ * @fn list::value::shuffle();
+ */
+
+
+/**
+ * @brief Returns a uniformly random element.
+ *
+ * @return A uniformly random element from the list.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::list<int>::value val = {3, 1, 2};
+ * std::cout << val.pick() << std::endl;
+ * ```
+ *
+ * @fn list::value::pick() const;
+ */
+
+
+/**
+ * @brief Returns a random element from the list with given probabilities.
+ *
+ * @param distribution Probability distribution.
+ *
+ * @return A random element from the list, chosen with probability proportional to @tt{@pname{distribution}}.
+ *
+ * Also works with @texttt{@namespace{std}::@type{initializer_list}} for @pname{distribution}.
+ *
+ * @warning For integral @tt{Dist}, assumes that the sum of @pname{distribution}
+ *          fits in type @tt{@type{unsigned} __int128}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::list<int>::value val = {3, 1, 2};
+ * std::cout << val.pick_by_distribution({1, 2, 3}) << std::endl;
+ * ```
+ *
+ * @fn list::value::pick_by_distribution(const std::vector<Dist> &distribution) const;
+ * @fn list::value::pick_by_distribution(const std::initializer_list<Dist> &distribution) const;
+ */
+
+
+/**
+ * @brief Chooses a uniformly random subsequence of given length.
+ *
+ * @param k Subsequence length.
+ *
+ * @return A uniformly random subsequence of length @pname{k}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::list<int>::value val = {3, 1, 2};
+ * std::cout << val.choose(2) << std::endl;
+ * ```
+ *
+ * @fn list::value::choose(int k) const;
  */
 
 

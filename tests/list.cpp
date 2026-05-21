@@ -3,6 +3,7 @@
 #include "../single_include/tgen.h"
 #include "tgen_test_utility.h"
 
+#include <algorithm>
 #include <set>
 #include <sstream>
 #include <utility>
@@ -181,22 +182,59 @@ TEST(list_test, value_ops) {
 	inst.reverse();
 	EXPECT_EQ(inst.to_std(), std::vector<int>({6, 5, 2, 3, 1, 4}));
 
-	tgen::shuffle(inst);
-	inst.sort();
-	EXPECT_EQ(inst.to_std(), std::vector<int>({1, 2, 3, 4, 5, 6}));
-	EXPECT_EQ(inst.to_std(), tgen::shuffled(inst).sort().to_std());
-
-	EXPECT_TRUE(tgen::pick(inst) > 0);
-	EXPECT_TRUE(tgen::pick_by_distribution(inst, {1, 2, 3, 4, 5, 6}) > 0);
-	EXPECT_EQ(tgen::choose(inst, 3).size(), 3);
-
 	tgen::list<tgen::list<int>::value>::value nested = {{1, 2}, {3}};
 	EXPECT_EQ(nested.to_std(), std::vector<std::vector<int>>({{1, 2}, {3}}));
 
-	EXPECT_EQ((std::ostringstream() << inst).str(), std::string("1 2 3 4 5 6"));
+	EXPECT_EQ((std::ostringstream() << inst).str(), std::string("6 5 2 3 1 4"));
 
 	EXPECT_EQ((std::ostringstream() << inst.separator(',')).str(),
-			  std::string("1,2,3,4,5,6"));
+			  std::string("6,5,2,3,1,4"));
+}
+
+TEST(list_test, value_shuffle) {
+	tgen::register_gen();
+
+	tgen::list<int>::value inst({4, 1, 3, 2, 3});
+	auto sorted = inst.to_std();
+	std::sort(sorted.begin(), sorted.end());
+
+	for (int i = 0; i < 100; ++i) {
+		inst.shuffle();
+		auto cur = inst.to_std();
+		std::sort(cur.begin(), cur.end());
+		EXPECT_EQ(cur, sorted);
+	}
+}
+
+TEST(list_test, value_pick) {
+	tgen::register_gen();
+
+	tgen::list<int>::value inst({0, 1, 2});
+	for (int i = 0; i < 100; ++i) {
+		int x = inst.pick();
+		EXPECT_GE(x, 0);
+		EXPECT_LE(x, 2);
+	}
+	expect_distribution([&] { return inst.pick_by_distribution({1, 2, 3}); },
+						{1, 2, 3});
+}
+
+TEST(list_test, value_pick_by_distribution_invalid) {
+	tgen::register_gen();
+
+	tgen::list<int>::value inst({1, 2, 3});
+	EXPECT_THROW_TGEN_PREFIX(inst.pick_by_distribution({1, 2}),
+							 "value and distribution must have the same size");
+}
+
+TEST(list_test, value_choose_invalid) {
+	tgen::register_gen();
+
+	tgen::list<int>::value inst({1, 2, 3});
+	EXPECT_THROW_TGEN_PREFIX(static_cast<void>(inst.choose(0)),
+							 "number of elements to choose must be valid");
+	EXPECT_THROW_TGEN_PREFIX(static_cast<void>(inst.choose(4)),
+							 "number of elements to choose must be valid");
 }
 
 TEST(list_test, gen_with_set) {
@@ -499,7 +537,7 @@ TEST(list_test, list_choose) {
 
 	for (int i = 0; i < 100; ++i) {
 		int k = tgen::next<int>(1, v.size());
-		auto subseq = tgen::choose(inst, k);
+		auto subseq = inst.choose(k);
 		int idx = 0;
 		// Tests if subseq is a sublist of inst.
 		for (int j = 0; j < inst.size(); ++j)
