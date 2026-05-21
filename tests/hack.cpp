@@ -151,7 +151,7 @@ TEST(hack_test, exponential_dijkstra_bug_invalid) {
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::hack::exponential_dijkstra_bug(2),
-		"hack: expo_dijkstra_bug: needs at least 3 vertices");
+		"hack: exponential_dijkstra_bug: needs at least 3 vertices");
 }
 
 TEST(hack_test, exponential_dijkstra_bug) {

@@ -5852,7 +5852,7 @@ inline std::vector<std::string> string_set(int size) {
 // frontier below it. m = 2(n - 2) edges.
 // O(n).
 inline egraph<int>::value exponential_dijkstra_bug(int n) {
-	tgen_ensure(n >= 3, "hack: expo_dijkstra_bug: needs at least 3 vertices");
+	tgen_ensure(n >= 3, "hack: exponential_dijkstra_bug: needs at least 3 vertices");
 
 	egraph<int>::value g(n, {}, true);
 	g = g.set_edge_weights(std::vector<int>{});
