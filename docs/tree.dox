@@ -23,12 +23,12 @@ namespace tgen {
  *
  * ### Examples
  *
- * Uniformly random tree on 10 vertices with two forced edges.
+ * Prints a random labeled tree on 10 vertices with edges (0,1) and (2,3) forced.
  *
  * ```cpp
- * // Prints a random labeled tree on 10 vertices with edges (0,1) and (2,3) forced.
  * std::cout << tgen::tree(10).add_edge(0, 1).add_edge(2, 3).gen();
  * ```
+ *
  * ```
  * 0 1
  * 2 3
@@ -42,12 +42,12 @@ namespace tgen {
  * ```
  * @image html tree1.svg "Example generated tree" width=600
  *
- * Skewed tree (vertex @tt{0} implicit root; see @tt{tgen::wtree::gen_skewed}).
+ * Prints a skewed random tree on 10 vertices (elongation 3).
  *
  * ```cpp
- * // Prints a skewed random tree on 10 vertices (elongation 3).
  * std::cout << tgen::tree::gen_skewed(10, 3);
  * ```
+ *
  * ```
  * 1 0
  * 2 1
@@ -61,12 +61,12 @@ namespace tgen {
  * ```
  * @image html tree2.svg "Example generated tree" width=600
  *
- * Attach vertex weights after generation (the weight type is converted automatically).
+ * Tree on 4 vertices with string vertex weights attached after generation.
  *
  * ```cpp
- * // Generates a tree on 4 vertices, attaches string vertex weights, and prints.
  * std::cout << tgen::tree(4).gen().set_vertex_weights<std::string>({"a", "ab", "b", "abc"});
  * ```
+ *
  * ```
  * a ab b abc
  * 0 1
@@ -665,11 +665,7 @@ namespace tgen {
  *
  * ```cpp
  * // Prints a small tree to standard output.
- * std::cout << tgen::tree::value(3, {{0, 1}, {1, 2}});
- * ```
- * ```
- * 0 1
- * 1 2
+ * std::cout << tgen::tree::value(3, {{0, 1}, {1, 2}}); // Prints "0 1\n1 2\n".
  * ```
  *
  * @fn wtree::value::operator<<(std::ostream &out, const value &val);

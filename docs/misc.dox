@@ -8,9 +8,14 @@ namespace tgen::misc {
  *
  * ### Examples
  *
+ * Prints a random parenthesis sequence of size 10.
+ *
  * ```cpp
- * // Prints a random parenthesis sequence of size 10.
  * std::cout << tgen::misc::gen_parenthesis(10) << std::endl;
+ * ```
+ *
+ * ```
+ * ()(())()()
  * ```
  */
 

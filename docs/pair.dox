@@ -8,12 +8,35 @@ namespace tgen {
  *
  * ### Examples
  *
- * Prints 10 different pairs of values from 1 to n, with first <= second.
+ * Prints 10 different pairs of values from 1 to @tt{n}, with first @tt{<=} second.
  *
  * ```cpp
  * const int n = 100;
  * std::cout <<
  *     tgen::pair<int>(1, n).leq().distinct().gen_list(10).separator('\n') << std::endl;
+ * ```
+ *
+ * ```
+ * 67 79
+ * 15 98
+ * 51 72
+ * 42 90
+ * 49 69
+ * 22 40
+ * 20 72
+ * 70 71
+ * 42 87
+ * 75 93
+ * ```
+ *
+ * All pairs @tt{(a, b)} in @tt{[1, 3]} with @tt{a <= b}.
+ *
+ * ```cpp
+ * std::cout << tgen::pair<int>(1, 3).leq().distinct().gen_all().separator('|') << std::endl;
+ * ```
+ *
+ * ```
+ * 1 3|1 2|3 3|1 1|2 2|2 3
  * ```
  */
 

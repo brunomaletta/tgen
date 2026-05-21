@@ -8,42 +8,56 @@ namespace tgen {
  *
  * ### Examples
  *
- *  Random 20 distinct values from 1 to 100.
- * 
+ * Random 20 distinct values from 1 to 100.
+ *
  * ```cpp
  * std::cout <<
  *     tgen::list<int>(20, 1, 100).all_different().gen() << std::endl;
- * // Prints "67 96 80 11 46 52 42 2 93 1 28 3 48 82 90 99 53 98 94 88".
  * ```
- * 
+ *
+ * ```
+ * 67 96 80 11 46 52 42 2 93 1 28 3 48 82 90 99 53 98 94 88
+ * ```
+ *
  * Random palindrome of length 7.
- * 
+ *
  * ```cpp
  * auto s = tgen::list<int>(7, 0, 9);
  * for (int i = 0; i <= 2; ++i) s.equal(i, 6-i);
- * std::cout << s.gen() << std::endl; // Prints "3 1 9 6 9 1 3".
+ * std::cout << s.gen() << std::endl;
  * ```
- * 
+ *
+ * ```
+ * 3 1 9 6 9 1 3
+ * ```
+ *
  * Random 3 runs of 4 equal numbers. Values between runs are different.
- * 
+ *
  * ```cpp
  * std::cout <<
  *     tgen::list<int>(12, 1, 10)
  *     .equal_range(0, 3).equal_range(4, 7).equal_range(8, 11)
  *     .different({0, 4, 8}).gen() << std::endl;
- * // Prints "3 3 3 3 2 2 2 2 9 9 9 9".
  * ```
- * 
+ *
+ * ```
+ * 3 3 3 3 2 2 2 2 9 9 9 9
+ * ```
+ *
  * Random DNA sequence of length 8 with no equal adjacent values.
- * 
+ *
  * ```cpp
  * auto s2 = tgen::list<char>(8, {'A', 'C', 'G', 'T'});
  * for (int i = 1; i < 8; i++) s2.different(i-1, i);
- * std::cout << s2.gen() << std::endl; // Prints "T C T G T G A C".
+ * std::cout << s2.gen() << std::endl;
  * ```
- * 
+ *
+ * ```
+ * T C T G T G A C
+ * ```
+ *
  * Random binary sequence of length 10 with 5 1's that starts with 1.
- * 
+ *
  * ```cpp
  * std::cout <<
  *     tgen::list<int>(10, 0, 1)
@@ -52,7 +66,10 @@ namespace tgen {
  *         auto vec = val.to_std();
  *         return std::accumulate(vec.begin(), vec.end(), 0) == 5;
  *     }, 100) << std::endl;
- * // Prints "1 0 0 1 0 1 1 0 1 0".
+ * ```
+ *
+ * ```
+ * 1 0 0 1 0 1 1 0 1 0
  * ```
  */
 

@@ -8,23 +8,60 @@ namespace tgen::math {
  *
  * ### Examples
  *
- * ```cpp
- * // Generates a random prime from 1 to 1e18.
- * auto p = tgen::math::gen_prime(1, 1e18);
+ * Generates a random prime from 1 to @tt{1e18}.
  *
- * // Prints primes from 100 to 200.
+ * ```cpp
+ * std::cout << tgen::math::gen_prime(1, 1e18) << std::endl;
+ * ```
+ *
+ * ```
+ * 104297037245455381
+ * ```
+ *
+ * Prints primes from 100 to 200.
+ *
+ * ```cpp
  * for (int p = tgen::math::prime_from(100); p <= 200; p = tgen::math::prime_from(p + 1)) {
  *     std::cout << p << std::endl;
  * }
- * 
- * // Computes largest prime gap up to 1e12.
+ * ```
+ *
+ * ```
+ * 101
+ * 103
+ * ...
+ * 199
+ * ```
+ *
+ * Largest prime gap up to @tt{1e12}.
+ *
+ * ```cpp
  * auto [l, r] = tgen::math::prime_gap_upto(1e12);
- * 
- * // Prints random two-digit number that is even and congruent to 1 mod 3.
+ * std::cout << l << " " << r << " " << r - l << std::endl;
+ * ```
+ *
+ * ```
+ * 738832927928 738832928466 538
+ * ```
+ *
+ * Prints random two-digit number that is even and congruent to 1 mod 3.
+ *
+ * ```cpp
  * std::cout << tgen::math::gen_congruent(10, 99, {0, 1}, {2, 3}) << std::endl;
- * 
- * // Random partition of 10 into 4 parts in [2, 3].
- * auto part = tgen::math::gen_partition_fixed_size(10, 4, 2, 3);
+ * ```
+ *
+ * ```
+ * 34
+ * ```
+ *
+ * Random partition of 10 into 4 parts in @tt{[2, 3]}.
+ *
+ * ```cpp
+ * std::cout << tgen::print(tgen::math::gen_partition_fixed_size(10, 4, 2, 3)) << std::endl;
+ * ```
+ *
+ * ```
+ * 3 3 2 2
  * ```
  */
 
