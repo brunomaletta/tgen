@@ -612,6 +612,161 @@ $extrastylesheet
 	}
 
 	// ---------------------------------------------------------------------------
+	// Nav tree: expand nodes when their label link is clicked, and expand the
+	// selected node after navigation (Doxygen only auto-expands it on index/pages).
+	// ---------------------------------------------------------------------------
+
+	var navTreeExpandTimer = null;
+	var navTreeUserCollapsedSelected = false;
+	var navTreeAutoExpandKey = '';
+
+	function selectedNavTreeKey(selected) {
+		if (!selected) return '';
+		var link = selected.querySelector('.label a');
+		var href = link ? (link.getAttribute('href') || '') : '';
+		var cls = link ? (link.className || '') : '';
+		return location.pathname + location.hash + '|' + cls + '|' + href;
+	}
+
+	function navTreeExpandToggle(item) {
+		if (!item) return null;
+		var toggle = item.firstElementChild;
+		if (
+			!toggle ||
+			toggle.tagName !== 'A' ||
+			toggle.getAttribute('href') !== 'javascript:void(0)'
+		) {
+			return null;
+		}
+		return toggle;
+	}
+
+	function navTreeItemCollapsed(item) {
+		var toggle = navTreeExpandToggle(item);
+		if (!toggle) return false;
+		var arrowhead = toggle.querySelector('.arrowhead');
+		return Boolean(arrowhead && arrowhead.classList.contains('closed'));
+	}
+
+	function expandNavTreeItemIfCollapsed(item) {
+		var toggle = navTreeExpandToggle(item);
+		if (!toggle) return;
+		if (navTreeItemCollapsed(item)) toggle.click();
+	}
+
+	function expandNavTreeAncestors(item) {
+		var li = item.closest('li');
+		if (!li) return;
+		var ancestors = [];
+		var ul = li.parentElement;
+		while (ul && ul.id !== 'nav-tree-contents') {
+			var parentLi = ul.parentElement;
+			if (!parentLi || parentLi.tagName !== 'LI') break;
+			var parentItem = parentLi.querySelector(':scope > div.item');
+			if (parentItem) ancestors.push(parentItem);
+			ul = parentLi.parentElement;
+		}
+		ancestors.forEach(expandNavTreeItemIfCollapsed);
+	}
+
+	function scheduleExpandSelectedNavTreeItem(force) {
+		if (navTreeExpandTimer) clearTimeout(navTreeExpandTimer);
+		var attempts = 0;
+		var ancestorsDone = false;
+
+		function tryExpand() {
+			var selected = document.querySelector(
+				'#nav-tree .item#selected, #nav-tree .item.selected'
+			);
+			if (!selected) {
+				if (++attempts < 60) {
+					navTreeExpandTimer = setTimeout(tryExpand, 100);
+				}
+				return;
+			}
+
+			var key = selectedNavTreeKey(selected);
+			if (
+				!force &&
+				navTreeUserCollapsedSelected &&
+				key === navTreeAutoExpandKey
+			) {
+				return;
+			}
+			if (!force && key === navTreeAutoExpandKey && !navTreeItemCollapsed(selected)) {
+				return;
+			}
+
+			if (!ancestorsDone) {
+				expandNavTreeAncestors(selected);
+				ancestorsDone = true;
+			}
+			if (!navTreeUserCollapsedSelected || force) {
+				expandNavTreeItemIfCollapsed(selected);
+			}
+			if (!navTreeItemCollapsed(selected)) {
+				navTreeAutoExpandKey = key;
+				navTreeUserCollapsedSelected = false;
+				return;
+			}
+			if (!navTreeUserCollapsedSelected && ++attempts < 60) {
+				navTreeExpandTimer = setTimeout(tryExpand, 100);
+			}
+		}
+
+		navTreeExpandTimer = setTimeout(tryExpand, 0);
+	}
+
+	function initNavTreeExpandOnLinkClick() {
+		var navTree = document.getElementById('nav-tree');
+		if (!navTree) return;
+
+		navTree.addEventListener('click', function (e) {
+			var toggleLink = e.target.closest &&
+				e.target.closest('#nav-tree .item > a[href="javascript:void(0)"]');
+			if (toggleLink) {
+				var arrowhead = toggleLink.querySelector('.arrowhead');
+				if (arrowhead && arrowhead.classList.contains('opened')) {
+					var item = toggleLink.parentElement;
+					var selected = document.querySelector(
+						'#nav-tree .item#selected, #nav-tree .item.selected'
+					);
+					if (item && item === selected) {
+						navTreeUserCollapsedSelected = true;
+						navTreeAutoExpandKey = selectedNavTreeKey(selected);
+						if (navTreeExpandTimer) clearTimeout(navTreeExpandTimer);
+					}
+				}
+				return;
+			}
+
+			var labelLink = e.target.closest && e.target.closest('#nav-tree .label a');
+			if (!labelLink || labelLink.classList.contains('nolink')) return;
+
+			var item = labelLink.closest('.item');
+			if (!item) return;
+
+			navTreeUserCollapsedSelected = false;
+			navTreeAutoExpandKey = '';
+			expandNavTreeAncestors(item);
+			expandNavTreeItemIfCollapsed(item);
+			scheduleExpandSelectedNavTreeItem(true);
+		}, true);
+
+		window.addEventListener('load', function () {
+			navTreeUserCollapsedSelected = false;
+			scheduleExpandSelectedNavTreeItem(false);
+		});
+		window.addEventListener('hashchange', function () {
+			navTreeUserCollapsedSelected = false;
+			navTreeAutoExpandKey = '';
+			scheduleExpandSelectedNavTreeItem(false);
+		});
+
+		scheduleExpandSelectedNavTreeItem(false);
+	}
+
+	// ---------------------------------------------------------------------------
 	// Boot
 	// ---------------------------------------------------------------------------
 
@@ -631,6 +786,7 @@ $extrastylesheet
 
 		removeEmptyParameterCells();
 		injectProjectHeader();
+		initNavTreeExpandOnLinkClick();
 	}
 
 	document.addEventListener('DOMContentLoaded', init);
