@@ -649,6 +649,7 @@ template <typename T>
 using uniform_int_t = std::conditional_t<
 	(sizeof(T) >= sizeof(short)), T,
 	std::conditional_t<std::is_signed_v<T>, int, unsigned int>>;
+
 } // namespace detail
 
 // Returns a uniformly random number in [0, right)
