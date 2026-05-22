@@ -163,6 +163,14 @@ namespace tgen {
  * If you pass multiple parameters for the printer, it will print the @tt{i}-th element of each
  * on the @tt{i}-th line.
  *
+ * @warning When you have multiple columns, do not pass arguments that call for random generation
+ *          directly in the same function call, e.g.
+ *          @tt{print_cols(tgen::next(1, 10), tgen::next(1, 10))} or
+ *          @tt{print_cols(tgen::list(5, 1, 10).gen(), tgen::list(5, 1, 10).gen())}. Function
+ *          arguments are evaluated in unspecified order, so which random draws appear in which
+ *          column can vary between compilers. Evaluate each random value into a named variable
+ *          first, then pass those variables to @ref print_cols.
+ *
  * ### Examples
  *
  * ```cpp
