@@ -66,14 +66,18 @@ $(EXAMPLE_SAN)/$(1): examples/$(2) $(TGEN_HEADER) | $(EXAMPLE_SAN)
 endef
 
 $(eval $(call EXAMPLE_LINK_RULE,graph,graph.cpp,$(CXX_CLANG)))
+$(eval $(call EXAMPLE_LINK_RULE,geometry,geometry.cpp,$(CXX_GCC)))
 $(eval $(call EXAMPLE_LINK_RULE,sample,all.cpp,$(CXX_GCC)))
 $(eval $(call EXAMPLE_LINK_RULE,unordered,unordered_set.cpp,$(CXX_GCC)))
 $(eval $(call EXAMPLE_LINK_RULE,range_queries,range_queries.cpp,$(CXX_GCC)))
 $(eval $(call EXAMPLE_LINK_RULE,unordered_clang,unordered_set.cpp,$(CXX_CLANG)))
 $(eval $(call EXAMPLE_DEBUG_RULE,sample_debug,all.cpp,$(CXX_GCC)))
 
+GEOMETRY_HTML := $(BUILD_ROOT)/geometry.html
+GEOMETRY_OUT  := $(BUILD_ROOT)/geometry.out
+
 .PHONY: all doc llms doc-rebuild clean-doc opendoc lint lint-check test test_clang test_asan \
-	sample sample_debug unordered range_queries unordered_clang graph cloc \
+	sample sample_debug unordered range_queries unordered_clang graph geometry cloc \
 	help print-% %-asan
 
 all: lint doc test
@@ -204,6 +208,12 @@ sample: $(EXAMPLE_OUT)/sample
 graph: $(EXAMPLE_OUT)/graph
 	$< $(ARGS)
 
+geometry: $(EXAMPLE_OUT)/geometry
+	@mkdir -p $(BUILD_ROOT)
+	$< $(ARGS) | tee $(GEOMETRY_OUT)
+	python3 examples/geometry_plot.py -o $(GEOMETRY_HTML) < $(GEOMETRY_OUT)
+	@echo "Wrote $(GEOMETRY_HTML)"
+
 unordered: $(EXAMPLE_OUT)/unordered
 
 range_queries: $(EXAMPLE_OUT)/range_queries
@@ -218,7 +228,8 @@ sample_debug: $(EXAMPLE_OUT)/sample_debug
 
 help:
 	@echo "Tests:     make test | test_clang | test_asan"
-	@echo "Examples:  make graph | sample | unordered | range_queries | unordered_clang | sample_debug"
+	@echo "Examples:  make graph | geometry | sample | unordered | range_queries | unordered_clang | sample_debug"
+	@echo " + geometry writes $(GEOMETRY_HTML) (stdout + plot)"
 	@echo " + argv:   make graph ARGS='…'   (sample, graph, graph-asan, …)"
 	@echo " + ASan:   make graph ASAN=1   or   make graph-asan   (same for sample-asan, unordered-asan, …)"
 	@echo "           Binaries: build/examples/rel/… and build/examples/asan/… (see ASAN=1)"

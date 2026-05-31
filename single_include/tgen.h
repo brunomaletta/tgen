@@ -5900,6 +5900,165 @@ inline egraph<int>::value quadratic_dijkstra_bug(int n) {
 
 } // namespace hack
 
+/****************
+ *              *
+ *   GEOMETRY   *
+ *              *
+ ****************/
+
+namespace geometry {
+
+// Point on the plane with coordinates of type T.
+template <typename T> struct point {
+	static_assert(std::is_arithmetic_v<T>,
+				  "point requires an arithmetic coordinate type");
+
+	using product_t = std::conditional_t<std::is_integral_v<T>, long long, T>;
+
+	T x_, y_;
+
+	point(T x = 0, T y = 0) : x_(x), y_(y) {}
+
+	static bool coord_eq(T a, T b) {
+		if constexpr (std::is_integral_v<T>)
+			return a == b;
+		constexpr T eps = T(1e-9);
+		T d = a - b;
+		return d >= -eps and d <= eps;
+	}
+
+	// Lexicographic order (by x, then y).
+	bool operator<(const point &p) const {
+		if (!coord_eq(x_, p.x_))
+			return x_ < p.x_;
+		return y_ < p.y_;
+	}
+
+	bool operator==(const point &p) const {
+		return coord_eq(x_, p.x_) and coord_eq(y_, p.y_);
+	}
+
+	// Vector addition.
+	point operator+(const point &p) const {
+		return point(x_ + p.x_, y_ + p.y_);
+	}
+
+	// Vector subtraction.
+	point operator-(const point &p) const {
+		return point(x_ - p.x_, y_ - p.y_);
+	}
+
+	// Scalar multiplication.
+	point operator*(T c) const { return point(x_ * c, y_ * c); }
+
+	// Dot product.
+	product_t operator*(const point &p) const {
+		return static_cast<product_t>(x_) * p.x_ +
+			   static_cast<product_t>(y_) * p.y_;
+	}
+
+	// Cross product (signed area of the parallelogram).
+	product_t operator^(const point &p) const {
+		return static_cast<product_t>(x_) * p.y_ -
+			   static_cast<product_t>(y_) * p.x_;
+	}
+
+	friend std::ostream &operator<<(std::ostream &out, const point &p) {
+		return out << p.x_ << ' ' << p.y_;
+	}
+};
+
+// Generates n distinct integer points in [min_coord, max_coord]^2 with no three
+// collinear.
+// O(n).
+inline std::vector<point<long long>>
+general_position(int n, long long min_coord, long long max_coord) {
+	tgen_ensure(n > 0, "geometry: general_position: n must be positive");
+	tgen_ensure(min_coord <= max_coord,
+				"geometry: general_position: invalid coordinate range");
+
+	detail::i128 width = static_cast<detail::i128>(max_coord) - min_coord;
+	uint64_t p = math::prime_from(static_cast<uint64_t>(n) * 2);
+
+	// Requires width >= p - 1 because sheared coordinates lie in [0, p - 1].
+	tgen_ensure(width >= static_cast<detail::i128>(p) - 1,
+				"geometry: general_position: coordinate range too small for n");
+
+	// Base set {(x, x^-1 mod p) : x \in {1, ..., p - 1}}.
+	//
+	// Over F_p, y = x^-1 is a rational map on nonzero x, so any line meets the
+	// graph in at most two points. Distinct x therefore give distinct points;
+	// no three of them can be collinear in the integer plane.
+	std::vector<uint64_t> x_range(p - 1);
+	std::iota(x_range.begin(), x_range.end(), 1);
+	shuffle(x_range.begin(), x_range.end());
+	std::vector<detail::i128> bx(n), by(n);
+	for (int i = 0; i < n; ++i) {
+		uint64_t x = x_range[i];
+		bx[i] = x;
+		by[i] = math::modular_inverse(x, p);
+	}
+
+	// Applies a random element of SL(2, p) by composing several elementary
+	// shear matrices over F_p.
+	//
+	// Each step applies either
+	//     [1 r]       or       [1 0]
+	//     [0 1]                [r 1]
+	//
+	// with r \in {-2, -1, 1, 2}, and all arithmetic performed modulo p.
+	// After all iterations, the resulting transformation is
+	// A = S_k S_{k-1} ... S_1
+	//
+	// where every S_i has determinant 1. Therefore det(A) = 1 (mod p),
+	// so A is invertible.
+	//
+	// Invertible affine transformations of F_p^2 preserve collinearity and
+	// non-collinearity. Since the base set {(x, x^-1 mod p)} contains no
+	// three collinear points, the transformed set also contains no three
+	// collinear points.
+	const int num_shears = 8;
+	std::vector<detail::i128> lin_x = bx, lin_y = by;
+
+	for (int it = 0; it < num_shears; ++it) {
+		bool vertical_shear = next(2) == 0;
+		int shear_r = pick({-2, -1, 1, 2});
+
+		for (int i = 0; i < n; ++i) {
+			if (vertical_shear)
+				lin_x[i] = (lin_x[i] + shear_r * lin_y[i]) % p;
+			else
+				lin_y[i] = (lin_y[i] + shear_r * lin_x[i]) % p;
+			if (lin_x[i] < 0)
+				lin_x[i] += p;
+			if (lin_y[i] < 0)
+				lin_y[i] += p;
+		}
+	}
+
+	detail::i128 min_x = lin_x[0], max_x = lin_x[0], min_y = lin_y[0],
+				 max_y = lin_y[0];
+	for (int i = 1; i < n; ++i) {
+		min_x = std::min(min_x, lin_x[i]);
+		max_x = std::max(max_x, lin_x[i]);
+		min_y = std::min(min_y, lin_y[i]);
+		max_y = std::max(max_y, lin_y[i]);
+	}
+
+	long long slackX = next<long long>(0, width - (max_x - min_x)),
+			  slackY = next<long long>(0, width - (max_y - min_y));
+	detail::i128 tx = static_cast<detail::i128>(min_coord) - min_x + slackX;
+	detail::i128 ty = static_cast<detail::i128>(min_coord) - min_y + slackY;
+
+	std::vector<point<long long>> pts;
+	pts.reserve(n);
+	for (int i = 0; i < n; ++i)
+		pts.emplace_back(lin_x[i] + tx, lin_y[i] + ty);
+	return pts;
+}
+
+} // namespace geometry
+
 /*********************
  *                   *
  *   MISCELLANEOUS   *

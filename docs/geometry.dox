@@ -1,0 +1,204 @@
+#include "../single_include/tgen.h"
+
+namespace tgen::geometry {
+
+/**
+ * @defgroup geometry Geometry
+ * @brief Geometry utilities.
+ *
+ * ### Examples
+ *
+ * Vector operations on integer coordinates.
+ *
+ * ```cpp
+ * tgen::geometry::point<int> a(1, 2), b(3, 4);
+ * std::cout << a + b << std::endl;
+ * std::cout << (a * b) << " " << (a ^ b) << std::endl;
+ * ```
+ *
+ * ```
+ * 4 6
+ * 11 -2
+ * ```
+ *
+ * Floating-point coordinates use epsilon-based equality (@tt{1e-9}).
+ *
+ * ```cpp
+ * tgen::geometry::point<double> p(1.5, 2.5);
+ * std::cout << p << std::endl;
+ * ```
+ *
+ * ```
+ * 1.5 2.5
+ * ```
+ *
+ * Generate points in general position (no three collinear) inside a box.
+ *
+ * ```cpp
+ * auto pts = tgen::geometry::general_position(10, 0, 100);
+ * std::cout << tgen::print(pts, '\n') << std::endl;
+ * ```
+ *
+ * ```
+ * 18815 25522
+ * 19859 26244
+ * ...
+ * ```
+ * @image html general_position.png "Example generated point set" width=600
+ */
+
+
+
+
+
+/**
+ * @ingroup geometry
+ * @brief Point on the plane.
+ *
+ * @tparam T Arithmetic coordinate type (@tt{@primitive{int}}, @tt{@primitive{double}}, ...).
+ *
+ * Coordinates are stored in @tt{x_} and @tt{y_}. Dot and cross products
+ * return @tt{@primitive{long long}} for integral @tt{T}, and @tt{T} otherwise.
+ *
+ * For floating-point @tt{T}, @tt{operator==} and lexicographic
+ * @tt{operator<} compare coordinates with tolerance @tt{1e-9}.
+ *
+ * @struct point;
+ */
+
+
+/**
+ * @brief Constructs a point.
+ *
+ * @param x x-coordinate.
+ * @param y y-coordinate.
+ *
+ * @fn point::point(T x = 0, T y = 0);
+ */
+
+
+/**
+ * @brief Lexicographic order.
+ *
+ * For floating-point coordinates, @tt{x_} values within @tt{1e-9} are treated
+ * as equal before comparing @tt{y_}.
+ *
+ * @fn point::operator<(const point &p) const;
+ */
+
+
+/**
+ * @brief Coordinate-wise equality.
+ *
+ * For floating-point coordinates, two values are equal when their difference
+ * is at most @tt{1e-9} in absolute value.
+ *
+ * @fn point::operator==(const point &p) const;
+ */
+
+
+/**
+ * @brief Vector addition.
+ *
+ * @return The sum of the vectors.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::geometry::point<int> a(1, 2), b(3, 4);
+ * std::cout << a + b << std::endl;
+ * ```
+ *
+ * @fn point::operator+(const point &p) const;
+ */
+
+
+/**
+ * @brief Vector subtraction.
+ *
+ * @return The subtraction of the vectors.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::geometry::point<int> a(1, 2), b(3, 4);
+ * std::cout << a - b << std::endl;
+ * ```
+ *
+ * @fn point::operator-(const point &p) const;
+ */
+
+
+/**
+ * @brief Scalar multiplication.
+ *
+ * @param c Scalar.
+ *
+ * @fn point::operator*(T c) const;
+ */
+
+
+/**
+ * @brief Dot product.
+ *
+ * @return The dot product as @tt{product_t}.
+ *
+ * @fn point::operator*(const point &p) const;
+ */
+
+
+/**
+ * @brief Cross product.
+ *
+ * @return The signed magnitude of the cross product as @tt{product_t}.
+ *
+ * @fn point::operator^(const point &p) const;
+ */
+
+
+/**
+ * @brief Prints @tt{x_} and @tt{y_} separated by a space.
+ *
+ * @fn point::operator<<(std::ostream &out, const point &p);
+ */
+
+
+/**
+ * @ingroup geometry
+ * @brief Generates points in general position inside a coordinate box.
+ *
+ * @param n Number of points to generate.
+ * @param min_coord Minimum allowed coordinate on each axis.
+ * @param max_coord Maximum allowed coordinate on each axis.
+ *
+ * Returns @tt{@pname{n}} distinct points with integer coordinates in the inclusive
+ * square @tt{[@pname{min_coord}, @pname{max_coord}]^2} such that no three points are
+ * collinear.
+ *
+ * The construction samples @tt{@pname{n}} distinct values @tt{(x, x^-1)} from
+ * @tt{F_p} then applies several
+ * random invertible shears over @tt{F_p}, then translates the result into
+ * @tt{[@pname{min_coord}, @pname{max_coord}]^2}. Affine maps preserve
+ * (non-)collinearity, and the graph of inversion over @tt{F_p} meets any line
+ * in at most two points.
+ *
+ * Coordinates are returned as @tt{point<long long>}.
+ *
+ * @throws std::runtime_error if the coordinate range is not large enough.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::register_gen();
+ * std::vector<tgen::geometry::point<long long>> pts = tgen::geometry::general_position(10, 0, 100);
+ * std::cout << tgen::print(pts, '\n') << std::endl;
+ * ```
+ *
+ * @fn general_position(int n, long long min_coord, long long max_coord);
+ */
+
+}; // namespace tgen::geometry

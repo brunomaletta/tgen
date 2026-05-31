@@ -51,7 +51,7 @@ namespace tgen {
  * Prints 2 uniformly random numbers in @tt{[0, 10^n]}.
  *
  * ```cpp
- * const int n = 3; // numbers in [0, 10^n]
+ * const int n = 3; // Numbers in [0, 10^n].
  * auto leq1eN = tgen::str("0 | [1-9][0-9]{0,%d} | 10{%d}", n - 1, n);
  * std::cout << leq1eN.gen() << " " << leq1eN.gen() << std::endl;
  * ```

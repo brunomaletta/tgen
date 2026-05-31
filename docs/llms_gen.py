@@ -45,6 +45,7 @@ EXPECTED_MODULES = [
     "math",
     "hack",
     "misc",
+    "geometry",
 ]
 
 # Titled markdown headings nest as sect1..sect4; only the innermost carries a

@@ -70,7 +70,8 @@ $extrastylesheet
 		'graph', 'tree', 'wgraph', 'wtree', 'vgraph', 'egraph', 'vtree', 'etree',
 		'print', 'println', 'distinct', 'opt',
 		'is_generator_value',
-		'gen_base', 'gen_value_base'
+		'gen_base', 'gen_value_base',
+		'point'
 	]);
 
 	var HIGHLIGHT_TYPE_SPLIT_RE =
@@ -308,7 +309,7 @@ $extrastylesheet
 				var cls = null;
 				if (CPP_PRIMITIVES.has(tok)) cls = 'primitive';
 				else if (CPP_KEYWORDS.has(tok)) cls = 'keyword';
-				else if (tok === 'std' || tok === 'tgen' || tok === 'detail') cls = 'namespace';
+				else if (tok === 'std' || tok === 'tgen' || tok === 'detail' || tok === 'geometry') cls = 'namespace';
 				else if (/^[A-Z]\w*$/.test(tok)) cls = 'type';
 				else if (TGEN_TYPES.has(tok) || tok === 'value') cls = 'type';
 				else if (STL_TYPES_EXTENDED_RE.test(tok)) cls = 'type';
@@ -365,17 +366,20 @@ $extrastylesheet
 		if (STL_TYPES_RE.test(tok)) return 'type';
 		if (/^(#define|struct|const|constexpr|static|inline|volatile|mutable|noexcept|using)$/.test(tok))
 			return 'keyword';
-		if (tok === 'std' || tok === 'tgen' || tok === 'detail') return 'namespace';
+		if (tok === 'std' || tok === 'tgen' || tok === 'detail' || tok === 'geometry') return 'namespace';
 		return null;
 	}
 
 	function highlightMemItemLeft(td) {
 		var walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT);
+		var collected = [];
 		var node;
-		while ((node = walker.nextNode())) {
-			if (node.parentElement.closest('a')) continue;
-			var tokens = tokenizeMemItemLeft(node.nodeValue);
-			if (tokens.length === 1) continue;
+		while ((node = walker.nextNode())) collected.push(node);
+
+		collected.forEach(function (textNode) {
+			if (textNode.parentElement.closest('a')) return;
+			var tokens = tokenizeMemItemLeft(textNode.nodeValue);
+			if (tokens.length === 1) return;
 
 			var frag = document.createDocumentFragment();
 			tokens.forEach(function (tok) {
@@ -388,8 +392,8 @@ $extrastylesheet
 					frag.appendChild(span);
 				}
 			});
-			node.parentNode.replaceChild(frag, node);
-		}
+			textNode.parentNode.replaceChild(frag, textNode);
+		});
 	}
 
 	function highlightAllMemItemLeft() {
@@ -413,7 +417,7 @@ $extrastylesheet
 			state.inDefault = false;
 			return null;
 		}
-		if (tok === 'std' || tok === 'tgen' || tok === 'detail') return 'namespace';
+		if (tok === 'std' || tok === 'tgen' || tok === 'detail' || tok === 'geometry') return 'namespace';
 
 		if (state.inDefault) {
 			if (/^(true|false|nullptr)$/.test(tok)) return 'paramdefval';
@@ -493,7 +497,7 @@ $extrastylesheet
 		if (/^[A-Z]\w*$/.test(t)) return 'type';
 		if (TGEN_TYPES.has(t) || t === 'value') return 'type';
 		if (STL_TYPES_RE.test(t)) return 'type';
-		if (t === 'std' || t === 'tgen' || t === 'detail') return 'namespace';
+		if (t === 'std' || t === 'tgen' || t === 'detail' || t === 'geometry') return 'namespace';
 		if (/^[A-Za-z_]\w*$/.test(t) && /[A-Z]/.test(t.slice(1))) return 'type';
 		return 'paramname';
 	}
