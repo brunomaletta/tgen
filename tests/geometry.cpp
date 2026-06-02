@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <climits>
+#include <limits>
 #include <set>
 #include <sstream>
 
@@ -31,6 +33,34 @@ void expect_distinct(const std::vector<tgen::geometry::point<long long>> &pts) {
 	EXPECT_EQ(seen.size(), pts.size());
 }
 
+void expect_touches_min_on_both_axes(
+	const std::vector<tgen::geometry::point<long long>> &pts,
+	long long min_coord) {
+	bool min_x = false, min_y = false;
+	for (const tgen::geometry::point<long long> &p : pts) {
+		if (p.x_ == min_coord)
+			min_x = true;
+		if (p.y_ == min_coord)
+			min_y = true;
+	}
+	EXPECT_TRUE(min_x);
+	EXPECT_TRUE(min_y);
+}
+
+void expect_touches_max_on_both_axes(
+	const std::vector<tgen::geometry::point<long long>> &pts,
+	long long max_coord) {
+	bool max_x = false, max_y = false;
+	for (const tgen::geometry::point<long long> &p : pts) {
+		if (p.x_ == max_coord)
+			max_x = true;
+		if (p.y_ == max_coord)
+			max_y = true;
+	}
+	EXPECT_TRUE(max_x);
+	EXPECT_TRUE(max_y);
+}
+
 void expect_no_three_collinear(
 	const std::vector<tgen::geometry::point<long long>> &pts) {
 	int n = static_cast<int>(pts.size());
@@ -60,6 +90,62 @@ void expect_no_three_collinear_sampled(
 long long min_width_for(int n) {
 	uint64_t p = tgen::math::prime_from(static_cast<uint64_t>(n) * 2);
 	return static_cast<long long>(p - 1);
+}
+
+bool verify_convex_polygon(
+	const std::vector<tgen::geometry::point<long long>> &pts, int n,
+	long long min_coord, long long max_coord) {
+	if (static_cast<int>(pts.size()) != n)
+		return false;
+	for (const tgen::geometry::point<long long> &p : pts) {
+		if (p.x_ < min_coord or p.x_ > max_coord or p.y_ < min_coord or
+			p.y_ > max_coord)
+			return false;
+	}
+	if (n < 3)
+		return false;
+
+	auto turn = [](const tgen::geometry::point<long long> &a,
+				   const tgen::geometry::point<long long> &b,
+				   const tgen::geometry::point<long long> &c) -> __int128 {
+		return (b - a) ^ (c - b);
+	};
+
+	__int128 s0 = turn(pts[n - 1], pts[0], pts[1]);
+	if (s0 == 0)
+		return false;
+	for (int i = 1; i < n; ++i) {
+		__int128 s = turn(pts[i - 1], pts[i], pts[(i + 1) % n]);
+		if (s == 0 or (s > 0) != (s0 > 0))
+			return false;
+	}
+
+	__int128 area2 = 0;
+	for (int i = 0; i < n; ++i) {
+		int j = (i + 1) % n;
+		area2 += static_cast<__int128>(pts[i].x_) * pts[j].y_ -
+				 static_cast<__int128>(pts[j].x_) * pts[i].y_;
+	}
+	if (area2 == 0)
+		return false;
+
+	std::vector<tgen::geometry::point<long long>> sorted = pts;
+	std::sort(sorted.begin(), sorted.end());
+	std::vector<tgen::geometry::point<long long>> hull(2 * n);
+	int k = 0;
+	for (int i = 0; i < n; ++i) {
+		while (k >= 2 and
+			   ((hull[k - 1] - hull[k - 2]) ^ (sorted[i] - hull[k - 1])) <= 0)
+			k--;
+		hull[k++] = sorted[i];
+	}
+	for (int i = n - 2, t = k + 1; i >= 0; --i) {
+		while (k >= t and
+			   ((hull[k - 1] - hull[k - 2]) ^ (sorted[i] - hull[k - 1])) <= 0)
+			k--;
+		hull[k++] = sorted[i];
+	}
+	return k - 1 == n;
 }
 
 } // namespace
@@ -141,14 +227,6 @@ TEST(geometry_test, general_position_invalid_n) {
 							 "geometry: general_position: n must be positive");
 }
 
-TEST(geometry_test, general_position_invalid_range) {
-	tgen::register_gen();
-
-	EXPECT_THROW_TGEN_PREFIX(tgen::geometry::general_position(10, 5, 4),
-							 "geometry: general_position: invalid coordinate "
-							 "range");
-}
-
 TEST(geometry_test, general_position_range_too_small) {
 	tgen::register_gen();
 
@@ -158,6 +236,9 @@ TEST(geometry_test, general_position_range_too_small) {
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::geometry::general_position(n, 0, width),
 		"geometry: general_position: coordinate range too small for n");
+	EXPECT_THROW_TGEN_PREFIX(tgen::geometry::general_position(10, 5, 4),
+							 "geometry: general_position: coordinate range too "
+							 "small for n");
 }
 
 TEST(geometry_test, general_position_minimum_range) {
@@ -248,4 +329,210 @@ TEST(geometry_test, general_position_large_coordinates) {
 	expect_in_range(pts, min_coord, max_coord);
 	expect_distinct(pts);
 	expect_no_three_collinear(pts);
+}
+
+TEST(geometry_test, general_position_near_llong_limits) {
+	tgen::register_gen(0);
+
+	const int n = 50;
+	const long long width = 500;
+
+	for (int i = 0; i < 500; ++i) {
+		long long max_coord = std::numeric_limits<long long>::max();
+		long long min_coord = max_coord - width;
+		auto pts = tgen::geometry::general_position(n, min_coord, max_coord);
+		EXPECT_EQ(pts.size(), static_cast<size_t>(n));
+		expect_in_range(pts, min_coord, max_coord);
+		expect_distinct(pts);
+		if (i == 0)
+			expect_no_three_collinear(pts);
+	}
+
+	for (int i = 0; i < 500; ++i) {
+		long long min_coord = LLONG_MIN;
+		long long max_coord = min_coord + width;
+		auto pts = tgen::geometry::general_position(n, min_coord, max_coord);
+		EXPECT_EQ(pts.size(), static_cast<size_t>(n));
+		expect_in_range(pts, min_coord, max_coord);
+		expect_distinct(pts);
+	}
+}
+
+TEST(geometry_test, general_position_hits_min_on_both_axes) {
+	tgen::register_gen(0);
+
+	const int n = 50;
+	const long long min_coord = LLONG_MIN;
+	const long long max_coord = min_coord + 500;
+
+	auto pts = tgen::geometry::general_position(n, min_coord, max_coord);
+
+	EXPECT_EQ(pts.size(), static_cast<size_t>(n));
+	expect_in_range(pts, min_coord, max_coord);
+	expect_distinct(pts);
+	expect_no_three_collinear(pts);
+}
+
+TEST(geometry_test, general_position_full_long_long_range) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::general_position(50, LLONG_MIN,
+										 std::numeric_limits<long long>::max()),
+		"geometry: general_position: coordinate range too large");
+}
+
+TEST(geometry_test, convex_polygon_basic) {
+	tgen::register_gen(42);
+
+	auto pts = tgen::geometry::convex_polygon(10, 0, 100);
+
+	EXPECT_EQ(pts.size(), 10u);
+	EXPECT_TRUE(verify_convex_polygon(pts, 10, 0, 100));
+}
+
+TEST(geometry_test, convex_polygon_invalid_n) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::geometry::convex_polygon(2, 0, 100),
+							 "geometry: convex_polygon: n must be at least 3");
+	EXPECT_THROW_TGEN_PREFIX(tgen::geometry::convex_polygon(0, 0, 100),
+							 "geometry: convex_polygon: n must be at least 3");
+	EXPECT_THROW_TGEN_PREFIX(tgen::geometry::convex_polygon(1, 0, 100),
+							 "geometry: convex_polygon: n must be at least 3");
+}
+
+TEST(geometry_test, convex_polygon_range_too_small) {
+	tgen::register_gen();
+
+	int n = 10;
+	long long width = n - 2;
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::convex_polygon(n, 0, width),
+		"geometry: convex_polygon: coordinate range too small for n");
+	EXPECT_THROW_TGEN_PREFIX(tgen::geometry::convex_polygon(10, 5, 4),
+							 "geometry: convex_polygon: coordinate range too "
+							 "small for n");
+}
+
+TEST(geometry_test, convex_polygon_minimum_range) {
+	tgen::register_gen(10);
+
+	int n = 10;
+	long long width = n - 1;
+	auto pts = tgen::geometry::convex_polygon(n, 0, width);
+
+	EXPECT_EQ(pts.size(), static_cast<size_t>(n));
+	EXPECT_TRUE(verify_convex_polygon(pts, n, 0, width));
+}
+
+TEST(geometry_test, convex_polygon_large_n) {
+	tgen::register_gen();
+
+	int n = 500;
+	long long max_coord = 1'000'000;
+	auto pts = tgen::geometry::convex_polygon(n, 0, max_coord);
+
+	EXPECT_EQ(pts.size(), static_cast<size_t>(n));
+	EXPECT_TRUE(verify_convex_polygon(pts, n, 0, max_coord));
+}
+
+TEST(geometry_test, convex_polygon_nonzero_min) {
+	tgen::register_gen();
+
+	long long min_coord = 50, max_coord = 100;
+	int n = 10;
+	auto pts = tgen::geometry::convex_polygon(n, min_coord, max_coord);
+
+	EXPECT_EQ(pts.size(), static_cast<size_t>(n));
+	EXPECT_TRUE(verify_convex_polygon(pts, n, min_coord, max_coord));
+}
+
+TEST(geometry_test, convex_polygon_many_seeds) {
+	tgen::register_gen();
+
+	int n = 20;
+	long long min_coord = 0, max_coord = 500;
+
+	for (int seed = 0; seed < 100; ++seed) {
+		auto pts = tgen::geometry::convex_polygon(n, min_coord, max_coord);
+		EXPECT_EQ(pts.size(), static_cast<size_t>(n));
+		EXPECT_TRUE(verify_convex_polygon(pts, n, min_coord, max_coord));
+	}
+}
+
+TEST(geometry_test, convex_polygon_large_coordinates) {
+	tgen::register_gen(0);
+
+	long long min_coord = -1'000'000'000'000LL;
+	long long max_coord = min_coord + 500;
+	int n = 50;
+	auto pts = tgen::geometry::convex_polygon(n, min_coord, max_coord);
+
+	EXPECT_EQ(pts.size(), static_cast<size_t>(n));
+	EXPECT_TRUE(verify_convex_polygon(pts, n, min_coord, max_coord));
+}
+
+TEST(geometry_test, convex_polygon_near_llong_limits) {
+	tgen::register_gen(0);
+
+	const int n = 50;
+	const long long width = 500;
+
+	for (int i = 0; i < 500; ++i) {
+		long long max_coord = std::numeric_limits<long long>::max();
+		long long min_coord = max_coord - width;
+		auto pts = tgen::geometry::convex_polygon(n, min_coord, max_coord);
+		EXPECT_EQ(pts.size(), static_cast<size_t>(n));
+		expect_in_range(pts, min_coord, max_coord);
+		expect_distinct(pts);
+		if (i == 0) {
+			EXPECT_TRUE(verify_convex_polygon(pts, n, min_coord, max_coord));
+		}
+	}
+
+	for (int i = 0; i < 500; ++i) {
+		long long min_coord = LLONG_MIN;
+		long long max_coord = min_coord + width;
+		auto pts = tgen::geometry::convex_polygon(n, min_coord, max_coord);
+		EXPECT_EQ(pts.size(), static_cast<size_t>(n));
+		expect_in_range(pts, min_coord, max_coord);
+		expect_distinct(pts);
+	}
+}
+
+TEST(geometry_test, convex_polygon_hits_min_on_both_axes) {
+	tgen::register_gen(0);
+
+	const int n = 50;
+	const long long min_coord = LLONG_MIN;
+	const long long max_coord = min_coord + 500;
+
+	auto pts = tgen::geometry::convex_polygon(n, min_coord, max_coord);
+
+	EXPECT_EQ(pts.size(), static_cast<size_t>(n));
+	expect_in_range(pts, min_coord, max_coord);
+	expect_touches_min_on_both_axes(pts, min_coord);
+	expect_touches_max_on_both_axes(pts, max_coord);
+	EXPECT_TRUE(verify_convex_polygon(pts, n, min_coord, max_coord));
+}
+
+TEST(geometry_test, convex_polygon_full_long_long_range) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::convex_polygon(50, LLONG_MIN,
+									   std::numeric_limits<long long>::max()),
+		"geometry: convex_polygon: coordinate range too large");
+}
+
+TEST(geometry_test, convex_polygon_many_n) {
+	tgen::register_gen(0);
+
+	for (int n = 3; n <= 200; ++n) {
+		auto pts = tgen::geometry::convex_polygon(n, 0, 1'000'000);
+		EXPECT_EQ(pts.size(), static_cast<size_t>(n));
+		EXPECT_TRUE(verify_convex_polygon(pts, n, 0, 1'000'000));
+	}
 }

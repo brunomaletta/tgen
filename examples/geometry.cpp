@@ -3,10 +3,11 @@
 using namespace tgen;
 
 int main(int argc, char **argv) {
-	tgen::register_gen(2);
+	tgen::register_gen(3);
 
-	int n = 5000;
-	std::cout << print(geometry::general_position(n, 0, 10 * n), '\n')
+	int n = 150;
+	long long max_coord = 10 * n;
+	std::cout << print(geometry::convex_polygon(n, 0, max_coord), '\n')
 			  << std::endl;
 
 	return 0;

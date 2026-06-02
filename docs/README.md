@@ -18,7 +18,7 @@ There are:
 - [Base operations](https://brunomaletta.github.io/tgen/group__base.html)
   - [Generator value operations](https://brunomaletta.github.io/tgen/group__generator__value__op.html)
 - [Math operations](https://brunomaletta.github.io/tgen/group__math.html)
-- [Geometry](https://brunomaletta.github.io/tgen/group__geometry.html)
+- [Geometry operations](https://brunomaletta.github.io/tgen/group__geometry.html)
 - [Hacks (adversarial generation)](https://brunomaletta.github.io/tgen/group__hack.html)
 - [Miscellaneous operations](https://brunomaletta.github.io/tgen/group__misc.html)
 
@@ -187,6 +187,21 @@ std::cout <<
 ```
 1 0 0 1 0 1 1 0 1 0
 ```
+
+Generate points in general position (no three collinear) inside a box.
+
+```cpp
+auto pts = tgen::geometry::general_position(5000, 0, 50000);
+std::cout << tgen::print(pts, '\n') << std::endl;
+```
+
+```
+18815 25522
+19859 26244
+...
+```
+
+@image html general_position.png "Example generated point set" width=600
 
 Random 1-based permutation of size 5 with only one cycle.
 

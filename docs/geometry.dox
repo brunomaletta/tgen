@@ -32,10 +32,10 @@ namespace tgen::geometry {
  * 1.5 2.5
  * ```
  *
- * Generate points in general position (no three collinear) inside a box.
+ * Generates points in general position (no three collinear) inside a box.
  *
  * ```cpp
- * auto pts = tgen::geometry::general_position(10, 0, 100);
+ * auto pts = tgen::geometry::general_position(5000, 0, 50000);
  * std::cout << tgen::print(pts, '\n') << std::endl;
  * ```
  *
@@ -45,6 +45,20 @@ namespace tgen::geometry {
  * ...
  * ```
  * @image html general_position.png "Example generated point set" width=600
+ *
+ * Generates convex polygon.
+ *
+ * ```cpp
+ * auto pts = tgen::geometry::convex_polygon(150, 0, 1500);
+ * std::cout << tgen::print(pts, '\n') << std::endl;
+ * ```
+ *
+ * ```
+ * 1433 1182
+ * 1428 1190
+ * ...
+ * ```
+ * @image html convex_polygon.png "Example generated polygon" width=600
  */
 
 
@@ -165,14 +179,15 @@ namespace tgen::geometry {
 
 /**
  * @ingroup geometry
- * @brief Generates points in general position inside a coordinate box.
+ * @brief Generates random points in general position inside a coordinate box.
  *
  * @param n Number of points to generate.
  * @param min_coord Minimum allowed coordinate on each axis.
  * @param max_coord Maximum allowed coordinate on each axis.
  *
- * Returns @tt{@pname{n}} distinct points with integer coordinates in the inclusive
- * square @tt{[@pname{min_coord}, @pname{max_coord}]^2} such that no three points are
+ * @return @tt{@pname{n}} distinct @tt{point<long long>} values with integer
+ * coordinates in the inclusive square
+ * @tt{[@pname{min_coord}, @pname{max_coord}]^2} such that no three points are
  * collinear.
  *
  * The construction samples @tt{@pname{n}} distinct values @tt{(x, x^-1)} from
@@ -182,9 +197,9 @@ namespace tgen::geometry {
  * (non-)collinearity, and the graph of inversion over @tt{F_p} meets any line
  * in at most two points.
  *
- * Coordinates are returned as @tt{point<long long>}.
- *
  * @throws std::runtime_error if the coordinate range is not large enough.
+ *
+ * @note This operation is not uniformly random.
  *
  * #### Complexity
  *
@@ -193,12 +208,55 @@ namespace tgen::geometry {
  * #### Examples
  *
  * ```cpp
- * tgen::register_gen();
  * std::vector<tgen::geometry::point<long long>> pts = tgen::geometry::general_position(10, 0, 100);
  * std::cout << tgen::print(pts, '\n') << std::endl;
  * ```
  *
  * @fn general_position(int n, long long min_coord, long long max_coord);
+ */
+
+
+/**
+ * @ingroup geometry
+ * @brief Generates a strictly convex integer polygon with given bounding box.
+ *
+ * @param n Number of vertices.
+ * @param min_coord Minimum allowed coordinate on each axis.
+ * @param max_coord Maximum allowed coordinate on each axis.
+ *
+ * @pre @tt{@pname{n} >= 3}.
+ *
+ * @return @tt{@pname{n}} vertices of a strictly convex polygon with integer
+ * coordinates in the inclusive square
+ * @tt{[@pname{min_coord}, @pname{max_coord}]^2}, listed in boundary order
+ * (clockwise or counterclockwise). The polygon touches all four sides of that
+ * square (its axis-aligned bounding box equals the requested box).
+ *
+ * Uses Valtr's classical construction: choose @tt{@pname{n}} distinct sorted
+ * @tt{x} and @tt{y} coordinates spanning @tt{[0, width]} via
+ * @tt{tgen::distinct_range}, build monotone signed edge components, shuffle the
+ * @tt{y}-components, pair with the @tt{x}-components, and sort by polar angle
+ * without floating point, then prefix-sum and translate so the bouding box minimum is
+ * @pname{min_coord} on each axis. The grid uses endpoints @tt{0} and @tt{width},
+ * so the polygon span is exactly @tt{width} on each axis and fills the box after
+ * translation.
+ *
+ * @throws std::runtime_error if the coordinate range is not large enough.
+ *
+ * @note This operation is not uniformly random.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n} log @pname{n})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto poly = tgen::geometry::convex_polygon(10, 0, 100);
+ * std::cout << tgen::print(poly, '\n') << std::endl;
+ * ```
+ *
+ * @fn convex_polygon(int n, long long min_coord, long long max_coord);
  */
 
 }; // namespace tgen::geometry

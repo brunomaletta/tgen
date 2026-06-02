@@ -27,6 +27,7 @@
 #include <initializer_list>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <optional>
 #include <queue>
@@ -5619,6 +5620,294 @@ inline graph::value K(int n1, int n2) {
 // O(n).
 inline graph::value S(int n) { return K(1, n - 1); }
 
+/****************
+ *              *
+ *   GEOMETRY   *
+ *              *
+ ****************/
+
+namespace geometry {
+
+using i128 = ::tgen::detail::i128;
+
+// Point on the plane with coordinates of type T.
+template <typename T> struct point {
+	static_assert(std::is_arithmetic_v<T>,
+				  "point requires an arithmetic coordinate type");
+
+	using product_t = std::conditional_t<
+		std::is_same_v<T, long long>, i128,
+		std::conditional_t<std::is_integral_v<T>, long long, T>>;
+
+	T x_, y_;
+
+	point(T x = 0, T y = 0) : x_(x), y_(y) {}
+
+	static bool coord_eq(T a, T b) {
+		if constexpr (std::is_integral_v<T>)
+			return a == b;
+		constexpr T eps = T(1e-9);
+		T d = a - b;
+		return d >= -eps and d <= eps;
+	}
+
+	// Lexicographic order (by x, then y).
+	bool operator<(const point &p) const {
+		if (!coord_eq(x_, p.x_))
+			return x_ < p.x_;
+		return y_ < p.y_;
+	}
+
+	bool operator==(const point &p) const {
+		return coord_eq(x_, p.x_) and coord_eq(y_, p.y_);
+	}
+
+	// Vector addition.
+	point operator+(const point &p) const {
+		return point(x_ + p.x_, y_ + p.y_);
+	}
+
+	// Vector subtraction.
+	point operator-(const point &p) const {
+		return point(x_ - p.x_, y_ - p.y_);
+	}
+
+	// Scalar multiplication.
+	point operator*(T c) const { return point(x_ * c, y_ * c); }
+
+	// Dot product.
+	product_t operator*(const point &p) const {
+		return static_cast<product_t>(x_) * p.x_ +
+			   static_cast<product_t>(y_) * p.y_;
+	}
+
+	// Cross product (signed area of the parallelogram).
+	product_t operator^(const point &p) const {
+		return static_cast<product_t>(x_) * p.y_ -
+			   static_cast<product_t>(y_) * p.x_;
+	}
+
+	friend std::ostream &operator<<(std::ostream &out, const point &p) {
+		return out << p.x_ << ' ' << p.y_;
+	}
+};
+
+// Generates n distinct integer points in [min_coord, max_coord]^2 with no three
+// collinear.
+// O(n).
+inline std::vector<point<long long>>
+general_position(int n, long long min_coord, long long max_coord) {
+	tgen_ensure(n > 0, "geometry: general_position: n must be positive");
+
+	i128 width = static_cast<i128>(max_coord) - min_coord;
+	uint64_t p = math::prime_from(static_cast<uint64_t>(n) * 2);
+
+	// Requires width >= p - 1 because sheared coordinates lie in [0, p - 1].
+	tgen_ensure(width >= static_cast<i128>(p) - 1,
+				"geometry: general_position: coordinate range too small for n");
+	tgen_ensure(width <=
+					static_cast<i128>(std::numeric_limits<long long>::max()),
+				"geometry: general_position: coordinate range too large");
+
+	// Base set {(x, x^-1 mod p) : x \in {1, ..., p - 1}}.
+	//
+	// Over F_p, y = x^-1 is a rational map on nonzero x, so any line meets the
+	// graph in at most two points. Distinct x therefore give distinct points;
+	// no three of them can be collinear in the integer plane.
+	std::vector<uint64_t> x_range(p - 1);
+	std::iota(x_range.begin(), x_range.end(), 1);
+	shuffle(x_range.begin(), x_range.end());
+	std::vector<i128> bx(n), by(n);
+	for (int i = 0; i < n; ++i) {
+		uint64_t x = x_range[i];
+		bx[i] = x;
+		by[i] = math::modular_inverse(x, p);
+	}
+
+	// Applies a random element of SL(2, p) by composing several elementary
+	// shear matrices over F_p.
+	//
+	// Each step applies either
+	//     [1 r]       or       [1 0]
+	//     [0 1]                [r 1]
+	//
+	// with r \in {-2, -1, 1, 2}, and all arithmetic performed modulo p.
+	// After all iterations, the resulting transformation is
+	// A = S_k S_{k-1} ... S_1
+	//
+	// where every S_i has determinant 1. Therefore det(A) = 1 (mod p),
+	// so A is invertible.
+	//
+	// Invertible affine transformations of F_p^2 preserve collinearity and
+	// non-collinearity. Since the base set {(x, x^-1 mod p)} contains no
+	// three collinear points, the transformed set also contains no three
+	// collinear points.
+	const int num_shears = 8;
+	std::vector<i128> lin_x = bx, lin_y = by;
+
+	for (int it = 0; it < num_shears; ++it) {
+		bool vertical_shear = next(2) == 0;
+		int shear_r = pick({-2, -1, 1, 2});
+
+		for (int i = 0; i < n; ++i) {
+			if (vertical_shear)
+				lin_x[i] = (lin_x[i] + shear_r * lin_y[i]) % p;
+			else
+				lin_y[i] = (lin_y[i] + shear_r * lin_x[i]) % p;
+			if (lin_x[i] < 0)
+				lin_x[i] += p;
+			if (lin_y[i] < 0)
+				lin_y[i] += p;
+		}
+	}
+
+	i128 min_x = lin_x[0], max_x = lin_x[0], min_y = lin_y[0], max_y = lin_y[0];
+	for (int i = 1; i < n; ++i) {
+		min_x = std::min(min_x, lin_x[i]);
+		max_x = std::max(max_x, lin_x[i]);
+		min_y = std::min(min_y, lin_y[i]);
+		max_y = std::max(max_y, lin_y[i]);
+	}
+
+	long long x_slack = next<long long>(0, width - (max_x - min_x)),
+			  y_slack = next<long long>(0, width - (max_y - min_y));
+	i128 x_shift = static_cast<i128>(min_coord) - min_x + x_slack;
+	i128 y_shift = static_cast<i128>(min_coord) - min_y + y_slack;
+
+	std::vector<point<long long>> pts;
+	pts.reserve(n);
+	for (int i = 0; i < n; ++i)
+		pts.emplace_back(lin_x[i] + x_shift, lin_y[i] + y_shift);
+	return pts;
+}
+
+namespace detail {
+
+// n sorted distinct coordinates in [0, width] with endpoints 0 and width.
+// O(n log n).
+inline std::vector<long long> valtr_sorted_coords(int n, long long width) {
+	std::vector<long long> coords;
+	coords.push_back(0);
+	std::vector<long long> inner =
+		distinct_range<long long>(1, width - 1).gen_list(n - 2).to_std();
+	std::sort(inner.begin(), inner.end());
+	coords.insert(coords.end(), inner.begin(), inner.end());
+	coords.push_back(width);
+	return coords;
+}
+
+// Valtr-style signed edge components along one axis from n sorted distinct
+// coordinates. The n differences sum to zero.
+inline std::vector<long long>
+valtr_edge_components(const std::vector<long long> &sorted) {
+	int n = static_cast<int>(sorted.size());
+	std::vector<long long> left, right;
+	for (int i = 1; i + 1 < n; ++i) {
+		if (next(2) == 0)
+			left.push_back(sorted[i]);
+		else
+			right.push_back(sorted[i]);
+	}
+	long long lo = sorted.front(), hi = sorted.back();
+	std::vector<long long> seq;
+	seq.push_back(lo);
+	for (long long v : left)
+		seq.push_back(v);
+	seq.push_back(hi);
+	for (auto it = right.rbegin(); it != right.rend(); ++it)
+		seq.push_back(*it);
+	seq.push_back(lo);
+	std::vector<long long> comps(n);
+	for (int i = 0; i < n; ++i)
+		comps[i] = seq[i + 1] - seq[i];
+	return comps;
+}
+
+} // namespace detail
+
+// Generates n vertices of a strictly convex integer polygon inside a box.
+// O(n log n).
+inline std::vector<point<long long>> convex_polygon(int n, long long min_coord,
+													long long max_coord) {
+	tgen_ensure(n >= 3, "geometry: convex_polygon: n must be at least 3");
+
+	i128 width = static_cast<i128>(max_coord) - min_coord;
+	tgen_ensure(width >= static_cast<i128>(n) - 1,
+				"geometry: convex_polygon: coordinate range too small for n");
+	tgen_ensure(width <=
+					static_cast<i128>(std::numeric_limits<long long>::max()),
+				"geometry: convex_polygon: coordinate range too large");
+
+	const long long width_ll = static_cast<long long>(width);
+
+	// Grid spans [0, width]; after the walk, the bounding box spans equals
+	// width on each axis, so shifting by (min_coord - min_x, min_coord - min_y)
+	// fills the box.
+	const std::vector<long long> x_sorted =
+		detail::valtr_sorted_coords(n, width_ll);
+	const std::vector<long long> y_sorted =
+		detail::valtr_sorted_coords(n, width_ll);
+
+	const std::vector<long long> x_comp =
+		detail::valtr_edge_components(x_sorted);
+	std::vector<long long> y_comp = detail::valtr_edge_components(y_sorted);
+	shuffle(y_comp.begin(), y_comp.end());
+
+	std::vector<point<long long>> edges(n);
+	for (int i = 0; i < n; ++i)
+		edges[i] = point<long long>(x_comp[i], y_comp[i]);
+
+	std::sort(edges.begin(), edges.end(),
+			  [](point<long long> a, point<long long> b) {
+				  auto upper = [](const point<long long> &p) {
+					  return p.y_ > 0 or (p.y_ == 0 and p.x_ > 0);
+				  };
+				  bool au = upper(a), bu = upper(b);
+				  if (au != bu)
+					  return au;
+				  typename point<long long>::product_t cross = a ^ b;
+				  if (cross != 0)
+					  return cross > 0;
+				  return (a * a) < (b * b);
+			  });
+
+	i128 cur_x = 0, cur_y = 0;
+	std::vector<i128> px(n), py(n);
+	for (int i = 0; i < n; ++i) {
+		px[i] = cur_x;
+		py[i] = cur_y;
+		cur_x += edges[i].x_;
+		cur_y += edges[i].y_;
+	}
+	tgen::detail::tgen_ensure_against_bug(cur_x == 0 and cur_y == 0,
+										  "geometry: convex_polygon: walk did "
+										  "not close");
+
+	i128 min_x = px[0], min_y = py[0];
+	for (int i = 1; i < n; ++i) {
+		min_x = std::min(min_x, px[i]);
+		min_y = std::min(min_y, py[i]);
+	}
+
+	// Translates the polygon so the bounding box is [min_coord, min_coord].
+	const i128 shift_x = static_cast<i128>(min_coord) - min_x;
+	const i128 shift_y = static_cast<i128>(min_coord) - min_y;
+
+	std::vector<point<long long>> pts;
+	for (int i = 0; i < n; ++i)
+		pts.emplace_back(px[i] + shift_x, py[i] + shift_y);
+
+	// Randomly rotates the polygon.
+	int rot = next(n);
+	if (rot > 0)
+		std::rotate(pts.begin(), pts.begin() + rot, pts.end());
+	if (next(2) == 0)
+		std::reverse(pts.begin(), pts.end());
+	return pts;
+}
+
+} // namespace geometry
+
 /************
  *          *
  *   HACK   *
@@ -5899,165 +6188,6 @@ inline egraph<int>::value quadratic_dijkstra_bug(int n) {
 }
 
 } // namespace hack
-
-/****************
- *              *
- *   GEOMETRY   *
- *              *
- ****************/
-
-namespace geometry {
-
-// Point on the plane with coordinates of type T.
-template <typename T> struct point {
-	static_assert(std::is_arithmetic_v<T>,
-				  "point requires an arithmetic coordinate type");
-
-	using product_t = std::conditional_t<std::is_integral_v<T>, long long, T>;
-
-	T x_, y_;
-
-	point(T x = 0, T y = 0) : x_(x), y_(y) {}
-
-	static bool coord_eq(T a, T b) {
-		if constexpr (std::is_integral_v<T>)
-			return a == b;
-		constexpr T eps = T(1e-9);
-		T d = a - b;
-		return d >= -eps and d <= eps;
-	}
-
-	// Lexicographic order (by x, then y).
-	bool operator<(const point &p) const {
-		if (!coord_eq(x_, p.x_))
-			return x_ < p.x_;
-		return y_ < p.y_;
-	}
-
-	bool operator==(const point &p) const {
-		return coord_eq(x_, p.x_) and coord_eq(y_, p.y_);
-	}
-
-	// Vector addition.
-	point operator+(const point &p) const {
-		return point(x_ + p.x_, y_ + p.y_);
-	}
-
-	// Vector subtraction.
-	point operator-(const point &p) const {
-		return point(x_ - p.x_, y_ - p.y_);
-	}
-
-	// Scalar multiplication.
-	point operator*(T c) const { return point(x_ * c, y_ * c); }
-
-	// Dot product.
-	product_t operator*(const point &p) const {
-		return static_cast<product_t>(x_) * p.x_ +
-			   static_cast<product_t>(y_) * p.y_;
-	}
-
-	// Cross product (signed area of the parallelogram).
-	product_t operator^(const point &p) const {
-		return static_cast<product_t>(x_) * p.y_ -
-			   static_cast<product_t>(y_) * p.x_;
-	}
-
-	friend std::ostream &operator<<(std::ostream &out, const point &p) {
-		return out << p.x_ << ' ' << p.y_;
-	}
-};
-
-// Generates n distinct integer points in [min_coord, max_coord]^2 with no three
-// collinear.
-// O(n).
-inline std::vector<point<long long>>
-general_position(int n, long long min_coord, long long max_coord) {
-	tgen_ensure(n > 0, "geometry: general_position: n must be positive");
-	tgen_ensure(min_coord <= max_coord,
-				"geometry: general_position: invalid coordinate range");
-
-	detail::i128 width = static_cast<detail::i128>(max_coord) - min_coord;
-	uint64_t p = math::prime_from(static_cast<uint64_t>(n) * 2);
-
-	// Requires width >= p - 1 because sheared coordinates lie in [0, p - 1].
-	tgen_ensure(width >= static_cast<detail::i128>(p) - 1,
-				"geometry: general_position: coordinate range too small for n");
-
-	// Base set {(x, x^-1 mod p) : x \in {1, ..., p - 1}}.
-	//
-	// Over F_p, y = x^-1 is a rational map on nonzero x, so any line meets the
-	// graph in at most two points. Distinct x therefore give distinct points;
-	// no three of them can be collinear in the integer plane.
-	std::vector<uint64_t> x_range(p - 1);
-	std::iota(x_range.begin(), x_range.end(), 1);
-	shuffle(x_range.begin(), x_range.end());
-	std::vector<detail::i128> bx(n), by(n);
-	for (int i = 0; i < n; ++i) {
-		uint64_t x = x_range[i];
-		bx[i] = x;
-		by[i] = math::modular_inverse(x, p);
-	}
-
-	// Applies a random element of SL(2, p) by composing several elementary
-	// shear matrices over F_p.
-	//
-	// Each step applies either
-	//     [1 r]       or       [1 0]
-	//     [0 1]                [r 1]
-	//
-	// with r \in {-2, -1, 1, 2}, and all arithmetic performed modulo p.
-	// After all iterations, the resulting transformation is
-	// A = S_k S_{k-1} ... S_1
-	//
-	// where every S_i has determinant 1. Therefore det(A) = 1 (mod p),
-	// so A is invertible.
-	//
-	// Invertible affine transformations of F_p^2 preserve collinearity and
-	// non-collinearity. Since the base set {(x, x^-1 mod p)} contains no
-	// three collinear points, the transformed set also contains no three
-	// collinear points.
-	const int num_shears = 8;
-	std::vector<detail::i128> lin_x = bx, lin_y = by;
-
-	for (int it = 0; it < num_shears; ++it) {
-		bool vertical_shear = next(2) == 0;
-		int shear_r = pick({-2, -1, 1, 2});
-
-		for (int i = 0; i < n; ++i) {
-			if (vertical_shear)
-				lin_x[i] = (lin_x[i] + shear_r * lin_y[i]) % p;
-			else
-				lin_y[i] = (lin_y[i] + shear_r * lin_x[i]) % p;
-			if (lin_x[i] < 0)
-				lin_x[i] += p;
-			if (lin_y[i] < 0)
-				lin_y[i] += p;
-		}
-	}
-
-	detail::i128 min_x = lin_x[0], max_x = lin_x[0], min_y = lin_y[0],
-				 max_y = lin_y[0];
-	for (int i = 1; i < n; ++i) {
-		min_x = std::min(min_x, lin_x[i]);
-		max_x = std::max(max_x, lin_x[i]);
-		min_y = std::min(min_y, lin_y[i]);
-		max_y = std::max(max_y, lin_y[i]);
-	}
-
-	long long slackX = next<long long>(0, width - (max_x - min_x)),
-			  slackY = next<long long>(0, width - (max_y - min_y));
-	detail::i128 tx = static_cast<detail::i128>(min_coord) - min_x + slackX;
-	detail::i128 ty = static_cast<detail::i128>(min_coord) - min_y + slackY;
-
-	std::vector<point<long long>> pts;
-	pts.reserve(n);
-	for (int i = 0; i < n; ++i)
-		pts.emplace_back(lin_x[i] + tx, lin_y[i] + ty);
-	return pts;
-}
-
-} // namespace geometry
 
 /*********************
  *                   *

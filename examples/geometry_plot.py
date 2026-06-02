@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scatter-plot geometry example output (x y lines) as a standalone HTML file."""
+"""Plot geometry example output (x y lines) as standalone HTML."""
 
 from __future__ import annotations
 
@@ -7,6 +7,13 @@ import argparse
 import html
 import sys
 from typing import Iterable
+
+# True: connect consecutive vertices and close the boundary (convex_polygon).
+# False: scatter plot only (general_position).
+DRAW_POLYGON = True
+
+PLOT_TITLE_POLYGON = "geometry::convex_polygon"
+PLOT_TITLE_POINTS = "geometry::general_position"
 
 
 def read_points(lines: Iterable[str]) -> list[tuple[int, float, float]]:
@@ -38,7 +45,81 @@ def point_visual_style(n: int) -> tuple[float, float, bool]:
     return 1.25, 0.5, False
 
 
-def render_html(points: list[tuple[int, float, float]]) -> str:
+def polygon_edge_width(n: int) -> float:
+    if n <= 32:
+        return 2.0
+    if n <= 128:
+        return 1.5
+    if n <= 512:
+        return 1.0
+    return 0.75
+
+
+def build_summary(
+    points: list[tuple[int, float, float]], *, draw_polygon: bool
+) -> str:
+    n = len(points)
+    xs = [p[1] for p in points]
+    ys = [p[2] for p in points]
+    min_x, max_x = min(xs), max(xs)
+    min_y, max_y = min(ys), max(ys)
+    label = "vertices" if draw_polygon else "points"
+    summary = (
+        f"{n} {label} &middot; "
+        f"x &isin; [{min_x:g}, {max_x:g}] &middot; "
+        f"y &isin; [{min_y:g}, {max_y:g}]"
+    )
+    if draw_polygon and n >= 2:
+        summary += " &middot; edges connect consecutive vertices (closed)"
+    return summary
+
+
+def render_shape_layer(
+    points: list[tuple[int, float, float]],
+    *,
+    draw_polygon: bool,
+    sx,
+    sy,
+) -> str:
+    if not draw_polygon or len(points) < 2:
+        return ""
+    coords = " ".join(f"{sx(x):.2f},{sy(y):.2f}" for _, x, y in points)
+    return (
+        f'<polygon points="{coords}" class="polygon" '
+        f'aria-label="Polygon boundary"/>'
+    )
+
+
+def render_point_marks(
+    points: list[tuple[int, float, float]], *, sx, sy
+) -> list[str]:
+    radius, stroke_width, show_index = point_visual_style(len(points))
+    marks: list[str] = []
+    for idx, x, y in points:
+        cx, cy = sx(x), sy(y)
+        label = (
+            f'<text x="{cx + radius + 3:.2f}" y="{cy - radius - 3:.2f}">'
+            f"{html.escape(str(idx))}</text>"
+            if show_index
+            else ""
+        )
+        marks.append(
+            f'<g class="point">'
+            f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="{radius:.2f}" '
+            f'stroke-width="{stroke_width:.2f}"/>'
+            f"{label}"
+            f'<title>#{idx} ({html.escape(f"{x:g}")}, {html.escape(f"{y:g}")})</title>'
+            f"</g>"
+        )
+    return marks
+
+
+def render_html(
+    points: list[tuple[int, float, float]],
+    *,
+    draw_polygon: bool,
+    title: str,
+) -> str:
     if not points:
         return """<!DOCTYPE html>
 <html lang="en">
@@ -85,29 +166,27 @@ def render_html(points: list[tuple[int, float, float]]) -> str:
             f'class="grid"/>'
         )
 
-    radius, stroke_width, show_index = point_visual_style(len(points))
+    shape_layer = render_shape_layer(
+        points, draw_polygon=draw_polygon, sx=sx, sy=sy
+    )
+    point_marks = render_point_marks(points, sx=sx, sy=sy)
+    summary = build_summary(points, draw_polygon=draw_polygon)
 
-    point_marks: list[str] = []
-    for idx, x, y in points:
-        cx, cy = sx(x), sy(y)
-        label = (
-            f'<text x="{cx + radius + 3:.2f}" y="{cy - radius - 3:.2f}">'
-            f"{html.escape(str(idx))}</text>"
-            if show_index
-            else ""
-        )
-        point_marks.append(
-            f'<g class="point">'
-            f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="{radius:.2f}"/>'
-            f"{label}"
-            f'<title>#{idx} ({html.escape(f"{x:g}")}, {html.escape(f"{y:g}")})</title>'
-            f"</g>"
-        )
+    edge_width = polygon_edge_width(len(points)) if draw_polygon else 0.0
+    polygon_css = ""
+    if draw_polygon:
+        polygon_css = f"""
+    .polygon {{
+      fill: var(--fill);
+      stroke: var(--edge);
+      stroke-width: {edge_width:.2f};
+      stroke-linejoin: round;
+    }}"""
 
-    summary = (
-        f"{len(points)} points &middot; "
-        f"x &isin; [{min_x:g}, {max_x:g}] &middot; "
-        f"y &isin; [{min_y:g}, {max_y:g}]"
+    svg_label = (
+        "Polygon plot of generated vertices"
+        if draw_polygon
+        else "Scatter plot of generated points"
     )
 
     return f"""<!DOCTYPE html>
@@ -124,6 +203,8 @@ def render_html(points: list[tuple[int, float, float]]) -> str:
       --text: #18181b;
       --muted: #71717a;
       --grid: #d4d4d8;
+      --edge: #2563eb;
+      --fill: rgba(37, 99, 235, 0.12);
       --point: #2563eb;
       --point-stroke: #1d4ed8;
     }}
@@ -134,6 +215,8 @@ def render_html(points: list[tuple[int, float, float]]) -> str:
         --text: #fafafa;
         --muted: #a1a1aa;
         --grid: #3f3f46;
+        --edge: #60a5fa;
+        --fill: rgba(96, 165, 250, 0.15);
         --point: #60a5fa;
         --point-stroke: #93c5fd;
       }}
@@ -178,11 +261,10 @@ def render_html(points: list[tuple[int, float, float]]) -> str:
     .axis {{
       stroke: var(--muted);
       stroke-width: 1.5;
-    }}
+    }}{polygon_css}
     .point circle {{
       fill: var(--point);
       stroke: var(--point-stroke);
-      stroke-width: {stroke_width:.2f};
     }}
     .point text {{
       fill: var(--text);
@@ -194,12 +276,13 @@ def render_html(points: list[tuple[int, float, float]]) -> str:
 </head>
 <body>
   <main>
-    <h1>geometry::general_position</h1>
+    <h1>{html.escape(title)}</h1>
     <p>{summary}</p>
-    <svg viewBox="0 0 {width} {height}" role="img" aria-label="Scatter plot of generated points">
+    <svg viewBox="0 0 {width} {height}" role="img" aria-label="{html.escape(svg_label)}">
       {''.join(grid_lines)}
       <line class="axis" x1="{margin}" y1="{height - margin}" x2="{width - margin}" y2="{height - margin}"/>
       <line class="axis" x1="{margin}" y1="{margin}" x2="{margin}" y2="{height - margin}"/>
+      {shape_layer}
       {''.join(point_marks)}
     </svg>
   </main>
@@ -209,18 +292,24 @@ def render_html(points: list[tuple[int, float, float]]) -> str:
 
 
 def main() -> int:
+    default_title = PLOT_TITLE_POLYGON if DRAW_POLYGON else PLOT_TITLE_POINTS
     parser = argparse.ArgumentParser(
-        description="Plot 'x y' lines from stdin into a standalone HTML scatter plot."
+        description="Plot 'x y' lines from stdin into standalone HTML."
     )
     parser.add_argument(
         "-o",
         "--output",
         help="Write HTML to this file (default: stdout).",
     )
+    parser.add_argument(
+        "--title",
+        default=default_title,
+        help="Heading shown above the plot.",
+    )
     args = parser.parse_args()
 
     points = read_points(sys.stdin)
-    doc = render_html(points)
+    doc = render_html(points, draw_polygon=DRAW_POLYGON, title=args.title)
 
     if args.output:
         with open(args.output, "w", encoding="utf-8") as out:
