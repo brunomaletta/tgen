@@ -6137,16 +6137,16 @@ inline std::vector<std::string> string_set(int size) {
 	return tgen::shuffled(list);
 }
 
-// Graph that hacks exponential behavior on Dijkstra implementations that relax
-// with <= instead of <.
+// Graph for Dijkstra implementations that relax with <= instead of <.
 // Unit-weight layered graph: 0 -> {1,2}, then disjoint
 // 2x2 gadgets (i,i+1) -> {i+2,i+3} for i = 1,3,5,... Many vertices share the
 // same dist from 0; with `d + w <= dist[j]` each pop re-relaxes the whole
 // frontier below it. m = 2(n - 2) edges.
 // O(n).
-inline egraph<int>::value exponential_dijkstra_bug(int n) {
-	tgen_ensure(n >= 3,
-				"hack: exponential_dijkstra_bug: needs at least 3 vertices");
+inline egraph<int>::value non_strict_relaxation_dijkstra_bug(int n) {
+	tgen_ensure(
+		n >= 3,
+		"hack: non_strict_relaxation_dijkstra_bug: needs at least 3 vertices");
 
 	egraph<int>::value g(n, {}, true);
 	g = g.set_edge_weights(std::vector<int>{});
@@ -6165,17 +6165,17 @@ inline egraph<int>::value exponential_dijkstra_bug(int n) {
 	return g.shuffle_except({0});
 }
 
-// Graph that hacks quadratic behavior on Dijkstra implementations that do not
-// skip stale heap entries (`if (d > dist[i]) continue`).
+// Graph for Dijkstra implementations that do not skip stale heap entries
+// (`if (d > dist[i]) continue`).
 // Hub mid = n/2: star 0 -> 1..mid-1 (weights 1..mid-1), funnel i -> mid
 // (weights 1,3,5,...), then mid -> mid+1.. (weight 1).
 // Without a stale-heap check, mid and its in-neighbors are re-popped and
 // re-relax.
 // m = n + mid - 3 edges, mid = floor(n/2).
 // O(n).
-inline egraph<int>::value quadratic_dijkstra_bug(int n) {
+inline egraph<int>::value stale_heap_dijkstra_bug(int n) {
 	tgen_ensure(n >= 4,
-				"hack: quadratic_dijkstra_bug: needs at least 4 vertices");
+				"hack: stale_heap_dijkstra_bug: needs at least 4 vertices");
 
 	int mid = n / 2;
 	egraph<int>::value g(n, {}, true);

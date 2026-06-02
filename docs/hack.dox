@@ -238,10 +238,10 @@ namespace tgen::hack {
  * #### Examples
  *
  * ```cpp
- * auto g = tgen::hack::exponential_dijkstra_bug(10000);
+ * auto g = tgen::hack::non_strict_relaxation_dijkstra_bug(10000);
  * ```
  *
- * @fn exponential_dijkstra_bug(int n);
+ * @fn non_strict_relaxation_dijkstra_bug(int n);
  */
 
 
@@ -266,10 +266,10 @@ namespace tgen::hack {
  * #### Examples
  *
  * ```cpp
- * auto g = tgen::hack::quadratic_dijkstra_bug(300000);
+ * auto g = tgen::hack::stale_heap_dijkstra_bug(300000);
  * ```
  *
- * @fn quadratic_dijkstra_bug(int n);
+ * @fn stale_heap_dijkstra_bug(int n);
  */
 
 };
