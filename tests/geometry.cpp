@@ -13,18 +13,18 @@ namespace {
 bool collinear(const tgen::geometry::point<long long> &a,
 			   const tgen::geometry::point<long long> &b,
 			   const tgen::geometry::point<long long> &c) {
-	__int128 dx1 = b.x_ - a.x_, dy1 = b.y_ - a.y_;
-	__int128 dx2 = c.x_ - a.x_, dy2 = c.y_ - a.y_;
+	__int128 dx1 = b.x() - a.x(), dy1 = b.y() - a.y();
+	__int128 dx2 = c.x() - a.x(), dy2 = c.y() - a.y();
 	return dx1 * dy2 == dy1 * dx2;
 }
 
 void expect_in_range(const std::vector<tgen::geometry::point<long long>> &pts,
 					 long long min_coord, long long max_coord) {
 	for (const tgen::geometry::point<long long> &p : pts) {
-		EXPECT_GE(p.x_, min_coord);
-		EXPECT_LE(p.x_, max_coord);
-		EXPECT_GE(p.y_, min_coord);
-		EXPECT_LE(p.y_, max_coord);
+		EXPECT_GE(p.x(), min_coord);
+		EXPECT_LE(p.x(), max_coord);
+		EXPECT_GE(p.y(), min_coord);
+		EXPECT_LE(p.y(), max_coord);
 	}
 }
 
@@ -38,9 +38,9 @@ void expect_touches_min_on_both_axes(
 	long long min_coord) {
 	bool min_x = false, min_y = false;
 	for (const tgen::geometry::point<long long> &p : pts) {
-		if (p.x_ == min_coord)
+		if (p.x() == min_coord)
 			min_x = true;
-		if (p.y_ == min_coord)
+		if (p.y() == min_coord)
 			min_y = true;
 	}
 	EXPECT_TRUE(min_x);
@@ -52,9 +52,9 @@ void expect_touches_max_on_both_axes(
 	long long max_coord) {
 	bool max_x = false, max_y = false;
 	for (const tgen::geometry::point<long long> &p : pts) {
-		if (p.x_ == max_coord)
+		if (p.x() == max_coord)
 			max_x = true;
-		if (p.y_ == max_coord)
+		if (p.y() == max_coord)
 			max_y = true;
 	}
 	EXPECT_TRUE(max_x);
@@ -98,8 +98,8 @@ bool verify_convex_polygon(
 	if (static_cast<int>(pts.size()) != n)
 		return false;
 	for (const tgen::geometry::point<long long> &p : pts) {
-		if (p.x_ < min_coord or p.x_ > max_coord or p.y_ < min_coord or
-			p.y_ > max_coord)
+		if (p.x() < min_coord or p.x() > max_coord or p.y() < min_coord or
+			p.y() > max_coord)
 			return false;
 	}
 	if (n < 3)
@@ -123,8 +123,8 @@ bool verify_convex_polygon(
 	__int128 area2 = 0;
 	for (int i = 0; i < n; ++i) {
 		int j = (i + 1) % n;
-		area2 += static_cast<__int128>(pts[i].x_) * pts[j].y_ -
-				 static_cast<__int128>(pts[j].x_) * pts[i].y_;
+		area2 += static_cast<__int128>(pts[i].x()) * pts[j].y() -
+				 static_cast<__int128>(pts[j].x()) * pts[i].y();
 	}
 	if (area2 == 0)
 		return false;
@@ -153,8 +153,8 @@ bool verify_convex_polygon(
 TEST(geometry_test, default_constructor) {
 	tgen::geometry::point<int> p;
 
-	EXPECT_EQ(p.x_, 0);
-	EXPECT_EQ(p.y_, 0);
+	EXPECT_EQ(p.x(), 0);
+	EXPECT_EQ(p.y(), 0);
 }
 
 TEST(geometry_test, arithmetic_int) {

@@ -5643,6 +5643,9 @@ template <typename T> struct point {
 
 	point(T x = 0, T y = 0) : x_(x), y_(y) {}
 
+	T x() const { return x_; }
+	T y() const { return y_; }
+
 	static bool coord_eq(T a, T b) {
 		if constexpr (std::is_integral_v<T>)
 			return a == b;

@@ -71,7 +71,7 @@ namespace tgen::geometry {
  *
  * @tparam T Arithmetic coordinate type (@tt{@primitive{int}}, @tt{@primitive{double}}, ...).
  *
- * Coordinates are stored in @tt{x_} and @tt{y_}. Dot and cross products
+ * Dot and cross products
  * return @tt{@primitive{long long}} for integral @tt{T}, and @tt{T} otherwise.
  *
  * For floating-point @tt{T}, @tt{operator==} and lexicographic
@@ -88,6 +88,34 @@ namespace tgen::geometry {
  * @param y y-coordinate.
  *
  * @fn point::point(T x = 0, T y = 0);
+ */
+
+
+/**
+ * @brief x coordinate.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::geometry::point<int> p(3, 4);
+ * std::cout << p.x() << std::endl; // Prints "3".
+ * ```
+ *
+ * @fn point::x() const;
+ */
+
+
+/**
+ * @brief y coordinate.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::geometry::point<int> p(3, 4);
+ * std::cout << p.y() << std::endl; // Prints "4".
+ * ```
+ *
+ * @fn point::y() const;
  */
 
 
