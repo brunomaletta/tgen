@@ -272,4 +272,32 @@ namespace tgen::hack {
  * @fn stale_heap_dijkstra_bug(int n);
  */
 
+
+/**
+ * @ingroup hack
+ * @brief Convex polygon that breaks naive rotating calipers for maximum distance.
+ *
+ * Returns a strictly convex polygon on which the naive rotating-calipers loop
+ * (advance @tt{j} while @tt{dist(i, next(j)) > dist(i, j)}) reports a diameter
+ * smaller than the true one.
+ *
+ * @return Six vertices of a strictly convex polygon (clockwise).
+ *
+ * Reference:
+ * - <a href="https://codeforces.com/blog/entry/48868#comment-329438">DuX counterexample</a>
+ *   to Errichto's naive maximum-distance algorithm.
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * std::vector<tgen::geometry::point<double>> poly = tgen::hack::naive_rotating_calipers_max_dist_bug();
+ * ```
+ *
+ * @fn naive_rotating_calipers_max_dist_bug();
+ */
+
 };

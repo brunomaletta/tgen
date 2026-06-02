@@ -6190,6 +6190,18 @@ inline egraph<int>::value stale_heap_dijkstra_bug(int n) {
 	return g.shuffle_except({0});
 }
 
+// Convex polygon that breaks naive rotating calipers for maximum vertex
+// distance (advances j while dist(i, next(j)) > dist(i, j) instead of using
+// ccw). DuX counterexample to Errichto's algorithm; see Codeforces blog comment
+// 329438. O(1).
+inline std::vector<geometry::point<double>>
+naive_rotating_calipers_max_dist_bug() {
+	return {
+		{-0.9846, -1.53251}, {0.49946, 1.19525},  {0.79916, 0.98291},
+		{4.02136, -1.57843}, {3.92734, -2.37856}, {3.88558, -2.37188},
+	};
+}
+
 } // namespace hack
 
 /*********************

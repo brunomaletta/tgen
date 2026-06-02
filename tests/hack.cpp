@@ -186,3 +186,12 @@ TEST(hack_test, stale_heap_dijkstra_bug) {
 		ASSERT_EQ(static_cast<int>(g.edge_weights()->size()), edges);
 	}
 }
+
+TEST(hack_test, naive_rotating_calipers_max_dist_bug) {
+	tgen::register_gen();
+
+	std::vector<tgen::geometry::point<double>> poly =
+		tgen::hack::naive_rotating_calipers_max_dist_bug();
+
+	EXPECT_EQ(poly.size(), 6u);
+}
