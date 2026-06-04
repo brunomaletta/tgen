@@ -211,7 +211,7 @@ graph: $(EXAMPLE_OUT)/graph
 geometry: $(EXAMPLE_OUT)/geometry
 	@mkdir -p $(BUILD_ROOT)
 	$< $(ARGS) | tee $(GEOMETRY_OUT)
-	python3 examples/geometry_plot.py -o $(GEOMETRY_HTML) < $(GEOMETRY_OUT)
+	# python3 examples/geometry_plot.py -o $(GEOMETRY_HTML) < $(GEOMETRY_OUT)
 	@echo "Wrote $(GEOMETRY_HTML)"
 
 unordered: $(EXAMPLE_OUT)/unordered

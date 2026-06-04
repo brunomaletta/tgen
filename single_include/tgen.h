@@ -5778,13 +5778,81 @@ general_position(int n, long long min_coord, long long max_coord) {
 	i128 y_shift = static_cast<i128>(min_coord) - min_y + y_slack;
 
 	std::vector<point<long long>> pts;
-	pts.reserve(n);
 	for (int i = 0; i < n; ++i)
 		pts.emplace_back(lin_x[i] + x_shift, lin_y[i] + y_shift);
 	return pts;
 }
 
 namespace detail {
+
+// Signed area of triangle (a, b, p); positive iff p is left of directed line a
+// -> b. Cross product in @c i128 (no @c long long intermediate overflow).
+inline i128 ccw(const point<long long> &a, const point<long long> &b,
+				const point<long long> &p) {
+	return (static_cast<i128>(b.x()) - static_cast<i128>(a.x())) *
+			   (static_cast<i128>(p.y()) - static_cast<i128>(a.y())) -
+		   (static_cast<i128>(b.y()) - static_cast<i128>(a.y())) *
+			   (static_cast<i128>(p.x()) - static_cast<i128>(a.x()));
+}
+
+inline constexpr long long separator_M = 1000000LL;
+
+// side(P) = (M-k)*orient(C,A,P) + k*orient(C,B,P); sign is the side of the
+// separator through C and D = (1-k/M)A + (k/M)B (D is not constructed).
+inline i128 separator_side(long long k, const point<long long> &C,
+						   const point<long long> &A, const point<long long> &B,
+						   const point<long long> &P) {
+	const long long m_k = separator_M - k;
+	return static_cast<i128>(m_k) * ccw(C, A, P) +
+		   static_cast<i128>(k) * ccw(C, B, P);
+}
+
+// Non-self-intersecting Hamiltonian path from pts.front() to pts.back().
+inline std::vector<point<long long>>
+conquer(const std::vector<point<long long>> &pts) {
+	if (pts.size() <= 2)
+		return pts;
+	if (pts.size() == 3)
+		return pts;
+
+	const point<long long> start = pts.front();
+	const point<long long> end = pts.back();
+	const point<long long> &A = start;
+	const point<long long> &B = end;
+	const int inner = static_cast<int>(pts.size()) - 2;
+
+	const std::size_t ci = static_cast<std::size_t>(next(1, inner));
+	const point<long long> &C = pts[ci];
+	const long long k = next(1LL, separator_M - 1LL);
+	const i128 side_a = separator_side(k, C, A, B, A);
+	const i128 side_b = separator_side(k, C, A, B, B);
+	tgen_ensure(side_a != 0 and side_b != 0 and (side_a > 0) != (side_b > 0),
+				"geometry: conquer: invalid separator");
+	const bool a_on_positive = side_a > 0;
+
+	std::vector<point<long long>> ac_prob, cb_prob;
+	ac_prob.push_back(A);
+	cb_prob.push_back(C);
+	for (std::size_t i = 1; i + 1 < pts.size(); ++i) {
+		if (i == ci)
+			continue;
+		const i128 side_p = separator_side(k, C, A, B, pts[i]);
+		tgen_ensure(side_p != 0, "geometry: conquer: point on separator");
+		if ((side_p > 0) == a_on_positive)
+			ac_prob.push_back(pts[i]);
+		else
+			cb_prob.push_back(pts[i]);
+	}
+	ac_prob.push_back(C);
+	cb_prob.push_back(B);
+
+	std::vector<point<long long>> pa = conquer(ac_prob);
+	std::vector<point<long long>> pb = conquer(cb_prob);
+
+	pb.erase(pb.begin());
+	pa.insert(pa.end(), pb.begin(), pb.end());
+	return pa;
+}
 
 // n sorted distinct coordinates in [0, width] with endpoints 0 and width.
 // O(n log n).
@@ -5909,6 +5977,59 @@ inline std::vector<point<long long>> convex_polygon(int n, long long min_coord,
 	return pts;
 }
 
+// Simple polygon through @c n points in general position (vertex order).
+// O(n log n) expected from balanced recursion.
+inline std::vector<point<long long>>
+random_simple_polygon(int n, long long min_coord, long long max_coord) {
+	tgen_ensure(n >= 3,
+				"geometry: random_simple_polygon: n must be at least 3");
+
+	std::vector<point<long long>> pts =
+		general_position(n, min_coord, max_coord);
+
+	int ia = 0, ib = 0;
+	for (int i = 1; i < n; ++i) {
+		if (pts[i].x() < pts[ia].x() or
+			(pts[i].x() == pts[ia].x() and pts[i].y() < pts[ia].y()))
+			ia = i;
+		if (pts[i].x() > pts[ib].x() or
+			(pts[i].x() == pts[ib].x() and pts[i].y() > pts[ib].y()))
+			ib = i;
+	}
+	const point<long long> A = pts[ia], B = pts[ib];
+
+	std::vector<point<long long>> left_side, right_side;
+	for (int i = 0; i < n; ++i) {
+		if (i == ia or i == ib)
+			continue;
+		if (detail::ccw(A, B, pts[i]) > 0)
+			left_side.push_back(pts[i]);
+		else
+			right_side.push_back(pts[i]);
+	}
+	std::vector<point<long long>> prob1, prob2;
+	prob1.push_back(A);
+	prob1.insert(prob1.end(), left_side.begin(), left_side.end());
+	prob1.push_back(B);
+	prob2.push_back(B);
+	prob2.insert(prob2.end(), right_side.begin(), right_side.end());
+	prob2.push_back(A);
+
+	std::vector<point<long long>> P1 = detail::conquer(std::move(prob1));
+	std::vector<point<long long>> P2 = detail::conquer(std::move(prob2));
+	P1.erase(P1.begin());
+	P2.erase(P2.begin());
+	P1.insert(P1.end(), P2.begin(), P2.end());
+	return P1;
+}
+
+// Same as @c random_simple_polygon(n, 0, p) with @c p the smallest prime at
+// least @c 2n.
+inline std::vector<point<long long>> random_simple_polygon(int n) {
+	uint64_t p = math::prime_from(static_cast<uint64_t>(n) * 2);
+	return random_simple_polygon(n, 0, static_cast<long long>(p));
+}
+
 } // namespace geometry
 
 /************
@@ -5955,7 +6076,6 @@ birthday_attack(const std::vector<std::string> &alphabet, int base, int mod) {
 		std::vector<int> seq(length);
 
 		std::string s;
-		s.reserve(length * alphabet[0].size());
 
 		for (int i = 0; i < length; ++i) {
 			seq[i] = next<int>(0, alphabet.size() - 1);
