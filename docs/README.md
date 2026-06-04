@@ -191,7 +191,7 @@ std::cout <<
 Generate points in general position (no three collinear) inside a box.
 
 ```cpp
-auto pts = tgen::geometry::general_position(5000, 0, 50000);
+auto pts = tgen::geometry::random_points_general_position(5000, 0, 50000);
 std::cout << tgen::print(pts, '\n') << std::endl;
 ```
 
@@ -201,7 +201,7 @@ std::cout << tgen::print(pts, '\n') << std::endl;
 ...
 ```
 
-@image html general_position.png "Example generated point set" width=600
+@image html random_points_general_position.png "Example generated point set" width=600
 
 Random 1-based permutation of size 5 with only one cycle.
 

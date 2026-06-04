@@ -8,12 +8,12 @@ import html
 import sys
 from typing import Iterable
 
-# True: connect consecutive vertices and close the boundary (convex_polygon).
-# False: scatter plot only (general_position).
+# True: connect consecutive vertices and close the boundary (random_convex_polygon).
+# False: scatter plot only (random_points_general_position).
 DRAW_POLYGON = True
 
-PLOT_TITLE_POLYGON = "geometry::convex_polygon"
-PLOT_TITLE_POINTS = "geometry::general_position"
+PLOT_TITLE_POLYGON = "geometry::random_convex_polygon"
+PLOT_TITLE_POINTS = "geometry::random_points_general_position"
 
 
 def read_points(lines: Iterable[str]) -> list[tuple[int, float, float]]:
