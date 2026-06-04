@@ -14,6 +14,12 @@ namespace tgen::hack {
  *
  * // Creates queries that force worst-case for Mo's algorithm.
  * std::vector<std::pair<int, int>> mo_hack = tgen::hack::mo(1e6, 1e6);
+ *
+ * // Mask for XOR-hashing std::mt19937 outputs to zero.
+ * std::vector<bool> xor_mask = tgen::hack::mt19937_xor_hash_hack<int>();
+ *
+ * // Mask for XOR-hashing std::mt19937_64 outputs to zero.
+ * std::vector<bool> xor_mask_64 = tgen::hack::mt19937_xor_hash_hack<long long>();
  * ```
  */
 
@@ -298,6 +304,46 @@ namespace tgen::hack {
  * ```
  *
  * @fn naive_rotating_calipers_max_dist_bug();
+ */
+
+
+/**
+ * @ingroup hack
+ * @brief Mask that forces a zero XOR hash from @tt{@namespace{std}::@type{mt19937}} or
+ *        @tt{@namespace{std}::@type{mt19937_64}}.
+ *
+ * @tparam T @tt{@primitive{int}} for @tt{@namespace{std}::@type{mt19937}}, @tt{@primitive{long long}} for
+ *         @tt{@namespace{std}::@type{mt19937_64}}.
+ *
+ * @return A mask of length @tt{19938}.
+ *
+ * For any seed, if @tt{rng} is the corresponding engine and
+ * @code
+ * std::mt19937 rng(42);
+ * int hash = 0;
+ * for (bool use : tgen::hack::mt19937_xor_hash_hack<T>()) {
+ *   if (use) hash ^= rng();
+ * }
+ * @endcode
+ * then @tt{hash = 0}.
+ *
+ * Reference:
+ * - <a href="https://codeforces.com/blog/entry/153335">Hacking Incorrect XOR Hashing with mt19937_64</a>
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * std::mt19937 rng(seed);
+ * uint32_t hash = 0;
+ * for (bool use : tgen::hack::mt19937_xor_hash_hack<int>())
+ *   if (use) hash ^= rng();
+ * ```
+ *
+ * @fn mt19937_xor_hash_hack();
  */
 
 };

@@ -188,20 +188,20 @@ std::cout <<
 1 0 0 1 0 1 1 0 1 0
 ```
 
-Generate points in general position (no three collinear) inside a box.
+Generates a simple polygon given coordinate range.
 
 ```cpp
-auto pts = tgen::geometry::random_points_general_position(5000, 0, 50000);
-std::cout << tgen::print(pts, '\n') << std::endl;
+auto poly = tgen::geometry::random_simple_polygon(200, 0, 2000);
+std::cout << tgen::print(poly, '\n') << std::endl;
 ```
 
 ```
-18815 25522
-19859 26244
+ * 842 368
+ * 847 379
 ...
 ```
 
-@image html random_points_general_position.png "Example generated point set" width=600
+@image html simple_polygon.png "Example generated polygon" width=600
 
 Random 1-based permutation of size 5 with only one cycle.
 

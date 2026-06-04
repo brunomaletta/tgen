@@ -4,6 +4,8 @@
 #include "../single_include/tgen.h"
 #include "tgen_test_utility.h"
 
+#include <limits>
+#include <random>
 #include <string>
 #include <utility>
 #include <vector>
@@ -194,4 +196,53 @@ TEST(hack_test, naive_rotating_calipers_max_dist_bug) {
 		tgen::hack::naive_rotating_calipers_max_dist_bug();
 
 	EXPECT_EQ(poly.size(), 6u);
+}
+
+TEST(hack_test, mt19937_xor_hash_hack) {
+	tgen::register_gen();
+
+	const std::vector<bool> mask = tgen::hack::mt19937_xor_hash_hack<int>();
+
+	EXPECT_EQ(mask.size(), 19938u);
+	EXPECT_TRUE(mask.back());
+
+	auto xor_hash = [&](uint32_t seed) {
+		std::mt19937 rng(seed);
+		uint32_t hash = 0;
+		for (bool use : mask) {
+			uint32_t h = rng();
+			if (use)
+				hash ^= h;
+		}
+		return hash;
+	};
+
+	for (uint32_t seed : std::vector<uint32_t>{
+			 0, 1, 42, 123456789, std::numeric_limits<uint32_t>::max()})
+		EXPECT_EQ(xor_hash(seed), 0U);
+}
+
+TEST(hack_test, mt19937_64_xor_hash_hack) {
+	tgen::register_gen();
+
+	const std::vector<bool> mask =
+		tgen::hack::mt19937_xor_hash_hack<long long>();
+
+	EXPECT_EQ(mask.size(), 19938u);
+	EXPECT_TRUE(mask.back());
+
+	auto xor_hash = [&](uint64_t seed) {
+		std::mt19937_64 rng(seed);
+		uint64_t hash = 0;
+		for (bool use : mask) {
+			uint64_t h = rng();
+			if (use)
+				hash ^= h;
+		}
+		return hash;
+	};
+
+	for (uint64_t seed : std::vector<uint64_t>{
+			 0, 1, 42, 123456789, std::numeric_limits<uint64_t>::max()})
+		EXPECT_EQ(xor_hash(seed), 0ULL);
 }

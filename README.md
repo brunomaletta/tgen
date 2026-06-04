@@ -41,6 +41,9 @@ std::cout << tgen::distinct(tgen::math::gen_prime, 1, 10).gen_all().sort() << st
 
 // Generates a random valid parenthesis sequence of size 10.
 std::cout << tgen::misc::gen_parenthesis(10) << std::endl;
+
+// Generates a random simple polygon with 200 vertices in [0, 2000] x [0, 2000].
+std::cout << tgen::print(tgen::geometry::random_simple_polygon(200, 0, 2000), '\n') << std::endl;
 ```
 
 - **Generators**: describe constraints and sample uniformly random values.

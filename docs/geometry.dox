@@ -60,7 +60,7 @@ namespace tgen::geometry {
  * ```
  * @image html random_convex_polygon.png "Example generated polygon" width=600
  *
- * Generates a simple polygon through points in general position (vertex order).
+ * Generates a simple polygon.
  *
  * ```cpp
  * auto poly = tgen::geometry::random_simple_polygon(200, 0, 2000);

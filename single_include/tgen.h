@@ -23,6 +23,7 @@
 #pragma once
 
 #include <algorithm>
+#include <bitset>
 #include <functional>
 #include <initializer_list>
 #include <iomanip>
@@ -6310,6 +6311,49 @@ inline egraph<int>::value stale_heap_dijkstra_bug(int n) {
 		g.add_edge(mid, i, 1);
 
 	return g.shuffle_except({0});
+}
+
+// Returns a mask of length 19938, with weights such that xor-ing with mt19937
+// outputs yields 0.
+// O(1).
+template <typename T> std::vector<bool> mt19937_xor_hash_hack() {
+	static_assert(std::is_same_v<T, int> or std::is_same_v<T, long long>,
+				  "hack: mt19937_xor_hash_hack: T must be int or long long");
+
+	constexpr std::size_t deg = 19937;
+
+	std::bitset<deg + 1> a, b, c;
+	b[deg] = c[deg] = 1;
+	std::size_t l = 0, shift = 1;
+	std::mt19937 rng32;
+	std::mt19937_64 rng64;
+	for (std::size_t n = 0; n < deg * 2; ++n) {
+		a >>= 1;
+		if constexpr (std::is_same_v<T, int>)
+			a[deg] = rng32() & 1;
+		else
+			a[deg] = rng64() & 1;
+
+		if ((c & a).count() % 2 == 0) {
+			++shift;
+			continue;
+		}
+
+		std::bitset<deg + 1> oc = c;
+		c ^= (b >> shift);
+		if (2 * l <= n) {
+			l = n + 1 - l;
+			b = oc;
+			shift = 1;
+		} else {
+			++shift;
+		}
+	}
+
+	std::vector<bool> mask(deg + 1);
+	for (std::size_t i = 0; i <= deg; ++i)
+		mask[i] = c[i];
+	return mask;
 }
 
 // Convex polygon that breaks naive rotating calipers for maximum vertex
