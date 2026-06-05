@@ -189,6 +189,17 @@ bool verify_simple_polygon(
 	return true;
 }
 
+bool contains_all_points(
+	const std::vector<tgen::geometry::point<long long>> &poly,
+	const std::vector<tgen::geometry::point<long long>> &pts) {
+	std::set<tgen::geometry::point<long long>> seen(poly.begin(), poly.end());
+	for (const tgen::geometry::point<long long> &p : pts) {
+		if (!seen.count(p))
+			return false;
+	}
+	return true;
+}
+
 } // namespace
 
 TEST(geometry_test, default_constructor) {
@@ -597,6 +608,59 @@ TEST(geometry_test, random_convex_polygon_many_n) {
 		auto pts = tgen::geometry::random_convex_polygon(n, 0, 1'000'000);
 		EXPECT_EQ(pts.size(), static_cast<size_t>(n));
 		EXPECT_TRUE(verify_random_convex_polygon(pts, n, 0, 1'000'000));
+	}
+}
+
+TEST(geometry_test, random_simple_polygon_through_points_basic) {
+	tgen::register_gen(42);
+
+	const int n = 10;
+	auto pts = tgen::geometry::random_points_general_position(n, 0, 100);
+	auto poly = tgen::geometry::random_simple_polygon_through_points(pts);
+
+	EXPECT_EQ(poly.size(), static_cast<size_t>(n));
+	EXPECT_TRUE(contains_all_points(poly, pts));
+	EXPECT_TRUE(verify_simple_polygon(poly, n, 0, 100));
+	expect_no_three_collinear(poly);
+}
+
+TEST(geometry_test, random_simple_polygon_through_points_invalid_n) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_simple_polygon_through_points({}),
+		"geometry: random_simple_polygon_through_points: need at least 3 "
+		"points");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_simple_polygon_through_points(
+			{tgen::geometry::point<long long>(0, 0),
+			 tgen::geometry::point<long long>(1, 1)}),
+		"geometry: random_simple_polygon_through_points: need at least 3 "
+		"points");
+}
+
+TEST(geometry_test, random_simple_polygon_through_points_fixed_set) {
+	tgen::register_gen(0);
+
+	std::vector<tgen::geometry::point<long long>> pts = {
+		{0, 0}, {10, 0}, {10, 10}, {0, 10}, {5, 3}};
+	auto poly = tgen::geometry::random_simple_polygon_through_points(pts);
+
+	EXPECT_EQ(poly.size(), pts.size());
+	EXPECT_TRUE(contains_all_points(poly, pts));
+	EXPECT_TRUE(
+		verify_simple_polygon(poly, static_cast<int>(pts.size()), 0, 10));
+}
+
+TEST(geometry_test, random_simple_polygon_through_points_many_n) {
+	tgen::register_gen(7);
+
+	for (int n = 3; n <= 80; ++n) {
+		auto pts = tgen::geometry::random_points_general_position(n, 0, 10'000);
+		auto poly = tgen::geometry::random_simple_polygon_through_points(pts);
+		EXPECT_EQ(poly.size(), static_cast<size_t>(n));
+		EXPECT_TRUE(contains_all_points(poly, pts));
+		EXPECT_TRUE(verify_simple_polygon(poly, n, 0, 10'000));
 	}
 }
 

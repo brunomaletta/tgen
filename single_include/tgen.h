@@ -5974,15 +5974,15 @@ random_convex_polygon(int n, long long min_coord, long long max_coord) {
 	return pts;
 }
 
-// Simple polygon through @c n points in general position (vertex order).
-// O(n log n) expected.
-inline std::vector<point<long long>>
-random_simple_polygon(int n, long long min_coord, long long max_coord) {
+// Random simple polygon through given points in general position.
+// Should be given at least 3 points and there should be no three collinear.
+// O(n log n) expected if points are "random", worse case O(n^2).
+inline std::vector<point<long long>> random_simple_polygon_through_points(
+	const std::vector<point<long long>> &points) {
+	const int n = points.size();
 	tgen_ensure(n >= 3,
-				"geometry: random_simple_polygon: n must be at least 3");
-
-	std::vector<point<long long>> points =
-		random_points_general_position(n, min_coord, max_coord);
+				"geometry: random_simple_polygon_through_points: need at "
+				"least 3 points");
 
 	int ia = 0, ib = 0;
 	for (int i = 1; i < n; ++i) {
@@ -6028,6 +6028,17 @@ random_simple_polygon(int n, long long min_coord, long long max_coord) {
 	poly.insert(poly.end(), chain.begin() + 1, chain.begin() + n1);
 	poly.insert(poly.end(), chain.begin() + n1, chain.end());
 	return poly;
+}
+
+// Random simple polygon.
+// O(n log n) expected.
+inline std::vector<point<long long>>
+random_simple_polygon(int n, long long min_coord, long long max_coord) {
+	tgen_ensure(n >= 3,
+				"geometry: random_simple_polygon: n must be at least 3");
+
+	return random_simple_polygon_through_points(
+		random_points_general_position(n, min_coord, max_coord));
 }
 
 } // namespace geometry

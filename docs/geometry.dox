@@ -260,7 +260,41 @@ namespace tgen::geometry {
 
 /**
  * @ingroup geometry
- * @brief Generates a simple polygon given coordinate range.
+ * @brief Generates a random simple polygon through given points.
+ *
+ * @param points Points in general position (no three collinear).
+ *
+ * @pre @tt{@pname{points}.size() >= 3} and no three points in @pname{points}
+ * are collinear.
+ *
+ * @return The same points listed in boundary order of a simple
+ * (non-self-intersecting) polygon.
+ *
+ * Uses a randomized divide-and-conquer Hamiltonian-path construction on the
+ * leftmost and rightmost vertices.
+ *
+ * @note This operation is not uniformly random.
+ *
+ * #### Complexity
+ *
+ * @tt{O(|@pname{points}| log|@pname{points}|)} expected (if points are "random"),
+ * @tt{O(|@pname{points}|^2)} worse case.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto pts = tgen::geometry::random_points_general_position(10, 0, 100);
+ * auto poly = tgen::geometry::random_simple_polygon_through_points(pts);
+ * std::cout << tgen::print(poly, '\n') << std::endl;
+ * ```
+ *
+ * @fn random_simple_polygon_through_points(const std::vector<point<long long>> &points);
+ */
+
+
+/**
+ * @ingroup geometry
+ * @brief Generates a random simple polygon given coordinate range.
  *
  * @param n Number of vertices to generate.
  * @param min_coord Minimum allowed coordinate on each axis.
@@ -272,8 +306,8 @@ namespace tgen::geometry {
  * simple (non-self-intersecting) polygon. Coordinates lie in the inclusive
  * square @tt{[@pname{min_coord}, @pname{max_coord}]^2}. There will be no 3 collinear points.
  *
- * The point set is built with @ref random_points_general_position, then polygonized by a
- * randomized divide-and-conquer Hamiltonian-path construction.
+ * The point set is built with @ref random_points_general_position, then polygonized by
+ * @ref random_simple_polygon_through_points.
  *
  * @throws std::runtime_error if the coordinate range
  * is not large enough for @ref random_points_general_position.
@@ -297,7 +331,7 @@ namespace tgen::geometry {
 
 /**
  * @ingroup geometry
- * @brief Generates a strictly convex integer polygon with given bounding box.
+ * @brief Generates a random strictly convex polygon with given bounding box.
  *
  * @param n Number of vertices.
  * @param min_coord Minimum allowed coordinate on each axis.
