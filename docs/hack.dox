@@ -20,6 +20,9 @@ namespace tgen::hack {
  *
  * // Mask for XOR-hashing std::mt19937_64 outputs to zero.
  * std::vector<bool> xor_mask_64 = tgen::hack::mt19937_xor_hash_hack<long long>();
+ *
+ * // Hack for segment tree beats: initial array and update list.
+ * auto [arr, updates] = tgen::hack::segment_tree_beats_hack(3, 146);
  * ```
  */
 
@@ -94,7 +97,7 @@ namespace tgen::hack {
  *
  * Reference:
  * - <a href="https://codeforces.com/blog/entry/60442">On the mathematics behind rolling hashes and anti-hash
- *   tests</a>: Composition-attack: Multiple hashes
+ *   tests</a>: Composition-attack: Multiple hashes.
  *
  * #### Complexity
  *
@@ -131,7 +134,7 @@ namespace tgen::hack {
  *
  * Reference:
  * - <a href="https://codeforces.com/blog/entry/60442">On the mathematics behind rolling hashes and anti-hash
- *   tests</a>: Composition-attack: Multiple hashes
+ *   tests</a>: Composition-attack: Multiple hashes.
 
  *
  * #### Complexity
@@ -328,7 +331,7 @@ namespace tgen::hack {
  * then @tt{hash = 0}.
  *
  * Reference:
- * - <a href="https://codeforces.com/blog/entry/153335">Hacking Incorrect XOR Hashing with mt19937_64</a>
+ * - <a href="https://codeforces.com/blog/entry/153335">Hacking Incorrect XOR Hashing with mt19937_64</a>.
  *
  * #### Complexity
  *
@@ -344,6 +347,55 @@ namespace tgen::hack {
  * ```
  *
  * @fn mt19937_xor_hash_hack();
+ */
+
+
+/**
+ * @ingroup hack
+ * @brief Array and updates for worst case of segment tree beats.
+ *
+ * @param k Hack order (defines the size @tt{N} of the array).
+ * @param q Number of updates to generate.
+ *
+ * @pre @tt{1 <= @pname{k} <= 7} (largest @tt{@pname{k}} with @tt{fib(2@pname{k}+1) < 10^3}).
+ *
+ * @return A @tt{@namespace{std}\::@type{pair}(array, updates)} that yields @tt{Theta(log^2 N)}
+ *         amortized time per update.
+ * 
+ * - @tt{array}: initial @tt{@namespace{std}\::@type{vector}<@primitive{int}>}, length
+ *   @tt{N = fib(2@pname{k}+1)^3}, entries in @tt{[0, fib(2@pname{k}+2) - 2]}.
+ * - @tt{updates}: exactly @tt{@pname{q}} updates to apply in order (0-indexed,
+ *   half-open intervals). Each update is a @tt{@namespace{std}\::@type{vector}<@primitive{int}>}:
+ *   - @tt{\{0, l, r, x\}}: add @tt{x} on @tt{[l, r)}.
+ *   - @tt{\{1, l, r, x\}}: subtract @tt{x} on @tt{[l, r)}.
+ *   - @tt{\{2, l, r, x\}}: chmax @tt{x} on @tt{[l, r)}.
+ *   - @tt{\{3, i, x\}}: set @tt{array[i] = x}.
+ *
+ * Reference:
+ * - <a href="https://codeforces.com/blog/entry/149516">The Time Complexity Lower
+ *   Bound for Segment Tree Beats is log^2</a>.
+ *
+ * #### Complexity
+ *
+ * @tt{O(fib(2@pname{k}+1)^3 + @pname{q})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto [arr, updates] = tgen::hack::segment_tree_beats_hack(3, 146);
+ * for (const auto &u : updates) {
+ *   if (u[0] == 0)
+ *     for (int i = u[1]; i < u[2]; ++i) arr[i] += u[3];
+ *   else if (u[0] == 1)
+ *     for (int i = u[1]; i < u[2]; ++i) arr[i] -= u[3];
+ *   else if (u[0] == 2)
+ *     for (int i = u[1]; i < u[2]; ++i) arr[i] = std::max(arr[i], u[3]);
+ *   else if (u[0] == 3)
+ *     arr[u[1]] = u[2];
+ * }
+ * ```
+ *
+ * @fn segment_tree_beats_hack(int k, int q);
  */
 
 };

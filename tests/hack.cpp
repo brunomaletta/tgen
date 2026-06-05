@@ -4,6 +4,7 @@
 #include "../single_include/tgen.h"
 #include "tgen_test_utility.h"
 
+#include <algorithm>
 #include <limits>
 #include <random>
 #include <string>
@@ -245,4 +246,103 @@ TEST(hack_test, mt19937_64_xor_hash_hack) {
 	for (uint64_t seed : std::vector<uint64_t>{
 			 0, 1, 42, 123456789, std::numeric_limits<uint64_t>::max()})
 		EXPECT_EQ(xor_hash(seed), 0ULL);
+}
+
+TEST(hack_test, segment_tree_beats_hack_invalid) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::segment_tree_beats_hack(0, 1),
+		"hack: segment_tree_beats_hack: k must be at least 1");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::segment_tree_beats_hack(1, 0),
+		"hack: segment_tree_beats_hack: q must be positive");
+	EXPECT_THROW_TGEN_PREFIX(tgen::hack::segment_tree_beats_hack(8, 1),
+							 "hack: segment_tree_beats_hack: k too large");
+}
+
+namespace {
+
+int segment_tree_beats_round_update_count(int block_len, int an, int bn,
+										  int round) {
+	const int off = (round * an) % block_len;
+	const int add_off = (off + block_len - bn) % block_len;
+	int count = 1 + block_len;
+	for (int k = 0; k < block_len; ++k) {
+		(void)k;
+		count += (off + an > block_len) ? 2 : 1;
+		count += (add_off + bn > block_len) ? 2 : 1;
+	}
+	return count;
+}
+
+void apply_segment_tree_beats_update(std::vector<int> &arr,
+									 const std::vector<int> &u) {
+	if (u[0] == 0) {
+		for (int i = u[1]; i < u[2]; ++i)
+			arr[i] += u[3];
+	} else if (u[0] == 1) {
+		for (int i = u[1]; i < u[2]; ++i)
+			arr[i] -= u[3];
+	} else if (u[0] == 2) {
+		for (int i = u[1]; i < u[2]; ++i)
+			arr[i] = std::max(arr[i], u[3]);
+	} else if (u[0] == 3) {
+		arr[u[1]] = u[2];
+	}
+}
+
+void expect_segment_tree_beats_cyclic_shifts(
+	const std::vector<int> &initial,
+	const std::vector<std::vector<int>> &updates, int block_len, int an,
+	int bn) {
+	const int block_stride = block_len * block_len;
+	std::vector<int> cur = initial;
+	int begin = 0;
+	int round = 0;
+
+	while (begin < static_cast<int>(updates.size())) {
+		const int updates_in_round =
+			segment_tree_beats_round_update_count(block_len, an, bn, round);
+		if (begin + updates_in_round > static_cast<int>(updates.size()))
+			break;
+
+		std::vector<std::vector<int>> prev_blocks(block_len);
+		for (int k = 0; k < block_len; ++k) {
+			const int s = k * block_stride;
+			prev_blocks[k].assign(cur.begin() + s, cur.begin() + s + block_len);
+		}
+
+		for (int i = begin; i < begin + updates_in_round; ++i)
+			apply_segment_tree_beats_update(cur, updates[i]);
+		begin += updates_in_round;
+
+		for (int k = 0; k < block_len; ++k) {
+			const int s = k * block_stride;
+			const std::vector<int> got(cur.begin() + s,
+									   cur.begin() + s + block_len);
+			std::vector<int> expected = prev_blocks[k];
+			std::rotate(expected.begin(), expected.begin() + bn % block_len,
+						expected.end());
+			EXPECT_EQ(got, expected) << "round " << round << " block " << k;
+		}
+		++round;
+	}
+}
+
+} // namespace
+
+TEST(hack_test, segment_tree_beats_hack) {
+	tgen::register_gen();
+
+	const std::vector<int> expected_head = {19, 16, 17, 16, 8, 14, 11,
+											12, 11, 8,	9,	8, 0};
+	const int q = 40;
+	auto [arr, updates] = tgen::hack::segment_tree_beats_hack(3, q);
+
+	EXPECT_EQ(arr.size(), 13u * 13u * 13u);
+	EXPECT_EQ(*std::max_element(arr.begin(), arr.end()), 19);
+	EXPECT_EQ(std::vector<int>(arr.begin(), arr.begin() + 13), expected_head);
+	EXPECT_EQ(updates.size(), q);
+	expect_segment_tree_beats_cyclic_shifts(arr, updates, 13, 8, 5);
 }

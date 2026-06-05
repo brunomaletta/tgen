@@ -6355,14 +6355,116 @@ template <typename T> std::vector<bool> mt19937_xor_hash_hack() {
 
 // Convex polygon that breaks naive rotating calipers for maximum vertex
 // distance (advances j while dist(i, next(j)) > dist(i, j) instead of using
-// ccw). DuX counterexample to Errichto's algorithm; see Codeforces blog comment
-// 329438. O(1).
+// ccw).
+// O(1).
 inline std::vector<geometry::point<double>>
 naive_rotating_calipers_max_dist_bug() {
 	return {
 		{-0.9846, -1.53251}, {0.49946, 1.19525},  {0.79916, 0.98291},
 		{4.02136, -1.57843}, {3.92734, -2.37856}, {3.88558, -2.37188},
 	};
+}
+
+namespace detail {
+
+// Builds a hack block of order k (length fib(2k+1)).
+// O(fib(2k+1)).
+inline std::vector<int> segment_tree_beats_hack_block(int k) {
+	tgen_ensure(k >= 1, "hack: segment_tree_beats_hack: k must be at least 1");
+
+	std::vector<int> a(k + 1), b(k + 1);
+	std::vector<std::vector<int>> vf(k + 1), vg(k + 1);
+
+	a[1] = b[1] = 1;
+	vf[1] = {1};
+	vg[1] = {1, 0};
+
+	for (int i = 2; i <= k; ++i) {
+		b[i] = b[i - 1] + a[i - 1];
+		a[i] = b[i] + a[i - 1];
+		for (int x : vf[i - 1])
+			vf[i].push_back(x + a[i] + b[i]);
+		vf[i].push_back(a[i]);
+		for (int x : vg[i - 1])
+			vf[i].push_back(x + a[i]);
+		vg[i] = vf[i];
+		vg[i].push_back(0);
+		for (int x : vg[i - 1])
+			vg[i].push_back(x);
+	}
+
+	vf[k].push_back(0);
+	return vf[k];
+}
+
+// Appends one update round for the tiled array (offset (round * an) mod L).
+// O(fib(2k+1)).
+inline void
+segment_tree_beats_append_round(std::vector<std::vector<int>> &updates,
+								int block_len, int an, int bn, int n,
+								int round) {
+	const int off = (round * an) % block_len;
+	const int add_off = (off + block_len - bn) % block_len;
+	for (int k = 0; k < block_len; ++k) {
+		const int s = k * block_len * block_len;
+		const int sub_end = off + an;
+		if (sub_end <= block_len)
+			updates.push_back({1, s + off, s + sub_end, bn});
+		else {
+			updates.push_back({1, s + off, s + block_len, bn});
+			updates.push_back({1, s, s + (sub_end - block_len), bn});
+		}
+		const int add_end = add_off + bn;
+		if (add_end <= block_len)
+			updates.push_back({0, s + add_off, s + add_end, an});
+		else {
+			updates.push_back({0, s + add_off, s + block_len, an});
+			updates.push_back({0, s, s + (add_end - block_len), an});
+		}
+	}
+	updates.push_back({2, 0, n, an});
+	for (int k = 0; k < block_len; ++k) {
+		const int s = k * block_len * block_len;
+		updates.push_back({3, s + (off + an - 1) % block_len, 0});
+	}
+}
+
+} // namespace detail
+
+// Array and updates for worst case of segment tree beats.
+// O(fib(2k+1)^3 + q).
+inline std::pair<std::vector<int>, std::vector<std::vector<int>>>
+segment_tree_beats_hack(int k, int q) {
+	tgen_ensure(k >= 1, "hack: segment_tree_beats_hack: k must be at least 1");
+	tgen_ensure(k <= 7, "hack: segment_tree_beats_hack: k too large");
+	tgen_ensure(q > 0, "hack: segment_tree_beats_hack: q must be positive");
+
+	const auto &fib = math::fibonacci();
+	const int block_len = fib[k * 2 + 1];
+	const int an = fib[k * 2];
+	const int bn = fib[k * 2 - 1];
+
+	const int len = block_len;
+	const int total = len * len * len;
+
+	std::vector<int> block = detail::segment_tree_beats_hack_block(k);
+	std::vector<int> arr(total, 0);
+	for (int x = 0; x < block_len; ++x) {
+		const int s = x * len * len;
+		for (int i = 0; i < block_len; ++i)
+			arr[s + i] = block[i];
+	}
+
+	std::vector<std::vector<int>> updates;
+	updates.reserve(q);
+	const int n = total;
+	for (int round = 0; updates.size() < static_cast<std::size_t>(q); ++round) {
+		detail::segment_tree_beats_append_round(updates, block_len, an, bn, n,
+												round);
+		if (updates.size() > static_cast<std::size_t>(q))
+			updates.resize(q);
+	}
+	return {arr, updates};
 }
 
 } // namespace hack
