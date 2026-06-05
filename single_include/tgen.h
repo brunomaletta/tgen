@@ -6321,6 +6321,54 @@ inline egraph<int>::value stale_heap_dijkstra_bug(int n) {
 	return g.shuffle_except({0});
 }
 
+// Zadeh (1972) anti-shortest-paths flow network for Edmonds-Karp and Dinic.
+// Source is vertex 0; sink is vertex 4l + 2k + 1.
+// n = 4l + 2k + 2, m = 6l + 4k + k^2 - 4.
+// O(l + k^2).
+inline egraph<int>::value dinitz_worst_case(int k, int l) {
+	tgen_ensure(k >= 1, "hack: dinitz_worst_case: k must be at least 1");
+	tgen_ensure(l >= 1, "hack: dinitz_worst_case: l must be at least 1");
+
+	const int p1 = 2 * l - 1;
+	const int p2 = 2 * l;
+	const int q1 = 2 * l + 1;
+	const int q2 = 2 * l + 2;
+	const int n = 4 * l + 2 * k + 2;
+
+	const int flow_cap = k * k * l;
+	const int layer_cap = k * k;
+
+	auto a = [&](int i) { return 2 * l + 3 + 2 * i; };
+	auto b = [&](int i) { return 2 * l + 4 + 2 * i; };
+	auto t = [&](int i) { return 4 * l + 2 * k + 1 - i; };
+
+	egraph<int>::value g(n, {}, true);
+	g = g.set_edge_weights(std::vector<int>{});
+
+	for (int i = 0; i + 1 < 2 * l - 1; ++i)
+		g.add_edge(i, i + 1, flow_cap);
+	for (int i = 0; i + 1 < 2 * l - 1; ++i)
+		g.add_edge(t(i + 1), t(i), flow_cap);
+
+	for (int i = 0; i < 2 * l - 1; i += 2) {
+		g.add_edge(i, i % 4 == 0 ? p1 : p2, layer_cap);
+		g.add_edge(i % 4 == 0 ? q1 : q2, t(i), layer_cap);
+	}
+
+	for (int i = 0; i < k; ++i) {
+		g.add_edge(p1, a(i), flow_cap);
+		g.add_edge(p2, b(i), flow_cap);
+		g.add_edge(a(i), q2, flow_cap);
+		g.add_edge(b(i), q1, flow_cap);
+	}
+
+	for (int i = 0; i < k; ++i)
+		for (int j = 0; j < k; ++j)
+			g.add_edge(a(i), b(j), 1);
+
+	return g;
+}
+
 // Returns a mask of length 19938, with weights such that xor-ing with mt19937
 // outputs yields 0.
 // O(1).

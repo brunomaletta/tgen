@@ -284,6 +284,46 @@ namespace tgen::hack {
 
 /**
  * @ingroup hack
+ * @brief Flow network for Edmonds-Karp and Dinitz worst-case.
+ *
+ * @param k Core size.
+ * @param l Source and sink chain length.
+ *
+ * @pre @tt{@pname{k} >= 1}, @tt{@pname{l} >= 1}.
+ *
+ * Builds the Zadeh (1972) anti-shortest-paths network, a worst-case instance for
+ * both Edmonds-Karp and Dinitz. The source is vertex @tt{0} and the sink is vertex
+ * @tt{4@pname{l} + 2@pname{k} + 1}.
+ *
+ * @image html dinitz_worst_case.png "Zadeh anti-shortest-paths flow network" width=800
+ *
+ * @return A directed @tt{tgen::egraph<int>::value} with
+ *         @tt{n = 4@pname{l} + 2@pname{k} + 2} vertices and
+ *         @tt{m = 6@pname{l} + 4@pname{k} + @pname{k}^2 - 4} edges.
+ *         Source @tt{s = 0}, sink @tt{t = 4@pname{l} + 2@pname{k} + 1}.
+ *
+ * References:
+ * - <a href="https://codeforces.com/blog/entry/145343">Worst-Case Graphs for
+ *   Maximum Flow Algorithms</a>: Shortest Augmenting Paths (Edmonds-Karp, Dinic).
+ * - Norman Zadeh, "Theoretical Efficiency of the Edmonds-Karp Algorithm for
+ *   Computing Maximal Flows", J. ACM 19.1 (1972).
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{l} + @pname{k}^2)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * std::cout << tgen::hack::dinitz_worst_case(100, 100).print_nm();
+ * ```
+ *
+ * @fn dinitz_worst_case(int k, int l);
+ */
+
+
+/**
+ * @ingroup hack
  * @brief Convex polygon that breaks naive rotating calipers for maximum distance.
  *
  * Returns a strictly convex polygon on which the naive rotating-calipers loop

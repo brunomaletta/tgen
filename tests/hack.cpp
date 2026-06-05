@@ -190,6 +190,30 @@ TEST(hack_test, stale_heap_dijkstra_bug) {
 	}
 }
 
+TEST(hack_test, dinitz_worst_case_invalid) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::hack::dinitz_worst_case(0, 1),
+							 "hack: dinitz_worst_case: k must be at least 1");
+	EXPECT_THROW_TGEN_PREFIX(tgen::hack::dinitz_worst_case(1, 0),
+							 "hack: dinitz_worst_case: l must be at least 1");
+}
+
+TEST(hack_test, dinitz_worst_case) {
+	tgen::register_gen();
+
+	for (int k : {1, 2, 5}) {
+		for (int l : {1, 2, 5}) {
+			auto g = tgen::hack::dinitz_worst_case(k, l);
+			const int n = 4 * l + 2 * k + 2;
+			const int m = 6 * l + 4 * k + k * k - 4;
+			EXPECT_TRUE(graph_gen_result_valid(g, n, m, true, false));
+			ASSERT_TRUE(g.edge_weights().has_value());
+			EXPECT_EQ(static_cast<int>(g.edge_weights()->size()), m);
+		}
+	}
+}
+
 TEST(hack_test, naive_rotating_calipers_max_dist_bug) {
 	tgen::register_gen();
 
