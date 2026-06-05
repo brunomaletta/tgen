@@ -71,6 +71,9 @@ std::cout << tgen::graph(8, 10).add_edge(0, 1).get_connected() << std::endl;
 -  **Adversarial generation**: generate worst-case inputs.
 
 ```cpp
+// Worst case for Edmonds-Karp and Dinitz.
+std::cout << tgen::hack::dinitz_worst_case(100, 100).print_nm();
+
 // Generates array that forces collision on std::unordered_set.
 std::cout << tgen::print(tgen::hack::std_unordered(1e6)) << std::endl;
 
