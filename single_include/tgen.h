@@ -5810,17 +5810,13 @@ inline void conquer(std::vector<point<long long>> &points, int left,
 	const point<long long> &B = points[right - 1];
 
 	const int ci = next(left + 1, right - 2);
-	const long long separator_M = 1e6;
 	const point<long long> C = points[ci];
-	const long long k = next(1LL, separator_M - 1LL);
-	// Separator is the line through C and D = (1 - k/M)A + (k/M)B; sign(S(A)) =
-	// -sign(orient(C,A,B)), so A's side is known without evaluating S at A or
-	// B.
+	const uint64_t wa = next<uint64_t>(1, std::numeric_limits<uint64_t>::max());
+	const uint64_t wb = next<uint64_t>(1, std::numeric_limits<uint64_t>::max());
 	const bool a_on_positive = ccw(C, A, B) < 0;
 
-	const auto on_ac_side = [&](const point<long long> &P) {
-		const i128 side = (separator_M - k) * ccw(C, A, P) + k * ccw(C, B, P);
-		return (side > 0) == a_on_positive;
+	const auto side = [&](const point<long long> &P) -> i128 {
+		return wa * ccw(C, A, P) + wb * ccw(C, B, P);
 	};
 
 	// Hold C at points[right-2] while classifying interior points in
@@ -5831,9 +5827,9 @@ inline void conquer(std::vector<point<long long>> &points, int left,
 	int i = left + 1;
 	int j = right - 3;
 	while (i < j) {
-		if (on_ac_side(points[i]))
+		if ((side(points[i]) > 0) == a_on_positive)
 			++i;
-		else if (!on_ac_side(points[j]))
+		else if ((side(points[j]) > 0) != a_on_positive)
 			--j;
 		else {
 			std::swap(points[i], points[j]);
@@ -5844,7 +5840,8 @@ inline void conquer(std::vector<point<long long>> &points, int left,
 
 	// After partition: points[left]=A | (A,C)... | C | (C,B)... |
 	// points[right-1]=B.
-	const int p = (i == j and on_ac_side(points[i])) ? i + 1 : i;
+	const int p =
+		(i == j and (side(points[i]) > 0) == a_on_positive) ? i + 1 : i;
 	if (p != right - 2)
 		std::swap(points[p], points[right - 2]);
 
