@@ -224,6 +224,18 @@ namespace tgen {
 
 /**
  * @ingroup opts
+ * @brief Compiler identity and version.
+ *
+ * Return type of @tt{tgen::gcc(...)} and @tt{tgen::clang(...)}; passed to
+ * @ref set_compiler. Some library functions use the configured compiler to find
+ * counter testcases for specific systems.
+ *
+ * @struct compiler_value;
+ */
+
+
+/**
+ * @ingroup opts
  * @brief Sets compiler.
  *
  * @param compiler The compiler (@tt{@namespace{tgen}::@type{gcc}(...)} or @tt{@namespace{tgen}::@type{clang}(...)}).
@@ -251,7 +263,7 @@ namespace tgen {
  * - @tt{./executable tgen::GCC:15}: equivalent to @tt{tgen::set_compiler(tgen::gcc(15))}.
  * - @tt{./executable tgen::GCC:15.2}: equivalent to @tt{tgen::set_compiler(tgen::gcc(15, 2))}.
  *
- * @fn set_compiler(detail::compiler_value compiler);
+ * @fn set_compiler(tgen::compiler_value compiler);
  */
 
 };

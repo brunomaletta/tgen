@@ -183,49 +183,28 @@ template <typename> inline constexpr bool dependent_false_v = false;
 // If type is sequential (list-like).
 using is_sequential_tag = void;
 
+// Detects associative containers.
+template <typename T, typename = void>
+struct is_associative_container : std::false_type {};
+template <typename T>
+struct is_associative_container<
+	T, std::void_t<typename T::key_type, typename T::key_compare>>
+	: std::true_type {};
+
+// Detects sequential generator values.
+template <typename T, typename = void>
+struct is_sequential : std::false_type {};
+template <typename T>
+struct is_sequential<
+	T, std::void_t<typename std::decay_t<T>::tgen_is_sequential_tag>>
+	: std::true_type {};
+
 /*
  * Unique rng to use.
  */
 
 // The single rng to be used by the library.
 inline std::mt19937 rng;
-
-/*
- * C++ version types.
- */
-
-// Global C++ version value (0 means unknown).
-struct cpp_value {
-	int version_;
-
-	cpp_value(std::optional<int> version = std::nullopt)
-		: version_(version ? *version : 0) {
-		if (version) {
-			tgen_ensure(*version == 17 or *version == 20 or *version == 23,
-						"unsupported C++ version (use 17, 20, 23)");
-		}
-	}
-};
-inline cpp_value cpp;
-
-/*
- * Compiler types.
- */
-
-// Kinds of compilers.
-enum class compiler_kind { gcc, clang, unknown };
-
-// Global compiler value.
-struct compiler_value {
-	compiler_kind kind_;
-	int major_;
-	int minor_;
-
-	compiler_value(compiler_kind kind = compiler_kind::unknown, int major = 0,
-				   int minor = 0)
-		: kind_(kind), major_(major), minor_(minor) {}
-};
-inline compiler_value compiler;
 
 /*
  * Printing.
@@ -259,6 +238,44 @@ template <typename T> struct print_cols_view<T, false> {
 	decltype(auto) get(std::size_t i) const { return value[i]; }
 	void advance() {}
 };
+
+} // namespace detail
+
+/*
+ * Compiler configuration (see set_compiler).
+ */
+
+// Kinds of compilers.
+enum class compiler_kind { gcc, clang, unknown };
+
+// Compiler identity and version.
+struct compiler_value {
+	compiler_kind kind_;
+	int major_;
+	int minor_;
+
+	compiler_value(compiler_kind kind = compiler_kind::unknown, int major = 0,
+				   int minor = 0)
+		: kind_(kind), major_(major), minor_(minor) {}
+};
+
+namespace detail {
+
+// Global C++ version value (0 means unknown).
+struct cpp_value {
+	int version_;
+
+	cpp_value(std::optional<int> version = std::nullopt)
+		: version_(version ? *version : 0) {
+		if (version) {
+			tgen_ensure(*version == 17 or *version == 20 or *version == 23,
+						"unsupported C++ version (use 17, 20, 23)");
+		}
+	}
+};
+
+inline cpp_value cpp;
+inline compiler_value compiler;
 
 } // namespace detail
 
@@ -427,30 +444,14 @@ template <typename Val> struct gen_value_base {
 	}
 };
 
-/*
- * Type compile-time detection.
- */
-
-// Detects associative containers.
-template <typename T, typename = void>
-struct is_associative_container : std::false_type {};
-template <typename T>
-struct is_associative_container<
-	T, std::void_t<typename T::key_type, typename T::key_compare>>
-	: std::true_type {};
+namespace detail {
 
 // Detects generator values.
 template <typename T>
 struct is_generator_value
 	: std::is_base_of<gen_value_base<std::decay_t<T>>, std::decay_t<T>> {};
 
-// Detects sequential generator values.
-template <typename T, typename = void>
-struct is_sequential : std::false_type {};
-template <typename T>
-struct is_sequential<
-	T, std::void_t<typename std::decay_t<T>::tgen_is_sequential_tag>>
-	: std::true_type {};
+} // namespace detail
 
 /*
  * Easier printing.
@@ -587,12 +588,13 @@ struct println : print {
 template <typename... Args> struct print_cols {
 	std::string s_;
 
-	template <
-		std::enable_if_t<((detail::is_container<std::decay_t<Args>>::value or
-						   is_sequential<std::decay_t<Args>>::value) and
-						  ...),
-						 int> = 0>
 	print_cols(const Args &...args) {
+		static_assert(
+			((detail::is_container<std::decay_t<Args>>::value or
+			  detail::is_sequential<std::decay_t<Args>>::value) and
+			 ...),
+			"print_cols: arguments must be containers or sequential generator "
+			"values");
 		std::ostringstream oss;
 		write(oss, args...);
 		s_ = oss.str();
@@ -928,7 +930,7 @@ template <typename It> void shuffle(It first, It last) {
 // Shuffles container uniformly.
 // O(|container|).
 template <typename C> [[nodiscard]] auto shuffled(const C &container) {
-	if constexpr (is_associative_container<C>::value) {
+	if constexpr (detail::is_associative_container<C>::value) {
 		std::vector<typename C::value_type> vec(container.begin(),
 												container.end());
 		shuffle(vec.begin(), vec.end());
@@ -1138,17 +1140,17 @@ inline void set_cpp_version(int version) {
  */
 
 // GCC compiler type.
-inline detail::compiler_value gcc(int major = 0, int minor = 0) {
-	return {detail::compiler_kind::gcc, major, minor};
+inline compiler_value gcc(int major = 0, int minor = 0) {
+	return {compiler_kind::gcc, major, minor};
 }
 
 // Clang compiler type.
-inline detail::compiler_value clang(int major = 0, int minor = 0) {
-	return {detail::compiler_kind::clang, major, minor};
+inline compiler_value clang(int major = 0, int minor = 0) {
+	return {compiler_kind::clang, major, minor};
 }
 
 // Sets compiler.
-inline void set_compiler(detail::compiler_value compiler) {
+inline void set_compiler(compiler_value compiler) {
 	detail::compiler.kind_ = compiler.kind_;
 	detail::compiler.major_ = compiler.major_;
 	detail::compiler.minor_ = compiler.minor_;
@@ -1658,7 +1660,7 @@ template <typename T> struct list : gen_base<list<T>> {
 
 		// Gets a std::vector representing the value.
 		auto to_std() const {
-			if constexpr (!is_generator_value<T>::value) {
+			if constexpr (!detail::is_generator_value<T>::value) {
 				return vec_;
 			} else {
 				std::vector<typename T::std_type> vec;
@@ -3890,7 +3892,7 @@ template <typename T> struct pair : gen_base<pair<T>> {
 
 		// Gets a std::pair representing the value.
 		auto to_std() const {
-			if constexpr (!is_generator_value<T>::value) {
+			if constexpr (!detail::is_generator_value<T>::value) {
 				return pair_;
 			} else {
 				std::pair<typename T::std_type, typename T::std_type> pair(

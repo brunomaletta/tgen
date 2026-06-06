@@ -1251,15 +1251,4 @@ namespace tgen {
  * @fn gen_value_base::operator<(const Val &rhs) const;
  */
 
-
-
-
-
-/**
- * @brief If type is a @tt{tgen} generator value.
- *
- * @struct is_generator_value;
- */
-
-
 };
