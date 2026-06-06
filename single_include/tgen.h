@@ -678,7 +678,8 @@ template <typename T> T next(T right) {
 // Returns a uniformly random number in [left, right].
 // For floating-point types, uses uniform_real_distribution ([left, right) in
 // C++), equivalent to [left, right] because the right endpoint has probability
-// zero. O(1).
+// zero.
+// O(1).
 template <typename T> T next(T left, T right) {
 	detail::ensure_registered();
 	tgen_ensure(left <= right, "range for `next` must be valid");

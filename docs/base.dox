@@ -577,8 +577,6 @@ namespace tgen {
  *
  * @return A uniformly random element from the range @tt{[@pname{first}, @pname{last})}.
  *
- * @throws std::runtime_error if the range is empty.
- *
  * #### Complexity
  *
  * @tt{O(1)} for random_access_iterator, @tt{O(|@pname{last} - @pname{first}|)} otherwise.
