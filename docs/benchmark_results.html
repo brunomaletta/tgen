@@ -1,0 +1,129 @@
+<div id="benchmark-results">
+  <style>
+    #benchmark-results table {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 960px;
+      margin: 1em 0;
+    }
+    #benchmark-results th,
+    #benchmark-results td {
+      border: 1px solid var(--separator-color, #ccc);
+      padding: 0.5em 0.75em;
+      text-align: left;
+    }
+    #benchmark-results th {
+      background: var(--code-background, #f4f4f4);
+    }
+    #benchmark-results th.num,
+    #benchmark-results td.num {
+      text-align: right;
+    }
+    #benchmark-results .meta {
+      font-size: 0.9em;
+      opacity: 0.85;
+      margin: 0 0 0.25em;
+    }
+    #benchmark-results .meta:last-of-type {
+      margin-bottom: 1em;
+    }
+  </style>
+  <p class="meta">Timestamp: 2026-06-06T22:35:50Z</p>
+  <p class="meta">GCC version: 15.2.0</p>
+  <p class="meta">GCC flags: -std=c++17 -O2</p>
+  <table class="markdownTable">
+    <tr class="markdownTableHead">
+      <th class="markdownTableHeadLeft">Operation</th>
+      <th class="markdownTableHeadLeft">Parameters</th>
+      <th class="markdownTableHeadRight num">Median out of 3 runs (ms)</th>
+    </tr>
+    <tr class="markdownTableRowOdd">
+      <td class="markdownTableBodyLeft">
+<a href="structtgen_1_1wgraph.html#a378f2357294d1be975f4b2c57600dbb0">tgen::graph::get_connected</a>
+ (m=n)
+</td>
+      <td class="markdownTableBodyLeft">n=<strong>10<sup>6</sup></strong>, m=<strong>10<sup>6</sup></strong></td>
+      <td class="markdownTableBodyRight num">1139</td>
+    </tr>
+    <tr class="markdownTableRowOdd">
+      <td class="markdownTableBodyLeft">
+<a href="structtgen_1_1wgraph.html#a378f2357294d1be975f4b2c57600dbb0">tgen::graph::get_connected</a>
+ (m=2n)
+</td>
+      <td class="markdownTableBodyLeft">n=<strong>10<sup>6</sup></strong>, m=<strong>2&times;10<sup>6</sup></strong></td>
+      <td class="markdownTableBodyRight num">2600</td>
+    </tr>
+    <tr class="markdownTableRowOdd">
+      <td class="markdownTableBodyLeft">
+<a href="structtgen_1_1wgraph.html#a6aacbde9cff49ca56a8c022d715b4bc3">tgen::graph::gen</a>
+
+</td>
+      <td class="markdownTableBodyLeft">n=<strong>10<sup>6</sup></strong>, m=<strong>10<sup>6</sup></strong></td>
+      <td class="markdownTableBodyRight num">1395</td>
+    </tr>
+    <tr class="markdownTableRowOdd">
+      <td class="markdownTableBodyLeft">
+<a href="structtgen_1_1wgraph.html#abb218b34966b155ecbd7773089c734a6">tgen::graph::gen_skewed</a>
+
+</td>
+      <td class="markdownTableBodyLeft">n=<strong>10<sup>6</sup></strong>, m=<strong>10<sup>6</sup></strong>, elongation=<strong>10<sup>2</sup></strong>, spread=<strong>2</strong></td>
+      <td class="markdownTableBodyRight num">176</td>
+    </tr>
+    <tr class="markdownTableRowOdd">
+      <td class="markdownTableBodyLeft">
+<a href="structtgen_1_1wtree.html#a6156c45dc9d64d543f63a62b7e7674ee">tgen::tree::gen</a>
+
+</td>
+      <td class="markdownTableBodyLeft">n=<strong>10<sup>6</sup></strong></td>
+      <td class="markdownTableBodyRight num">468</td>
+    </tr>
+    <tr class="markdownTableRowOdd">
+      <td class="markdownTableBodyLeft">
+<a href="structtgen_1_1wtree.html#a5009a05d2a7168f0e870ded85dd884c2">tgen::tree::gen_skewed</a>
+
+</td>
+      <td class="markdownTableBodyLeft">n=<strong>10<sup>6</sup></strong>, elongation=<strong>10<sup>2</sup></strong></td>
+      <td class="markdownTableBodyRight num">141</td>
+    </tr>
+    <tr class="markdownTableRowOdd">
+      <td class="markdownTableBodyLeft">
+<a href="structtgen_1_1list.html#a8bbf6d4fbbbdf3d2e0c4566eaaf61e21">tgen::list&lt;int&gt;::gen</a>
+ (all_different)
+</td>
+      <td class="markdownTableBodyLeft">n=<strong>10<sup>6</sup></strong>, lo=<strong>1</strong>, hi=<strong>2&times;10<sup>6</sup></strong></td>
+      <td class="markdownTableBodyRight num">1667</td>
+    </tr>
+    <tr class="markdownTableRowOdd">
+      <td class="markdownTableBodyLeft">
+<a href="group__geometry.html#ga72def179092ee2d32f4bc760742dc293">tgen::geometry::random_simple_polygon</a>
+
+</td>
+      <td class="markdownTableBodyLeft">n=<strong>10<sup>6</sup></strong>, min=<strong>0</strong>, max=<strong>3&times;10<sup>6</sup></strong></td>
+      <td class="markdownTableBodyRight num">405</td>
+    </tr>
+    <tr class="markdownTableRowOdd">
+      <td class="markdownTableBodyLeft">
+<a href="group__geometry.html#ga349e9da0776d54839cff420c46d8202c">tgen::geometry::random_points_general_position</a>
+
+</td>
+      <td class="markdownTableBodyLeft">n=<strong>10<sup>6</sup></strong>, min=<strong>0</strong>, max=<strong>3&times;10<sup>6</sup></strong></td>
+      <td class="markdownTableBodyRight num">141</td>
+    </tr>
+    <tr class="markdownTableRowOdd">
+      <td class="markdownTableBodyLeft">
+<a href="group__geometry.html#gae60bba5c23c775870eaf27ef7ea10795">tgen::geometry::random_convex_polygon</a>
+
+</td>
+      <td class="markdownTableBodyLeft">n=<strong>10<sup>6</sup></strong>, min=<strong>0</strong>, max=<strong>3&times;10<sup>6</sup></strong></td>
+      <td class="markdownTableBodyRight num">1646</td>
+    </tr>
+    <tr class="markdownTableRowOdd">
+      <td class="markdownTableBodyLeft">
+<a href="group__geometry.html#ga153ba920101ae91f0aa31a005929e253">tgen::geometry::random_simple_polygon_through_points</a>
+
+</td>
+      <td class="markdownTableBodyLeft">n=<strong>10<sup>6</sup></strong></td>
+      <td class="markdownTableBodyRight num">280</td>
+    </tr>
+  </table>
+</div>

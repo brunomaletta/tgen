@@ -1,0 +1,9 @@
+/**
+ * @defgroup benchmarks Benchmarks
+ *
+ * Runtime performance of selected operations.
+ *
+ * Numbers depend on hardware; treat them as reference measurements.
+ *
+ * \htmlinclude benchmark_results.html
+ */

@@ -92,7 +92,8 @@ No loops. No backtracking. No custom generator code.
 - **Adversarial generation** to create worst-case inputs for known algorithms;
 - **Built-in distinct generation** for duplicate-free, unbiased generation;
 - **Uniform sampling** for constraint-based generators and distinct machinery; some helpers (e.g. skewed trees/graphs, biased geometry) are intentionally non-uniform;
-- **Comprehensive documentation** with many examples.
+- **Comprehensive documentation** with many examples;
+- **Built-in benchmarks** for selected operations, available in the [documentation](https://brunomaletta.github.io/tgen/group__benchmarks.html);
 
 ## 📦 Installation
 

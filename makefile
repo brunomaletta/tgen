@@ -76,8 +76,14 @@ $(eval $(call EXAMPLE_DEBUG_RULE,sample_debug,all.cpp,$(CXX_GCC)))
 GEOMETRY_HTML := $(BUILD_ROOT)/geometry.html
 GEOMETRY_OUT  := $(BUILD_ROOT)/geometry.out
 
+BENCHMARK_DIR  := $(BUILD_ROOT)/benchmarks
+BENCHMARK_BIN  := $(BENCHMARK_DIR)/run
+BENCHMARK_JSON := docs/benchmark_results.json
+BENCHMARK_HTML := docs/benchmark_results.html
+BENCHMARK_CXXFLAGS := -std=c++17 -O2
+
 .PHONY: all doc llms doc-rebuild clean-doc opendoc lint lint-check test test_clang test_asan \
-	sample sample_debug unordered range_queries unordered_clang graph geometry cloc \
+	sample sample_debug unordered range_queries unordered_clang graph geometry benchmark cloc \
 	help print-% %-asan
 
 all: lint doc test
@@ -88,7 +94,7 @@ clean:
 $(EXAMPLE_REL) $(EXAMPLE_SAN):
 	mkdir -p $@
 
-$(GCC_OBJDIR) $(CLANG_OBJDIR) $(ASAN_OBJDIR):
+$(GCC_OBJDIR) $(CLANG_OBJDIR) $(ASAN_OBJDIR) $(BENCHMARK_DIR):
 	mkdir -p $@
 
 # Per-TU objects + dependency files for incremental builds
@@ -126,6 +132,13 @@ test_asan: $(ASAN_OBJDIR)/test
 	$<
 	@rm -f $<
 
+$(BENCHMARK_BIN): benchmarks/main.cpp benchmarks/benchmark.h $(TGEN_HEADER) | $(BENCHMARK_DIR)
+	$(CXX_GCC) $(BENCHMARK_CXXFLAGS) -I $(SRC_DIR) benchmarks/main.cpp -o $@
+
+benchmark: $(BENCHMARK_BIN)
+	$< --json $(BENCHMARK_JSON)
+	@echo "Wrote $(BENCHMARK_JSON). Run 'make doc' to render $(BENCHMARK_HTML)."
+
 # Incremental by default (no rm -rf); use `make doc-rebuild` or `make clean-doc doc` for a full wipe.
 doc:
 	cd $(DOC_SRC_DIR) && { \
@@ -160,6 +173,10 @@ llms:
 		--xml $(DOC_BUILD_DIR)/xml \
 		--out $(DOC_HTML_DIR) \
 		--base-url '$(LLM_BASE_URL)'
+	python3 $(DOC_SRC_DIR)/benchmark_render.py \
+		--json $(BENCHMARK_JSON) \
+		--xml $(DOC_BUILD_DIR)/xml \
+		--out $(BENCHMARK_HTML)
 	rm -rf $(DOC_BUILD_DIR)/xml
 
 # Two separate sub-makes (not `$(MAKE) clean-doc doc`): `MAKEFLAGS += -j$(NPROCS)`
@@ -193,11 +210,11 @@ opendoc:
 	}
 
 lint:
-	find $(SRC_DIR) examples tests \( -name '*.h' -o -name '*.cpp' \) -print0 | xargs -0 clang-format -i
+	find $(SRC_DIR) examples tests benchmarks \( -name '*.h' -o -name '*.cpp' \) -print0 | xargs -0 clang-format -i
 
 lint-check:
 	@echo "Checking formatting..."
-	@find $(SRC_DIR) examples tests \( -name '*.h' -o -name '*.cpp' \) -print0 | \
+	@find $(SRC_DIR) examples tests benchmarks \( -name '*.h' -o -name '*.cpp' \) -print0 | \
 	xargs -0 clang-format --dry-run --Werror || \
 	( echo ""; echo "Run 'make lint' to fix formatting"; exit 1 )
 	@echo "Formatting check passed"
@@ -233,6 +250,7 @@ help:
 	@echo " + argv:   make graph ARGS='…'   (sample, graph, graph-asan, …)"
 	@echo " + ASan:   make graph ASAN=1   or   make graph-asan   (same for sample-asan, unordered-asan, …)"
 	@echo "           Binaries: build/examples/rel/… and build/examples/asan/… (see ASAN=1)"
+	@echo "Benchmark: make benchmark   (writes $(BENCHMARK_JSON); make doc renders $(BENCHMARK_HTML))"
 	@echo "Docs:      make doc | doc-rebuild | opendoc | clean-doc | llms   (doc also builds llms; doc-rebuild = clean + doc)"
 	@echo "Other:     make lint | lint-check | clean | cloc | print-CXXFLAGS_COMMON"
 

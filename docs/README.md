@@ -30,6 +30,8 @@ and operations for specific data types:
 - [Trees](https://brunomaletta.github.io/tgen/group__tree.html)
 - [Graphs](https://brunomaletta.github.io/tgen/group__graph.html)
 
+Selected operations have [benchmarks](https://brunomaletta.github.io/tgen/group__benchmarks.html).
+
 ### Type generators and values
 
 All data types specified above define a **generator**, that when called upon will generate a uniformly random **value** with the given constraints. Let's see an example with @tt{tgen::list}:
