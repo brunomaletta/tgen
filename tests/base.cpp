@@ -138,13 +138,13 @@ TEST(base_test, print_2d_container) {
 				  .str(),
 			  std::string("1,2\n3,4"));
 
-	// Complex container 2.
+	// Complex container 3.
 	EXPECT_EQ((std::ostringstream() << tgen::print(
 				   std::map<std::string, int>({{"ab", 2}, {"c", 4}}), ','))
 				  .str(),
 			  std::string("ab,2\nc,4"));
 
-	// Complex container 3.
+	// Complex container 4.
 	EXPECT_EQ((std::ostringstream()
 			   << tgen::print(std::vector<std::tuple<char, int, double>>(
 					  {{'a', 1, 0.1}, {'b', 2, 0.2}})))
@@ -435,7 +435,7 @@ TEST(base_test, any_by_distribution) {
 		[]() { return tgen::pick_by_distribution({1, 2, 3}, {2, 2, 2}); }, 3);
 }
 
-TEST(base_test, choose_invalid_ammount) {
+TEST(base_test, choose_invalid_amount) {
 	tgen::register_gen();
 
 	std::vector<int> v(10);

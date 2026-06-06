@@ -667,6 +667,39 @@ TEST(graph_test, set_edge_weights) {
 	EXPECT_TRUE((graph_gen_result_valid(w, 4, 3, false, false)));
 }
 
+TEST(graph_test, edge_weighted) {
+	tgen::register_gen();
+
+	tgen::egraph<int>::value g(3, {}, true);
+	g.edge_weighted();
+	g.add_edge(0, 1, 10);
+	g.add_edge(1, 2, 20);
+
+	EXPECT_TRUE(g.edge_weights().has_value());
+	EXPECT_EQ(g.m(), 2);
+	EXPECT_EQ((*g.edge_weights())[0], 10);
+	EXPECT_EQ((*g.edge_weights())[1], 20);
+	EXPECT_EQ((std::ostringstream() << g).str(), "0 1 10\n1 2 20\n");
+}
+
+TEST(graph_test, edge_weighted_invalid_nonempty) {
+	tgen::register_gen();
+
+	auto g = tgen::graph(3, 2).gen();
+	EXPECT_THROW_TGEN_PREFIX(
+		g.edge_weighted(), "wgraph: value: edge_weighted requires a graph with "
+						   "no edges");
+}
+
+TEST(graph_test, edge_weighted_invalid_already_weighted) {
+	tgen::register_gen();
+
+	tgen::egraph<int>::value g(3, {}, true);
+	g.edge_weighted();
+	EXPECT_THROW_TGEN_PREFIX(g.edge_weighted(),
+							 "wgraph: value: graph is already edge-weighted");
+}
+
 TEST(graph_test, glue_disjoint_union_size) {
 	tgen::register_gen();
 
@@ -692,7 +725,7 @@ TEST(graph_test, glue_disjoint_union_directedness_mismatch) {
 
 	EXPECT_THROW_TGEN_PREFIX(
 		c.glue(d, std::set<std::pair<int, int>>()),
-		"wtree: value: trees must have the same is_directed value");
+		"wgraph: value: graphs must have the same is_directed value");
 }
 
 TEST(graph_test, value_add_vertices_and_add_edge) {

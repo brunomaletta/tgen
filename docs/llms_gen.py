@@ -31,6 +31,8 @@ import xml.etree.ElementTree as ET
 # Matches any leftover unconverted Doxygen alias markup, e.g. ``@tt{``.
 MARKUP_RE = re.compile(r"@[a-zA-Z]+\{")
 
+GITHUB_REPO = "https://github.com/brunomaletta/tgen"
+
 # Modules that MUST be present in the generated output (subset check). Extra
 # groups (e.g. ``generator_value_op``) are allowed and must not cause failure.
 EXPECTED_MODULES = [
@@ -445,8 +447,8 @@ def _write_index(out_dir, base_url, entries):
     lines.append("\n")
     lines.append(
         "- [single_include/tgen.h]"
-        "(https://github.com/rsalesc/tgen/blob/main/single_include/tgen.h) — "
-        "the entire library (one header).\n"
+        "(%s/blob/main/single_include/tgen.h) — "
+        "the entire library (one header).\n" % GITHUB_REPO
     )
     with open(os.path.join(out_dir, "llms.txt"), "w") as f:
         f.write("".join(lines))

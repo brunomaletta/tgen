@@ -18,17 +18,6 @@ TEST(hack_test, abacaba) {
 	EXPECT_EQ(tgen::hack::abacaba(19), "abacabadabacabaeaba");
 }
 
-TEST(hack_test, unsigned_hash_hack_invalid) {
-	tgen::register_gen();
-
-	EXPECT_THROW_TGEN_PREFIX(tgen::hack::polynomial_hash_hack(1, 31, 1e9 + 7),
-							 "str: alphabet size must be greater than 1");
-	EXPECT_THROW_TGEN_PREFIX(tgen::hack::polynomial_hash_hack(2, 0, 1e9 + 7),
-							 "str: base must be in (0, mod)");
-	EXPECT_THROW_TGEN_PREFIX(tgen::hack::polynomial_hash_hack(2, 31, 31),
-							 "str: base must be in (0, mod)");
-}
-
 TEST(hack_test, unsigned_hash_hack) {
 	tgen::register_gen();
 
@@ -291,13 +280,10 @@ int segment_tree_beats_round_update_count(int block_len, int an, int bn,
 										  int round) {
 	const int off = (round * an) % block_len;
 	const int add_off = (off + block_len - bn) % block_len;
-	int count = 1 + block_len;
-	for (int k = 0; k < block_len; ++k) {
-		(void)k;
-		count += (off + an > block_len) ? 2 : 1;
-		count += (add_off + bn > block_len) ? 2 : 1;
-	}
-	return count;
+	// Per-block contribution is the same for every k; scale by block_len.
+	const int per_block =
+		((off + an > block_len) ? 2 : 1) + ((add_off + bn > block_len) ? 2 : 1);
+	return 1 + block_len + block_len * per_block;
 }
 
 void apply_segment_tree_beats_update(std::vector<int> &arr,

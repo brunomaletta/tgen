@@ -5,6 +5,8 @@ on:
     branches: [ main ]
     paths:
       - 'docs/**'
+      - 'single_include/**'
+      - 'README.md'
 
 permissions:
   contents: read
@@ -17,8 +19,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install toolchain
         run: |
@@ -40,7 +40,10 @@ jobs:
           sudo mv doxygen-${DOXYGEN_VERSION}/bin/doxygen /usr/local/bin/
 
       - name: Build documentation
-        run: make doc llms
+        run: make doc
+
+      - name: Test llms_gen.py
+        run: cd docs && python3 -m unittest test_llms_gen -v
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

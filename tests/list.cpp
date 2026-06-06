@@ -539,7 +539,7 @@ TEST(list_test, list_choose) {
 		int k = tgen::next<int>(1, v.size());
 		auto subseq = inst.choose(k);
 		int idx = 0;
-		// Tests if subseq is a sublist of inst.
+		// Tests if subseq is a subsequence of inst.
 		for (int j = 0; j < inst.size(); ++j)
 			if (idx < subseq.size() and subseq[idx] == inst[j])
 				++idx;

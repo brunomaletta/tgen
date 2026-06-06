@@ -14,6 +14,8 @@ namespace tgen {
  * directed / self-loop mode. It only randomizes **edges** (which pairs of vertices are adjacent);
  * vertex and edge weights are not sampled by the generator. Attach them on @tt{tgen::wgraph::value} with
  * @tt{tgen::wgraph::value::set_vertex_weights} / @tt{tgen::wgraph::value::set_edge_weights} when needed.
+ * Use @tt{tgen::wgraph::value::edge_weighted} on an edgeless graph to enable weighted
+ * @tt{add_edge(u, v, w)} calls before any edges exist.
  *
  * Convenient aliases (same constructors and methods as @tt{tgen::wgraph}):
  * - @tt{tgen::graph} — unweighted, @tt{tgen::wgraph<int, int>};
@@ -120,6 +122,19 @@ namespace tgen {
  * 1 2 ab
  * ```
  * @image html graph5.svg "Example generated graph" width=600
+ *
+ * Weighted directed graph built edge by edge with @tt{edge_weighted}.
+ *
+ * ```cpp
+ * std::cout << tgen::egraph<int>::value(4, {}, true).edge_weighted().add_edge(0, 1, 10).add_edge(1, 2, 20).add_edge(2, 3, 30).print_nm();
+ * ```
+ *
+ * ```
+ * 4 3
+ * 0 1 10
+ * 1 2 20
+ * 2 3 30
+ * ```
  *
  * Standard graphs (@tt{tgen::K}, @tt{tgen::P}, @tt{tgen::C}, and @tt{tgen::S})
  * are deterministic helpers that return @tt{tgen::wgraph::value}.
@@ -639,6 +654,32 @@ namespace tgen {
 
 
 /**
+ * @brief Enables edge-weighted mode on an edgeless graph.
+ *
+ * After this call, @tt{add_edge(u, v, w)} accepts a weight for each new edge.
+ *
+ * @pre The graph has no edges (@tt{m() == 0}).
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Build a weighted directed graph edge by edge.
+ * tgen::egraph<int>::value g(3, {}, true);
+ * g.edge_weighted();
+ * g.add_edge(0, 1, 10);
+ * g.add_edge(1, 2, 20);
+ * std::cout << g; // Prints "0 1 10\n1 2 20\n".
+ * ```
+ *
+ * @fn wgraph::value::edge_weighted();
+ */
+
+
+/**
  * @brief Adds 1 for printing.
  *
  * This makes it so, when given to @tt{@namespace{std}::@type{cout}}, the graph will be printed with labels
@@ -740,7 +781,7 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Random relabel of P_5 maintaining 0 as one of its exteme points.
+ * // Random relabel of P_5 maintaining 0 as one of its extreme points.
  * std::cout << tgen::P(5).shuffle_except({0});
  * ```
  *

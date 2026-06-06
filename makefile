@@ -123,7 +123,7 @@ test_clang: $(CLANG_OBJDIR)/test
 	@rm -f $<
 
 test_asan: $(ASAN_OBJDIR)/test
-	-$<
+	$<
 	@rm -f $<
 
 # Incremental by default (no rm -rf); use `make doc-rebuild` or `make clean-doc doc` for a full wipe.

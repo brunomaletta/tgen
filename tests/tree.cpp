@@ -265,6 +265,32 @@ TEST(tree_test, set_edge_weights) {
 	EXPECT_EQ(*w.edge_weights(), ew);
 }
 
+TEST(tree_test, edge_weighted) {
+	tgen::register_gen();
+
+	tgen::etree<int>::value t(4, {});
+	t.edge_weighted();
+	t.add_edge(0, 1, 5);
+	t.add_edge(1, 2, 6);
+	t.add_edge(2, 3, 7);
+
+	EXPECT_TRUE(is_tree_shape(t));
+	EXPECT_TRUE(t.edge_weights().has_value());
+	EXPECT_EQ(t.edges().size(), 3u);
+	EXPECT_EQ((*t.edge_weights())[0], 5);
+	EXPECT_EQ((*t.edge_weights())[2], 7);
+}
+
+TEST(tree_test, edge_weighted_invalid_nonempty) {
+	tgen::register_gen();
+
+	auto t = tgen::tree(4).gen();
+	EXPECT_THROW_TGEN_PREFIX(
+		t.edge_weighted(),
+		"wtree: value: edge_weighted requires a tree with no "
+		"edges");
+}
+
 TEST(tree_test, glue_composes_trees) {
 	tgen::register_gen();
 

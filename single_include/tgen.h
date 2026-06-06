@@ -676,7 +676,9 @@ template <typename T> T next(T right) {
 }
 
 // Returns a uniformly random number in [left, right].
-// O(1).
+// For floating-point types, uses uniform_real_distribution ([left, right) in
+// C++), equivalent to [left, right] because the right endpoint has probability
+// zero. O(1).
 template <typename T> T next(T left, T right) {
 	detail::ensure_registered();
 	tgen_ensure(left <= right, "range for `next` must be valid");
@@ -951,6 +953,7 @@ template <typename T>
 // O(1) for random_access_iterator, O(|last - first|) otherwise.
 template <typename It> typename It::value_type pick(It first, It last) {
 	int size = std::distance(first, last);
+	tgen_ensure(size > 0, "cannot pick from empty range");
 	It it = first;
 	std::advance(it, next(0, size - 1));
 	return *it;
@@ -1119,7 +1122,7 @@ distinct_container(const C &) -> distinct_container<typename C::value_type>;
  *
  * Opts are a list of either positional or named options.
  *
- * Named options is given in one of the following formats:
+ * Named options are given in one of the following formats:
  * 1) -keyname=value or --keyname=value (ex. -n=10   , --test-count=20)
  * 2) -keyname value or --keyname value (ex. -n 10   , --test-count 20)
  *
@@ -1301,7 +1304,7 @@ inline void parse_opts(int argc, char **argv) {
 			key = key.substr(0, eq);
 			tgen_ensure(!key.empty() and !value.empty(),
 						"expected non-empty key/value in opt (" +
-							std::string(argv[1]));
+							std::string(argv[i]) + ")");
 			tgen_ensure(named_opts.count(key) == 0,
 						"cannot have repeated keys");
 			named_opts[key] = value;
@@ -1422,9 +1425,9 @@ inline void register_gen(std::optional<long long> seed = std::nullopt) {
 template <typename T> struct list : gen_base<list<T>> {
 	int size_;			  // Size of list.
 	T value_l_, value_r_; // Range of defined values.
-	std::set<T> values_;  // Set of values. If empty, use range. if not,
+	std::set<T> values_;  // Set of values. If empty, use range; if not,
 						  // represents the possible values, and the range
-						  // represents the index in this set)
+						  // represents the index in this set.
 	std::map<T, int>
 		value_idx_in_set_; // Index of every value in the set above.
 	std::vector<std::pair<T, T>> val_range_; // Range of values of each index.
@@ -2906,7 +2909,7 @@ gen_partition(int n, int part_left = 1,
 				"math: invalid parameters to gen_partition");
 	tgen_ensure(part_left <= n and *part_right > 0, "math: no such partition");
 
-	// dp[i] = log(numbers of ways to add to i).
+	// dp[i] = log(number of ways to add to i).
 	std::vector<long double> dp(n + 1, detail::LOG_ZERO);
 	dp[0] = detail::LOG_ONE;
 	long double window = detail::LOG_ZERO;
@@ -2959,7 +2962,7 @@ gen_partition(int n, int part_left = 1,
 }
 
 // Partition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
-// O(n) time/memory if part_r is not set, O(n * k) time/memory otherwise.
+// O(n) time/memory if part_right is not set, O(n * k) time/memory otherwise.
 // 0 < k <= n.
 // 0 <= part_left.
 inline std::vector<int>
@@ -3632,7 +3635,7 @@ std::pair<u128, u128> get_n_and_m(T L1, T R1, T L2, T R2) {
 }
 
 // Returns first + first+1 + ... + last,
-// num_term terms. Avoids overflow.
+// num_terms terms. Avoids overflow.
 static u128 pos_arith_sum(u128 first, u128 last, u128 num_terms) {
 	u128 x = first + last, y = num_terms;
 
@@ -3996,7 +3999,7 @@ struct dsu {
 	}
 
 	// Merges components of `a` and `b`. Returns if the sets were united, and
-	// false if a and be were in the same set.
+	// false if a and b were in the same set.
 	// O(alpha(n)) amortized, O(log n) worst case.
 	bool unite(int a, int b) {
 		a = find(a);
@@ -4019,7 +4022,7 @@ struct dsu {
  *
  * Unrooted trees with `n` vertices, indexed from 0 to n-1.
  * These are unrooted undirected labeled trees, that is, isomorphism is not
- * taken into account. VWeight is the type of vertex weights, and EWeight are
+ * taken into account. VWeight is the type of vertex weights, and EWeight is
  * the type of edge weights. Generator does not generate weights. The weights
  * are to be set in the wtree::value.
  */
@@ -4159,12 +4162,26 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		template <typename NewEWeight = EWeight>
 		typename wtree<VWeight, NewEWeight>::value
 		set_edge_weights(const std::vector<NewEWeight> &edge_weights) const {
-			tgen_ensure(edge_weights.size() == edges().size(),
-						"wtree: value: must give `m` edge weights");
+			tgen_ensure(
+				edge_weights.size() == edges().size(),
+				"wtree: value: must give `edges().size()` edge weights");
 
 			auto new_tree = convert_weight_types<VWeight, NewEWeight>();
 			new_tree.edge_weights_ = edge_weights;
 			return new_tree;
+		}
+
+		// Enables edge-weighted mode before adding weighted edges
+		// incrementally. The tree must have no edges yet. O(1).
+		value &edge_weighted() {
+			tgen_ensure(edges().size() == 0,
+						"wtree: value: edge_weighted requires a tree with no "
+						"edges");
+			tgen_ensure(!edge_weights_.has_value(),
+						"wtree: value: tree is already edge-weighted");
+
+			edge_weights_ = std::vector<EWeight>();
+			return *this;
 		}
 
 		// Adds 1 to vertex ids, for printing.
@@ -4187,7 +4204,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// randomizes the root. O(1).
 		value &print_parents(int root = -1) {
 			tgen_ensure(root == -1 or (0 <= root and root < n()) or root == n(),
-						"wtree: value: root must -1, `n`, or in [0, n)");
+						"wtree: value: root must be -1, `n`, or in [0, n)");
 			print_parents_ = root;
 			return *this;
 		}
@@ -4616,7 +4633,7 @@ using tree = wtree<int, int>;
  *
  * Graphs of `n` vertices labeled from 0 to n-1 and `m` edges.
  * These are labeled graphs, that is, isomorphism is not taken into
- * account. VWeight is the type of vertex weights, and EWeight are the type of
+ * account. VWeight is the type of vertex weights, and EWeight is the type of
  * edge weights. Generator does not generate weights. The weights are to be set
  * in the wgraph::value.
  */
@@ -4786,6 +4803,19 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			auto new_graph = convert_weight_types<VWeight, NewEWeight>();
 			new_graph.edge_weights_ = edge_weights;
 			return new_graph;
+		}
+
+		// Enables edge-weighted mode before adding weighted edges
+		// incrementally. The graph must have no edges yet. O(1).
+		value &edge_weighted() {
+			tgen_ensure(m() == 0,
+						"wgraph: value: edge_weighted requires a graph with no "
+						"edges");
+			tgen_ensure(!edge_weights_.has_value(),
+						"wgraph: value: graph is already edge-weighted");
+
+			edge_weights_ = std::vector<EWeight>();
+			return *this;
 		}
 
 		// Adds 1 to vertex ids, for printing.
@@ -4967,7 +4997,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 					std::set<std::pair<int, int>> index_pairs) {
 			tgen_ensure(
 				is_directed() == rhs.is_directed(),
-				"wtree: value: trees must have the same is_directed value");
+				"wgraph: value: graphs must have the same is_directed value");
 
 			// Checks validity of indices.
 			std::set<int> idx_left, idx_right;
@@ -5926,7 +5956,7 @@ random_convex_polygon(int n, long long min_coord, long long max_coord) {
 		width >= n - 1,
 		"geometry: random_convex_polygon: coordinate range too small for n");
 
-	// Grid spans [0, width]; after the walk, the bounding box spans equals
+	// Grid spans [0, width]; after the walk, the bounding box span equals
 	// width on each axis, so shifting by (min_coord - min_x, min_coord - min_y)
 	// fills the box.
 	std::vector<long long> x_sorted =
@@ -6295,7 +6325,7 @@ inline egraph<int>::value non_strict_relaxation_dijkstra_bug(int n) {
 		"hack: non_strict_relaxation_dijkstra_bug: needs at least 3 vertices");
 
 	egraph<int>::value g(n, {}, true);
-	g = g.set_edge_weights(std::vector<int>{});
+	g.edge_weighted();
 	g.add_edge(0, 1, 1);
 	g.add_edge(0, 2, 1);
 	for (int i = 1; i + 2 < n; i += 2) {
@@ -6325,7 +6355,7 @@ inline egraph<int>::value stale_heap_dijkstra_bug(int n) {
 
 	int mid = n / 2;
 	egraph<int>::value g(n, {}, true);
-	g = g.set_edge_weights(std::vector<int>{});
+	g.edge_weighted();
 	for (int i = 1; i < mid; ++i)
 		g.add_edge(0, i, i);
 	for (int i = 1; i < mid; ++i)
@@ -6336,7 +6366,7 @@ inline egraph<int>::value stale_heap_dijkstra_bug(int n) {
 	return g.shuffle_except({0});
 }
 
-// Zadeh (1972) anti-shortest-paths flow network for Edmonds-Karp and Dinic.
+// Zadeh (1972) anti-shortest-paths flow network for Edmonds-Karp and Dinitz.
 // Source is vertex 0; sink is vertex 4l + 2k + 1.
 // n = 4l + 2k + 2, m = 6l + 4k + k^2 - 4.
 // O(l + k^2).
@@ -6358,7 +6388,7 @@ inline egraph<int>::value dinitz_worst_case(int k, int l) {
 	auto t = [&](int i) { return 4 * l + 2 * k + 1 - i; };
 
 	egraph<int>::value g(n, {}, true);
-	g = g.set_edge_weights(std::vector<int>{});
+	g.edge_weighted();
 
 	for (int i = 0; i + 1 < 2 * l - 1; ++i)
 		g.add_edge(i, i + 1, flow_cap);
@@ -6577,7 +6607,7 @@ inline std::string gen_parenthesis(int size) {
 		long long a = k - open, b = k - close, h = open - close;
 
 		// Probability of placing '(':
-		// P('(') = (k - open) * (bal + 1) / (rem)
+		// P('(') = (k - open) * (h + 2) / ((k - open + k - close) * (h + 1))
 		// Derived from ballot numbers ratio.
 		long long num = a * (h + 2);
 		long long den = (a + b) * (h + 1);

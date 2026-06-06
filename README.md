@@ -23,9 +23,9 @@
 
 `tgen` is a C++ header for writing random testcase generators quickly and safely.
 
-Instead of manually coding ad-hoc generators, use powerful algorithmic machinery to guarantee simple, correct and uniform generation.
+Instead of manually coding ad-hoc generators, use powerful algorithmic machinery to guarantee simple, correct generation—with uniform sampling where the API promises it.
 
-There is support for arrays, permutations, maths, and more.
+There is support for lists, permutations, math, and more.
 
 ---
 
@@ -46,7 +46,7 @@ std::cout << tgen::misc::gen_parenthesis(10) << std::endl;
 std::cout << tgen::print(tgen::geometry::random_simple_polygon(200, 0, 2000), '\n') << std::endl;
 ```
 
-- **Generators**: describe constraints and sample uniformly random values.
+- **Generators**: describe constraints and sample uniformly among valid values.
 
 ```cpp
 // Generates 20 random distinct values from 1 to 100.
@@ -68,7 +68,7 @@ std::cout << tgen::tree::gen_skewed(10, 3) << std::endl;
 std::cout << tgen::graph(8, 10).add_edge(0, 1).get_connected() << std::endl;
 ```
 
--  **Adversarial generation**: generate worst-case inputs.
+- **Adversarial generation**: generate worst-case inputs.
 
 ```cpp
 // Worst case for Edmonds-Karp and Dinitz.
@@ -91,7 +91,7 @@ No loops. No backtracking. No custom generator code.
 - **Declarative generators** to express complex constraints concisely;
 - **Adversarial generation** to create worst-case inputs for known algorithms;
 - **Built-in distinct generation** for duplicate-free, unbiased generation;
-- **Provably uniform sampling** across all supported operations;
+- **Uniform sampling** for constraint-based generators (`.gen()`, `.gen_all()`) and distinct machinery; some helpers (e.g. skewed trees/graphs, biased geometry) are intentionally non-uniform;
 - **Comprehensive documentation** with many examples.
 
 ## 📦 Installation
@@ -117,8 +117,8 @@ Similar to traditional generators, there is registration and opts (arguments).
 ```cpp
 int main(int argc, char** argv) {
     tgen::register_gen(argc, argv);
-	int n = tgen::opt<int>("n");
-	std::cout << tgen::permutation(tgen::next(1, n)).gen().add_1() << std::endl;
+    int n = tgen::opt<int>("n");
+    std::cout << tgen::permutation(tgen::next(1, n)).gen().add_1() << std::endl;
 }
 ``` 
 

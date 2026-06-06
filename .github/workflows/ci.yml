@@ -14,8 +14,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install compiler and gtest
         run: |
@@ -35,3 +33,9 @@ jobs:
 
       - name: Run tests Clang
         run: make test_clang
+
+      - name: Run tests ASan
+        run: make test_asan
+
+      - name: Test llms_gen.py
+        run: cd docs && python3 -m unittest test_llms_gen -v

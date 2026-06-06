@@ -78,10 +78,10 @@ void expect_generator_uniform(const Gen &gen, int num_elements) {
 		for (long long j = 0; j < num_tests; ++j)
 			counts[gen.gen().to_std()]++;
 
-		if (!expect_uniform(counts, num_elements, num_tests))
+		if (!expect_uniform(counts, num_elements, num_tests)) {
 			++count_fail;
-
-		example_counts = counts;
+			example_counts = counts;
+		}
 	}
 	EXPECT_TRUE(count_fail < repeats)
 		<< "Distribution not uniform\nNum elements: " << num_elements
@@ -171,8 +171,7 @@ bool graph_gen_result_valid(const Graph &g, int n, int m, bool directed,
 		if (!directed and u != v and !g.adj()[v].count(u))
 			return false;
 
-		const std::pair<int, int> key =
-			directed ? std::pair(u, v) : std::pair(u, v);
+		const std::pair<int, int> key = std::pair(u, v);
 		if (!seen.insert(key).second)
 			return false;
 		if (u == v)

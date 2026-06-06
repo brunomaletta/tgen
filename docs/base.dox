@@ -33,7 +33,7 @@ namespace tgen {
  * @ingroup base
  * @brief Ensures condition is true.
  *
- * @param cond Condition to me ensured.
+ * @param cond Condition to be ensured.
  * @param ... Empty or a string with an error message.
  *
  * @throws std::runtime_error if @pname{cond} is not true.
@@ -246,9 +246,13 @@ namespace tgen {
  *         @primitive{long long}, @primitive{char}, etc.
  *
  * @param left Left endpoint of the range.
- * @param right Light endpoint of the range.
+ * @param right Right endpoint of the range.
  *
  * @return A random number in @tt{[@pname{left}, @pname{right}]}, chosen uniformly.
+ *
+ * @note For floating-point types, sampling uses @tt{std::uniform_real_distribution}
+ *       (@tt{[@pname{left}, @pname{right})} in C++). This matches the documented
+ *       closed interval because the right endpoint has probability zero.
  *
  * #### Complexity
  *
@@ -321,6 +325,10 @@ namespace tgen {
  * @param w Skew parameter.
  *
  * @return A value in @tt{[@pname{left}, @pname{right}]} with bias controlled by @pname{w}.
+ *
+ * @note For floating-point types, the underlying uniform sample uses
+ *       @tt{std::uniform_real_distribution} (@tt{[@pname{left}, @pname{right})} in C++),
+ *       equivalent to the closed interval because the right endpoint has probability zero.
  *
  * See @tt{tgen::wnext} for more details.
  *
@@ -569,6 +577,8 @@ namespace tgen {
  *
  * @return A uniformly random element from the range @tt{[@pname{first}, @pname{last})}.
  *
+ * @throws std::runtime_error if the range is empty.
+ *
  * #### Complexity
  *
  * @tt{O(1)} for random_access_iterator, @tt{O(|@pname{last} - @pname{first}|)} otherwise.
@@ -586,7 +596,7 @@ namespace tgen {
 
 /**
  * @ingroup base
- * @brief Choses a random element from container.
+ * @brief Chooses a random element from container.
  *
  * @param container Container to choose from.
  *
@@ -1111,7 +1121,7 @@ namespace tgen {
  * @param args Arguments for the @tt{tgen::@type{Gen}::gen} call.
  *
  * @return A @ref tgen::list::value with @pname{size}
- *         calls to @tt{tgen::@type{gen}::gen(@pname{args}...)}.
+ *         calls to @tt{tgen::@type{Gen}::gen(@pname{args}...)}.
  *
  * #### Complexity
  *

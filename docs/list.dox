@@ -233,9 +233,9 @@ namespace tgen {
  *       The restrictions are considered too complex if the following condition does not hold.
  *       Consider the graph defined with vertices as the @tt{tgen::list::different} sets added,
  *       and there is an edge between two vertices if they share an index. Note that you need
- *       to consider indices (directed or indirectly) connected by equality restrictions as
- *       being the same. This resulting graph must be a acyclic. Moreover, for every tree in this
- *       graph, all of its indices with a @tt{tgen::list::set} operation must be covered by a single
+ *       to consider indices (directly or indirectly) connected by equality restrictions as
+ *       being the same. This resulting graph must be acyclic. Moreover, for every tree in this
+ *       graph, all of its indices with a @tt{tgen::list::fix} operation must be covered by a single
  *       "different" restriction set.
  *
  * @throws std::runtime_error if generation fails.

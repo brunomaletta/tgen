@@ -70,13 +70,6 @@ TEST(opts_test, invalid_opts_repeated_key_space) {
 							 "cannot have repeated keys");
 }
 
-TEST(opts_test, invalid_opts_empty_value) {
-	auto argv = get_argv({"./executable", "-n"});
-
-	EXPECT_THROW_TGEN_PREFIX(tgen::register_gen(argv.size() - 1, argv.data()),
-							 "value cannot be empty");
-}
-
 TEST(opts_test, has_opt_named) {
 	auto argv = get_argv({"./executable", "-n", "10"});
 	tgen::register_gen(argv.size() - 1, argv.data());

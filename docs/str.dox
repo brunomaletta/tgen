@@ -154,7 +154,7 @@ namespace tgen {
  * auto str_gen = tgen::str(5, 'a', 'z').fix(0, 'x');
  * ```
  *
- * @fn str &str::fix(int idx, char character);
+ * @fn str::fix(int idx, char character);
  */
 
 
@@ -195,7 +195,7 @@ namespace tgen {
  * auto str_gen = tgen::str(7, '0', '9').equal(0, 6);
  * ```
  *
- * @fn str &str::equal(int idx_1, int idx_2);
+ * @fn str::equal(int idx_1, int idx_2);
  */
 
 
@@ -217,7 +217,7 @@ namespace tgen {
  * auto str_gen = tgen::str(10, 'a', 'z').equal_range(0, 4);
  * ```
  *
- * @fn str &str::equal_range(int left, int right);
+ * @fn str::equal_range(int left, int right);
  */
 
 
@@ -253,7 +253,7 @@ namespace tgen {
  * auto str_gen = tgen::str(10, 'a', 'z').palindrome(0, 4).palindrome(5, 9);
  * ```
  *
- * @fn str &str::palindrome(int left, int right);
+ * @fn str::palindrome(int left, int right);
  */
 
 
@@ -272,7 +272,7 @@ namespace tgen {
  * auto str_gen = tgen::str(10, 'a', 'z').palindrome();
  * ```
  *
- * @fn str &str::palindrome();
+ * @fn str::palindrome();
  */
 
 
@@ -285,9 +285,9 @@ namespace tgen {
  *       The restrictions are considered too complex if the following condition does not hold.
  *       Consider the graph defined with vertices as the @tt{tgen::str::different} sets added,
  *       and there is an edge between two vertices if they share an index. Note that you need
- *       to consider indices (directed or indirectly) connected by equality restrictions as
- *       being the same. This resulting graph must be a acyclic. Moreover, for every tree in this
- *       graph, all of its indices with a @tt{tgen::str::set} operation must be covered by a single
+ *       to consider indices (directly or indirectly) connected by equality restrictions as
+ *       being the same. This resulting graph must be acyclic. Moreover, for every tree in this
+ *       graph, all of its indices with a @tt{tgen::str::fix} operation must be covered by a single
  *       "different" restriction set.
  *
  * @throws std::runtime_error if the generator was created from
@@ -300,7 +300,7 @@ namespace tgen {
  * auto str_gen = tgen::str(10, 'a', 'z').different({0, 1, 2});
  * ```
  *
- * @fn str &str::different(std::set<int> indices);
+ * @fn str::different(std::set<int> indices);
  */
 
 
@@ -322,7 +322,7 @@ namespace tgen {
  * auto str_gen = tgen::str(10, 'a', 'z').different(0, 9);
  * ```
  *
- * @fn str &str::different(int idx_1, int idx_2);
+ * @fn str::different(int idx_1, int idx_2);
  */
 
 
@@ -363,7 +363,7 @@ namespace tgen {
  * auto str_gen = tgen::str(10, 'a', 'z').all_different();
  * ```
  *
- * @fn str &str::all_different();
+ * @fn str::all_different();
  */
 
 

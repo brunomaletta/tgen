@@ -20,7 +20,7 @@ namespace tgen::misc {
  */
 
 
- /**
+/**
  * @ingroup misc
  * @brief Generates a random valid parenthesis sequence.
  *

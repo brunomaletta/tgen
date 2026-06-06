@@ -13,6 +13,8 @@ namespace tgen {
  * only randomizes the **tree shape** (edges); vertex and edge weights are not
  * sampled by the generator. Attach them on @tt{tgen::wtree::value} with
  * @tt{tgen::wtree::value::set_vertex_weights} / @tt{tgen::wtree::value::set_edge_weights} when needed.
+ * Use @tt{tgen::wtree::value::edge_weighted} on an edgeless tree to enable weighted
+ * @tt{add_edge(u, v, w)} calls before any edges exist.
  *
  * Convenient aliases (same constructors and methods as @tt{tgen::wtree}):
  * - @tt{tgen::tree} — unweighted, @tt{tgen::wtree<int, int>};
@@ -74,6 +76,19 @@ namespace tgen {
  * 2 3
  * ```
  * @image html tree3.svg "Example generated tree" width=600
+ *
+ * Path tree on 4 vertices with edge weights attached incrementally via @tt{edge_weighted}.
+ *
+ * ```cpp
+ * std::cout << tgen::etree<int>::value(4, {}).edge_weighted().add_edge(0, 1, 5).add_edge(1, 2, 6).add_edge(2, 3, 7).print_n();
+ * ```
+ *
+ * ```
+ * 4
+ * 0 1 5
+ * 1 2 6
+ * 2 3 7
+ * ```
  *
  * For labeled **graphs** (fixed @tt{n}, @tt{m}, optional direction and
  * self-loops), see the @ref graph module and @tt{tgen::wgraph}.
@@ -430,6 +445,35 @@ namespace tgen {
  * ```
  *
  * @fn wtree::value::set_edge_weights(const std::vector<int> &edge_weights) const;
+ */
+
+
+/**
+ * @brief Enables edge-weighted mode on an edgeless tree.
+ *
+ * After this call, @tt{add_edge(u, v, w)} accepts a weight for each new edge.
+ *
+ * @pre The tree has no edges.
+ *
+ * @return @tt{*this} (mutating).
+ *
+ * #### Complexity
+ *
+ * @tt{O(1)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Build a weighted tree edge by edge.
+ * tgen::etree<int>::value t(4, {});
+ * t.edge_weighted();
+ * t.add_edge(0, 1, 5);
+ * t.add_edge(1, 2, 6);
+ * t.add_edge(2, 3, 7);
+ * std::cout << t;
+ * ```
+ *
+ * @fn wtree::value::edge_weighted();
  */
 
 
