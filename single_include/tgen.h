@@ -927,8 +927,7 @@ template <typename It> void shuffle(It first, It last) {
 
 // Shuffles container uniformly.
 // O(|container|).
-template <typename C, std::enable_if_t<!is_generator_value<C>::value, int> = 0>
-[[nodiscard]] auto shuffled(const C &container) {
+template <typename C> [[nodiscard]] auto shuffled(const C &container) {
 	if constexpr (is_associative_container<C>::value) {
 		std::vector<typename C::value_type> vec(container.begin(),
 												container.end());
@@ -956,8 +955,7 @@ template <typename It> typename It::value_type pick(It first, It last) {
 
 // Returns a random element from container uniformly.
 // O(1) for random_access_iterator, O(|container|) otherwise.
-template <typename C, std::enable_if_t<!is_generator_value<C>::value, int> = 0>
-typename C::value_type pick(const C &container) {
+template <typename C> typename C::value_type pick(const C &container) {
 	return pick(container.begin(), container.end());
 }
 template <typename T> T pick(const std::initializer_list<T> &il) {
@@ -966,8 +964,7 @@ template <typename T> T pick(const std::initializer_list<T> &il) {
 
 // Returns container[i] with probability proportional to distribution[i].
 // O(1) for random_access_iterator, O(|container|) otherwise.
-template <typename C, typename T,
-		  std::enable_if_t<!is_generator_value<C>::value, int> = 0>
+template <typename C, typename T>
 typename C::value_type pick_by_distribution(const C &container,
 											std::vector<T> distribution) {
 	tgen_ensure(container.size() == distribution.size(),
@@ -976,8 +973,7 @@ typename C::value_type pick_by_distribution(const C &container,
 	std::advance(it, next_by_distribution(distribution));
 	return *it;
 }
-template <typename C, typename T,
-		  std::enable_if_t<!is_generator_value<C>::value, int> = 0>
+template <typename C, typename T>
 typename C::value_type
 pick_by_distribution(const C &container,
 					 const std::initializer_list<T> &distribution) {
@@ -997,8 +993,7 @@ T pick_by_distribution(const std::initializer_list<T> &il,
 
 // Chooses k values uniformly from container, as in a subsequence of size k.
 // Returns a copy. O(|container|).
-template <typename C, std::enable_if_t<!is_generator_value<C>::value, int> = 0>
-C choose(const C &container, int k) {
+template <typename C> C choose(const C &container, int k) {
 	tgen_ensure(0 < k and k <= static_cast<int>(container.size()),
 				"number of elements to choose must be valid");
 	std::vector<typename C::value_type> new_vec;
