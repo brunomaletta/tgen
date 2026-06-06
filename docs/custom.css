@@ -547,3 +547,47 @@ html.dark-mode #projectlogo img {
 	margin-inline: auto;
 }
 
+/* Benchmark results (\htmlinclude fragment) — styles live here, not inline in the fragment */
+#benchmark-results {
+	line-height: var(--content-line-height);
+}
+
+#benchmark-results .table-scroll {
+	overflow-x: auto;
+	max-width: 100%;
+	margin: 1em 0;
+}
+
+#benchmark-results table {
+	border-collapse: collapse;
+	width: max-content;
+	min-width: 100%;
+	max-width: 960px;
+}
+
+#benchmark-results th,
+#benchmark-results td {
+	border: 1px solid var(--separator-color, #ccc);
+	padding: var(--spacing-small) var(--spacing-medium);
+	text-align: left;
+}
+
+#benchmark-results th {
+	background: var(--code-background, #f4f4f4);
+}
+
+#benchmark-results th.num,
+#benchmark-results td.num {
+	text-align: right;
+}
+
+#benchmark-results .benchmark-meta {
+	font-size: var(--toc-font-size);
+	opacity: 0.85;
+	margin: 0 0 0.25em;
+}
+
+#benchmark-results .benchmark-meta:last-of-type {
+	margin-bottom: 1em;
+}
+

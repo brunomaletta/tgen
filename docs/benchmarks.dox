@@ -5,5 +5,5 @@
  *
  * Numbers depend on hardware; treat them as reference measurements.
  *
- * \htmlinclude benchmark_results.html
+ * \htmlinclude build/benchmark_include.html
  */

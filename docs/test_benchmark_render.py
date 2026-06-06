@@ -73,6 +73,8 @@ class BenchmarkRenderTest(unittest.TestCase):
             html,
         )
         self.assertIn("<strong>10<sup>6</sup></strong>", html)
+        self.assertNotIn("<style>", html)
+        self.assertIn('class="table-scroll"', html)
 
 
 if __name__ == "__main__":

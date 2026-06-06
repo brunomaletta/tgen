@@ -1,8 +1,8 @@
 """Render benchmark HTML from JSON + Doxygen XML doc links.
 
 Reads ``docs/benchmark_results.json`` (timings + ``doc_symbol`` keys) and
-``docs/build/xml`` (from the llms Doxygen pass) to write
-``docs/benchmark_results.html`` with correct member links. Anchors are resolved
+``docs/build/xml`` (from the doc-prepare Doxygen pass) to write
+``docs/build/benchmark_include.html`` with correct member links. Anchors are resolved
 from Doxygen XML so C++ does not hardcode hash URLs.
 """
 
@@ -115,41 +115,13 @@ def render_html(data, symbol_index):
 
     lines = [
         '<div id="benchmark-results">',
-        "  <style>",
-        "    #benchmark-results table {",
-        "      border-collapse: collapse;",
-        "      width: 100%;",
-        "      max-width: 960px;",
-        "      margin: 1em 0;",
-        "    }",
-        "    #benchmark-results th,",
-        "    #benchmark-results td {",
-        "      border: 1px solid var(--separator-color, #ccc);",
-        "      padding: 0.5em 0.75em;",
-        "      text-align: left;",
-        "    }",
-        "    #benchmark-results th {",
-        "      background: var(--code-background, #f4f4f4);",
-        "    }",
-        "    #benchmark-results th.num,",
-        "    #benchmark-results td.num {",
-        "      text-align: right;",
-        "    }",
-        "    #benchmark-results .meta {",
-        "      font-size: 0.9em;",
-        "      opacity: 0.85;",
-        "      margin: 0 0 0.25em;",
-        "    }",
-        "    #benchmark-results .meta:last-of-type {",
-        "      margin-bottom: 1em;",
-        "    }",
-        "  </style>",
-        '  <p class="meta">Timestamp: %s</p>'
+        '  <p class="benchmark-meta">Timestamp: %s</p>'
         % html.escape(data.get("generated_at", "")),
-        '  <p class="meta">GCC version: %s</p>'
+        '  <p class="benchmark-meta">GCC version: %s</p>'
         % html.escape(data.get("compiler", "")),
-        '  <p class="meta">GCC flags: %s</p>'
+        '  <p class="benchmark-meta">GCC flags: %s</p>'
         % html.escape(data.get("flags", "")),
+        '  <div class="table-scroll">',
         '  <table class="markdownTable">',
         '    <tr class="markdownTableHead">',
         '      <th class="markdownTableHeadLeft">Operation</th>',
@@ -198,7 +170,7 @@ def render_html(data, symbol_index):
         )
         lines.append("    </tr>")
 
-    lines.extend(["  </table>", "</div>", ""])
+    lines.extend(["  </table>", "  </div>", "</div>", ""])
 
     if missing:
         sys.stderr.write(
@@ -219,7 +191,7 @@ def main():
     if not os.path.isfile(args.json):
         _die("missing %s (run 'make benchmark' first)" % args.json)
     if not os.path.isdir(args.xml):
-        _die("missing %s (run 'make doc' / llms pass first)" % args.xml)
+        _die("missing %s (run 'make doc' first)" % args.xml)
 
     with open(args.json, encoding="utf-8") as f:
         data = json.load(f)

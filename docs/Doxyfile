@@ -1112,7 +1112,9 @@ EXCLUDE_SYMLINKS       = NO
 # exclude all test directories for example use the pattern */test/*
 
 EXCLUDE_PATTERNS       = */llms_gen.py \
-                         */test_llms_gen.py
+                         */test_llms_gen.py \
+                         */benchmark_render.py \
+                         */test_benchmark_render.py
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
