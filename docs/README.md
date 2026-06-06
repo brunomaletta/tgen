@@ -36,7 +36,7 @@ and operations for specific data types:
 All data types specified above define a **generator**, that when called upon will generate a uniformly random **value** with the given constraints. Let's see an example with @tt{tgen::list}:
 
 ```cpp
-tgen::list<int> t = tgen::list<int>(/*size=*/10, /*value_l=*/1, /*value_r=*/100);
+tgen::list<int> t = tgen::list<int>(/*size=*/10, /*value_left=*/1, /*value_right=*/100);
 ```
 
 This will create a list generator representing the set of all lists with 10 values from 1 to 100.
