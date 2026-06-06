@@ -85,8 +85,9 @@ namespace tgen::geometry {
  *
  * @tparam T Arithmetic coordinate type (@tt{@primitive{int}}, @tt{@primitive{double}}, ...).
  *
- * Dot and cross products
- * return @tt{@primitive{long long}} for integral @tt{T}, and @tt{T} otherwise.
+ * Dot and cross products return @tt{@type{product_t}}, widened to avoid overflow:
+ * @tt{@type{__int128}} when @tt{T} is @tt{@primitive{long long}}, @tt{@primitive{long long}} for other
+ * integral @tt{T}, and @tt{T} for floating-point @tt{T}.
  *
  * For floating-point @tt{T}, @tt{operator==} and lexicographic
  * @tt{operator<} compare coordinates with tolerance @tt{1e-9}.
@@ -197,7 +198,9 @@ namespace tgen::geometry {
 /**
  * @brief Dot product.
  *
- * @return The dot product as @tt{product_t}.
+ * @return The dot product as @tt{@type{product_t}} (@tt{@type{__int128}} for
+ * @tt{@type{point}<@primitive{long long}>}, @tt{@primitive{long long}} for other integral @tt{T}, @tt{T}
+ * for floating-point).
  *
  * @fn point::operator*(const point &p) const;
  */
@@ -206,14 +209,23 @@ namespace tgen::geometry {
 /**
  * @brief Cross product.
  *
- * @return The signed magnitude of the cross product as @tt{product_t}.
+ * @return The signed magnitude of the cross product as @tt{@type{product_t}}
+ * (@tt{@type{__int128}} for @tt{@type{point}<@primitive{long long}>}, @tt{@primitive{long long}} for other integral
+ * @tt{T}, @tt{T} for floating-point).
  *
  * @fn point::operator^(const point &p) const;
  */
 
 
 /**
- * @brief Prints @tt{x_} and @tt{y_} separated by a space.
+ * @brief Prints the coordinates separated by a space.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * tgen::geometry::point<int> p(3, 4);
+ * std::cout << p << std::endl; // Prints "3 4".
+ * ```
  *
  * @fn point::operator<<(std::ostream &out, const point &p);
  */
@@ -278,7 +290,7 @@ namespace tgen::geometry {
  * #### Complexity
  *
  * @tt{O(|@pname{points}| log|@pname{points}|)} expected (if points are "random"),
- * @tt{O(|@pname{points}|^2)} worse case.
+ * @tt{O(|@pname{points}|^2)} worst case.
  *
  * #### Examples
  *

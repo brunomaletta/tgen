@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <bitset>
+#include <cstdint>
 #include <functional>
 #include <initializer_list>
 #include <iomanip>
@@ -2817,7 +2818,7 @@ inline uint64_t congruent_from(uint64_t left, std::vector<uint64_t> rems,
 
 	if (result > std::numeric_limits<uint64_t>::max())
 		throw detail::error("math: congruent number is too large");
-	return static_cast<uint64_t>(result);
+	return result;
 }
 
 // O(log (left))
@@ -2866,7 +2867,7 @@ inline uint64_t congruent_upto(uint64_t right, std::vector<uint64_t> rems,
 
 	if (result < 0)
 		throw detail::there_is_no_upto_error("congruent number", right);
-	return static_cast<uint64_t>(result);
+	return result;
 }
 
 // O(log r)
@@ -5633,17 +5634,26 @@ template <typename T> struct point {
 	static_assert(std::is_arithmetic_v<T>,
 				  "point requires an arithmetic coordinate type");
 
+	// Dot/cross product type: __int128 for T = long long, long long for other
+	// integral T, T for floating-point.
 	using product_t = std::conditional_t<
 		std::is_same_v<T, long long>, i128,
 		std::conditional_t<std::is_integral_v<T>, long long, T>>;
 
+	// x and y coordinates.
 	T x_, y_;
 
+	// Constructs a point with coordinates x and y.
 	point(T x = 0, T y = 0) : x_(x), y_(y) {}
 
+	// Returns the x coordinate.
 	T x() const { return x_; }
+
+	// Returns the y coordinate.
 	T y() const { return y_; }
 
+	// Equality of coordinates, with epsilon-based equality for floating-point
+	// coordinates (tolerance 1e-9).
 	static bool coord_eq(T a, T b) {
 		if constexpr (std::is_integral_v<T>)
 			return a == b;
@@ -5654,23 +5664,24 @@ template <typename T> struct point {
 
 	// Lexicographic order (by x, then y).
 	bool operator<(const point &p) const {
-		if (!coord_eq(x_, p.x_))
-			return x_ < p.x_;
-		return y_ < p.y_;
+		if (!coord_eq(x_, p.x()))
+			return x_ < p.x();
+		return y_ < p.y();
 	}
 
+	// Equality of coordinates.
 	bool operator==(const point &p) const {
-		return coord_eq(x_, p.x_) and coord_eq(y_, p.y_);
+		return coord_eq(x_, p.x()) and coord_eq(y_, p.y());
 	}
 
 	// Vector addition.
 	point operator+(const point &p) const {
-		return point(x_ + p.x_, y_ + p.y_);
+		return point(x_ + p.x(), y_ + p.y());
 	}
 
 	// Vector subtraction.
 	point operator-(const point &p) const {
-		return point(x_ - p.x_, y_ - p.y_);
+		return point(x_ - p.x(), y_ - p.y());
 	}
 
 	// Scalar multiplication.
@@ -5678,18 +5689,21 @@ template <typename T> struct point {
 
 	// Dot product.
 	product_t operator*(const point &p) const {
-		return static_cast<product_t>(x_) * p.x_ +
-			   static_cast<product_t>(y_) * p.y_;
+		if constexpr (std::is_floating_point_v<T>)
+			return x_ * p.x() + y_ * p.y();
+		return product_t(x_) * p.x() + product_t(y_) * p.y();
 	}
 
 	// Cross product (signed area of the parallelogram).
 	product_t operator^(const point &p) const {
-		return static_cast<product_t>(x_) * p.y_ -
-			   static_cast<product_t>(y_) * p.x_;
+		if constexpr (std::is_floating_point_v<T>)
+			return x_ * p.y() - y_ * p.x();
+		return product_t(x_) * p.y() - product_t(y_) * p.x();
 	}
 
+	// Prints the point as "x y".
 	friend std::ostream &operator<<(std::ostream &out, const point &p) {
-		return out << p.x_ << ' ' << p.y_;
+		return out << p.x() << ' ' << p.y();
 	}
 };
 
@@ -5701,17 +5715,20 @@ random_points_general_position(int n, long long min_coord,
 							   long long max_coord) {
 	tgen_ensure(n > 0,
 				"geometry: random_points_general_position: n must be positive");
-
-	i128 width = static_cast<i128>(max_coord) - min_coord;
-	uint64_t p = math::prime_from(static_cast<uint64_t>(n) * 2);
+	tgen_ensure(max_coord >= min_coord,
+				"geometry: random_points_general_position: min_coord must be "
+				"at most max_coord");
+	tgen_ensure(
+		static_cast<i128>(max_coord) - min_coord <=
+			std::numeric_limits<long long>::max(),
+		"geometry: random_points_general_position: coordinate range too large");
+	uint64_t width = max_coord - min_coord;
+	uint64_t p = math::prime_from(2 * n);
 
 	// Requires width >= p - 1 because sheared coordinates lie in [0, p - 1].
-	tgen_ensure(width >= static_cast<i128>(p) - 1,
+	tgen_ensure(width >= p - 1,
 				"geometry: random_points_general_position: coordinate range "
 				"too small for n");
-	tgen_ensure(
-		width <= static_cast<i128>(std::numeric_limits<long long>::max()),
-		"geometry: random_points_general_position: coordinate range too large");
 
 	// Base set {(x, x^-1 mod p) : x \in {1, ..., p - 1}}.
 	//
@@ -5758,6 +5775,7 @@ random_points_general_position(int n, long long min_coord,
 				lin_x[i] = (lin_x[i] + shear_r * lin_y[i]) % p;
 			else
 				lin_y[i] = (lin_y[i] + shear_r * lin_x[i]) % p;
+
 			if (lin_x[i] < 0)
 				lin_x[i] += p;
 			if (lin_y[i] < 0)
@@ -5773,10 +5791,10 @@ random_points_general_position(int n, long long min_coord,
 		max_y = std::max(max_y, lin_y[i]);
 	}
 
-	long long x_slack = next<long long>(0, width - (max_x - min_x)),
-			  y_slack = next<long long>(0, width - (max_y - min_y));
-	i128 x_shift = static_cast<i128>(min_coord) - min_x + x_slack;
-	i128 y_shift = static_cast<i128>(min_coord) - min_y + y_slack;
+	long long x_shift =
+		min_coord - min_x + next<long long>(0, width - (max_x - min_x));
+	long long y_shift =
+		min_coord - min_y + next<long long>(0, width - (max_y - min_y));
 
 	std::vector<point<long long>> pts;
 	for (int i = 0; i < n; ++i)
@@ -5786,37 +5804,37 @@ random_points_general_position(int n, long long min_coord,
 
 namespace detail {
 
-// Signed area of triangle (a, b, p); positive iff p is left of directed line a
-// -> b. Cross product in @c i128 (no @c long long intermediate overflow).
+// Signed area of triangle (a, b, p); positive iff (a, b, p) are in
+// counterclockwise order. 0 iff (a, b, p) are collinear. O(1).
 inline i128 ccw(const point<long long> &a, const point<long long> &b,
 				const point<long long> &p) {
-	return (static_cast<i128>(b.x()) - static_cast<i128>(a.x())) *
-			   (static_cast<i128>(p.y()) - static_cast<i128>(a.y())) -
-		   (static_cast<i128>(b.y()) - static_cast<i128>(a.y())) *
-			   (static_cast<i128>(p.x()) - static_cast<i128>(a.x()));
+	return (static_cast<i128>(b.x()) - a.x()) *
+			   (static_cast<i128>(p.y()) - a.y()) -
+		   (static_cast<i128>(b.y()) - a.y()) *
+			   (static_cast<i128>(p.x()) - a.x());
 }
 
-// In-place Hamiltonian path on @c points[left..right-1] with @c points[left]
-// start and @c points[right-1] end.
+// In-place Hamiltonian path on points[left..right-1] with points[left]
+// start and points[right-1] end.
+// O(n log n) expected if points are "random", O(n^2) worst case.
 inline void conquer(std::vector<point<long long>> &points, int left,
 					int right) {
 	if (right - left <= 3)
 		return;
 
-	const point<long long> &A = points[left];
-	const point<long long> &B = points[right - 1];
+	point<long long> A = points[left], B = points[right - 1];
 
-	const int ci = next(left + 1, right - 2);
-	const point<long long> C = points[ci];
-	const uint64_t wa = next<uint64_t>(1, std::numeric_limits<uint64_t>::max());
-	const uint64_t wb = next<uint64_t>(1, std::numeric_limits<uint64_t>::max());
-	const bool a_on_positive = ccw(C, A, B) < 0;
+	int ci = next(left + 1, right - 2);
+	point<long long> C = points[ci];
+	uint64_t wa = next<uint64_t>(1, std::numeric_limits<uint64_t>::max());
+	uint64_t wb = next<uint64_t>(1, std::numeric_limits<uint64_t>::max());
+	bool a_on_positive = ccw(C, A, B) < 0;
 
-	const auto side = [&](const point<long long> &P) -> i128 {
-		return wa * ccw(C, A, P) + wb * ccw(C, B, P);
+	auto point_on_positive = [&](const point<long long> &P) -> bool {
+		return wa * ccw(C, A, P) + wb * ccw(C, B, P) > 0;
 	};
 
-	// Hold C at points[right-2] while classifying interior points in
+	// Holds C at points[right-2] while classifying interior points in
 	// [left+1, right-3].
 	if (ci != right - 2)
 		std::swap(points[ci], points[right - 2]);
@@ -5824,9 +5842,9 @@ inline void conquer(std::vector<point<long long>> &points, int left,
 	int i = left + 1;
 	int j = right - 3;
 	while (i < j) {
-		if ((side(points[i]) > 0) == a_on_positive)
+		if (point_on_positive(points[i]) == a_on_positive)
 			++i;
-		else if ((side(points[j]) > 0) != a_on_positive)
+		else if (point_on_positive(points[j]) != a_on_positive)
 			--j;
 		else {
 			std::swap(points[i], points[j]);
@@ -5835,20 +5853,23 @@ inline void conquer(std::vector<point<long long>> &points, int left,
 		}
 	}
 
-	// After partition: points[left]=A | (A,C)... | C | (C,B)... |
-	// points[right-1]=B.
-	const int p =
-		(i == j and (side(points[i]) > 0) == a_on_positive) ? i + 1 : i;
-	if (p != right - 2)
-		std::swap(points[p], points[right - 2]);
+	// After partition:
+	// points[left]=A | (A,C)... | C | (C,B)... | points[right-1]=B.
+
+	// After the swap, p is the index of C (pivot between the two subpaths).
+	int p = i;
+	if (i == j and point_on_positive(points[i]) == a_on_positive)
+		++p;
+	std::swap(points[p], points[right - 2]);
 
 	conquer(points, left, p + 1); // path A -> C
 	conquer(points, p, right);	  // path C -> B
 }
 
-// n sorted distinct coordinates in [0, width] with endpoints 0 and width.
-// O(n log n).
-inline std::vector<long long> valtr_sorted_coords(int n, long long width) {
+// Generates n >= 3 sorted distinct coordinates in [0, width] with endpoints 0
+// and width. O(n log n).
+inline std::vector<long long>
+generate_sorted_coords_with_endpoints(int n, long long width) {
 	std::vector<long long> coords;
 	coords.push_back(0);
 	std::vector<long long> inner =
@@ -5863,7 +5884,7 @@ inline std::vector<long long> valtr_sorted_coords(int n, long long width) {
 // coordinates. The n differences sum to zero.
 inline std::vector<long long>
 valtr_edge_components(const std::vector<long long> &sorted_coords) {
-	int n = static_cast<int>(sorted_coords.size());
+	int n = sorted_coords.size();
 	std::vector<long long> left, right;
 	for (int i = 1; i + 1 < n; ++i) {
 		if (next(2) == 0)
@@ -5894,27 +5915,26 @@ inline std::vector<point<long long>>
 random_convex_polygon(int n, long long min_coord, long long max_coord) {
 	tgen_ensure(n >= 3,
 				"geometry: random_convex_polygon: n must be at least 3");
-
-	i128 width = static_cast<i128>(max_coord) - min_coord;
-	tgen_ensure(
-		width >= static_cast<i128>(n) - 1,
-		"geometry: random_convex_polygon: coordinate range too small for n");
-	tgen_ensure(width <=
-					static_cast<i128>(std::numeric_limits<long long>::max()),
+	tgen_ensure(max_coord >= min_coord,
+				"geometry: random_convex_polygon: min_coord must be at most "
+				"max_coord");
+	tgen_ensure(static_cast<i128>(max_coord) - min_coord <=
+					std::numeric_limits<long long>::max(),
 				"geometry: random_convex_polygon: coordinate range too large");
-
-	const long long width_ll = static_cast<long long>(width);
+	long long width = max_coord - min_coord;
+	tgen_ensure(
+		width >= n - 1,
+		"geometry: random_convex_polygon: coordinate range too small for n");
 
 	// Grid spans [0, width]; after the walk, the bounding box spans equals
 	// width on each axis, so shifting by (min_coord - min_x, min_coord - min_y)
 	// fills the box.
-	const std::vector<long long> x_sorted =
-		detail::valtr_sorted_coords(n, width_ll);
-	const std::vector<long long> y_sorted =
-		detail::valtr_sorted_coords(n, width_ll);
+	std::vector<long long> x_sorted =
+		detail::generate_sorted_coords_with_endpoints(n, width);
+	std::vector<long long> y_sorted =
+		detail::generate_sorted_coords_with_endpoints(n, width);
 
-	const std::vector<long long> x_comp =
-		detail::valtr_edge_components(x_sorted);
+	std::vector<long long> x_comp = detail::valtr_edge_components(x_sorted);
 	std::vector<long long> y_comp = detail::valtr_edge_components(y_sorted);
 	shuffle(y_comp.begin(), y_comp.end());
 
@@ -5922,15 +5942,16 @@ random_convex_polygon(int n, long long min_coord, long long max_coord) {
 	for (int i = 0; i < n; ++i)
 		edges[i] = point<long long>(x_comp[i], y_comp[i]);
 
+	auto upper = [](const point<long long> &p) {
+		return p.y() > 0 or (p.y() == 0 and p.x() > 0);
+	};
+
 	std::sort(edges.begin(), edges.end(),
-			  [](point<long long> a, point<long long> b) {
-				  auto upper = [](const point<long long> &p) {
-					  return p.y_ > 0 or (p.y_ == 0 and p.x_ > 0);
-				  };
+			  [&upper](point<long long> a, point<long long> b) {
 				  bool au = upper(a), bu = upper(b);
 				  if (au != bu)
 					  return au;
-				  typename point<long long>::product_t cross = a ^ b;
+				  auto cross = a ^ b;
 				  if (cross != 0)
 					  return cross > 0;
 				  return (a * a) < (b * b);
@@ -5941,8 +5962,8 @@ random_convex_polygon(int n, long long min_coord, long long max_coord) {
 	for (int i = 0; i < n; ++i) {
 		px[i] = cur_x;
 		py[i] = cur_y;
-		cur_x += edges[i].x_;
-		cur_y += edges[i].y_;
+		cur_x += edges[i].x();
+		cur_y += edges[i].y();
 	}
 	tgen::detail::tgen_ensure_against_bug(
 		cur_x == 0 and cur_y == 0, "geometry: random_convex_polygon: walk did "
@@ -5955,8 +5976,8 @@ random_convex_polygon(int n, long long min_coord, long long max_coord) {
 	}
 
 	// Translates the polygon so the bounding box is [min_coord, min_coord].
-	const i128 shift_x = static_cast<i128>(min_coord) - min_x;
-	const i128 shift_y = static_cast<i128>(min_coord) - min_y;
+	i128 shift_x = min_coord - min_x;
+	i128 shift_y = min_coord - min_y;
 
 	std::vector<point<long long>> pts;
 	for (int i = 0; i < n; ++i)
@@ -5973,32 +5994,28 @@ random_convex_polygon(int n, long long min_coord, long long max_coord) {
 
 // Random simple polygon through given points in general position.
 // Should be given at least 3 points and there should be no three collinear.
-// O(n log n) expected if points are "random", worse case O(n^2).
+// O(n log n) expected if points are "random", O(n^2) worst case.
 inline std::vector<point<long long>> random_simple_polygon_through_points(
 	const std::vector<point<long long>> &points) {
-	const int n = points.size();
+	int n = points.size();
 	tgen_ensure(n >= 3,
 				"geometry: random_simple_polygon_through_points: need at "
 				"least 3 points");
 
-	int ia = 0, ib = 0;
+	int idx_a = 0, idx_b = 0;
 	for (int i = 1; i < n; ++i) {
-		if (points[i].x() < points[ia].x() or
-			(points[i].x() == points[ia].x() and
-			 points[i].y() < points[ia].y()))
-			ia = i;
-		if (points[i].x() > points[ib].x() or
-			(points[i].x() == points[ib].x() and
-			 points[i].y() > points[ib].y()))
-			ib = i;
+		if (points[i] < points[idx_a])
+			idx_a = i;
+		if (points[idx_b] < points[i])
+			idx_b = i;
 	}
-	const point<long long> A = points[ia], B = points[ib];
+	point<long long> A = points[idx_a], B = points[idx_b];
 
 	std::vector<point<long long>> chain;
 	chain.push_back(A);
 	int left_count = 0;
 	for (int i = 0; i < n; ++i) {
-		if (i == ia or i == ib)
+		if (i == idx_a or i == idx_b)
 			continue;
 		if (detail::ccw(A, B, points[i]) > 0) {
 			chain.push_back(points[i]);
@@ -6007,17 +6024,18 @@ inline std::vector<point<long long>> random_simple_polygon_through_points(
 	}
 	chain.push_back(B);
 	for (int i = 0; i < n; ++i) {
-		if (i == ia or i == ib)
+		if (i == idx_a or i == idx_b)
 			continue;
 		if (detail::ccw(A, B, points[i]) <= 0)
 			chain.push_back(points[i]);
 	}
 	chain.push_back(A);
 
-	const int n1 = 2 + left_count;
-	detail::conquer(chain, 0, n1); // upper chain A -> B
-	detail::conquer(chain, n1 - 1,
-					static_cast<int>(chain.size())); // lower B -> A
+	int n1 = 2 + left_count;
+	// Upper chain: A -> B.
+	detail::conquer(chain, 0, n1);
+	// Lower chain: B -> A.
+	detail::conquer(chain, n1 - 1, chain.size());
 
 	// Cyclic vertex order: chain[1..n1) then chain[n1..end) (skip each path's
 	// start vertex).
@@ -6064,8 +6082,8 @@ inline int hash_string(const std::string &s, int base, int mod) {
 // Estimates the length of the string to very likely have a collision.
 inline int estimate_length(int alphabet_size, int mod) {
 	// Magic constants.
-	double base_len = 2.5 * std::log(std::sqrt(static_cast<double>(mod)));
-	double scale = std::log(static_cast<double>(alphabet_size)) / std::log(2.0);
+	double base_len = 2.5 * std::log(std::sqrt(mod));
+	double scale = std::log(alphabet_size) / std::log(2.0);
 	double adjusted = base_len / std::max(1.0, scale * 0.7);
 
 	return static_cast<int>(std::ceil(adjusted));

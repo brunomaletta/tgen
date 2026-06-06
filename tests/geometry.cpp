@@ -281,6 +281,25 @@ TEST(geometry_test, random_points_general_position_invalid_n) {
 		"geometry: random_points_general_position: n must be positive");
 }
 
+TEST(geometry_test, random_points_general_position_invalid_range) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_points_general_position(10, 5, 4),
+		"geometry: random_points_general_position: min_coord must be at most "
+		"max_coord");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_points_general_position(10, 0, -1),
+		"geometry: random_points_general_position: min_coord must be at most "
+		"max_coord");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_points_general_position(
+			10, std::numeric_limits<long long>::max(),
+			std::numeric_limits<long long>::max() - 1),
+		"geometry: random_points_general_position: min_coord must be at most "
+		"max_coord");
+}
+
 TEST(geometry_test, random_points_general_position_range_too_small) {
 	tgen::register_gen();
 
@@ -291,10 +310,6 @@ TEST(geometry_test, random_points_general_position_range_too_small) {
 		tgen::geometry::random_points_general_position(n, 0, width),
 		"geometry: random_points_general_position: coordinate range too small "
 		"for n");
-	EXPECT_THROW_TGEN_PREFIX(
-		tgen::geometry::random_points_general_position(10, 5, 4),
-		"geometry: random_points_general_position: coordinate range too "
-		"small for n");
 }
 
 TEST(geometry_test, random_points_general_position_minimum_range) {
@@ -470,6 +485,22 @@ TEST(geometry_test, random_convex_polygon_invalid_n) {
 		"geometry: random_convex_polygon: n must be at least 3");
 }
 
+TEST(geometry_test, random_convex_polygon_invalid_range) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_convex_polygon(10, 5, 4),
+		"geometry: random_convex_polygon: min_coord must be at most max_coord");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_convex_polygon(10, 0, -1),
+		"geometry: random_convex_polygon: min_coord must be at most max_coord");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_convex_polygon(
+			10, std::numeric_limits<long long>::max(),
+			std::numeric_limits<long long>::max() - 1),
+		"geometry: random_convex_polygon: min_coord must be at most max_coord");
+}
+
 TEST(geometry_test, random_convex_polygon_range_too_small) {
 	tgen::register_gen();
 
@@ -479,10 +510,6 @@ TEST(geometry_test, random_convex_polygon_range_too_small) {
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::geometry::random_convex_polygon(n, 0, width),
 		"geometry: random_convex_polygon: coordinate range too small for n");
-	EXPECT_THROW_TGEN_PREFIX(
-		tgen::geometry::random_convex_polygon(10, 5, 4),
-		"geometry: random_convex_polygon: coordinate range too "
-		"small for n");
 }
 
 TEST(geometry_test, random_convex_polygon_minimum_range) {
@@ -687,6 +714,19 @@ TEST(geometry_test, random_simple_polygon_invalid_n) {
 	EXPECT_THROW_TGEN_PREFIX(tgen::geometry::random_simple_polygon(1, 0, 100),
 							 "geometry: random_simple_polygon: n must be at "
 							 "least 3");
+}
+
+TEST(geometry_test, random_simple_polygon_invalid_range) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_simple_polygon(10, 5, 4),
+		"geometry: random_points_general_position: min_coord must be at most "
+		"max_coord");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_simple_polygon(10, 0, -1),
+		"geometry: random_points_general_position: min_coord must be at most "
+		"max_coord");
 }
 
 TEST(geometry_test, random_simple_polygon_range_too_small) {
