@@ -126,7 +126,7 @@ def render_html(data, symbol_index):
         '    <tr class="markdownTableHead">',
         '      <th class="markdownTableHeadLeft">Operation</th>',
         '      <th class="markdownTableHeadLeft">Parameters</th>',
-        '      <th class="markdownTableHeadRight num">Median out of %d runs (ms)</th>'
+        '      <th class="markdownTableHeadRight num">Median out of %d runs</th>'
         % num_runs,
         "    </tr>",
     ]
@@ -165,7 +165,7 @@ def render_html(data, symbol_index):
             % _html_params_with_bold_numbers(params)
         )
         lines.append(
-            '      <td class="markdownTableBodyRight num">%s</td>'
+            '      <td class="markdownTableBodyRight num">%s ms</td>'
             % html.escape(str(median_ms))
         )
         lines.append("    </tr>")
