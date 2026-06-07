@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-07T18:36:08Z",
+  "generated_at": "2026-06-07T19:06:35Z",
   "compiler": "15.2.0",
   "flags": "-std=c++17 -O2",
   "hostname": "bruno-inspiron14",
@@ -9,104 +9,104 @@
       "name_suffix": " (m=n)",
       "params": "n=1e6, m=1e6",
       "doc_symbol": "tgen::wgraph::get_connected",
-      "median_ms": 962,
-      "runs_ms": [990, 962, 958]
+      "median_ms": 1100,
+      "runs_ms": [1100, 1112, 1093]
     },
     {
       "name": "tgen::graph::get_connected",
       "name_suffix": " (m=2n)",
       "params": "n=1e6, m=2e6",
       "doc_symbol": "tgen::wgraph::get_connected",
-      "median_ms": 2407,
-      "runs_ms": [2388, 2434, 2407]
+      "median_ms": 2261,
+      "runs_ms": [2257, 2261, 2269]
     },
     {
       "name": "tgen::graph::gen",
       "name_suffix": "",
       "params": "n=1e6, m=1e6",
       "doc_symbol": "tgen::wgraph::gen",
-      "median_ms": 1318,
-      "runs_ms": [1318, 1336, 1251]
+      "median_ms": 870,
+      "runs_ms": [870, 876, 869]
     },
     {
       "name": "tgen::graph::gen_skewed",
       "name_suffix": " (m=n)",
       "params": "n=1e6, m=1e6, elongation=1e2, spread=2",
       "doc_symbol": "tgen::wgraph::gen_skewed",
-      "median_ms": 152,
-      "runs_ms": [151, 153, 152]
+      "median_ms": 162,
+      "runs_ms": [162, 163, 160]
     },
     {
       "name": "tgen::graph::gen_skewed",
       "name_suffix": " (m=2n)",
       "params": "n=1e6, m=2e6, elongation=1e2, spread=6",
       "doc_symbol": "tgen::wgraph::gen_skewed",
-      "median_ms": 397,
-      "runs_ms": [404, 397, 396]
+      "median_ms": 465,
+      "runs_ms": [465, 465, 470]
     },
     {
       "name": "tgen::graph::gen_skewed",
       "name_suffix": " (distinct worst)",
       "params": "n=1e6, m=2n-3, elongation=1e2, spread=2",
       "doc_symbol": "tgen::wgraph::gen_skewed",
-      "median_ms": 329,
-      "runs_ms": [327, 329, 329]
+      "median_ms": 379,
+      "runs_ms": [379, 385, 378]
     },
     {
       "name": "tgen::tree::gen",
       "name_suffix": "",
       "params": "n=1e6",
       "doc_symbol": "tgen::wtree::gen",
-      "median_ms": 435,
-      "runs_ms": [435, 433, 436]
+      "median_ms": 501,
+      "runs_ms": [496, 501, 503]
     },
     {
       "name": "tgen::tree::gen_skewed",
       "name_suffix": "",
       "params": "n=1e6, elongation=1e2",
       "doc_symbol": "tgen::wtree::gen_skewed",
-      "median_ms": 128,
-      "runs_ms": [127, 128, 128]
+      "median_ms": 137,
+      "runs_ms": [137, 137, 139]
     },
     {
       "name": "tgen::list<int>::gen",
       "name_suffix": " (all_different)",
       "params": "n=1e6, value_left=1, value_right=2e6",
       "doc_symbol": "tgen::list::gen",
-      "median_ms": 1430,
-      "runs_ms": [1379, 1430, 1465]
+      "median_ms": 1597,
+      "runs_ms": [1599, 1597, 1582]
     },
     {
       "name": "tgen::geometry::random_simple_polygon",
       "name_suffix": "",
       "params": "n=1e6, min=0, max=3e6",
       "doc_symbol": "tgen::geometry::random_simple_polygon",
-      "median_ms": 960,
-      "runs_ms": [968, 924, 960]
+      "median_ms": 1119,
+      "runs_ms": [1119, 1258, 1116]
     },
     {
       "name": "tgen::geometry::random_points_general_position",
       "name_suffix": "",
       "params": "n=1e6, min=0, max=3e6",
       "doc_symbol": "tgen::geometry::random_points_general_position",
-      "median_ms": 132,
-      "runs_ms": [132, 127, 132]
+      "median_ms": 144,
+      "runs_ms": [146, 134, 144]
     },
     {
       "name": "tgen::geometry::random_convex_polygon",
       "name_suffix": "",
       "params": "n=1e6, min=0, max=3e6",
       "doc_symbol": "tgen::geometry::random_convex_polygon",
-      "median_ms": 1398,
-      "runs_ms": [1398, 1512, 1395]
+      "median_ms": 1803,
+      "runs_ms": [1803, 1850, 1731]
     },
     {
       "name": "tgen::geometry::random_simple_polygon_through_points",
       "name_suffix": "",
       "params": "n=1e6",
       "doc_symbol": "tgen::geometry::random_simple_polygon_through_points",
-      "median_ms": 813,
-      "runs_ms": [813, 800, 856]
+      "median_ms": 965,
+      "runs_ms": [955, 996, 965]
     }
   ]
 }

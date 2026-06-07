@@ -40,6 +40,7 @@
 #include <string>
 #include <sys/types.h>
 #include <type_traits>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -3970,6 +3971,18 @@ inline std::vector<std::pair<int, int>> edges_from_prufer(std::vector<int> p) {
 	return edges;
 }
 
+inline uint64_t undirected_edge_key(int u, int v) {
+	if (u > v)
+		std::swap(u, v);
+	return (static_cast<uint64_t>(u) << 32) |
+		   static_cast<uint64_t>(static_cast<uint32_t>(v));
+}
+
+inline uint64_t directed_edge_key(int u, int v) {
+	return (static_cast<uint64_t>(u) << 32) |
+		   static_cast<uint64_t>(static_cast<uint32_t>(v));
+}
+
 // Disjoint set union (union-find) for connectivity queries.
 struct dsu {
 	std::vector<int> parent_;
@@ -5319,12 +5332,22 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// Generates graph value.
 	// O(n + m log n).
 	value gen() const {
-		value new_graph(
-			n_, std::vector<std::pair<int, int>>(edges_.begin(), edges_.end()),
-			is_directed_);
-
-		detail::tgen_ensure_against_bug(new_graph.m() <= m_,
+		detail::tgen_ensure_against_bug(static_cast<int>(edges_.size()) <= m_,
 										"wgraph: too many edges were added");
+
+		if (static_cast<int>(edges_.size()) == m_)
+			return value(n_, edges_, is_directed_);
+
+		std::vector<std::pair<int, int>> edges(edges_.begin(), edges_.end());
+
+		std::unordered_set<uint64_t> seen;
+		seen.reserve(static_cast<size_t>(m_) * 2);
+		for (auto [u, v] : edges) {
+			if (!is_directed_ and u > v)
+				std::swap(u, v);
+			seen.insert(is_directed_ ? detail::directed_edge_key(u, v)
+									 : detail::undirected_edge_key(u, v));
+		}
 
 		tgen::pair gen_repeat(0, n_ - 1);
 		if (has_self_loops_) {
@@ -5336,23 +5359,29 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			else
 				gen_repeat.lt();
 		}
-		auto edge_gen = gen_repeat.distinct();
 
-		while (new_graph.m() < m_) {
-			pair<int>::value new_edge_pair(0, 0);
-			try {
-				new_edge_pair = edge_gen.gen();
-			} catch (std::runtime_error &e) {
-				if (std::string(e.what()) ==
-					"tgen: distinct: no more distinct values")
-					throw detail::error("wgraph: not enough edges to generate");
-				throw e;
+		while (static_cast<int>(edges.size()) < m_) {
+			bool found = false;
+			for (int i = 0;
+				 i < 84 * static_cast<int>(std::max<size_t>(1, seen.size()));
+				 ++i) {
+				auto e = gen_repeat.gen();
+				int u = e.first(), v = e.second();
+				if (!is_directed_ and u > v)
+					std::swap(u, v);
+				uint64_t key = is_directed_ ? detail::directed_edge_key(u, v)
+											: detail::undirected_edge_key(u, v);
+				if (seen.insert(key).second) {
+					edges.emplace_back(u, v);
+					found = true;
+					break;
+				}
 			}
-
-			new_graph.add_edge(new_edge_pair.first(), new_edge_pair.second());
+			if (!found)
+				throw detail::error("wgraph: not enough edges to generate");
 		}
 
-		return new_graph;
+		return value(n_, edges, is_directed_);
 	}
 
 	// Gets a (not uniformly) random connected undirected graph.
@@ -5366,53 +5395,59 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		tgen_ensure(m_ >= n_ - 1,
 					"wgraph: connected graph needs at least n - 1 edges");
 
-		// Computes connected components.
+		wgraph connected = *this;
 
-		std::vector<std::set<int>> adj(n_);
-		for (auto [u, v] : edges_) {
-			adj[u].insert(v);
-			adj[v].insert(u);
-		}
+		if (edges_.empty()) {
+			if (n_ > 1) {
+				connected = wgraph(n_, m_, false, has_self_loops_);
+				for (auto [u, v] : detail::edges_from_prufer(
+						 many_by_distribution(n_ - 2, std::vector<int>(n_, 1))))
+					connected.add_edge(u, v);
+			}
+		} else {
+			std::vector<std::vector<int>> adj(n_);
+			for (auto [u, v] : edges_) {
+				adj[u].push_back(v);
+				adj[v].push_back(u);
+			}
 
-		std::vector<int> comp_size;
-		std::vector<std::vector<int>> component_ids;
-		std::vector<bool> vis(n_, false);
-		std::queue<int> q;
+			std::vector<int> comp_size;
+			std::vector<std::vector<int>> component_ids;
+			std::vector<bool> vis(n_, false);
+			std::queue<int> q;
 
-		for (int i = 0; i < n_; ++i) {
-			if (vis[i])
-				continue;
+			for (int i = 0; i < n_; ++i) {
+				if (vis[i])
+					continue;
 
-			vis[i] = true;
-			q.push(i);
-			comp_size.push_back(0);
-			component_ids.emplace_back();
-			while (q.size()) {
-				int u = q.front();
-				q.pop();
-				++comp_size.back();
-				component_ids.back().push_back(u);
-				for (int v : adj[u]) {
-					if (!vis[v]) {
-						vis[v] = true;
-						q.push(v);
+				vis[i] = true;
+				q.push(i);
+				comp_size.push_back(0);
+				component_ids.emplace_back();
+				while (q.size()) {
+					int u = q.front();
+					q.pop();
+					++comp_size.back();
+					component_ids.back().push_back(u);
+					for (int v : adj[u]) {
+						if (!vis[v]) {
+							vis[v] = true;
+							q.push(v);
+						}
 					}
 				}
 			}
+
+			if (component_ids.size() > 1) {
+				std::vector<int> prufer_values =
+					many_by_distribution(component_ids.size() - 2, comp_size);
+				for (auto [u, v] :
+					 detail::edges_from_prufer(std::move(prufer_values)))
+					connected.add_edge(pick(component_ids[u]),
+									   pick(component_ids[v]));
+			}
 		}
 
-		auto connected = *this;
-
-		// Adds edges between connected components.
-		if (component_ids.size() > 1) {
-			std::vector<int> prufer_values =
-				many_by_distribution(component_ids.size() - 2, comp_size);
-			for (auto [u, v] : detail::edges_from_prufer(prufer_values))
-				connected.add_edge(pick(component_ids[u]),
-								   pick(component_ids[v]));
-		}
-
-		// Generates remaining edges.
 		return connected.gen();
 	}
 
