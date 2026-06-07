@@ -179,6 +179,28 @@ TEST(hack_test, stale_heap_dijkstra_bug) {
 	}
 }
 
+TEST(hack_test, spfa_hack_invalid) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::hack::spfa_hack(1),
+							 "hack: spfa_hack: n must be at least 2");
+	EXPECT_THROW_TGEN_PREFIX(tgen::hack::spfa_hack(3),
+							 "hack: spfa_hack: n must be even");
+}
+
+TEST(hack_test, spfa_hack) {
+	tgen::register_gen();
+
+	for (int n : {2, 4, 10, 100}) {
+		const int k = n / 2;
+		const int m = 4 * k - 3;
+		auto g = tgen::hack::spfa_hack(n);
+		EXPECT_TRUE(graph_gen_result_valid(g, n, m, true, false));
+		ASSERT_TRUE(g.edge_weights().has_value());
+		EXPECT_EQ(static_cast<int>(g.edge_weights()->size()), m);
+	}
+}
+
 TEST(hack_test, dinitz_worst_case_invalid) {
 	tgen::register_gen();
 

@@ -11,26 +11,26 @@
 #include "tgen.h"
 ```
 
-The first thing is to [register the generator](https://brunomaletta.github.io/tgen/group__opts.html). That defines the seed for random generation and parses the opts.
+The first thing is to [register the generator](group__opts.html). That defines the seed for random generation and parses the opts.
 
 There are:
 
-- [Base operations](https://brunomaletta.github.io/tgen/group__base.html)
-- [Math operations](https://brunomaletta.github.io/tgen/group__math.html)
-- [Geometry operations](https://brunomaletta.github.io/tgen/group__geometry.html)
-- [Hacks (adversarial generation)](https://brunomaletta.github.io/tgen/group__hack.html)
-- [Miscellaneous operations](https://brunomaletta.github.io/tgen/group__misc.html)
+- [Base operations](group__base.html)
+- [Math operations](group__math.html)
+- [Geometry operations](group__geometry.html)
+- [Hacks (adversarial generation)](group__hack.html)
+- [Miscellaneous operations](group__misc.html)
 
 and operations for specific data types:
 
-- [Pairs](https://brunomaletta.github.io/tgen/group__pair.html)
-- [Lists](https://brunomaletta.github.io/tgen/group__list.html)
-- [Permutations](https://brunomaletta.github.io/tgen/group__permutation.html)
-- [Strings](https://brunomaletta.github.io/tgen/group__str.html)
-- [Trees](https://brunomaletta.github.io/tgen/group__tree.html)
-- [Graphs](https://brunomaletta.github.io/tgen/group__graph.html)
+- [Pairs](group__pair.html)
+- [Lists](group__list.html)
+- [Permutations](group__permutation.html)
+- [Strings](group__str.html)
+- [Trees](group__tree.html)
+- [Graphs](group__graph.html)
 
-Selected operations have [benchmarks](https://brunomaletta.github.io/tgen/group__benchmarks.html).
+Selected operations have [benchmarks](group__benchmarks.html).
 
 ### Type generators and values
 

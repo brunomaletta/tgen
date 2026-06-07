@@ -6367,6 +6367,33 @@ inline egraph<int>::value stale_heap_dijkstra_bug(int n) {
 	return g.shuffle_except({0});
 }
 
+// Worst-case for FIFO-SPFA.
+// Forces Omega(n^2) from vertex 0 (Theta(n*m), m = 2n - 3).
+// Upper chain ai -> a(i+1) weight 1; lower chain bi -> b(i+1) weight 0;
+// vertical ai -> bi weight 0; cross bi -> a(i+1) weight 1. Upper chain sets
+// loose dist first; cross edges from settled bi then improve a(i+1).
+// m = 2n - 3.
+// O(n).
+inline egraph<int>::value spfa_hack(int n) {
+	tgen_ensure(n >= 2, "hack: spfa_hack: n must be at least 2");
+	tgen_ensure(n % 2 == 0, "hack: spfa_hack: n must be even");
+
+	egraph<int>::value g(n, {}, true);
+	g.edge_weighted();
+
+	const int k = n / 2;
+	for (int i = 0; i + 1 < k; ++i)
+		g.add_edge(i, i + 1, 1);
+	for (int i = 0; i + 1 < k; ++i)
+		g.add_edge(k + i, k + i + 1, 0);
+	for (int i = 0; i < k; ++i)
+		g.add_edge(i, k + i, 0);
+	for (int i = 0; i + 1 < k; ++i)
+		g.add_edge(k + i, i + 1, 1);
+
+	return g.shuffle_except({0});
+}
+
 // Zadeh (1972) anti-shortest-paths flow network for Edmonds-Karp and Dinitz.
 // Source is vertex 0; sink is vertex 4l + 2k + 1.
 // n = 4l + 2k + 2, m = 6l + 4k + k^2 - 4.

@@ -78,8 +78,7 @@ std::vector<benchmark::CaseResult> run_all() {
 
 	results.push_back(benchmark::run_case(
 		"tgen::list<int>::gen", " (all_different)",
-		"n=1e6, value_left=1, value_right=2e6",
-		"tgen::list::gen", [] {
+		"n=1e6, value_left=1, value_right=2e6", "tgen::list::gen", [] {
 			consume_list(tgen::list<int>(kN, 1, 2 * kN).all_different().gen());
 		}));
 

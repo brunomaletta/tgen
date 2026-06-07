@@ -284,6 +284,45 @@ namespace tgen::hack {
 
 /**
  * @ingroup hack
+ * @brief Worst-case for FIFO-SPFA.
+ *
+ * @param n Number of vertices.
+ *
+ * @pre @tt{@pname{n} >= 2}, @tt{@pname{n} even}.
+ *
+ * Builds two parallel chains of length @tt{k = @pname{n}/2} (upper @tt{a_1..a_k},
+ * lower @tt{b_1..b_k}):
+ *
+ * - Upper chain @tt{a_i -> a_{i+1}}, weight @tt{1};
+ * - Lower chain @tt{b_i -> b_{i+1}}, weight @tt{0};
+ * - Vertical @tt{a_i -> b_i}, weight @tt{0};
+ * - Cross @tt{b_i -> a_{i+1}}, weight @tt{1}.
+ *
+ * The upper chain reaches each @tt{a_{i+1}} with a loose estimate first; once
+ * @tt{b_i} is settled on the zero-weight lower chain, the cross edge can
+ * strictly improve @tt{a_{i+1}} and re-enqueue it in FIFO-SPFA.
+ *
+ * Forces @tt{Omega(@pname{n}^2)} time on FIFO-SPFA from vertex @tt{0} (@tt{Theta(@pname{n} * m)}.
+ *
+ * @return A directed @tt{tgen::egraph<int>::value} with @tt{@pname{n}} vertices and
+ *         @tt{m = 2@pname{n} - 3} edges. 
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto g = tgen::hack::spfa_hack(1e5);
+ * ```
+ *
+ * @fn spfa_hack(int n);
+ */
+
+
+/**
+ * @ingroup hack
  * @brief Flow network for Edmonds-Karp and Dinitz worst-case.
  *
  * @param k Core size.
