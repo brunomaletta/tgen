@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-07T12:42:30Z",
+  "generated_at": "2026-06-07T17:25:25Z",
   "compiler": "15.2.0",
   "flags": "-std=c++17 -O2",
   "hostname": "bruno-inspiron14",
@@ -9,88 +9,88 @@
       "name_suffix": " (m=n)",
       "params": "n=1e6, m=1e6",
       "doc_symbol": "tgen::wgraph::get_connected",
-      "median_ms": 1035,
-      "runs_ms": [1029, 1035, 1058]
+      "median_ms": 946,
+      "runs_ms": [957, 946, 935]
     },
     {
       "name": "tgen::graph::get_connected",
       "name_suffix": " (m=2n)",
       "params": "n=1e6, m=2e6",
       "doc_symbol": "tgen::wgraph::get_connected",
-      "median_ms": 2571,
-      "runs_ms": [2769, 2571, 2431]
+      "median_ms": 2325,
+      "runs_ms": [2347, 2325, 2320]
     },
     {
       "name": "tgen::graph::gen",
       "name_suffix": "",
       "params": "n=1e6, m=1e6",
       "doc_symbol": "tgen::wgraph::gen",
-      "median_ms": 1318,
-      "runs_ms": [1226, 1318, 1378]
+      "median_ms": 1197,
+      "runs_ms": [1197, 1191, 1310]
     },
     {
       "name": "tgen::graph::gen_skewed",
       "name_suffix": "",
       "params": "n=1e6, m=1e6, elongation=1e2, spread=2",
       "doc_symbol": "tgen::wgraph::gen_skewed",
-      "median_ms": 173,
-      "runs_ms": [173, 172, 177]
+      "median_ms": 166,
+      "runs_ms": [162, 166, 173]
     },
     {
       "name": "tgen::tree::gen",
       "name_suffix": "",
       "params": "n=1e6",
       "doc_symbol": "tgen::wtree::gen",
-      "median_ms": 479,
-      "runs_ms": [502, 479, 476]
+      "median_ms": 441,
+      "runs_ms": [465, 441, 437]
     },
     {
       "name": "tgen::tree::gen_skewed",
       "name_suffix": "",
       "params": "n=1e6, elongation=1e2",
       "doc_symbol": "tgen::wtree::gen_skewed",
-      "median_ms": 123,
-      "runs_ms": [123, 126, 123]
+      "median_ms": 128,
+      "runs_ms": [127, 128, 130]
     },
     {
       "name": "tgen::list<int>::gen",
       "name_suffix": " (all_different)",
       "params": "n=1e6, value_left=1, value_right=2e6",
       "doc_symbol": "tgen::list::gen",
-      "median_ms": 1480,
-      "runs_ms": [1590, 1480, 1414]
+      "median_ms": 1442,
+      "runs_ms": [1429, 1442, 1452]
     },
     {
       "name": "tgen::geometry::random_simple_polygon",
       "name_suffix": "",
       "params": "n=1e6, min=0, max=3e6",
       "doc_symbol": "tgen::geometry::random_simple_polygon",
-      "median_ms": 352,
-      "runs_ms": [352, 359, 352]
+      "median_ms": 458,
+      "runs_ms": [458, 469, 448]
     },
     {
       "name": "tgen::geometry::random_points_general_position",
       "name_suffix": "",
       "params": "n=1e6, min=0, max=3e6",
       "doc_symbol": "tgen::geometry::random_points_general_position",
-      "median_ms": 120,
-      "runs_ms": [116, 120, 127]
+      "median_ms": 122,
+      "runs_ms": [114, 122, 134]
     },
     {
       "name": "tgen::geometry::random_convex_polygon",
       "name_suffix": "",
       "params": "n=1e6, min=0, max=3e6",
       "doc_symbol": "tgen::geometry::random_convex_polygon",
-      "median_ms": 1484,
-      "runs_ms": [1441, 1551, 1484]
+      "median_ms": 1432,
+      "runs_ms": [1424, 1432, 1447]
     },
     {
       "name": "tgen::geometry::random_simple_polygon_through_points",
       "name_suffix": "",
       "params": "n=1e6",
       "doc_symbol": "tgen::geometry::random_simple_polygon_through_points",
-      "median_ms": 251,
-      "runs_ms": [246, 251, 252]
+      "median_ms": 333,
+      "runs_ms": [332, 333, 336]
     }
   ]
 }

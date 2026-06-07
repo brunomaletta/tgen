@@ -73,6 +73,24 @@ namespace tgen::geometry {
  * ...
  * ```
  * @image html simple_polygon.png "Example generated polygon" width=600
+ *
+ * Simple polygon through a grid of points.
+ *
+ * ```cpp
+ * std::vector<tgen::geometry::point<long long>> pts;
+ * for (int y = 0; y < 10; ++y)
+ *     for (int x = 0; x < 10; ++x)
+ *         pts.emplace_back(x, y);
+ * auto poly = tgen::geometry::random_simple_polygon_through_points(pts);
+ * std::cout << tgen::print(poly, '\n') << std::endl;
+ * ```
+ *
+ * ```
+ * 0 1
+ * 0 2
+ * ...
+ * ```
+ * @image html grid_polygon.png "Example grid polygon" width=600
  */
 
 
@@ -274,10 +292,10 @@ namespace tgen::geometry {
  * @ingroup geometry
  * @brief Generates a random simple polygon through given points.
  *
- * @param points Points in general position (no three collinear).
+ * @param points Distinct points.
  *
- * @pre @tt{@pname{points}.size() >= 3} and no three points in @pname{points}
- * are collinear.
+ * @pre @tt{@pname{points}.size() >= 3}, all points are distinct, and they are
+ * not all collinear.
  *
  * @return The same points listed in boundary order of a simple
  * (non-self-intersecting) polygon.

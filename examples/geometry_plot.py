@@ -12,8 +12,8 @@ from typing import Iterable
 # False: scatter plot only (random_points_general_position).
 DRAW_POLYGON = True
 
-PLOT_TITLE_POLYGON = "geometry::random_convex_polygon"
-PLOT_TITLE_POINTS = "geometry::random_points_general_position"
+PLOT_TITLE_POLYGON = "Geometry polygon"
+PLOT_TITLE_POINTS = "Geometry points"
 
 
 def read_points(lines: Iterable[str]) -> list[tuple[int, float, float]]:

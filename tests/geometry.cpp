@@ -200,6 +200,25 @@ bool contains_all_points(
 	return true;
 }
 
+std::vector<tgen::geometry::point<long long>> grid_points(int rows, int cols) {
+	std::vector<tgen::geometry::point<long long>> pts;
+	pts.reserve(static_cast<size_t>(rows) * cols);
+	for (int y = 0; y < rows; ++y)
+		for (int x = 0; x < cols; ++x)
+			pts.emplace_back(x, y);
+	return pts;
+}
+
+void expect_simple_polygon_through_points(
+	const std::vector<tgen::geometry::point<long long>> &pts,
+	long long min_coord, long long max_coord) {
+	const int n = static_cast<int>(pts.size());
+	auto poly = tgen::geometry::random_simple_polygon_through_points(pts);
+	EXPECT_EQ(poly.size(), static_cast<size_t>(n));
+	EXPECT_TRUE(contains_all_points(poly, pts));
+	EXPECT_TRUE(verify_simple_polygon(poly, n, min_coord, max_coord));
+}
+
 } // namespace
 
 TEST(geometry_test, default_constructor) {
@@ -689,6 +708,44 @@ TEST(geometry_test, random_simple_polygon_through_points_many_n) {
 		EXPECT_TRUE(contains_all_points(poly, pts));
 		EXPECT_TRUE(verify_simple_polygon(poly, n, 0, 10'000));
 	}
+}
+
+TEST(geometry_test, random_simple_polygon_through_points_collinear_grids) {
+	tgen::register_gen();
+
+	const int sizes[] = {3, 10, 30};
+	for (int i = 0; i < 3; ++i) {
+		expect_simple_polygon_through_points(grid_points(sizes[i], sizes[i]), 0,
+											 sizes[i] - 1);
+	}
+}
+
+TEST(geometry_test, random_simple_polygon_through_points_all_collinear) {
+	tgen::register_gen();
+
+	std::vector<tgen::geometry::point<long long>> pts;
+	for (int i = 0; i < 5; ++i)
+		pts.emplace_back(i, 0);
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_simple_polygon_through_points(pts),
+		"geometry: random_simple_polygon_through_points: all points are "
+		"collinear; no simple polygon exists");
+}
+
+TEST(geometry_test, random_simple_polygon_through_points_duplicate_points) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_simple_polygon_through_points(
+			{{0, 0}, {1, 0}, {0, 0}}),
+		"geometry: random_simple_polygon_through_points: points must be "
+		"distinct");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_simple_polygon_through_points(
+			{{0, 0}, {1, 1}, {2, 2}, {1, 1}}),
+		"geometry: random_simple_polygon_through_points: points must be "
+		"distinct");
 }
 
 TEST(geometry_test, random_simple_polygon_basic) {

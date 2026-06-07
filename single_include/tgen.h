@@ -5845,6 +5845,12 @@ inline i128 ccw(const point<long long> &a, const point<long long> &b,
 			   (static_cast<i128>(p.x()) - a.x());
 }
 
+// Integer projection of P onto line AB (A and B need not be distinct).
+inline i128 proj_on_ab(const point<long long> &P, const point<long long> &A,
+					   const point<long long> &B) {
+	return (P - A) * (B - A);
+}
+
 // In-place Hamiltonian path on points[left..right-1] with points[left]
 // start and points[right-1] end.
 // O(n log n) expected if points are "random", O(n^2) worst case.
@@ -5855,14 +5861,45 @@ inline void conquer(std::vector<point<long long>> &points, int left,
 
 	point<long long> A = points[left], B = points[right - 1];
 
-	int ci = next(left + 1, right - 2);
+	// If all points are collinear, sort them properly and return.
+	bool all_collinear = true;
+	for (int k = left + 1; k < right - 1; ++k) {
+		if (ccw(A, B, points[k]) != 0) {
+			all_collinear = false;
+			break;
+		}
+	}
+	if (all_collinear) {
+		std::sort(points.begin() + left, points.begin() + right,
+				  [&](const point<long long> &P, const point<long long> &Q) {
+					  return proj_on_ab(P, A, B) < proj_on_ab(Q, A, B);
+				  });
+		return;
+	}
+
+	// Choses a pivot that is not collinear with A and B.
+	std::vector<int> candidates;
+	for (int k = left + 1; k < right - 1; ++k) {
+		if (ccw(A, B, points[k]) != 0)
+			candidates.push_back(k);
+	}
+	int ci = candidates[next(0, static_cast<int>(candidates.size()) - 1)];
 	point<long long> C = points[ci];
+
 	uint64_t wa = next<uint64_t>(1, std::numeric_limits<uint64_t>::max());
 	uint64_t wb = next<uint64_t>(1, std::numeric_limits<uint64_t>::max());
 	bool a_on_positive = ccw(C, A, B) < 0;
 
-	auto point_on_positive = [&](const point<long long> &P) -> bool {
-		return wa * ccw(C, A, P) + wb * ccw(C, B, P) > 0;
+	// Classify interior points into two sides of the wedge A-C-B for partition.
+	// Collinear points on AB are tie-broken along the segment.
+	i128 proj_sum = proj_on_ab(A, A, B) + proj_on_ab(B, A, B);
+	auto is_positive = [&](const point<long long> &P) -> bool {
+		i128 s = wa * ccw(C, A, P) + wb * ccw(C, B, P);
+		// Weighted wedge side of P w.r.t. C, A, B.
+		if (s != 0)
+			return s > 0;
+		// P is on line AB: split by projection past the midpoint.
+		return 2 * proj_on_ab(P, A, B) > proj_sum;
 	};
 
 	// Holds C at points[right-2] while classifying interior points in
@@ -5873,9 +5910,9 @@ inline void conquer(std::vector<point<long long>> &points, int left,
 	int i = left + 1;
 	int j = right - 3;
 	while (i < j) {
-		if (point_on_positive(points[i]) == a_on_positive)
+		if (is_positive(points[i]) == a_on_positive)
 			++i;
-		else if (point_on_positive(points[j]) != a_on_positive)
+		else if (is_positive(points[j]) != a_on_positive)
 			--j;
 		else {
 			std::swap(points[i], points[j]);
@@ -5889,12 +5926,14 @@ inline void conquer(std::vector<point<long long>> &points, int left,
 
 	// After the swap, p is the index of C (pivot between the two subpaths).
 	int p = i;
-	if (i == j and point_on_positive(points[i]) == a_on_positive)
+	if (i == j and is_positive(points[i]) == a_on_positive)
 		++p;
 	std::swap(points[p], points[right - 2]);
 
-	conquer(points, left, p + 1); // path A -> C
-	conquer(points, p, right);	  // path C -> B
+	// Path A -> C.
+	conquer(points, left, p + 1);
+	// Path C -> B.
+	conquer(points, p, right);
 }
 
 // Generates n >= 3 sorted distinct coordinates in [0, width] with endpoints 0
@@ -6023,8 +6062,8 @@ random_convex_polygon(int n, long long min_coord, long long max_coord) {
 	return pts;
 }
 
-// Random simple polygon through given points in general position.
-// Should be given at least 3 points and there should be no three collinear.
+// Random simple polygon through given distinct points.
+// Collinear triples are allowed; fails if all points are collinear.
 // O(n log n) expected if points are "random", O(n^2) worst case.
 inline std::vector<point<long long>> random_simple_polygon_through_points(
 	const std::vector<point<long long>> &points) {
@@ -6032,6 +6071,12 @@ inline std::vector<point<long long>> random_simple_polygon_through_points(
 	tgen_ensure(n >= 3,
 				"geometry: random_simple_polygon_through_points: need at "
 				"least 3 points");
+	tgen_ensure(
+		static_cast<int>(
+			std::set<point<long long>>(points.begin(), points.end()).size()) ==
+			n,
+		"geometry: random_simple_polygon_through_points: points must "
+		"be distinct");
 
 	int idx_a = 0, idx_b = 0;
 	for (int i = 1; i < n; ++i) {
@@ -6041,6 +6086,19 @@ inline std::vector<point<long long>> random_simple_polygon_through_points(
 			idx_b = i;
 	}
 	point<long long> A = points[idx_a], B = points[idx_b];
+
+	bool all_collinear = true;
+	for (int i = 0; i < n; ++i) {
+		if (i == idx_a or i == idx_b)
+			continue;
+		if (detail::ccw(A, B, points[i]) != 0) {
+			all_collinear = false;
+			break;
+		}
+	}
+	tgen_ensure(!all_collinear,
+				"geometry: random_simple_polygon_through_points: all points "
+				"are collinear; no simple polygon exists");
 
 	std::vector<point<long long>> chain;
 	chain.push_back(A);
