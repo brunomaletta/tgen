@@ -369,7 +369,8 @@ namespace tgen {
  *
  * #### Complexity
  *
- * @tt{O(n log n + m log^2 n)}.
+ * @tt{O(n + m log n)} if @pname{spread} is @tt{O(1)}; <br>
+ * @tt{O(n log n + m log^2 n)} otherwise.
  *
  * #### Examples
  *

@@ -5,13 +5,6 @@
 
 namespace {
 
-// Scale tiers (chosen from documented complexity and output size):
-// - kN: graph/geometry/tree/list at 1e6 for benchmarks that take >= 100 ms.
-constexpr int kN = 1'000'000;
-constexpr long long kPolygonMaxCoord = 3'000'000;
-constexpr int kSkewElongation = 100;
-constexpr int kSkewSpread = 2;
-
 volatile uint64_t sink = 0;
 
 template <typename G> void consume_graph_like(const G &g) {
@@ -44,49 +37,70 @@ void consume_list(const tgen::list<int>::value &list) {
 
 std::vector<benchmark::CaseResult> run_all() {
 	std::vector<benchmark::CaseResult> results;
-	results.reserve(10);
 
 	results.push_back(benchmark::run_case(
 		"tgen::graph::get_connected", " (m=n)", "n=1e6, m=1e6",
-		"tgen::wgraph::get_connected",
-		[] { consume_graph(tgen::graph(kN, kN).get_connected()); }));
+		"tgen::wgraph::get_connected", [] {
+			consume_graph(tgen::graph(1'000'000, 1'000'000).get_connected());
+		}));
 
 	results.push_back(benchmark::run_case(
 		"tgen::graph::get_connected", " (m=2n)", "n=1e6, m=2e6",
-		"tgen::wgraph::get_connected",
-		[] { consume_graph(tgen::graph(kN, 2 * kN).get_connected()); }));
+		"tgen::wgraph::get_connected", [] {
+			consume_graph(tgen::graph(1'000'000, 2'000'000).get_connected());
+		}));
 
 	results.push_back(benchmark::run_case(
 		"tgen::graph::gen", "", "n=1e6, m=1e6", "tgen::wgraph::gen",
-		[] { consume_graph(tgen::graph(kN, kN).gen()); }));
+		[] { consume_graph(tgen::graph(1'000'000, 1'000'000).gen()); }));
 
-	results.push_back(benchmark::run_case(
-		"tgen::graph::gen_skewed", "", "n=1e6, m=1e6, elongation=1e2, spread=2",
-		"tgen::wgraph::gen_skewed", [] {
-			consume_graph(
-				tgen::graph::gen_skewed(kN, kN, kSkewElongation, kSkewSpread));
-		}));
+	results.push_back(
+		benchmark::run_case("tgen::graph::gen_skewed", " (m=n)",
+							"n=1e6, m=1e6, elongation=1e2, spread=2",
+							"tgen::wgraph::gen_skewed", [] {
+								consume_graph(tgen::graph::gen_skewed(
+									1'000'000, 1'000'000, 100, 2));
+							}));
+
+	// spread=6: spread=2 cannot reach m=2n at n=1e6.
+	results.push_back(
+		benchmark::run_case("tgen::graph::gen_skewed", " (m=2n)",
+							"n=1e6, m=2e6, elongation=1e2, spread=6",
+							"tgen::wgraph::gen_skewed", [] {
+								consume_graph(tgen::graph::gen_skewed(
+									1'000'000, 2'000'000, 100, 6));
+							}));
+
+	// spread=2, path-like tree: at most n-2 distinct ancestor edges (~m=2n-3).
+	results.push_back(
+		benchmark::run_case("tgen::graph::gen_skewed", " (distinct worst)",
+							"n=1e6, m=2n-3, elongation=1e2, spread=2",
+							"tgen::wgraph::gen_skewed", [] {
+								consume_graph(tgen::graph::gen_skewed(
+									1'000'000, 1'999'997, 100, 2));
+							}));
 
 	results.push_back(
 		benchmark::run_case("tgen::tree::gen", "", "n=1e6", "tgen::wtree::gen",
-							[] { consume_tree(tgen::tree(kN).gen()); }));
+							[] { consume_tree(tgen::tree(1'000'000).gen()); }));
 
 	results.push_back(benchmark::run_case(
 		"tgen::tree::gen_skewed", "", "n=1e6, elongation=1e2",
 		"tgen::wtree::gen_skewed",
-		[] { consume_tree(tgen::tree::gen_skewed(kN, kSkewElongation)); }));
+		[] { consume_tree(tgen::tree::gen_skewed(1'000'000, 100)); }));
 
 	results.push_back(benchmark::run_case(
 		"tgen::list<int>::gen", " (all_different)",
 		"n=1e6, value_left=1, value_right=2e6", "tgen::list::gen", [] {
-			consume_list(tgen::list<int>(kN, 1, 2 * kN).all_different().gen());
+			consume_list(
+				tgen::list<int>(1'000'000, 1, 2'000'000).all_different().gen());
 		}));
 
 	results.push_back(benchmark::run_case(
 		"tgen::geometry::random_simple_polygon", "", "n=1e6, min=0, max=3e6",
 		"tgen::geometry::random_simple_polygon", [] {
 			consume_polygon(
-				tgen::geometry::random_simple_polygon(kN, 0, kPolygonMaxCoord));
+				tgen::geometry::random_simple_polygon(1'000'000, 0, 3'000'000));
 		}));
 
 	results.push_back(benchmark::run_case(
@@ -94,18 +108,18 @@ std::vector<benchmark::CaseResult> run_all() {
 		"n=1e6, min=0, max=3e6",
 		"tgen::geometry::random_points_general_position", [] {
 			consume_polygon(tgen::geometry::random_points_general_position(
-				kN, 0, kPolygonMaxCoord));
+				1'000'000, 0, 3'000'000));
 		}));
 
 	results.push_back(benchmark::run_case(
 		"tgen::geometry::random_convex_polygon", "", "n=1e6, min=0, max=3e6",
 		"tgen::geometry::random_convex_polygon", [] {
 			consume_polygon(
-				tgen::geometry::random_convex_polygon(kN, 0, kPolygonMaxCoord));
+				tgen::geometry::random_convex_polygon(1'000'000, 0, 3'000'000));
 		}));
 
 	const auto polygon_points =
-		tgen::geometry::random_points_general_position(kN, 0, kPolygonMaxCoord);
+		tgen::geometry::random_points_general_position(1'000'000, 0, 3'000'000);
 	results.push_back(benchmark::run_case(
 		"tgen::geometry::random_simple_polygon_through_points", "", "n=1e6",
 		"tgen::geometry::random_simple_polygon_through_points",
@@ -150,7 +164,9 @@ int main(int argc, char **argv) {
 	report.compiler = __VERSION__;
 	report.flags = "-std=c++17 -O2";
 	report.hostname = benchmark::hostname();
+	const auto start = benchmark::clock::now();
 	report.results = run_all();
+	const double total_ms = benchmark::elapsed_ms(start);
 
 	try {
 		benchmark::write_json(report, json_path);
@@ -160,5 +176,6 @@ int main(int argc, char **argv) {
 	}
 
 	std::cout << "Wrote " << json_path << '\n';
+	std::cout << "Benchmarks took " << total_ms / 1000.0 << " s\n";
 	return 0;
 }

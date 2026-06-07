@@ -5494,7 +5494,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// If elongation is small, generates a graph with small diameter.
 	// If elongation is large, generates a graph with large diameter, with
 	// vertices 0 and n-1 being far apart.
-	// O(n log n + m log^2 n).
+	// O(n + m log n) if spread is O(1);
+	// O(n log n + m log^2 n) otherwise.
 	static value gen_skewed(int n, int m, int elongation, int spread,
 							bool is_directed = false) {
 		tgen_ensure(
@@ -5514,54 +5515,79 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			skewed.add_edge(p, i);
 		}
 
-		// Binary lifting.
+		const int extra = m - (n - 1);
+		if (extra == 0)
+			return skewed;
 
-		int lg = 1;
-		while ((1 << lg) <= n)
-			++lg;
+		// If spread is large, use binary lifting to find the ancestor.
+		// Otherwise, enumerate O(n * spread) ancestor edges and sample
+		// directly.
+		constexpr int naive_ancestor_spread = 20;
 
-		std::vector<std::vector<int>> up(lg, std::vector<int>(n));
-		for (int v = 0; v < n; ++v)
-			up[0][v] = parent[v];
-		for (int j = 1; j < lg; ++j)
-			for (int v = 0; v < n; ++v)
-				up[j][v] = up[j - 1][up[j - 1][v]];
-
-		// O(log k).
-		auto kth_parent = [&](int u, int k) {
-			for (int j = 0; j < lg; ++j)
-				if (k >> j & 1)
-					u = up[j][u];
-			return u;
-		};
-
-		// Creates uniform generator of edges (u, v) such that v is ancestor of
-		// u. For that, every u has depth[u]-1 choices for v, so we weight u by
-		// min(spread - 1, depth[u] - 1). After that we can just pick the
-		// ancestor uniformly.
-		std::vector<int> distribution = depth;
-		for (int &d : distribution)
-			d = std::max(0, std::min(spread - 1, d - 1));
-		weighted_sampler vertex_choice(distribution);
-		distinct extra_edges([&]() -> std::pair<int, int> {
-			int u = vertex_choice.next();
-			int k = next(2, spread);
-			return {kth_parent(u, k), u};
-		});
-
-		// Adds the remaining edges.
-		while (skewed.m() < m) {
-			std::pair<int, int> edge;
-			try {
-				edge = extra_edges.gen();
-			} catch (const std::runtime_error &e) {
-				if (std::string(e.what()) ==
-					"tgen: distinct: no more distinct values")
-					throw detail::error("wgraph: not enough edges to generate");
-				throw e;
+		if (spread <= naive_ancestor_spread) {
+			std::vector<std::pair<int, int>> candidates;
+			candidates.reserve(n * spread);
+			for (int u = 0; u < n; ++u) {
+				int max_k = std::min(spread, depth[u]);
+				if (max_k < 2)
+					continue;
+				int v = parent[u];
+				for (int k = 2; k <= max_k; ++k) {
+					v = parent[v];
+					candidates.emplace_back(v, u);
+				}
 			}
 
-			skewed.add_edge(edge.first, edge.second);
+			tgen_ensure(extra <= static_cast<int>(candidates.size()),
+						"wgraph: not enough edges to generate");
+
+			for (auto [v, u] : choose(candidates, extra))
+				skewed.add_edge(v, u);
+		} else {
+			// Binary lifting.
+			int lg = 1;
+			while ((1 << lg) <= n)
+				++lg;
+
+			std::vector<std::vector<int>> up(lg, std::vector<int>(n));
+			for (int v = 0; v < n; ++v)
+				up[0][v] = parent[v];
+			for (int j = 1; j < lg; ++j)
+				for (int v = 0; v < n; ++v)
+					up[j][v] = up[j - 1][up[j - 1][v]];
+
+			// Creates uniform generator of edges (u, v) such that v is ancestor
+			// of u. For that, every u has depth[u]-1 choices for v, so we
+			// weight u by min(spread - 1, depth[u] - 1). After that we can
+			// just pick the ancestor uniformly.
+			std::vector<int> distribution = depth;
+			for (int &d : distribution)
+				d = std::max(0, std::min(spread - 1, d - 1));
+			weighted_sampler vertex_choice(distribution);
+			distinct extra_edges([&]() -> std::pair<int, int> {
+				int u = vertex_choice.next();
+				int k = next(2, spread);
+				int v = u;
+				for (int j = 0; j < lg; ++j)
+					if (k >> j & 1)
+						v = up[j][v];
+				return {v, u};
+			});
+
+			while (skewed.m() < m) {
+				std::pair<int, int> edge;
+				try {
+					edge = extra_edges.gen();
+				} catch (const std::runtime_error &e) {
+					if (std::string(e.what()) ==
+						"tgen: distinct: no more distinct values")
+						throw detail::error(
+							"wgraph: not enough edges to generate");
+					throw e;
+				}
+
+				skewed.add_edge(edge.first, edge.second);
+			}
 		}
 
 		return skewed;
