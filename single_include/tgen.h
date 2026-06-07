@@ -40,6 +40,7 @@
 #include <string>
 #include <sys/types.h>
 #include <type_traits>
+#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -6017,6 +6018,8 @@ inline std::vector<long long>
 valtr_edge_components(const std::vector<long long> &sorted_coords) {
 	int n = sorted_coords.size();
 	std::vector<long long> left, right;
+	left.reserve(n / 2);
+	right.reserve(n / 2);
 	for (int i = 1; i + 1 < n; ++i) {
 		if (next(2) == 0)
 			left.push_back(sorted_coords[i]);
@@ -6025,6 +6028,7 @@ valtr_edge_components(const std::vector<long long> &sorted_coords) {
 	}
 	long long lo = sorted_coords.front(), hi = sorted_coords.back();
 	std::vector<long long> seq;
+	seq.reserve(n + 1);
 	seq.push_back(lo);
 	for (long long v : left)
 		seq.push_back(v);
@@ -6040,10 +6044,13 @@ valtr_edge_components(const std::vector<long long> &sorted_coords) {
 
 } // namespace detail
 
-// Generates n vertices of a strictly convex integer polygon inside a box.
+// Generates n vertices of a convex integer polygon inside a box.
+// If strict is true, boundary vertices are guaranteed non-collinear when
+// generation succeeds; retry count depends on n and width.
 // O(n log n).
 inline std::vector<point<long long>>
-random_convex_polygon(int n, long long min_coord, long long max_coord) {
+random_convex_polygon(int n, long long min_coord, long long max_coord,
+					  bool strict = false) {
 	tgen_ensure(n >= 3,
 				"geometry: random_convex_polygon: n must be at least 3");
 	tgen_ensure(max_coord >= min_coord,
@@ -6067,26 +6074,55 @@ random_convex_polygon(int n, long long min_coord, long long max_coord) {
 
 	std::vector<long long> x_comp = detail::valtr_edge_components(x_sorted);
 	std::vector<long long> y_comp = detail::valtr_edge_components(y_sorted);
-	shuffle(y_comp.begin(), y_comp.end());
 
 	std::vector<point<long long>> edges(n);
-	for (int i = 0; i < n; ++i)
-		edges[i] = point<long long>(x_comp[i], y_comp[i]);
-
 	auto upper = [](const point<long long> &p) {
 		return p.y() > 0 or (p.y() == 0 and p.x() > 0);
 	};
 
-	std::sort(edges.begin(), edges.end(),
-			  [&upper](point<long long> a, point<long long> b) {
-				  bool au = upper(a), bu = upper(b);
-				  if (au != bu)
-					  return au;
-				  auto cross = a ^ b;
-				  if (cross != 0)
-					  return cross > 0;
-				  return (a * a) < (b * b);
-			  });
+	// When strict, retry pairings that yield consecutive parallel edges.
+	int max_strict_attempts = 1;
+	if (strict) {
+		if (width < 2 * n - 1 or n > 1000)
+			max_strict_attempts = 4;
+		else if (n <= 50)
+			max_strict_attempts = 12;
+		else
+			max_strict_attempts = 8;
+	}
+	for (int attempt = 0;; ++attempt) {
+		shuffle(y_comp.begin(), y_comp.end());
+		for (int i = 0; i < n; ++i)
+			edges[i] = point<long long>(x_comp[i], y_comp[i]);
+		std::sort(
+			edges.begin(), edges.end(),
+			[&upper](const point<long long> &a, const point<long long> &b) {
+				bool au = upper(a), bu = upper(b);
+				if (au != bu)
+					return au;
+				auto cross = a ^ b;
+				if (cross != 0)
+					return cross > 0;
+				return (a * a) < (b * b);
+			});
+		if (!strict)
+			break;
+		bool collinear = false;
+		for (int i = 0; i < n; ++i) {
+			const auto &cur = edges[i];
+			const auto &nxt = edges[(i + 1) % n];
+			if ((cur ^ nxt) == 0) {
+				collinear = true;
+				break;
+			}
+		}
+		if (!collinear)
+			break;
+
+		tgen_ensure(attempt + 1 < max_strict_attempts,
+					"geometry: random_convex_polygon: generation failed: "
+					"coordinate range too small for n");
+	}
 
 	i128 cur_x = 0, cur_y = 0;
 	std::vector<i128> px(n), py(n);
@@ -6111,6 +6147,7 @@ random_convex_polygon(int n, long long min_coord, long long max_coord) {
 	i128 shift_y = min_coord - min_y;
 
 	std::vector<point<long long>> pts;
+	pts.reserve(n);
 	for (int i = 0; i < n; ++i)
 		pts.emplace_back(px[i] + shift_x, py[i] + shift_y);
 

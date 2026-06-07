@@ -472,6 +472,39 @@ TEST(list_test, gen_uniform) {
 		12 * 5);
 }
 
+namespace {
+
+void expect_all_different_in_range(const tgen::list<long long>::value &inst,
+								   long long left, long long right) {
+	EXPECT_EQ(inst.size(), 8);
+	std::set<long long> seen;
+	for (int i = 0; i < inst.size(); ++i) {
+		EXPECT_GE(inst[i], left);
+		EXPECT_LE(inst[i], right);
+		EXPECT_TRUE(seen.insert(inst[i]).second);
+	}
+}
+
+} // namespace
+
+TEST(list_test, gen_all_different_huge_value_range) {
+	tgen::register_gen(42);
+
+	// Range far above the dense-pool threshold; must not allocate O(range).
+	constexpr long long left = 0;
+	constexpr long long right = 1'000'000'000'000'000'000LL;
+
+	expect_all_different_in_range(
+		tgen::list<long long>(8, left, right).all_different().gen(), left,
+		right);
+
+	// Same sampling via the general different-restriction path.
+	std::set<int> indices = {0, 1, 2, 3, 4, 5, 6, 7};
+	expect_all_different_in_range(
+		tgen::list<long long>(8, left, right).different(indices).gen(), left,
+		right);
+}
+
 TEST(list_test, gen_until_not_found) {
 	tgen::register_gen();
 

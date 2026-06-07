@@ -361,19 +361,22 @@ namespace tgen::geometry {
 
 /**
  * @ingroup geometry
- * @brief Generates a random strictly convex polygon with given bounding box.
+ * @brief Generates a random convex polygon with given bounding box.
  *
  * @param n Number of vertices.
  * @param min_coord Minimum allowed coordinate on each axis.
  * @param max_coord Maximum allowed coordinate on each axis.
+ * @param strict If @tt{@primitive{true}}, the polygon is strictly convex.
+ * If @tt{@primitive{false}}, collinear boundary vertices may occur.
  *
  * @pre @tt{@pname{n} >= 3}.
  *
- * @return @tt{@pname{n}} distinct vertices of a strictly convex polygon with integer
+ * @return @tt{@pname{n}} distinct vertices of a convex polygon with integer
  * coordinates in the inclusive square
  * @tt{[@pname{min_coord}, @pname{max_coord}]^2}, listed in boundary order
  * (clockwise or counterclockwise). The polygon touches all four sides of that
- * square (its axis-aligned bounding box equals the requested box).
+ * square (its axis-aligned bounding box equals the requested box). When
+ * @pname{strict} is @tt{@primitive{true}}, the polygon is strictly convex.
  *
  * Uses Valtr's classical construction: choose @tt{@pname{n}} distinct sorted
  * @tt{x} and @tt{y} coordinates spanning @tt{[0, width]} via
@@ -386,12 +389,19 @@ namespace tgen::geometry {
  *
  * @throws std::runtime_error if the coordinate range is not large enough.
  *
+ * @warning When @pname{strict} is @tt{@primitive{true}}, the implementation retries
+ * @tt{y}-component shuffles a bounded number of times (fewer when @pname{n} is
+ * large or the coordinate range is tight). Fails if no strictly convex polygon
+ * is found; use a larger coordinate range in that case. <br>
+ * When @pname{strict} is
+ * @tt{@primitive{false}}, a convex polygon is always found as long as
+ * @tt{@pname{max_coord} - @pname{min_coord} >= @pname{n} - 1}.
+ *
  * @note This operation is not uniformly random.
  *
  * #### Complexity
  *
  * @tt{O(@pname{n} log @pname{n})}.
- *
  * #### Examples
  *
  * ```cpp
@@ -399,7 +409,7 @@ namespace tgen::geometry {
  * std::cout << tgen::print(poly, '\n') << std::endl;
  * ```
  *
- * @fn random_convex_polygon(int n, long long min_coord, long long max_coord);
+ * @fn random_convex_polygon(int n, long long min_coord, long long max_coord, bool strict);
  */
 
 }; // namespace tgen::geometry
