@@ -95,6 +95,8 @@ No loops. No backtracking. No custom generator code.
 - **Comprehensive documentation** with many examples;
 - **Built-in benchmarks** for selected operations, available in the documentation.
 
+For a detailed feature-by-feature comparison with benchmarks, see [tgen vs jngen](https://brunomaletta.github.io/tgen_vs_jngen/).
+
 ## 📦 Installation
 
 Header-only. Download
