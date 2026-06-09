@@ -51,6 +51,13 @@ std::vector<benchmark::CaseResult> run_all() {
 		}));
 
 	results.push_back(benchmark::run_case(
+		"tgen::graph::get_acyclic", "", "n=1e6, m=1e6",
+		"tgen::wgraph::get_acyclic", [] {
+			consume_graph(
+				tgen::graph(1'000'000, 1'000'000, true).get_acyclic());
+		}));
+
+	results.push_back(benchmark::run_case(
 		"tgen::graph::gen", "", "n=1e6, m=1e6", "tgen::wgraph::gen",
 		[] { consume_graph(tgen::graph(1'000'000, 1'000'000).gen()); }));
 
