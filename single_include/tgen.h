@@ -325,13 +325,6 @@ template <typename Func, typename... Args> struct distinct {
 	distinct(Func func, Args... args)
 		: func_(std::move(func)), args_(std::move(args)...) {}
 
-	// Generates distinct value and inserts it if `insert` is true.
-	// Returns the value if found, otherwise returns std::nullopt.
-	auto generate_distinct(bool insert) {
-		return detail::try_generate_distinct(
-			seen_, [&] { return std::apply(func_, args_); }, insert);
-	}
-
 	// Generates a distinct value (i.e., one not returned before).
 	//
 	// Assume gen() produces a uniformly random value in O(T) time.
@@ -396,6 +389,14 @@ template <typename Func, typename... Args> struct distinct {
 			"distinct: cannot print a distinct generator. Maybe you forgot to "
 			"call `gen()`?");
 		return out;
+	}
+
+  private:
+	// Generates distinct value and inserts it if `insert` is true.
+	// Returns the value if found, otherwise returns std::nullopt.
+	auto generate_distinct(bool insert) {
+		return detail::try_generate_distinct(
+			seen_, [&] { return std::apply(func_, args_); }, insert);
 	}
 };
 template <typename Func, typename... Args>
@@ -1786,93 +1787,6 @@ template <typename T> struct list : gen_base<list<T>> {
 		}
 	};
 
-	// Generates a uniformly random list of k distinct values in `[value_l,
-	// value_r]`, such that no value is in `forbidden_values`.
-	std::vector<T>
-	generate_distinct_values(int k, const std::set<T> &forbidden_values) const {
-		for (auto forbidden : forbidden_values)
-			tgen_ensure(value_l_ <= forbidden and forbidden <= value_r_);
-		const T num_available =
-			(value_r_ - value_l_ + 1) - forbidden_values.size();
-		if (num_available < k)
-			throw detail::complex_restrictions_error(
-				"list", "not enough distinct values");
-		if (forbidden_values.empty())
-			return distinct_range<T>(value_l_, value_r_).gen_list(k).to_std();
-
-		// We generate our numbers in the range [0, num_available) with
-		// num_available = (r-l+1)-(forbidden_values.size()), and then map them
-		// to the correct range. We will run k steps of Fisher–Yates, using a
-		// map to store a virtual list that starts with a[i] = i.
-		std::map<T, T> virtual_list;
-		std::vector<T> gen_list;
-		for (int i = 0; i < k; ++i) {
-			T j = next<T>(i, num_available - 1);
-			T vj = virtual_list.count(j) ? virtual_list[j] : j;
-			T vi = virtual_list.count(i) ? virtual_list[i] : i;
-
-			virtual_list[j] = vi, virtual_list[i] = vj;
-
-			gen_list.push_back(virtual_list[i]);
-		}
-
-		// Shifts back to correct range, but there might still be values
-		// that we cannot use.
-		for (T &val : gen_list)
-			val += value_l_;
-
-		// Now for every generated value, we shift it by how many forbidden
-		// values are <= it.
-		std::vector<std::pair<T, int>> values_sorted;
-		for (std::size_t i = 0; i < gen_list.size(); ++i)
-			values_sorted.emplace_back(gen_list[i], i);
-		// We iterate through them in increasing order.
-		std::sort(values_sorted.begin(), values_sorted.end());
-		auto cur_it = forbidden_values.begin();
-		int smaller_forbidden_count = 0;
-		for (auto [val, idx] : values_sorted) {
-			while (cur_it != forbidden_values.end() and
-				   *cur_it <= val + smaller_forbidden_count)
-				++cur_it, ++smaller_forbidden_count;
-			gen_list[idx] += smaller_forbidden_count;
-		}
-
-		return gen_list;
-	}
-
-	// If this generator is exactly all-distinct in [value_l_, value_r_],
-	// returns a uniformly random list; otherwise returns std::nullopt.
-	// Optimized for performance (distinct_range fast path).
-	// O(n log n).
-	std::optional<value> try_gen_all_different() const {
-		if (!values_.empty() or diff_restrictions_.size() != 1)
-			return std::nullopt;
-
-		const std::set<int> &diff = diff_restrictions_[0];
-		if (static_cast<int>(diff.size()) != size_ or *diff.begin() != 0 or
-			*diff.rbegin() != size_ - 1)
-			return std::nullopt;
-
-		for (const auto &adj : neigh_) {
-			if (!adj.empty())
-				return std::nullopt;
-		}
-
-		for (const auto &[left, right] : val_range_) {
-			if (left != value_l_ or right != value_r_)
-				return std::nullopt;
-		}
-
-		if (static_cast<long long>(size_) >
-			static_cast<long long>(value_r_) - value_l_ + 1)
-			throw detail::contradiction_error(
-				"list", "tried to generate " + std::to_string(size_) +
-							" different values, but the maximum is " +
-							std::to_string(value_r_ - value_l_ + 1));
-
-		return distinct_range<T>(value_l_, value_r_).gen_list(size_);
-	}
-
 	// Generates list value.
 	// O(n log n).
 	value gen() const {
@@ -2136,6 +2050,85 @@ template <typename T> struct list : gen_base<list<T>> {
 		}
 
 		return value(vec);
+	}
+
+  private:
+	// Generates a uniformly random list of k distinct values in `[value_l,
+	// value_r]`, such that no value is in `forbidden_values`.
+	std::vector<T>
+	generate_distinct_values(int k, const std::set<T> &forbidden_values) const {
+		for (auto forbidden : forbidden_values)
+			tgen_ensure(value_l_ <= forbidden and forbidden <= value_r_);
+		const T num_available =
+			(value_r_ - value_l_ + 1) - forbidden_values.size();
+		if (num_available < k)
+			throw detail::complex_restrictions_error(
+				"list", "not enough distinct values");
+		if (forbidden_values.empty())
+			return distinct_range<T>(value_l_, value_r_).gen_list(k).to_std();
+
+		std::map<T, T> virtual_list;
+		std::vector<T> gen_list;
+		for (int i = 0; i < k; ++i) {
+			T j = next<T>(i, num_available - 1);
+			T vj = virtual_list.count(j) ? virtual_list[j] : j;
+			T vi = virtual_list.count(i) ? virtual_list[i] : i;
+
+			virtual_list[j] = vi, virtual_list[i] = vj;
+
+			gen_list.push_back(virtual_list[i]);
+		}
+
+		for (T &val : gen_list)
+			val += value_l_;
+
+		std::vector<std::pair<T, int>> values_sorted;
+		for (std::size_t i = 0; i < gen_list.size(); ++i)
+			values_sorted.emplace_back(gen_list[i], i);
+		std::sort(values_sorted.begin(), values_sorted.end());
+		auto cur_it = forbidden_values.begin();
+		int smaller_forbidden_count = 0;
+		for (auto [val, idx] : values_sorted) {
+			while (cur_it != forbidden_values.end() and
+				   *cur_it <= val + smaller_forbidden_count)
+				++cur_it, ++smaller_forbidden_count;
+			gen_list[idx] += smaller_forbidden_count;
+		}
+
+		return gen_list;
+	}
+
+	// If this generator is exactly all-distinct in [value_l_, value_r_],
+	// returns a uniformly random list; otherwise returns std::nullopt.
+	// Optimized for performance (distinct_range fast path).
+	// O(n log n).
+	std::optional<value> try_gen_all_different() const {
+		if (!values_.empty() or diff_restrictions_.size() != 1)
+			return std::nullopt;
+
+		const std::set<int> &diff = diff_restrictions_[0];
+		if (static_cast<int>(diff.size()) != size_ or *diff.begin() != 0 or
+			*diff.rbegin() != size_ - 1)
+			return std::nullopt;
+
+		for (const auto &adj : neigh_) {
+			if (!adj.empty())
+				return std::nullopt;
+		}
+
+		for (const auto &[left, right] : val_range_) {
+			if (left != value_l_ or right != value_r_)
+				return std::nullopt;
+		}
+
+		if (static_cast<long long>(size_) >
+			static_cast<long long>(value_r_) - value_l_ + 1)
+			throw detail::contradiction_error(
+				"list", "tried to generate " + std::to_string(size_) +
+							" different values, but the maximum is " +
+							std::to_string(value_r_ - value_l_ + 1));
+
+		return distinct_range<T>(value_l_, value_r_).gen_list(size_);
 	}
 };
 
@@ -5361,27 +5354,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			return glue(rhs, std::set<int>());
 		}
 
-		// Rebuilds adjacency from edges_ after replacing the edge list (e.g.
-		// subgraph operations).
-		// O(m log n).
-		void rebuild_adj_from_edge_list() {
-			adj_.assign(n_, {});
-			for (auto [u, v] : edges_) {
-				adj_[u].insert(v);
-				if (!is_directed_)
-					adj_[v].insert(u);
-			}
-			adj_built_ = true;
-		}
-
-		// Builds adj_ from edges_ on first use.
-		// O(1) if already built; O(m log n) otherwise.
-		void ensure_adj_built() const {
-			if (adj_built_)
-				return;
-			const_cast<value *>(this)->rebuild_adj_from_edge_list();
-		}
-
 		// Computes uniformly random subgraph of graph with num_edges edges.
 		// O(n + m).
 		value &random_subgraph(int num_edges) {
@@ -5600,6 +5572,28 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			ensure_adj_built();
 			return std_type(n_, m(), adj_);
 		}
+
+	  private:
+		// Rebuilds adjacency from edges_ after replacing the edge list (e.g.
+		// subgraph operations).
+		// O(m log n).
+		void rebuild_adj_from_edge_list() {
+			adj_.assign(n_, {});
+			for (auto [u, v] : edges_) {
+				adj_[u].insert(v);
+				if (!is_directed_)
+					adj_[v].insert(u);
+			}
+			adj_built_ = true;
+		}
+
+		// Builds adj_ from edges_ on first use.
+		// O(1) if already built; O(m log n) otherwise.
+		void ensure_adj_built() const {
+			if (adj_built_)
+				return;
+			const_cast<value *>(this)->rebuild_adj_from_edge_list();
+		}
 	};
 
 	// Adds all edges from `rhs` as preset edges.
@@ -5611,73 +5605,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		for (auto [u, v] : rhs.edges())
 			add_edge(u, v);
 		return *this;
-	}
-
-	// If this generator has no preset edges and m is large relative to the
-	// maximum edge count, sample by distinct edge index. Otherwise
-	// std::nullopt.
-	// Optimized for performance (index sampling instead of rejection).
-	// O(m log n).
-	std::optional<value> try_gen_by_edge_index() const {
-		if (!edges_.empty())
-			return std::nullopt;
-
-		long long max_edges =
-			detail::max_graph_edges(n_, is_directed_, has_self_loops_);
-		if (m_ > max_edges)
-			throw detail::error("wgraph: not enough edges to generate");
-		if (max_edges <= 0 or 2LL * m_ <= max_edges)
-			return std::nullopt;
-
-		std::vector<std::pair<int, int>> edges;
-		edges.reserve(m_);
-		for (long long idx :
-			 distinct_range<long long>(0, max_edges - 1).gen_list(m_).to_std())
-			edges.push_back(detail::decode_graph_edge_index(
-				n_, idx, is_directed_, has_self_loops_));
-
-		return value(n_, edges, is_directed_);
-	}
-
-	// Fills `edges` up to m_ with uniform random edges not already present.
-	// Optimized for performance (uint64 edge keys + try_generate_distinct).
-	// O(m log n).
-	value gen_remaining_edges(std::vector<std::pair<int, int>> edges) const {
-		detail::tgen_ensure_against_bug(static_cast<int>(edges.size()) <= m_,
-										"wgraph: too many edges were added");
-
-		if (static_cast<int>(edges.size()) == m_)
-			return value(n_, edges, is_directed_);
-
-		edges.reserve(m_);
-
-		std::unordered_set<uint64_t> seen;
-		seen.reserve(m_ * 2);
-		for (auto [u, v] : edges) {
-			if (!is_directed_ and u > v)
-				std::swap(u, v);
-			seen.insert(is_directed_ ? detail::directed_edge_key(u, v)
-									 : detail::undirected_edge_key(u, v));
-		}
-
-		// Sample random edges until m_ are present (rejection on duplicates).
-		while (static_cast<int>(edges.size()) < m_) {
-			std::pair<int, int> edge;
-			if (!detail::try_generate_distinct(seen, [&] {
-					edge = detail::get_random_graph_edge(n_, is_directed_,
-														 has_self_loops_);
-					if (!is_directed_ and edge.first > edge.second)
-						std::swap(edge.first, edge.second);
-					return is_directed_ ? detail::directed_edge_key(edge.first,
-																	edge.second)
-										: detail::undirected_edge_key(
-											  edge.first, edge.second);
-				}))
-				throw detail::error("wgraph: not enough edges to generate");
-			edges.emplace_back(edge);
-		}
-
-		return value(n_, edges, is_directed_);
 	}
 
 	// Generates graph value.
@@ -5970,6 +5897,73 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 										"wgraph: invalid number of edges in "
 										"bipartite graph");
 		return value(n1 + n2, edges, false);
+	}
+
+  private:
+	// If this generator has no preset edges and m is large relative to the
+	// maximum edge count, sample by distinct edge index. Otherwise
+	// std::nullopt.
+	// Optimized for performance (index sampling instead of rejection).
+	// O(m log n).
+	std::optional<value> try_gen_by_edge_index() const {
+		if (!edges_.empty())
+			return std::nullopt;
+
+		long long max_edges =
+			detail::max_graph_edges(n_, is_directed_, has_self_loops_);
+		if (m_ > max_edges)
+			throw detail::error("wgraph: not enough edges to generate");
+		if (max_edges <= 0 or 2LL * m_ <= max_edges)
+			return std::nullopt;
+
+		std::vector<std::pair<int, int>> edges;
+		edges.reserve(m_);
+		for (long long idx :
+			 distinct_range<long long>(0, max_edges - 1).gen_list(m_).to_std())
+			edges.push_back(detail::decode_graph_edge_index(
+				n_, idx, is_directed_, has_self_loops_));
+
+		return value(n_, edges, is_directed_);
+	}
+
+	// Fills `edges` up to m_ with uniform random edges not already present.
+	// Optimized for performance (uint64 edge keys + try_generate_distinct).
+	// O(m log n).
+	value gen_remaining_edges(std::vector<std::pair<int, int>> edges) const {
+		detail::tgen_ensure_against_bug(static_cast<int>(edges.size()) <= m_,
+										"wgraph: too many edges were added");
+
+		if (static_cast<int>(edges.size()) == m_)
+			return value(n_, edges, is_directed_);
+
+		edges.reserve(m_);
+
+		std::unordered_set<uint64_t> seen;
+		seen.reserve(m_ * 2);
+		for (auto [u, v] : edges) {
+			if (!is_directed_ and u > v)
+				std::swap(u, v);
+			seen.insert(is_directed_ ? detail::directed_edge_key(u, v)
+									 : detail::undirected_edge_key(u, v));
+		}
+
+		while (static_cast<int>(edges.size()) < m_) {
+			std::pair<int, int> edge;
+			if (!detail::try_generate_distinct(seen, [&] {
+					edge = detail::get_random_graph_edge(n_, is_directed_,
+														 has_self_loops_);
+					if (!is_directed_ and edge.first > edge.second)
+						std::swap(edge.first, edge.second);
+					return is_directed_ ? detail::directed_edge_key(edge.first,
+																	edge.second)
+										: detail::undirected_edge_key(
+											  edge.first, edge.second);
+				}))
+				throw detail::error("wgraph: not enough edges to generate");
+			edges.emplace_back(edge);
+		}
+
+		return value(n_, edges, is_directed_);
 	}
 };
 
