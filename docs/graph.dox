@@ -400,7 +400,7 @@ namespace tgen {
  *
  * #### Complexity
  *
- * @tt{O(@pname{n1} + @pname{n2} + @pname{m} log(@pname{n1} + @pname{n2}))}.
+ * @tt{O(@pname{n1} + @pname{n2} + @pname{m} log(@pname{n1} * @pname{n2}))}.
  *
  * #### Examples
  *

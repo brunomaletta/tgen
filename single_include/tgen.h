@@ -5631,17 +5631,19 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 	// Generates a uniformly random bipartite graph. The first side has vertices
 	// 0 .. n1-1, the second n1 .. n1+n2-1.
-	// O(n1 + n2 + m log n).
+	// O(n1 + n2 + m log(n1 * n2)).
 	static value gen_bipartite(int n1, int n2, int m) {
 		tgen_ensure(m <= static_cast<long long>(n1) * n2,
 					"wgraph: bipartite graph has at most n1 * n2 edges");
 
 		wgraph bipartite(n1 + n2, m);
-		for (auto [u, v] : pair<int>(0, n1 - 1, n1, n1 + n2 - 1)
-							   .distinct()
-							   .gen_list(m)
-							   .to_std())
+		const long long num_edges = static_cast<long long>(n1) * n2;
+		for (long long idx :
+			 distinct_range<long long>(0, num_edges - 1).gen_list(m).to_std()) {
+			const int u = idx / n2;
+			const int v = n1 + idx % n2;
 			bipartite.add_edge(u, v);
+		}
 
 		detail::tgen_ensure_against_bug(
 			static_cast<int>(bipartite.edges_.size()) == m,
