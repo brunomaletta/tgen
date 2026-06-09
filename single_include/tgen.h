@@ -1042,10 +1042,15 @@ std::vector<T> choose(const std::initializer_list<T> &il, int k) {
 }
 
 // Number distinct generator for integral types.
+// Optimized for performance (unordered_map virtual list; gen_list uses array
+// pool, complement, or sparse sampling).
 template <typename T> struct distinct_range {
 	T left_, right_;
 	T num_available_;
-	std::map<T, T> virtual_list_;
+	std::unordered_map<T, T> virtual_list_;
+
+	// When the range fits in memory, sample via array Fisher–Yates.
+	static constexpr size_t array_pool_max = size_t{1} << 23;
 
 	// Generator of distinct values in [left, right].
 	distinct_range(T left, T right)
@@ -1055,7 +1060,8 @@ template <typename T> struct distinct_range {
 	T size() const { return num_available_; }
 
 	// Generates a random value in [left_, right_] that has not been generated
-	// yet. O(log n).
+	// yet.
+	// O(log n).
 	T gen() {
 		// One iteration of Fisher–Yates.
 		tgen_ensure(size() > 0, "distinct_range: no more values to generate");
@@ -1063,8 +1069,10 @@ template <typename T> struct distinct_range {
 		T i = next<T>(0, size() - 1);
 		T j = size() - 1;
 
-		T vi = virtual_list_.count(i) ? virtual_list_[i] : i;
-		T vj = virtual_list_.count(j) ? virtual_list_[j] : j;
+		auto vi_it = virtual_list_.find(i);
+		T vi = vi_it == virtual_list_.end() ? i : vi_it->second;
+		auto vj_it = virtual_list_.find(j);
+		T vj = vj_it == virtual_list_.end() ? j : vj_it->second;
 		virtual_list_[i] = vj;
 
 		--num_available_;
@@ -1073,22 +1081,102 @@ template <typename T> struct distinct_range {
 	}
 
 	// Generates a list of distinct values.
-	// O(size * log(n)).
-	auto gen_list(int size) {
+	// Optimized for performance (array pool, complement, or sparse sampling).
+	// O(size) when the range fits in memory; O(size log range) otherwise.
+	auto gen_list(int count) {
+		tgen_ensure(count >= 0, "distinct_range: size must be nonnegative");
+		tgen_ensure(count <= num_available_,
+					"distinct_range: no more values to generate");
+
+		size_t range_size = right_ - left_ + 1;
+		size_t sample_count = count;
+
 		std::vector<T> res;
-		for (int i = 0; i < size; ++i)
-			res.push_back(gen());
+		if (sample_count > 0) {
+			if (range_size <= array_pool_max)
+				res = sample_from_pool(sample_count, range_size);
+			else if (sample_count * 2 > range_size)
+				res = sample_complement(sample_count, range_size);
+			else
+				res = sample_sparse(sample_count);
+		}
+
+		num_available_ -= count;
+		virtual_list_.clear();
 		return typename list<T>::value(res);
 	}
 
 	// Generates all distinct values.
-	// O(n log(n))
-	auto gen_all() {
-		std::vector<T> res;
-		while (size() > 0)
-			res.push_back(gen());
-		return typename list<T>::value(res);
+	// O(n) when the range fits in memory; O(n log n) otherwise.
+	auto gen_all() { return gen_list(size()); }
+
+  private:
+	// Samples count distinct values via array Fisher–Yates on [left_, right_].
+	// O(range_size) time and memory.
+	std::vector<T> sample_from_pool(size_t count, size_t range_size) {
+		std::vector<T> pool(range_size);
+		std::iota(pool.begin(), pool.end(), left_);
+		for (size_t i = 0; i < count; ++i) {
+			size_t j = next<size_t>(i, range_size - 1);
+			std::swap(pool[i], pool[j]);
+		}
+		pool.resize(count);
+		return pool;
 	}
+
+	// Samples count distinct values by excluding range_size - count values.
+	// O(range_size + (range_size - count) log(range_size)).
+	std::vector<T> sample_complement(size_t count, size_t range_size) {
+		size_t exclude_count = range_size - count;
+		std::unordered_set<T> excluded;
+		excluded.reserve(exclude_count * 2);
+
+		if (exclude_count <= array_pool_max) {
+			for (T value : sample_from_pool(exclude_count, range_size))
+				excluded.insert(value);
+		} else {
+			for (T value : sample_sparse(exclude_count))
+				excluded.insert(value);
+		}
+
+		std::vector<T> res;
+		res.reserve(count);
+		for (T value = left_; value <= right_; ++value) {
+			if (!excluded.count(value))
+				res.push_back(value);
+		}
+		detail::tgen_ensure_against_bug(
+			res.size() == count, "distinct_range: complement sampling failed");
+		return res;
+	}
+
+	// Samples count distinct values via sparse-map Fisher–Yates.
+	// O(count log(range_size)).
+	std::vector<T> sample_sparse(size_t count) {
+		std::unordered_map<T, T> local_virtual;
+		local_virtual.reserve(count * 2);
+		T remaining = range_span();
+		std::vector<T> res;
+		res.reserve(count);
+		for (size_t step = 0; step < count; ++step) {
+			T i = next<T>(0, remaining - 1);
+			T j = remaining - 1;
+
+			auto vi_it = local_virtual.find(i);
+			T vi = vi_it == local_virtual.end() ? i : vi_it->second;
+			auto vj_it = local_virtual.find(j);
+			T vj = vj_it == local_virtual.end() ? j : vj_it->second;
+			local_virtual[i] = vj;
+
+			res.push_back(vi + left_);
+			--remaining;
+		}
+		return res;
+	}
+
+	// Returns right_ - left_ + 1.
+	// O(1).
+	T range_span() { return right_ - left_ + 1; }
 };
 
 // Distinct generator for containers.
@@ -4857,6 +4945,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	//
 	// Edges are stored in both directions (if undirected) in adjacency list,
 	// but only u < v in edge list.
+	// Optimized for performance (lazy adjacency list; edge-list constructor
+	// stores edges only).
 	struct value : gen_value_base<value> {
 		using std_type = std::tuple<int, int, std::vector<std::set<int>>>;
 
@@ -4866,6 +4956,9 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		bool is_directed_;						 // If graph is directed.
 		bool add_1_;	// If should add 1 for printing vertex ids.
 		bool print_nm_; // If should print n and m.
+		mutable bool adj_built_{
+			false}; // Lazy cache: true once adj_ is built from edges_; mutable
+					// so const adj() can populate it.
 		std::optional<std::vector<VWeight>> vertex_weights_; // Vertex weights.
 		std::optional<std::vector<EWeight>>
 			edge_weights_; // Edge weights (in same order as edges_ ).
@@ -4875,7 +4968,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// O(n + m).
 		value(const std::vector<std::set<int>> &adj, bool is_directed = false)
 			: n_(static_cast<int>(adj.size())), adj_(adj),
-			  is_directed_(is_directed), add_1_(false), print_nm_(false) {
+			  is_directed_(is_directed), add_1_(false), print_nm_(false),
+			  adj_built_(true) {
 			for (int u = 0; u < n_; ++u)
 				for (auto v : adj[u]) {
 					tgen_ensure(
@@ -4891,23 +4985,25 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 		// Creates value from `n`, `m`, and edge list. The edges are
 		// considered to be directed.
-		// O(n + m log n).
+		// Optimized for performance (lazy adjacency list; unordered_set dedup).
+		// O(m log m).
 		value(int n, const std::vector<std::pair<int, int>> &edges = {},
 			  bool is_directed = false)
-			: n_(n), adj_(n_), edges_(), is_directed_(is_directed),
-			  add_1_(false), print_nm_(false) {
+			: n_(n), edges_(), is_directed_(is_directed), add_1_(false),
+			  print_nm_(false), adj_built_(false) {
+			edges_.reserve(edges.size());
+			std::unordered_set<uint64_t> seen;
+			seen.reserve(edges.size() * 2 + 1);
 			for (auto [u, v] : edges) {
 				tgen_ensure(
 					0 <= std::min(u, v) and std::max(u, v) < n,
 					"wgraph: value: vertices must be indexed in [0, n)");
 				if (!is_directed_ and u > v)
 					std::swap(u, v);
-				if (adj_[u].count(v))
-					continue;
-				adj_[u].insert(v);
-				if (!is_directed_)
-					adj_[v].insert(u);
-				edges_.emplace_back(u, v);
+				uint64_t key = is_directed_ ? detail::directed_edge_key(u, v)
+											: detail::undirected_edge_key(u, v);
+				if (seen.insert(key).second)
+					edges_.emplace_back(u, v);
 			}
 		}
 		value(int n, const std::set<std::pair<int, int>> &edges,
@@ -4930,6 +5026,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 						"wgraph: value: cannot convert weight type after "
 						"assigning weights");
 
+			ensure_adj_built();
 			typename wgraph<NewVWeight, NewEWeight>::value new_graph(
 				adj_, is_directed_);
 			new_graph.is_directed_ = is_directed_;
@@ -4948,7 +5045,10 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		bool is_directed() const { return is_directed_; }
 
 		// Fetches a const ref. to adjacency list.
-		const std::vector<std::set<int>> &adj() const { return adj_; }
+		const std::vector<std::set<int>> &adj() const {
+			ensure_adj_built();
+			return adj_;
+		}
 
 		// Fetches a const ref. to edge set.
 		const std::vector<std::pair<int, int>> &edges() const { return edges_; }
@@ -5022,6 +5122,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// vertex weights and edge weights.
 		// O(n + m).
 		value &shuffle_except(std::set<int> indices) {
+			ensure_adj_built();
 			// Builds the relabeling: for each vertex `i`, `new_label[i]` is
 			// its new id. Vertices in `indices` keep their label; the others
 			// are permuted among themselves.
@@ -5093,6 +5194,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// O(k) amortized.
 		value &add_vertices(int k, std::optional<std::vector<VWeight>>
 									   new_vertex_weights = std::nullopt) {
+			ensure_adj_built();
 			n_ += k;
 			adj_.resize(n());
 			if (new_vertex_weights.has_value()) {
@@ -5118,6 +5220,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// Adds edge (u, v).
 		// O(log n) amortized.
 		value &add_edge(int u, int v, std::optional<EWeight> w = std::nullopt) {
+			ensure_adj_built();
 			tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n(),
 						"wgraph: value: vertex ids must be valid");
 
@@ -5260,7 +5363,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 		// Rebuilds adjacency from edges_ after replacing the edge list (e.g.
 		// subgraph operations).
-		// O(m).
+		// O(m log n).
 		void rebuild_adj_from_edge_list() {
 			adj_.assign(n_, {});
 			for (auto [u, v] : edges_) {
@@ -5268,6 +5371,15 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 				if (!is_directed_)
 					adj_[v].insert(u);
 			}
+			adj_built_ = true;
+		}
+
+		// Builds adj_ from edges_ on first use.
+		// O(1) if already built; O(m log n) otherwise.
+		void ensure_adj_built() const {
+			if (adj_built_)
+				return;
+			const_cast<value *>(this)->rebuild_adj_from_edge_list();
 		}
 
 		// Computes uniformly random subgraph of graph with num_edges edges.
@@ -5401,6 +5513,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 						"edge-weighted graph");
 
 			value complement = *this;
+			complement.ensure_adj_built();
 			std::vector<std::pair<int, int>> compl_edges;
 			for (int i = 0; i < complement.n_; ++i) {
 				std::set<int> complement_adj;
@@ -5484,6 +5597,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 		// Gets a std::tuple<n, m, adj> representing the value.
 		std::tuple<int, int, std::vector<std::set<int>>> to_std() const {
+			ensure_adj_built();
 			return std_type(n_, m(), adj_);
 		}
 	};
@@ -5842,22 +5956,20 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// Optimized for performance (distinct edge-index sampling).
 	// O(n1 + n2 + m log(n1 * n2)).
 	static value gen_bipartite(int n1, int n2, int m) {
-		tgen_ensure(m <= static_cast<long long>(n1) * n2,
+		long long num_edges = 1LL * n1 * n2;
+		tgen_ensure(m <= num_edges,
 					"wgraph: bipartite graph has at most n1 * n2 edges");
 
-		wgraph bipartite(n1 + n2, m);
-		long long num_edges = static_cast<long long>(n1) * n2;
+		std::vector<std::pair<int, int>> edges;
+		edges.reserve(m);
 		for (long long idx :
-			 distinct_range<long long>(0, num_edges - 1).gen_list(m).to_std()) {
-			int u = idx / n2;
-			int v = n1 + idx % n2;
-			bipartite.add_edge(u, v);
-		}
+			 distinct_range<long long>(0, num_edges - 1).gen_list(m).to_std())
+			edges.emplace_back(idx / n2, n1 + idx % n2);
 
-		detail::tgen_ensure_against_bug(
-			static_cast<int>(bipartite.edges_.size()) == m,
-			"wgraph: invalid number of edges in bipartite graph");
-		return bipartite.gen();
+		detail::tgen_ensure_against_bug(edges.size() == size_t(m),
+										"wgraph: invalid number of edges in "
+										"bipartite graph");
+		return value(n1 + n2, edges, false);
 	}
 };
 

@@ -79,6 +79,10 @@ std::cout << tgen::list<int>(10, 1, 100)
 		  << std::endl;
 ```
 
+## Complexity notation
+
+Documented time complexities treat associative-container operations as @tt{O(log n)}, as with @tt{@namespace{std}\::@type{map}} and @tt{@namespace{std}\::@type{set}}. Some implementations use @tt{@namespace{std}\::@type{unordered_map}} or @tt{@namespace{std}\::@type{unordered_set}} for performance; the stated bounds are unchanged (we do not use @tt{O(1)} average-case notation for those paths).
+
 ## Examples
 
 ### Opts configuration
