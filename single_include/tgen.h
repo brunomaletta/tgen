@@ -1754,6 +1754,7 @@ template <typename T> struct list : gen_base<list<T>> {
 
 	// If this generator is exactly all-distinct in [value_l_, value_r_],
 	// returns a uniformly random list; otherwise returns std::nullopt.
+	// Optimized for performance (distinct_range fast path).
 	// O(n log n).
 	std::optional<value> try_gen_all_different() const {
 		if (!values_.empty() or diff_restrictions_.size() != 1)
@@ -5501,6 +5502,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// If this generator has no preset edges and m is large relative to the
 	// maximum edge count, sample by distinct edge index. Otherwise
 	// std::nullopt.
+	// Optimized for performance (index sampling instead of rejection).
 	// O(m log n).
 	std::optional<value> try_gen_by_edge_index() const {
 		if (!edges_.empty())
@@ -5524,6 +5526,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	}
 
 	// Fills `edges` up to m_ with uniform random edges not already present.
+	// Optimized for performance (uint64 edge keys + try_generate_distinct).
 	// O(m log n).
 	value gen_remaining_edges(std::vector<std::pair<int, int>> edges) const {
 		detail::tgen_ensure_against_bug(static_cast<int>(edges.size()) <= m_,
@@ -5564,6 +5567,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	}
 
 	// Generates graph value.
+	// Optimized for performance: dense no-preset graphs use index sampling;
+	// otherwise gen_remaining_edges.
 	// O(n + m log n).
 	value gen() const {
 		detail::tgen_ensure_against_bug(static_cast<int>(edges_.size()) <= m_,
@@ -5834,6 +5839,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 	// Generates a uniformly random bipartite graph. The first side has vertices
 	// 0 .. n1-1, the second n1 .. n1+n2-1.
+	// Optimized for performance (distinct edge-index sampling).
 	// O(n1 + n2 + m log(n1 * n2)).
 	static value gen_bipartite(int n1, int n2, int m) {
 		tgen_ensure(m <= static_cast<long long>(n1) * n2,
@@ -6203,15 +6209,70 @@ inline void conquer(std::vector<point<long long>> &points, int left,
 	conquer(points, p, right);
 }
 
+// Samples k sorted distinct integers from [left, right] uniformly.
+// Optimized for performance (pool partial Fisher–Yates or complement path for
+// modest ranges; sparse-map fallback otherwise).
+// O(k log k); O(right - left) memory when the range is modest.
+inline std::vector<long long>
+sample_sorted_distinct_in_range(int k, long long left, long long right) {
+	long long universe = right - left + 1;
+	std::vector<long long> res;
+	res.reserve(k);
+	if (k == 0)
+		return res;
+
+	constexpr long long pool_threshold = 8'000'000;
+	constexpr long long pool_always_below = 500'000;
+
+	if (universe <= pool_threshold and
+		(universe <= pool_always_below or k >= universe / 4)) {
+		size_t u = universe;
+		size_t ks = k;
+		std::vector<long long> pool(u);
+		std::iota(pool.begin(), pool.end(), left);
+		size_t m = ks <= u / 2 ? ks : u - ks;
+		for (size_t i = 0; i < m; ++i) {
+			size_t j = next<size_t>(i, u - 1);
+			std::swap(pool[i], pool[j]);
+		}
+		if (ks <= u / 2) {
+			res.assign(pool.begin(), pool.begin() + ks);
+			std::sort(res.begin(), res.end());
+		} else {
+			std::vector<char> excluded(u, 0);
+			for (size_t i = 0; i < m; ++i)
+				excluded[pool[i] - left] = 1;
+			for (long long v = left; v <= right; ++v)
+				if (!excluded[v - left])
+					res.push_back(v);
+		}
+	} else {
+		std::unordered_map<long long, long long> virtual_list;
+		virtual_list.reserve(k * 2);
+		for (long long i = 0; i < k; ++i) {
+			long long j = next<long long>(i, universe - 1);
+			long long vi = virtual_list.count(i) ? virtual_list[i] : i;
+			long long vj = virtual_list.count(j) ? virtual_list[j] : j;
+			virtual_list[j] = vi;
+			virtual_list[i] = vj;
+			res.push_back(virtual_list[i] + left);
+		}
+		std::sort(res.begin(), res.end());
+	}
+	return res;
+}
+
 // Generates n >= 3 sorted distinct coordinates in [0, width] with endpoints 0
-// and width. O(n log n).
+// and width.
+// Optimized for performance via sample_sorted_distinct_in_range.
+// O(n log n).
 inline std::vector<long long>
 generate_sorted_coords_with_endpoints(int n, long long width) {
 	std::vector<long long> coords;
+	coords.reserve(n);
 	coords.push_back(0);
 	std::vector<long long> inner =
-		distinct_range<long long>(1, width - 1).gen_list(n - 2).to_std();
-	std::sort(inner.begin(), inner.end());
+		sample_sorted_distinct_in_range(n - 2, 1, width - 1);
 	coords.insert(coords.end(), inner.begin(), inner.end());
 	coords.push_back(width);
 	return coords;
