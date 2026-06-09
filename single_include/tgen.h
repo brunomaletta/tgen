@@ -1542,30 +1542,32 @@ template <typename T> struct list : gen_base<list<T>> {
 						  // represents the index in this set.
 	std::map<T, int>
 		value_idx_in_set_; // Index of every value in the set above.
-	std::vector<std::pair<T, T>> val_range_; // Range of values of each index.
-	std::vector<std::vector<int>> neigh_;	 // Adjacency list of equality.
+	mutable std::vector<std::pair<T, T>>
+		val_range_; // Range of values of each index.
+	mutable std::vector<std::vector<int>> neigh_; // Adjacency list of equality.
 	std::vector<std::set<int>>
 		diff_restrictions_; // All different restrictions.
+	bool index_constraints_{
+		false}; // True after fix/equal narrows per-index generation.
+	mutable bool uses_full_range_{
+		false}; // If true, every index uses [value_l_, value_r_] lazily.
 
 	// Creates generator for lists of size 'size', with random T in [value_left,
 	// value_right].
 	list(int size, T value_left, T value_right)
 		: size_(size), value_l_(value_left), value_r_(value_right),
-		  neigh_(size) {
+		  uses_full_range_(true) {
 		tgen_ensure(size_ > 0, "list: size must be positive");
 		tgen_ensure(value_l_ <= value_r_, "list: value range must be valid");
-		for (int i = 0; i < size_; ++i)
-			val_range_.emplace_back(value_l_, value_r_);
 	}
 
 	// Creates list with value set.
 	list(int size, std::set<T> values)
-		: size_(size), values_(values), neigh_(size) {
+		: size_(size), values_(values), index_constraints_(true) {
 		tgen_ensure(size_ > 0, "list: size must be positive");
 		tgen_ensure(!values.empty(), "list: value set must be non-empty");
 		value_l_ = 0, value_r_ = values.size() - 1;
-		for (int i = 0; i < size_; ++i)
-			val_range_.emplace_back(value_l_, value_r_);
+		val_range_.assign(size_, {value_l_, value_r_});
 		int idx = 0;
 		for (T val : values_)
 			value_idx_in_set_[val] = idx++;
@@ -1574,6 +1576,7 @@ template <typename T> struct list : gen_base<list<T>> {
 	// Restricts lists for list[idx] = val.
 	list &fix(int idx, T val) {
 		tgen_ensure(0 <= idx and idx < size_, "list: index must be valid");
+		ensure_val_range_materialized();
 		if (values_.size() == 0) {
 			auto &[left, right] = val_range_[idx];
 			if (left == right and value_l_ != value_r_) {
@@ -1593,6 +1596,7 @@ template <typename T> struct list : gen_base<list<T>> {
 						"list: must not set to two different values");
 			left = right = new_val;
 		}
+		index_constraints_ = true;
 		return *this;
 	}
 
@@ -1604,6 +1608,9 @@ template <typename T> struct list : gen_base<list<T>> {
 		if (idx_1 == idx_2)
 			return *this;
 
+		ensure_val_range_materialized();
+		ensure_neigh_allocated();
+		index_constraints_ = true;
 		neigh_[idx_1].push_back(idx_2);
 		neigh_[idx_2].push_back(idx_1);
 		return *this;
@@ -1788,11 +1795,17 @@ template <typename T> struct list : gen_base<list<T>> {
 	};
 
 	// Generates list value.
+	// Optimized for performance (unconstrained and all-different fast paths).
 	// O(n log n).
 	value gen() const {
+		if (diff_restrictions_.empty()) {
+			if (auto unconstrained = try_gen_unconstrained())
+				return *unconstrained;
+		}
 		if (auto all_different = try_gen_all_different())
 			return *all_different;
 
+		ensure_neigh_allocated();
 		std::vector<T> vec(size_);
 		std::vector<bool> defined_idx(
 			size_, false); // For every index, if it has been set in `vec`.
@@ -1830,7 +1843,7 @@ template <typename T> struct list : gen_base<list<T>> {
 						component.push_back(cur_idx);
 
 						// Checks value.
-						auto [l, r] = val_range_[cur_idx];
+						auto [l, r] = val_range_at(cur_idx);
 						if (l == r) {
 							if (!value_defined) {
 								// We found the value.
@@ -2053,6 +2066,28 @@ template <typename T> struct list : gen_base<list<T>> {
 	}
 
   private:
+	// Materializes neigh_ after the first equality restriction.
+	void ensure_neigh_allocated() const {
+		if (neigh_.size() == static_cast<size_t>(size_))
+			return;
+		neigh_.assign(size_, {});
+	}
+
+	// Materializes val_range_ after the first per-index restriction.
+	void ensure_val_range_materialized() const {
+		if (!uses_full_range_)
+			return;
+		val_range_.assign(size_, {value_l_, value_r_});
+		uses_full_range_ = false;
+	}
+
+	// Returns the allowed value range at index idx.
+	std::pair<T, T> val_range_at(int idx) const {
+		if (uses_full_range_)
+			return {value_l_, value_r_};
+		return val_range_[idx];
+	}
+
 	// Generates a uniformly random list of k distinct values in `[value_l,
 	// value_r]`, such that no value is in `forbidden_values`.
 	std::vector<T>
@@ -2098,6 +2133,19 @@ template <typename T> struct list : gen_base<list<T>> {
 		return gen_list;
 	}
 
+	// If this generator has no constraints beyond [value_l_, value_r_],
+	// returns independent uniform samples; otherwise returns std::nullopt.
+	// O(n).
+	std::optional<value> try_gen_unconstrained() const {
+		if (!values_.empty() or index_constraints_)
+			return std::nullopt;
+
+		std::vector<T> vec(size_);
+		for (int i = 0; i < size_; ++i)
+			vec[i] = next<T>(value_l_, value_r_);
+		return value(vec);
+	}
+
 	// If this generator is exactly all-distinct in [value_l_, value_r_],
 	// returns a uniformly random list; otherwise returns std::nullopt.
 	// Optimized for performance (distinct_range fast path).
@@ -2111,15 +2159,15 @@ template <typename T> struct list : gen_base<list<T>> {
 			*diff.rbegin() != size_ - 1)
 			return std::nullopt;
 
-		for (const auto &adj : neigh_) {
-			if (!adj.empty())
-				return std::nullopt;
+		if (!neigh_.empty()) {
+			for (const auto &adj : neigh_) {
+				if (!adj.empty())
+					return std::nullopt;
+			}
 		}
 
-		for (const auto &[left, right] : val_range_) {
-			if (left != value_l_ or right != value_r_)
-				return std::nullopt;
-		}
+		if (index_constraints_)
+			return std::nullopt;
 
 		if (static_cast<long long>(size_) >
 			static_cast<long long>(value_r_) - value_l_ + 1)
@@ -5705,10 +5753,35 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// 1. Randomized Kahn (uniform choice among indegree-0 vertices) yields a
 	//    random topological order of the preset edges (which must be acyclic).
 	// 2. Extra edges are sampled randomly using the order.
+	// With no preset edges: sample a random graph then orient acyclically.
+	// Optimized for performance (distinct upper-triangle edge-index sampling;
+	// rejection instead of pair::distinct for preset edges).
 	// O(n + m log n).
 	value get_acyclic() const {
 		tgen_ensure(is_directed_,
 					"wgraph: get_acyclic is only for directed graphs");
+
+		if (edges_.empty()) {
+			std::vector<int> order(n_);
+			std::iota(order.begin(), order.end(), 0);
+			for (int i = n_ - 1; i > 0; --i)
+				std::swap(order[i], order[next(0, i)]);
+
+			const long long max_pairs =
+				static_cast<long long>(n_) * (n_ - 1) / 2;
+			tgen_ensure(m_ <= max_pairs,
+						"wgraph: not enough edges to generate");
+
+			std::vector<std::pair<int, int>> edges;
+			edges.reserve(m_);
+			for (long long idx : distinct_range<long long>(0, max_pairs - 1)
+									 .gen_list(m_)
+									 .to_std()) {
+				auto [i, j] = detail::decode_undirected_simple_edge(n_, idx);
+				edges.emplace_back(order[i], order[j]);
+			}
+			return value(n_, edges, true);
+		}
 
 		std::vector<std::vector<int>> adj(n_);
 		std::vector<int> indeg(n_, 0);
@@ -5747,22 +5820,28 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 										"wgraph: too many edges were added");
 
 		if (acyclic.m() < m_) {
-			auto edge_gen = tgen::pair(0, n_ - 1).lt().distinct();
+			std::vector<int> order_pos(n_);
+			for (int i = 0; i < n_; ++i)
+				order_pos[order[i]] = i;
 
+			std::unordered_set<uint64_t> seen;
+			seen.reserve(m_ * 2);
+			for (auto [u, v] : acyclic.edges())
+				seen.insert(
+					detail::undirected_edge_key(order_pos[u], order_pos[v]));
+
+			const long long max_pairs =
+				static_cast<long long>(n_) * (n_ - 1) / 2;
 			while (acyclic.m() < m_) {
-				pair<int>::value idx_pair(0, 0);
-				try {
-					idx_pair = edge_gen.gen();
-				} catch (std::runtime_error &e) {
-					if (std::string(e.what()) ==
-						"tgen: distinct: no more distinct values")
-						throw detail::error(
-							"wgraph: not enough edges to generate");
-					throw e;
-				}
-
-				acyclic.add_edge(order[idx_pair.first()],
-								 order[idx_pair.second()]);
+				std::pair<int, int> edge;
+				if (!detail::try_generate_distinct(seen, [&] {
+						long long idx = next<long long>(0, max_pairs - 1);
+						edge = detail::decode_undirected_simple_edge(n_, idx);
+						return detail::undirected_edge_key(edge.first,
+														   edge.second);
+					}))
+					throw detail::error("wgraph: not enough edges to generate");
+				acyclic.add_edge(order[edge.first], order[edge.second]);
 			}
 		}
 
