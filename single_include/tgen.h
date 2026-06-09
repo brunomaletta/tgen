@@ -1684,14 +1684,18 @@ template <typename T> struct list : gen_base<list<T>> {
 	generate_distinct_values(int k, const std::set<T> &forbidden_values) const {
 		for (auto forbidden : forbidden_values)
 			tgen_ensure(value_l_ <= forbidden and forbidden <= value_r_);
+		const T num_available =
+			(value_r_ - value_l_ + 1) - forbidden_values.size();
+		if (num_available < k)
+			throw detail::complex_restrictions_error(
+				"list", "not enough distinct values");
+		if (forbidden_values.empty())
+			return distinct_range<T>(value_l_, value_r_).gen_list(k).to_std();
+
 		// We generate our numbers in the range [0, num_available) with
 		// num_available = (r-l+1)-(forbidden_values.size()), and then map them
 		// to the correct range. We will run k steps of Fisher–Yates, using a
 		// map to store a virtual list that starts with a[i] = i.
-		T num_available = (value_r_ - value_l_ + 1) - forbidden_values.size();
-		if (num_available < k)
-			throw detail::complex_restrictions_error(
-				"list", "not enough distinct values");
 		std::map<T, T> virtual_list;
 		std::vector<T> gen_list;
 		for (int i = 0; i < k; ++i) {
@@ -1728,9 +1732,43 @@ template <typename T> struct list : gen_base<list<T>> {
 		return gen_list;
 	}
 
+	// If this generator is exactly all-distinct in [value_l_, value_r_],
+	// returns a uniformly random list; otherwise returns std::nullopt.
+	std::optional<value> try_gen_all_different() const {
+		if (!values_.empty() or diff_restrictions_.size() != 1)
+			return std::nullopt;
+
+		const std::set<int> &diff = diff_restrictions_[0];
+		if (static_cast<int>(diff.size()) != size_ or *diff.begin() != 0 or
+			*diff.rbegin() != size_ - 1)
+			return std::nullopt;
+
+		for (const auto &adj : neigh_) {
+			if (!adj.empty())
+				return std::nullopt;
+		}
+
+		for (const auto &[left, right] : val_range_) {
+			if (left != value_l_ or right != value_r_)
+				return std::nullopt;
+		}
+
+		if (static_cast<long long>(size_) >
+			static_cast<long long>(value_r_) - value_l_ + 1)
+			throw detail::contradiction_error(
+				"list", "tried to generate " + std::to_string(size_) +
+							" different values, but the maximum is " +
+							std::to_string(value_r_ - value_l_ + 1));
+
+		return distinct_range<T>(value_l_, value_r_).gen_list(size_);
+	}
+
 	// Generates list value.
 	// O(n log n).
 	value gen() const {
+		if (auto all_different = try_gen_all_different())
+			return *all_different;
+
 		std::vector<T> vec(size_);
 		std::vector<bool> defined_idx(
 			size_, false); // For every index, if it has been set in `vec`.
