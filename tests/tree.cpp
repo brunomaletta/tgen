@@ -66,7 +66,7 @@ struct tree_iso_hash {
 					cent = false;
 			}
 		}
-		if (cent && n - sz[u] <= n / 2)
+		if (cent and n - sz[u] <= n / 2)
 			cs.push_back(u);
 	}
 

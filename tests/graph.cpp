@@ -79,7 +79,7 @@ bool is_connected_on_vertices(const Graph &g,
 		q.pop();
 		++seen;
 		for (int v : g.adj()[u]) {
-			if (in_comp[v] && !vis[v]) {
+			if (in_comp[v] and !vis[v]) {
 				vis[v] = true;
 				q.push(v);
 			}
@@ -167,8 +167,10 @@ long long max_graph_edges(int n, bool directed, bool self_loops) {
 	if (n <= 0)
 		return 0;
 	if (directed)
-		return self_loops ? 1LL * n * n : 1LL * n * (n - 1);
-	return self_loops ? 1LL * n * (n + 1) / 2 : 1LL * n * (n - 1) / 2;
+		return self_loops ? static_cast<long long>(n) * n
+						  : static_cast<long long>(n) * (n - 1);
+	return self_loops ? static_cast<long long>(n) * (n + 1) / 2
+					  : static_cast<long long>(n) * (n - 1) / 2;
 }
 
 // Brute-force isomorphism for small n (used to validate shuffle).
@@ -263,7 +265,7 @@ TEST(graph_test, single_vertex_positive_edges_impossible) {
 	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(tgen::graph(1, 1).gen(),
-							 "pair: no valid values to generate");
+							 "wgraph: not enough edges to generate");
 }
 
 TEST(graph_test, get_connected) {
@@ -912,7 +914,7 @@ TEST(graph_test, single_vertex_all_directed_self_loop_modes) {
 
 	for (bool directed : {false, true}) {
 		EXPECT_THROW_TGEN_PREFIX(tgen::graph(1, 1, directed, false).gen(),
-								 "pair: no valid values to generate");
+								 "wgraph: not enough edges to generate");
 	}
 }
 

@@ -242,6 +242,32 @@ template <typename T> struct print_cols_view<T, false> {
 	void advance() {}
 };
 
+/*
+ * Distinct generation.
+ */
+
+// Rejection cap is multiplier * |seen|; with one value left, falsely reporting
+// exhaustion has probability about e^{-84} < 10^{-36}.
+constexpr int distinct_attempt_multiplier = 84;
+
+// One rejection-sampling step for distinct generation.
+template <typename Seen, typename Fn>
+auto try_generate_distinct(Seen &seen, Fn &&next, bool insert = true)
+	-> std::optional<std::invoke_result_t<Fn &>> {
+	using T = std::invoke_result_t<Fn &>;
+	size_t attempts =
+		distinct_attempt_multiplier * std::max<size_t>(1, seen.size());
+	for (size_t i = 0; i < attempts; ++i) {
+		T val = next();
+		if (insert) {
+			if (seen.insert(val).second)
+				return val;
+		} else if (seen.count(val) == 0)
+			return val;
+	}
+	return std::nullopt;
+}
+
 } // namespace detail
 
 /*
@@ -302,14 +328,8 @@ template <typename Func, typename... Args> struct distinct {
 	// Generates distinct value and inserts it if `insert` is true.
 	// Returns the value if found, otherwise returns std::nullopt.
 	auto generate_distinct(bool insert) {
-		for (int i = 0; i < 84 * std::max<int>(1, seen_.size()); ++i) {
-			T val = std::apply(func_, args_);
-			if (insert ? seen_.insert(val).second : seen_.count(val) == 0)
-				return std::optional<T>(val);
-		}
-
-		// Not found.
-		return std::optional<T>();
+		return detail::try_generate_distinct(
+			seen_, [&] { return std::apply(func_, args_); }, insert);
 	}
 
 	// Generates a distinct value (i.e., one not returned before).
@@ -1734,6 +1754,7 @@ template <typename T> struct list : gen_base<list<T>> {
 
 	// If this generator is exactly all-distinct in [value_l_, value_r_],
 	// returns a uniformly random list; otherwise returns std::nullopt.
+	// O(n log n).
 	std::optional<value> try_gen_all_different() const {
 		if (!values_.empty() or diff_restrictions_.size() != 1)
 			return std::nullopt;
@@ -4010,18 +4031,6 @@ inline std::vector<std::pair<int, int>> edges_from_prufer(std::vector<int> p) {
 	return edges;
 }
 
-inline uint64_t undirected_edge_key(int u, int v) {
-	if (u > v)
-		std::swap(u, v);
-	return (static_cast<uint64_t>(u) << 32) |
-		   static_cast<uint64_t>(static_cast<uint32_t>(v));
-}
-
-inline uint64_t directed_edge_key(int u, int v) {
-	return (static_cast<uint64_t>(u) << 32) |
-		   static_cast<uint64_t>(static_cast<uint32_t>(v));
-}
-
 // Disjoint set union (union-find) for connectivity queries.
 struct dsu {
 	std::vector<int> parent_;
@@ -4680,6 +4689,127 @@ using tree = wtree<int, int>;
  *   GRAPH   *
  *           *
  *************/
+
+namespace detail {
+
+// Canonical undirected edge key for duplicate detection; stores (min(u, v),
+// max(u, v)). O(1).
+inline uint64_t undirected_edge_key(int u, int v) {
+	if (u > v)
+		std::swap(u, v);
+	return (static_cast<uint64_t>(u) << 32) |
+		   static_cast<uint64_t>(static_cast<uint32_t>(v));
+}
+
+// Directed edge key for duplicate detection; stores (u, v).
+// O(1).
+inline uint64_t directed_edge_key(int u, int v) {
+	return (static_cast<uint64_t>(u) << 32) |
+		   static_cast<uint64_t>(static_cast<uint32_t>(v));
+}
+
+// Maximum number of edges in a simple graph on n vertices.
+// O(1).
+inline long long max_graph_edges(int n, bool directed, bool self_loops) {
+	if (n <= 0)
+		return 0;
+	if (directed)
+		return self_loops ? static_cast<long long>(n) * n
+						  : static_cast<long long>(n) * (n - 1);
+	return self_loops ? static_cast<long long>(n) * (n + 1) / 2
+					  : static_cast<long long>(n) * (n - 1) / 2;
+}
+
+// Uniform random edge for rejection sampling.
+// O(1) expected.
+inline std::pair<int, int> get_random_graph_edge(int n, bool directed,
+												 bool self_loops) {
+	if (directed) {
+		if (self_loops)
+			return {next<int>(0, n - 1), next<int>(0, n - 1)};
+		int u = next<int>(0, n - 1);
+		int v = next<int>(0, n - 1);
+		while (u == v)
+			v = next<int>(0, n - 1);
+		return {u, v};
+	}
+	if (self_loops) {
+		int u = next<int>(0, n - 1);
+		int v = next<int>(0, n - 1);
+		if (u > v)
+			std::swap(u, v);
+		return {u, v};
+	}
+	int u = next<int>(0, n - 1);
+	int v = next<int>(0, n - 1);
+	while (u == v)
+		v = next<int>(0, n - 1);
+	if (u > v)
+		std::swap(u, v);
+	return {u, v};
+}
+
+// Decodes a linear edge index to (u, v) for an undirected simple graph,
+// with u < v.
+// O(log n).
+inline std::pair<int, int> decode_undirected_simple_edge(int n, long long idx) {
+	auto base = [&](int u) -> long long {
+		return static_cast<long long>(u) * (n - 1) -
+			   static_cast<long long>(u) * (u - 1) / 2;
+	};
+	int lo = 0, hi = n - 2;
+	while (lo < hi) {
+		int mid = (lo + hi + 1) / 2;
+		if (base(mid) <= idx)
+			lo = mid;
+		else
+			hi = mid - 1;
+	}
+	return {lo, lo + 1 + int(idx - base(lo))};
+}
+
+// Decodes a linear edge index to (u, v) for an undirected graph with loops,
+// with u <= v.
+// O(log n).
+inline std::pair<int, int> decode_undirected_loops_edge(int n, long long idx) {
+	auto base = [&](int u) -> long long {
+		return static_cast<long long>(u) * n -
+			   static_cast<long long>(u) * (u - 1) / 2;
+	};
+	int lo = 0, hi = n - 1;
+	while (lo < hi) {
+		int mid = (lo + hi + 1) / 2;
+		if (base(mid) <= idx)
+			lo = mid;
+		else
+			hi = mid - 1;
+	}
+	return {lo, lo + int(idx - base(lo))};
+}
+
+// Decodes a linear edge index to (u, v) for a directed simple graph (no loops).
+// O(1).
+inline std::pair<int, int> decode_directed_simple_edge(int n, long long idx) {
+	int u = idx / (n - 1);
+	int rem = idx % (n - 1);
+	return {u, rem + (rem >= u)};
+}
+
+// Decodes a linear edge index according to graph mode.
+// O(log n) for undirected, O(1) for directed.
+inline std::pair<int, int>
+decode_graph_edge_index(int n, long long idx, bool directed, bool self_loops) {
+	if (directed) {
+		if (self_loops)
+			return {int(idx / n), int(idx % n)};
+		return decode_directed_simple_edge(n, idx);
+	}
+	if (self_loops)
+		return decode_undirected_loops_edge(n, idx);
+	return decode_undirected_simple_edge(n, idx);
+}
+
+} // namespace detail
 
 /*
  * Graph generator.
@@ -5368,19 +5498,44 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		return *this;
 	}
 
-	// Generates graph value.
-	// O(n + m log n).
-	value gen() const {
-		detail::tgen_ensure_against_bug(static_cast<int>(edges_.size()) <= m_,
+	// If this generator has no preset edges and m is large relative to the
+	// maximum edge count, sample by distinct edge index. Otherwise
+	// std::nullopt.
+	// O(m log n).
+	std::optional<value> try_gen_by_edge_index() const {
+		if (!edges_.empty())
+			return std::nullopt;
+
+		long long max_edges =
+			detail::max_graph_edges(n_, is_directed_, has_self_loops_);
+		if (m_ > max_edges)
+			throw detail::error("wgraph: not enough edges to generate");
+		if (max_edges <= 0 or 2LL * m_ <= max_edges)
+			return std::nullopt;
+
+		std::vector<std::pair<int, int>> edges;
+		edges.reserve(m_);
+		for (long long idx :
+			 distinct_range<long long>(0, max_edges - 1).gen_list(m_).to_std())
+			edges.push_back(detail::decode_graph_edge_index(
+				n_, idx, is_directed_, has_self_loops_));
+
+		return value(n_, edges, is_directed_);
+	}
+
+	// Fills `edges` up to m_ with uniform random edges not already present.
+	// O(m log n).
+	value gen_remaining_edges(std::vector<std::pair<int, int>> edges) const {
+		detail::tgen_ensure_against_bug(static_cast<int>(edges.size()) <= m_,
 										"wgraph: too many edges were added");
 
-		if (static_cast<int>(edges_.size()) == m_)
-			return value(n_, edges_, is_directed_);
+		if (static_cast<int>(edges.size()) == m_)
+			return value(n_, edges, is_directed_);
 
-		std::vector<std::pair<int, int>> edges(edges_.begin(), edges_.end());
+		edges.reserve(m_);
 
 		std::unordered_set<uint64_t> seen;
-		seen.reserve(static_cast<size_t>(m_) * 2);
+		seen.reserve(m_ * 2);
 		for (auto [u, v] : edges) {
 			if (!is_directed_ and u > v)
 				std::swap(u, v);
@@ -5388,39 +5543,45 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 									 : detail::undirected_edge_key(u, v));
 		}
 
-		tgen::pair gen_repeat(0, n_ - 1);
-		if (has_self_loops_) {
-			if (!is_directed_)
-				gen_repeat.leq();
-		} else {
-			if (is_directed_)
-				gen_repeat.neq();
-			else
-				gen_repeat.lt();
-		}
-
+		// Sample random edges until m_ are present (rejection on duplicates).
 		while (static_cast<int>(edges.size()) < m_) {
-			bool found = false;
-			for (int i = 0;
-				 i < 84 * static_cast<int>(std::max<size_t>(1, seen.size()));
-				 ++i) {
-				auto e = gen_repeat.gen();
-				int u = e.first(), v = e.second();
-				if (!is_directed_ and u > v)
-					std::swap(u, v);
-				uint64_t key = is_directed_ ? detail::directed_edge_key(u, v)
-											: detail::undirected_edge_key(u, v);
-				if (seen.insert(key).second) {
-					edges.emplace_back(u, v);
-					found = true;
-					break;
-				}
-			}
-			if (!found)
+			std::pair<int, int> edge;
+			if (!detail::try_generate_distinct(seen, [&] {
+					edge = detail::get_random_graph_edge(n_, is_directed_,
+														 has_self_loops_);
+					if (!is_directed_ and edge.first > edge.second)
+						std::swap(edge.first, edge.second);
+					return is_directed_ ? detail::directed_edge_key(edge.first,
+																	edge.second)
+										: detail::undirected_edge_key(
+											  edge.first, edge.second);
+				}))
 				throw detail::error("wgraph: not enough edges to generate");
+			edges.emplace_back(edge);
 		}
 
 		return value(n_, edges, is_directed_);
+	}
+
+	// Generates graph value.
+	// O(n + m log n).
+	value gen() const {
+		detail::tgen_ensure_against_bug(static_cast<int>(edges_.size()) <= m_,
+										"wgraph: too many edges were added");
+
+		// All edges already added.
+		if (static_cast<int>(edges_.size()) == m_)
+			return value(n_, edges_, is_directed_);
+
+		// Splits into two cases to optimize performance.
+
+		// No presets and m > max_edges / 2: sample m distinct edge indices.
+		if (auto indexed = try_gen_by_edge_index())
+			return *indexed;
+
+		// Otherwise: fill preset edges up to m_ with uniform random edges.
+		return gen_remaining_edges(
+			std::vector<std::pair<int, int>>(edges_.begin(), edges_.end()));
 	}
 
 	// Gets a (not uniformly) random connected undirected graph.
@@ -5434,16 +5595,20 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		tgen_ensure(m_ >= n_ - 1,
 					"wgraph: connected graph needs at least n - 1 edges");
 
-		wgraph connected = *this;
+		std::vector<std::pair<int, int>> edges;
+		edges.reserve(m_);
 
 		if (edges_.empty()) {
 			if (n_ > 1) {
-				connected = wgraph(n_, m_, false, has_self_loops_);
-				for (auto [u, v] : detail::edges_from_prufer(
-						 many_by_distribution(n_ - 2, std::vector<int>(n_, 1))))
-					connected.add_edge(u, v);
+				std::vector<int> prufer(n_ - 2);
+				for (int i = 0; i < n_ - 2; ++i)
+					prufer[i] = next<int>(0, n_ - 1);
+				for (auto [u, v] : detail::edges_from_prufer(std::move(prufer)))
+					edges.emplace_back(u, v);
 			}
 		} else {
+			edges.assign(edges_.begin(), edges_.end());
+
 			std::vector<std::vector<int>> adj(n_);
 			for (auto [u, v] : edges_) {
 				adj[u].push_back(v);
@@ -5482,12 +5647,12 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 					many_by_distribution(component_ids.size() - 2, comp_size);
 				for (auto [u, v] :
 					 detail::edges_from_prufer(std::move(prufer_values)))
-					connected.add_edge(pick(component_ids[u]),
+					edges.emplace_back(pick(component_ids[u]),
 									   pick(component_ids[v]));
 			}
 		}
 
-		return connected.gen();
+		return gen_remaining_edges(std::move(edges));
 	}
 
 	// Gets a (not uniformly) random directed acyclic graph.
@@ -5675,11 +5840,11 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 					"wgraph: bipartite graph has at most n1 * n2 edges");
 
 		wgraph bipartite(n1 + n2, m);
-		const long long num_edges = static_cast<long long>(n1) * n2;
+		long long num_edges = static_cast<long long>(n1) * n2;
 		for (long long idx :
 			 distinct_range<long long>(0, num_edges - 1).gen_list(m).to_std()) {
-			const int u = idx / n2;
-			const int v = n1 + idx % n2;
+			int u = idx / n2;
+			int v = n1 + idx % n2;
 			bipartite.add_edge(u, v);
 		}
 
