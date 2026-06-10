@@ -13,6 +13,8 @@
 
 The first thing is to [register the generator](group__opts.html). That defines the seed for random generation and parses the opts.
 
+@tt{tgen} uses a global RNG and generator registry; @tt{register_gen} and subsequent generation are **not thread-safe**. Use one generator instance per process (or external synchronization) in multi-threaded programs.
+
 There are:
 
 - [Base operations](group__base.html)
@@ -34,7 +36,9 @@ Selected operations have [benchmarks](group__benchmarks.html).
 
 ### Type generators and values
 
-All data types specified above define a **generator**, that when called upon will generate a uniformly random **value** with the given constraints. Let's see an example with @tt{tgen::list}:
+List, string, permutation, pair, and graph **generators** describe a set of valid values under constraints. Calling @tt{gen()} on such a generator samples **uniformly at random** among valid values (where the API documents uniformity). Static helpers such as @tt{gen_skewed}, @tt{get_connected}, geometry primitives, and @tt{gen_partition_fixed_size_fast} are intentionally **not** uniformly random; see each function's documentation.
+
+Let's see an example with @tt{tgen::list}:
 
 ```cpp
 tgen::list<int> t = tgen::list<int>(/*size=*/10, /*value_left=*/1, /*value_right=*/100);
@@ -42,7 +46,7 @@ tgen::list<int> t = tgen::list<int>(/*size=*/10, /*value_left=*/1, /*value_right
 
 This will create a list generator representing the set of all lists with 10 values from 1 to 100.
 
-Every generator of type @tt{@type{Gen}} has a method @tt{gen()}, that returns a @tt{@type{Gen}\::value} representing an element chosen uniformly at random from the set of all valid elements from the current state of the generator. A @tt{@type{Gen}\::value} can be fed to @tt{@namespace{std}\::cout} to be printed.
+Every generator of type @tt{@type{Gen}} has a method @tt{gen()}, that returns a @tt{@type{Gen}\::value} from the set of valid elements for the current restrictions. For constraint-based generators, @tt{gen()} is uniformly random over that set. A @tt{@type{Gen}\::value} can be fed to @tt{@namespace{std}\::cout} to be printed.
 
 In our example, we can call @tt{gen()} to generate and print a random list of 10 elements from 1 to 100.
 
@@ -82,6 +86,8 @@ std::cout << tgen::list<int>(10, 1, 100)
 ## Complexity notation
 
 Documented time complexities treat associative-container operations as @tt{O(log n)}, as with @tt{@namespace{std}\::@type{map}} and @tt{@namespace{std}\::@type{set}}. Some implementations use @tt{@namespace{std}\::@type{unordered_map}} or @tt{@namespace{std}\::@type{unordered_set}} for performance; the stated bounds are unchanged (we do not use @tt{O(1)} average-case notation for those paths).
+
+Union-find (@tt{detail::dsu}) @tt{find} and @tt{unite} are documented as @tt{O(alpha(n))} amortized per operation (inverse Ackermann), not @tt{O(1)}.
 
 ## Examples
 
