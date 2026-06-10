@@ -37,26 +37,32 @@ TEST(hack_test, unsigned_hash_hack) {
 TEST(hack_test, hash_hack_invalid) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::hack::polynomial_hash_hack(1, 31, 1e9 + 7),
-							 "str: alphabet size must be greater than 1");
-	EXPECT_THROW_TGEN_PREFIX(tgen::hack::polynomial_hash_hack(2, 0, 1e9 + 7),
-							 "str: base must be in (0, mod)");
-	EXPECT_THROW_TGEN_PREFIX(tgen::hack::polynomial_hash_hack(2, 31, 31),
-							 "str: base must be in (0, mod)");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::polynomial_hash_hack(1, 31, 1e9 + 7),
+		"hack: polynomial_hash_hack: alphabet size must be greater than 1");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::polynomial_hash_hack(2, 0, 1e9 + 7),
+		"hack: polynomial_hash_hack: base must be in (0, mod)");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::polynomial_hash_hack(2, 31, 31),
+		"hack: polynomial_hash_hack: base must be in (0, mod)");
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::hack::polynomial_hash_hack(
-								 2, std::vector<int>{}, std::vector<int>{}),
-							 "str: must have at least one (base, mod) pair");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::polynomial_hash_hack(2, std::vector<int>{},
+										 std::vector<int>{}),
+		"hack: polynomial_hash_hack: must have at least one (base, mod) pair");
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::hack::polynomial_hash_hack(
 			2, {31}, {static_cast<int>(1e9 + 7), static_cast<int>(1e9 + 9)}),
-		"str: bases and mods must have the same size");
+		"hack: polynomial_hash_hack: bases and mods must have the same size");
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::hack::polynomial_hash_hack(2, {31, 33, 37},
 										 {static_cast<int>(1e9 + 7),
 										  static_cast<int>(1e9 + 9),
 										  static_cast<int>(1e9 + 9)}),
-		"str: multi-hash hack only supported for up to 2 (base, mod) pairs");
+		"hack: polynomial_hash_hack: multi-hash hack only supported for up to "
+		"2 "
+		"(base, mod) pairs");
 }
 
 TEST(hack_test, hash_hack) {
@@ -124,6 +130,18 @@ TEST(hack_test, mo) {
 
 	for (auto [l, r] : hack)
 		EXPECT_TRUE(0 <= l and l <= r and r < size);
+}
+
+TEST(hack_test, mo_more_queries_than_adversarial_pool) {
+	tgen::register_gen();
+
+	const int n = 10;
+	const int q = 200;
+	std::vector<std::pair<int, int>> hack = tgen::hack::mo(n, q);
+
+	EXPECT_EQ(hack.size(), static_cast<size_t>(q));
+	for (auto [l, r] : hack)
+		EXPECT_TRUE(0 <= l and l <= r and r < n);
 }
 
 TEST(hack_test, string_set) {

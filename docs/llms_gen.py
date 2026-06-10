@@ -426,12 +426,14 @@ def _write_index(out_dir, base_url, entries):
         "# tgen\n",
         "\n",
         "> tgen is a header-only C++17 library for writing random testcase "
-        "generators, emphasizing declarative constraints, provably uniform "
-        "sampling, and adversarial (\"hack\") generation. The core pipeline is "
-        "generator -> `.gen()` -> value operations: a generator describes the "
-        "set of valid objects under constraints, `.gen()` samples one uniformly "
-        "at random, and value operations mutate the sampled value. The whole "
-        "library is a single header, `single_include/tgen.h`.\n",
+        "generators, emphasizing declarative constraints, uniform sampling "
+        "where documented, and adversarial (\"hack\") generation. The core "
+        "pipeline is generator -> `.gen()` -> value operations: a generator "
+        "describes valid objects under constraints; `.gen()` samples one "
+        "(uniformly when the API promises it); value operations mutate the "
+        "sampled value. Skewed trees/graphs, geometry helpers, and some "
+        "partition fast paths are non-uniform by design. The whole library is "
+        "a single header, `single_include/tgen.h`.\n",
         "\n",
         "## Modules\n",
         "\n",

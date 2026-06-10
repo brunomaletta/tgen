@@ -3664,12 +3664,17 @@ struct str : gen_base<str> {
 
 	// Creates generator for strings of size 'size', with random characters in
 	// [value_left, value_right].
-	str(int size, char value_left = 'a', char value_right = 'z')
-		: list_(list<char>(size, value_left, value_right)) {}
+	str(int size, char value_left = 'a', char value_right = 'z') {
+		tgen_ensure(size > 0, "str: size must be positive");
+		list_ = list<char>(size, value_left, value_right);
+	}
 
 	// Creates generator for strings of size 'size', with random characters in
 	// 'chars'.
-	str(int size, std::set<char> chars) : list_(list<char>(size, chars)) {}
+	str(int size, std::set<char> chars) {
+		tgen_ensure(size > 0, "str: size must be positive");
+		list_ = list<char>(size, chars);
+	}
 
 	// Creates generator for strings that match the given regex.
 	template <typename... Args> str(const std::string &regex, Args &&...args) {
@@ -6914,8 +6919,11 @@ inline std::pair<std::string, std::string> unsigned_polynomial_hash_hack() {
 // 0 < base < mod.
 inline std::pair<std::string, std::string>
 polynomial_hash_hack(int alphabet_size, int base, int mod) {
-	tgen_ensure(alphabet_size > 1, "str: alphabet size must be greater than 1");
-	tgen_ensure(0 < base and base < mod, "str: base must be in (0, mod)");
+	tgen_ensure(alphabet_size > 1,
+				"hack: polynomial_hash_hack: alphabet size must be greater "
+				"than 1");
+	tgen_ensure(0 < base and base < mod,
+				"hack: polynomial_hash_hack: base must be in (0, mod)");
 
 	std::vector<std::string> alphabet(alphabet_size);
 	for (int i = 0; i < alphabet_size; ++i)
@@ -6932,11 +6940,15 @@ inline std::pair<std::string, std::string>
 polynomial_hash_hack(int alphabet_size, std::vector<int> bases,
 					 std::vector<int> mods) {
 	tgen_ensure(bases.size() == mods.size(),
-				"str: bases and mods must have the same size");
-	tgen_ensure(bases.size() > 0,
-				"str: must have at least one (base, mod) pair");
-	tgen_ensure(bases.size() <= 2, "str: multi-hash hack only supported "
-								   "for up to 2 (base, mod) pairs");
+				"hack: polynomial_hash_hack: bases and mods must have the same "
+				"size");
+	tgen_ensure(
+		bases.size() > 0,
+		"hack: polynomial_hash_hack: must have at least one (base, mod) "
+		"pair");
+	tgen_ensure(bases.size() <= 2,
+				"hack: polynomial_hash_hack: multi-hash hack only supported "
+				"for up to 2 (base, mod) pairs");
 
 	std::vector<std::string> alphabet(alphabet_size);
 	for (int i = 0; i < alphabet_size; ++i)
@@ -6950,7 +6962,7 @@ polynomial_hash_hack(int alphabet_size, std::vector<int> bases,
 // Returns a list of integers for unordered_map/set to force collisions.
 // O(size).
 inline std::vector<long long> std_unordered(int size) {
-	tgen_ensure(size > 0, "misc: unordered_hack: size must be positive");
+	tgen_ensure(size > 0, "hack: std_unordered: size must be positive");
 	std::set<long long> multipliers = detail::std_hash_multipliers();
 	long long mult = 1;
 	std::set<long long>::iterator it = multipliers.begin();
@@ -6985,13 +6997,19 @@ inline std::vector<std::pair<int, int>> mo(int n, int q) {
 
 	// Push extra queries.
 	for (int i = 0; i < n; ++i)
-		if (static_cast<int>(queries.size()) < q) {
+		if (queries.size() < size_t(q)) {
 			queries.emplace(0, i);
 			queries.emplace(i, i);
 			queries.emplace(i, n - 1);
 		}
 
-	return choose(shuffled(queries), q);
+	std::vector<std::pair<int, int>> pool(queries.begin(), queries.end());
+	while (pool.size() < size_t(q)) {
+		int l = next(0, n - 1);
+		pool.emplace_back(l, next(l, n - 1));
+	}
+
+	return choose(shuffled(pool), q);
 }
 
 // Returns list of strings that have a high cost to insert in a std::set.
