@@ -156,7 +156,8 @@ namespace tgen {
  * @tt{tgen::wgraph::gen}.
  *
  * There are other static generation methods:
- * - For uniformly random bipartite graphs: @tt{tgen::wgraph::gen_bipartite};
+ * - For random bipartite graphs (uniform when @tt{connected = false}):
+ *   @tt{tgen::wgraph::gen_bipartite};
  * - For random skewed connected graphs: @tt{tgen::wgraph::gen_skewed}.
  *
  * There are also structured, non-uniform operations:
@@ -387,20 +388,32 @@ namespace tgen {
 
 
 /**
- * @brief Generates a uniformly random bipartite graph.
+ * @brief Generates a random bipartite graph.
  *
  * @param n1 Size of the left side.
  * @param n2 Size of the right side.
  * @param m Target edge count.
+ * @param connected If @tt{true}, the graph is connected (requires @tt{m >= @pname{n1} + @pname{n2} - 1}).
  *
  * @return A bipartite @tt{tgen::wgraph::value} with @tt{n1 + n2} vertices and @tt{m} edges.
  *
  * The vertices on the left side are indexed in @tt{[0, @pname{n1})},
  * and those on right side in @tt{[@pname{n1}, @pname{n1} + @pname{n2})}.
  *
+ * When @pname{connected} is @tt{false}, @tt{m} cross edges are chosen uniformly
+ * without replacement from @tt{K_{@pname{n1}, @pname{n2}}}.
+ *
+ * When @pname{connected} is @tt{true}, a spanning tree is built first via a
+ * bipartite Prüfer sequence, then remaining cross edges are added by rejection
+ * sampling.
+ *
+ * @note This function is not always uniformly random: it is uniform only when
+ * @pname{connected} is @tt{false}.
+ *
  * #### Complexity
  *
- * @tt{O(@pname{n1} + @pname{n2} + @pname{m} log(@pname{n1} * @pname{n2}))}.
+ * @tt{O(@pname{n1} + @pname{n2} + @pname{m} log(@pname{n1} * @pname{n2}))}
+ * expected.
  *
  * #### Examples
  *
@@ -409,7 +422,7 @@ namespace tgen {
  * std::cout << tgen::graph::gen_bipartite(2, 3, 5);
  * ```
  *
- * @fn wgraph::gen_bipartite(int n1, int n2, int m);
+ * @fn wgraph::gen_bipartite(int n1, int n2, int m, bool connected = false);
  */
 
 
@@ -887,7 +900,7 @@ namespace tgen {
  *
  * ```cpp
  * // Glues to C_3 at vertex 0.
- * std::cout << C(3).glue(C(3), {0}).n() << std::endl; // Prints "5".
+ * std::cout << tgen::C(3).glue(tgen::C(3), {0}).n() << std::endl; // Prints "5".
  * ```
  *
  * @fn wgraph::value::glue(const value &rhs, std::set<int> indices);

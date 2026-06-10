@@ -237,6 +237,32 @@ namespace tgen {
  */
 
 
+/**
+ * @brief Kruskal-like random labeled tree.
+ *
+ * @param n Vertex count.
+ *
+ * @return A @tt{tgen::wtree::value} on @tt{n} vertices.
+ *
+ * Repeatedly samples a random vertex pair and adds it when it connects two
+ * different components (union-find), until the graph is a tree.
+ *
+ * @note This operation is not uniformly random.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n log(n) alpha(n))} expected time.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * std::cout << tgen::tree::gen_kruskal(10);
+ * ```
+ *
+ * @fn wtree::gen_kruskal(int n);
+ */
+
+
 
 
 

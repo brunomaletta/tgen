@@ -406,6 +406,17 @@ TEST(tree_test, glue_cycle_fails) {
 		"wtree: value: added edge must not create a cycle");
 }
 
+TEST(tree_test, gen_kruskal) {
+	tgen::register_gen();
+
+	for (int n = 2; n <= 12; ++n) {
+		auto t = tgen::tree::gen_kruskal(n);
+		EXPECT_TRUE(is_tree_like(t));
+		EXPECT_EQ(t.n(), n);
+		EXPECT_EQ(static_cast<int>(t.edges().size()), n - 1);
+	}
+}
+
 TEST(tree_test, gen_uniform_labeled_trees) {
 	tgen::register_gen();
 

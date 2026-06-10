@@ -741,4 +741,43 @@ namespace tgen::math {
  * @fn gen_partition_fixed_size_fast(uint64_t n, int k, uint64_t part_left = 0, std::optional<uint64_t> part_right = std::nullopt);
  */
 
+
+/**
+ * @ingroup math
+ * @brief Partitions a vector into @pname{k} ordered groups.
+ *
+ * @param elements Values to partition (order preserved; not shuffled).
+ * @param k Number of groups.
+ * @param min_size Minimum size of each group.
+ * @param max_size Maximum size of each group (defaults to unbounded).
+ *
+ * @return @tt{k} groups whose sizes form a random composition of @tt{elements.size()}
+ * with the given bounds. Elements keep their relative order within the concatenation
+ * of the groups.
+ *
+ * If @pname{max_size} is not set, group sizes are drawn uniformly via
+ * @ref gen_partition_fixed_size. If @pname{max_size} is set, sizes use the faster
+ * non-uniform @ref gen_partition_fixed_size_fast instead. Only the group sizes are
+ * random; element order is unchanged.
+ *
+ * @note This function is not always uniform: group sizes are uniform only when
+ * @pname{max_size} is not set.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n)} if @pname{max_size} is not set (uniform, via @ref gen_partition_fixed_size); <br>
+ * @tt{O(n + k log k)} if @pname{max_size} is set (fast, via @ref gen_partition_fixed_size_fast).
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Uniform group sizes (minimum 1 per group).
+ * auto uniform = tgen::math::partition_elements({1, 2, 3, 4, 5}, 2, 1);
+ * // Bounded group sizes (fast, non-uniform).
+ * auto bounded = tgen::math::partition_elements({1, 2, 3, 4, 5}, 2, 1, 4);
+ * ```
+ *
+ * @fn partition_elements(std::vector<T> elements, int k, int min_size = 0, std::optional<uint64_t> max_size = std::nullopt);
+ */
+
 };

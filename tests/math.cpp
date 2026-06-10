@@ -714,6 +714,29 @@ TEST(math_test, gen_partition_fixed_size_fast_invalid) {
 		"math: no such partition");
 }
 
+TEST(math_test, partition_elements) {
+	tgen::register_gen();
+
+	std::vector<int> elems = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+	auto groups = tgen::math::partition_elements(elems, 3, 1, 5);
+	EXPECT_EQ(groups.size(), 3u);
+	std::vector<int> flat;
+	for (const auto &g : groups) {
+		EXPECT_GE(static_cast<int>(g.size()), 1);
+		EXPECT_LE(static_cast<int>(g.size()), 5);
+		flat.insert(flat.end(), g.begin(), g.end());
+	}
+	EXPECT_EQ(flat, elems);
+
+	auto sizes_only =
+		tgen::math::partition_elements(std::vector<int>(10, 0), 4);
+	EXPECT_EQ(sizes_only.size(), 4u);
+	int total = 0;
+	for (const auto &g : sizes_only)
+		total += static_cast<int>(g.size());
+	EXPECT_EQ(total, 10);
+}
+
 TEST(math_test, gen_partition_fixed_size_fast) {
 	tgen::register_gen();
 

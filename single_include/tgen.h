@@ -3341,6 +3341,38 @@ inline std::vector<uint64_t> gen_partition_fixed_size_fast(
 	return part;
 }
 
+// Random partition of elements into k ordered groups (input order preserved).
+// If max_size is unset, part sizes are uniform via gen_partition_fixed_size.
+// If max_size is set, uses gen_partition_fixed_size_fast (not uniform).
+// O(n) if max_size is unset; O(n + k log k) if max_size is set.
+template <typename T>
+std::vector<std::vector<T>>
+partition_elements(std::vector<T> elements, int k, int min_size = 0,
+				   std::optional<uint64_t> max_size = std::nullopt) {
+	size_t n = elements.size();
+	tgen_ensure(k > 0, "math: partition_elements: k must be positive");
+	tgen_ensure(min_size >= 0,
+				"math: partition_elements: min_size must be non-negative");
+
+	std::vector<uint64_t> sizes;
+	if (max_size.has_value()) {
+		sizes = gen_partition_fixed_size_fast(n, k, min_size, max_size);
+	} else {
+		for (int sz : gen_partition_fixed_size(n, k, min_size))
+			sizes.push_back(sz);
+	}
+
+	std::vector<std::vector<T>> groups;
+	groups.reserve(k);
+	size_t pos = 0;
+	for (uint64_t sz : sizes) {
+		groups.emplace_back(elements.begin() + pos,
+							elements.begin() + pos + sz);
+		pos += sz;
+	}
+	return groups;
+}
+
 }; // namespace math
 
 /**************
@@ -4896,6 +4928,28 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			edges.emplace_back(i, wnext<int>(i, elongation));
 		return value(n, edges);
 	}
+
+	// Kruskal-like random tree: random vertex pairs until connected.
+	// Not uniformly random.
+	// O(n log(n) alpha(n)) expected.
+	static value gen_kruskal(int n) {
+		tgen_ensure(n > 0, "wtree: gen_kruskal: n must be positive");
+		if (n == 1)
+			return value(1, {});
+
+		detail::dsu components(n);
+		std::vector<std::pair<int, int>> edges;
+		edges.reserve(n - 1);
+		while (edges.size() < size_t(n - 1)) {
+			int u = next(0, n - 1);
+			int v = next(0, n - 1);
+			if (u == v)
+				continue;
+			if (components.unite(u, v))
+				edges.emplace_back(u, v);
+		}
+		return value(n, edges);
+	}
 };
 
 /*
@@ -6054,25 +6108,71 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		return skewed;
 	}
 
-	// Generates a uniformly random bipartite graph. The first side has vertices
+	// Generates a random bipartite graph. The first side has vertices
 	// 0 .. n1-1, the second n1 .. n1+n2-1.
-	// Optimized for performance (distinct edge-index sampling).
-	// O(n1 + n2 + m log(n1 * n2)).
-	static value gen_bipartite(int n1, int n2, int m) {
+	// Uniform when connected is false (distinct cross-edge indices).
+	// When connected, bipartite Prüfer + rejection fill; not uniform over
+	// connected bipartite graphs.
+	// O(n1 + n2 + m log(n1 * n2)) expected.
+	static value gen_bipartite(int n1, int n2, int m, bool connected = false) {
+		tgen_ensure(m >= 0, "wgraph: number of edges must be nonnegative");
 		long long num_edges = 1LL * n1 * n2;
 		tgen_ensure(m <= num_edges,
 					"wgraph: bipartite graph has at most n1 * n2 edges");
+		if (connected)
+			tgen_ensure(
+				m >= n1 + n2 - 1,
+				"wgraph: connected bipartite graph needs at least n1 + n2 - 1 "
+				"edges");
 
+		if (!connected) {
+			std::vector<std::pair<int, int>> edges;
+			edges.reserve(m);
+			for (long long idx : distinct_range<long long>(0, num_edges - 1)
+									 .gen_list(m)
+									 .to_std())
+				edges.emplace_back(static_cast<int>(idx / n2),
+								   n1 + static_cast<int>(idx % n2));
+			return value(n1 + n2, std::move(edges), false);
+		}
+
+		std::unordered_set<uint64_t> used_edges;
+		used_edges.reserve(m * 2);
 		std::vector<std::pair<int, int>> edges;
 		edges.reserve(m);
-		for (long long idx :
-			 distinct_range<long long>(0, num_edges - 1).gen_list(m).to_std())
-			edges.emplace_back(idx / n2, n1 + idx % n2);
 
-		detail::tgen_ensure_against_bug(edges.size() == size_t(m),
-										"wgraph: invalid number of edges in "
-										"bipartite graph");
-		return value(n1 + n2, edges, false);
+		auto pack_edge = [](int u, int v) -> uint64_t {
+			if (u > v)
+				std::swap(u, v);
+			return (static_cast<uint64_t>(u) << 32) | static_cast<uint32_t>(v);
+		};
+
+		if (n1 > 0 and n2 > 0) {
+			std::vector<int> prufer(n1 + n2 - 2);
+			for (int i = 0; i < n2 - 1; ++i)
+				prufer[i] = next(0, n1 - 1);
+			for (int i = 0; i < n1 - 1; ++i)
+				prufer[n2 - 1 + i] = next(n1, n1 + n2 - 1);
+			shuffle(prufer.begin(), prufer.end());
+			for (auto [u, v] : detail::edges_from_prufer(std::move(prufer))) {
+				if (u > v)
+					std::swap(u, v);
+				if (used_edges.insert(pack_edge(u, v)).second)
+					edges.emplace_back(u, v);
+			}
+			detail::tgen_ensure_against_bug(
+				used_edges.size() == size_t(n1 + n2 - 1),
+				"wgraph: invalid bipartite spanning tree size");
+		}
+
+		while (edges.size() < size_t(m)) {
+			int u = next(0, n1 - 1);
+			int v = next(n1, n1 + n2 - 1);
+			if (used_edges.insert(pack_edge(u, v)).second)
+				edges.emplace_back(u, v);
+		}
+
+		return value(n1 + n2, std::move(edges), false);
 	}
 
   private:

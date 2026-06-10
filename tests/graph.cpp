@@ -403,6 +403,27 @@ TEST(graph_test, gen_bipartite) {
 	}
 }
 
+TEST(graph_test, gen_bipartite_connected) {
+	tgen::register_gen();
+
+	// jngen-style connected bipartite: Prüfer tree for connectivity, then
+	// cross-part rejection sampling (tree edges may be same-part).
+	for (int it = 0; it < 30; ++it) {
+		const int n1 = 4, n2 = 5, m = 12;
+		auto g = tgen::graph::gen_bipartite(n1, n2, m, true);
+		EXPECT_TRUE((graph_gen_result_valid(g, n1 + n2, m, false, false)));
+		EXPECT_TRUE(is_connected_undirected(g));
+	}
+}
+
+TEST(graph_test, gen_bipartite_connected_needs_enough_edges) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::graph::gen_bipartite(4, 5, 7, true),
+		"wgraph: connected bipartite graph needs at least n1 + n2 - 1 edges");
+}
+
 TEST(graph_test, standard_graphs) {
 	tgen::register_gen();
 
