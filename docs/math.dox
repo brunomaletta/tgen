@@ -699,4 +699,46 @@ namespace tgen::math {
  * @fn gen_partition_fixed_size(int n, int k, int part_left = 0, std::optional<int> part_right = std::nullopt);
  */
 
+
+/**
+ * @ingroup math
+ * @brief Generates a fast non-uniform partition with fixed size.
+ *
+ * @param n Number to partition.
+ * @param k Number of parts.
+ * @param part_left Minimum part value.
+ * @param part_right Maximum part value.
+ *
+ * @pre
+ * @tt{@pname{n} >= @pname{k} > 0}. <br>
+ * @tt{@pname{part_left} >= 0}.
+ *
+ * Partition is ordered (so technically a composition). That is, @tt{(1, 1, 2) != (1, 2, 1)}.
+ * If @pname{part_right} is not set, @pname{part_right} is considered to be @pname{n} (unbounded).
+ *
+ * Inspired by <a href="https://github.com/ifsmirnov/jngen/blob/master/doc/math.md">jngen</a>:
+ * draw @tt{@pname{k} - 1} random delimiters with replacement, sort them,
+ * and recover part sizes from the gaps.
+ *
+ * @return A random ordered partition of @pname{n} with length @pname{k} and values in
+ * @tt{[@pname{part_left}, @pname{part_right}]}.
+ *
+ * @throws std::runtime_error if there is no such partition.
+ *
+ * @note This operation is not uniformly random.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{k} log @pname{k})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Fast partition of 10^18 into 10^6 parts.
+ * auto part = tgen::math::gen_partition_fixed_size_fast(1e18, 1e6);
+ * ```
+ *
+ * @fn gen_partition_fixed_size_fast(uint64_t n, int k, uint64_t part_left = 0, std::optional<uint64_t> part_right = std::nullopt);
+ */
+
 };

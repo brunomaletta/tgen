@@ -35,6 +35,16 @@ void consume_list(const tgen::list<int>::value &list) {
 		sink += static_cast<uint64_t>(list[i]);
 }
 
+void consume_partition(const std::vector<int> &part) {
+	for (int x : part)
+		sink += static_cast<uint64_t>(x);
+}
+
+void consume_partition(const std::vector<uint64_t> &part) {
+	for (uint64_t x : part)
+		sink += x;
+}
+
 std::vector<benchmark::CaseResult> run_all() {
 	std::vector<benchmark::CaseResult> results;
 
@@ -134,6 +144,36 @@ std::vector<benchmark::CaseResult> run_all() {
 			consume_polygon(
 				tgen::geometry::random_simple_polygon_through_points(
 					polygon_points));
+		}));
+
+	// Partition benchmarks (~1 s each at -O2).
+	results.push_back(benchmark::run_case(
+		"tgen::math::gen_partition", "", "n=5.05e6",
+		"tgen::math::gen_partition",
+		[] { consume_partition(tgen::math::gen_partition(5'050'000)); }));
+
+	results.push_back(benchmark::run_case(
+		"tgen::math::gen_partition_fixed_size", "",
+		"n=5.8e7, k=10, part_left=0", "tgen::math::gen_partition_fixed_size",
+		[] {
+			consume_partition(
+				tgen::math::gen_partition_fixed_size(58'000'000, 10));
+		}));
+
+	results.push_back(benchmark::run_case(
+		"tgen::math::gen_partition_fixed_size", " (bounded)",
+		"n=4200, k=4200, part_left=0, part_right=20",
+		"tgen::math::gen_partition_fixed_size", [] {
+			consume_partition(
+				tgen::math::gen_partition_fixed_size(4200, 4200, 0, 20));
+		}));
+
+	results.push_back(benchmark::run_case(
+		"tgen::math::gen_partition_fixed_size_fast", "",
+		"n=1e18, k=1e6, part_left=0",
+		"tgen::math::gen_partition_fixed_size_fast", [] {
+			consume_partition(tgen::math::gen_partition_fixed_size_fast(
+				1'000'000'000'000'000'000ULL, 1'000'000));
 		}));
 
 	return results;

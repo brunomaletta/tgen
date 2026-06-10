@@ -2563,7 +2563,7 @@ inline i128 modular_inverse_128(i128 a, i128 mod) {
 
 // checks if a * b <= limit, for positive numbers.
 inline bool mul_leq(uint64_t a, uint64_t b, uint64_t limit) {
-	if (a == 0)
+	if (a == 0 or b == 0)
 		return true;
 	return a <= limit / b;
 }
@@ -3246,6 +3246,98 @@ gen_partition_fixed_size(int n, int k, int part_left = 0,
 
 	for (int &i : part)
 		i += part_left;
+	return part;
+}
+
+// Partition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
+// Inspired by jngen rndm.partition: random delimiters, sort, gap recovery;
+// omits jngen's part reordering, shuffles, and two-pass redistribution.
+// 0 < k <= n.
+// 0 <= part_left.
+// Not uniformly random; optimized for speed.
+// O(k log k).
+inline std::vector<uint64_t> gen_partition_fixed_size_fast(
+	uint64_t n, int k, uint64_t part_left = 0,
+	std::optional<uint64_t> part_right = std::nullopt) {
+	if (!part_right.has_value())
+		part_right = n;
+	part_right = std::min(*part_right, n);
+
+	detail::u128 n128 = n;
+	detail::u128 k128 = k;
+	detail::u128 part_left128 = part_left;
+	detail::u128 part_right128 = *part_right;
+
+	tgen_ensure(k > 0 and k128 <= n128,
+				"math: invalid parameters to gen_partition_fixed_size_fast");
+	tgen_ensure(part_right128 >= part_left128 and
+					k128 * part_left128 <= n128 and
+					k128 * part_right128 >= n128,
+				"math: no such partition");
+
+	uint64_t slack_total = n128 - k128 * part_left128;
+	uint64_t slack_max = part_right128 - part_left128;
+
+	std::vector<uint64_t> part(k);
+	if (k == 1) {
+		part[0] = slack_total;
+	} else {
+		std::vector<uint64_t> cuts(k - 1);
+		for (uint64_t &d : cuts)
+			d = next<uint64_t>(0, slack_total);
+		std::sort(cuts.begin(), cuts.end());
+
+		uint64_t prev = 0;
+		for (int i = 0; i + 1 < k; ++i) {
+			part[i] = cuts[i] - prev;
+			prev = cuts[i];
+		}
+		part[k - 1] = slack_total - prev;
+	}
+
+	auto add_part_left = [part_left](uint64_t x) {
+		detail::u128 val = x + part_left;
+		detail::tgen_ensure_against_bug(
+			val <= std::numeric_limits<uint64_t>::max(),
+			"math: part + part_left exceeds uint64_t in "
+			"gen_partition_fixed_size_fast");
+		return static_cast<uint64_t>(val);
+	};
+
+	if (slack_max >= slack_total) {
+		for (uint64_t &x : part)
+			x = add_part_left(x);
+		return part;
+	}
+
+	detail::u128 remaining = 0;
+	for (uint64_t &x : part) {
+		if (x > slack_max) {
+			remaining += x - slack_max;
+			x = slack_max;
+		}
+		x = add_part_left(x);
+	}
+
+	if (remaining > 0) {
+		for (uint64_t &x : part) {
+			if (x < *part_right && remaining > 0) {
+				detail::u128 room = *part_right - x;
+				detail::u128 add = std::min(remaining, room);
+				detail::u128 val = x + add;
+				detail::tgen_ensure_against_bug(
+					val <= *part_right,
+					"math: part exceeds part_right after redistribution in "
+					"gen_partition_fixed_size_fast");
+				x = val;
+				remaining -= add;
+			}
+		}
+		detail::tgen_ensure_against_bug(
+			remaining == 0, "math: remaining mass after redistribution in "
+							"gen_partition_fixed_size_fast");
+	}
+
 	return part;
 }
 

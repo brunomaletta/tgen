@@ -693,3 +693,75 @@ TEST(math_test, gen_partition_fixed_size_uniform) {
 	expect_function_uniform(tgen::math::gen_partition_fixed_size, 381, 100, 5,
 							18, 22);
 }
+
+TEST(math_test, gen_partition_fixed_size_fast_invalid) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_partition_fixed_size_fast(1, 0),
+		"math: invalid parameters to gen_partition_fixed_size_fast");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_partition_fixed_size_fast(1, 2),
+		"math: invalid parameters to gen_partition_fixed_size_fast");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_partition_fixed_size_fast(3, 3, 0, 0),
+		"math: no such partition");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_partition_fixed_size_fast(3, 2, 2, 3),
+		"math: no such partition");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::gen_partition_fixed_size_fast(7, 2, 2, 3),
+		"math: no such partition");
+}
+
+TEST(math_test, gen_partition_fixed_size_fast) {
+	tgen::register_gen();
+
+	auto test_partition_fixed_size_fast =
+		[&](uint64_t n, int k, uint64_t part_l = 0,
+			std::optional<uint64_t> part_r = std::nullopt) {
+			auto part =
+				tgen::math::gen_partition_fixed_size_fast(n, k, part_l, part_r);
+			uint64_t sum = 0;
+			for (uint64_t i : part) {
+				EXPECT_GE(i, part_l);
+				if (part_r) {
+					EXPECT_LE(i, *part_r);
+				}
+				sum += i;
+			}
+			EXPECT_EQ(part.size(), static_cast<size_t>(k));
+			EXPECT_EQ(sum, n);
+			return part;
+		};
+
+	for (int i = 0; i < 100; ++i) {
+		test_partition_fixed_size_fast(tgen::next<int>(10, 1e3),
+									   tgen::next(1, 10));
+		test_partition_fixed_size_fast(tgen::next<int>(1e2, 1e3),
+									   tgen::next<int>(1, 1e2), 1);
+		test_partition_fixed_size_fast(tgen::next<int>(1e2, 1e3),
+									   tgen::next<int>(1, 10), 10, 1e3 + 10);
+		test_partition_fixed_size_fast(tgen::next<int>(1e2, 1e3),
+									   tgen::next<int>(1, 10), 10, 1e9);
+	}
+	for (int i = 0; i < 5; ++i) {
+		test_partition_fixed_size_fast(tgen::next<int>(10, 1e5),
+									   tgen::next(1, 10));
+		test_partition_fixed_size_fast(tgen::next<int>(1e4, 1e5),
+									   tgen::next<int>(1, 1e4), 1);
+		test_partition_fixed_size_fast(tgen::next<int>(1e4, 1e5),
+									   tgen::next<int>(1, 10), 10, 1e5 + 10);
+		test_partition_fixed_size_fast(tgen::next<int>(1e4, 1e5),
+									   tgen::next<int>(1, 10), 10, 1e9);
+	}
+	test_partition_fixed_size_fast(1e6, 10);
+	test_partition_fixed_size_fast(1e6, 5, 0);
+	test_partition_fixed_size_fast(1e6, 5, 0, 1e6);
+	test_partition_fixed_size_fast(1e7, 10, 0);
+	test_partition_fixed_size_fast(1e7, 10, 0, 1e7);
+	test_partition_fixed_size_fast(1'000'000'000'000'000'000ULL, 1'000'000);
+	test_partition_fixed_size_fast(std::numeric_limits<uint64_t>::max(), 1);
+	test_partition_fixed_size_fast(std::numeric_limits<uint64_t>::max(), 10);
+	test_partition_fixed_size_fast(std::numeric_limits<uint64_t>::max(), 1000);
+}
