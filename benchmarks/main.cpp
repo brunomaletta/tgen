@@ -161,11 +161,16 @@ std::vector<benchmark::CaseResult> run_all(const BenchmarkScale &scale) {
 		"tgen::permutation::gen",
 		[=] { sink += tgen::permutation(scale.n_perm()).gen().size(); });
 
+	// Each OR branch produces 4 characters; r repetitions yield 4*r characters.
+	int regex_reps = scale.smoke ? 25'000 : 2'500'000;
 	run("tgen::str::gen", " (regex)",
-		"pattern=(([1-9][0-9]{3}|[A-F]{4})|(ab|cd){2}){r}, len=1e7",
-		"tgen::str::gen", [] {
+		scale.smoke
+			? "pattern=(([1-9][0-9]{3}|[A-F]{4})|(ab|cd){2}){r}, len=1e5"
+			: "pattern=(([1-9][0-9]{3}|[A-F]{4})|(ab|cd){2}){r}, len=1e7",
+		"tgen::str::gen", [=] {
 			consume_str(
-				tgen::str("(([1-9][0-9]{3}|[A-F]{4})|(ab|cd){2}){%d}", 7)
+				tgen::str("(([1-9][0-9]{3}|[A-F]{4})|(ab|cd){2}){%d}",
+						  regex_reps)
 					.gen());
 		});
 

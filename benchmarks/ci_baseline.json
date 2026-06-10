@@ -119,10 +119,10 @@
     {
       "name": "tgen::str::gen",
       "name_suffix": " (regex)",
-      "params": "pattern=(([1-9][0-9]{3}|[A-F]{4})|(ab|cd){2}){r}, len=1e7",
+      "params": "pattern=(([1-9][0-9]{3}|[A-F]{4})|(ab|cd){2}){r}, len=1e5",
       "doc_symbol": "tgen::str::gen",
-      "median_ms": 0,
-      "runs_ms": [0, 0, 0]
+      "median_ms": 9,
+      "runs_ms": [9, 9, 9]
     },
     {
       "name": "tgen::geometry::random_simple_polygon",
