@@ -4339,6 +4339,9 @@ struct dsu {
 
 } // namespace detail
 
+// Forward declaration of wgraph.
+template <typename VWeight, typename EWeight> struct wgraph;
+
 /*
  * Tree generator.
  *
@@ -4415,13 +4418,16 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// Creates value from `n` and edge list.
 		// O(n).
 		value(int n, const std::vector<std::pair<int, int>> &edges)
-			: n_(n), adj_(n), edges_(edges), add_1_(false), print_n_(false),
-			  dsu_(n) {
+			: n_(n), adj_(n), add_1_(false), print_n_(false), dsu_(n) {
+			edges_.reserve(edges.size());
 			for (auto [u, v] : edges) {
 				tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n,
 							"wtree: value: vertices must be indexed in [0, n)");
 				tgen_ensure(dsu_.unite(u, v),
 							"wtree: value: initial graph must form a tree");
+				if (u > v)
+					std::swap(u, v);
+				edges_.emplace_back(u, v);
 				adj_[u].insert(v);
 				adj_[v].insert(u);
 			}
@@ -4431,6 +4437,11 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 														edges.end())) {}
 		value(int n, const std::initializer_list<std::pair<int, int>> &edges)
 			: value(n, std::vector<std::pair<int, int>>(edges)) {}
+
+		// Creates tree from graph via Kruskal-like random spanning tree.
+		// Implemented after wgraph definition.
+		// O(n + m alpha(n)).
+		value(const typename wgraph<VWeight, EWeight>::value &g);
 
 		// Weight type conversion.
 		// O(n).
@@ -5211,6 +5222,18 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		value(int n, const std::initializer_list<std::pair<int, int>> &edges,
 			  bool is_directed = false)
 			: value(n, std::vector<std::pair<int, int>>(edges), is_directed) {}
+
+		// Creates graph from tree (undirected, same edges).
+		// O(n).
+		value(const typename wtree<VWeight, EWeight>::value &t)
+			: value(t.n(), t.edges(), false) {
+			if (t.vertex_weights().has_value()) {
+				vertex_weights_ = *t.vertex_weights();
+			}
+			if (t.edge_weights().has_value()) {
+				edge_weights_ = *t.edge_weights();
+			}
+		}
 
 		// Weight type conversion.
 		// O(n + m).
@@ -6246,6 +6269,53 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		return value(n_, edges, is_directed_);
 	}
 };
+
+// Implementation of wtree::value constructor from wgraph.
+// O(n + m alpha(n)).
+template <typename VWeight, typename EWeight>
+wtree<VWeight, EWeight>::value::value(
+	const typename wgraph<VWeight, EWeight>::value &g)
+	: n_(g.n()), adj_(g.n()), add_1_(false), print_n_(false), dsu_(g.n()) {
+	tgen_ensure(g.n() > 0, "wtree: value: graph must have at least one vertex");
+	tgen_ensure(!g.is_directed(),
+				"wtree: value: graph must be undirected to form a tree");
+
+	if (g.vertex_weights().has_value())
+		vertex_weights_ = *g.vertex_weights();
+	if (g.edge_weights().has_value())
+		edge_weights_ = std::vector<EWeight>();
+
+	if (n_ == 1)
+		return;
+
+	std::vector<int> order(g.m());
+	std::iota(order.begin(), order.end(), 0);
+	tgen::shuffle(order.begin(), order.end());
+
+	std::vector<std::pair<int, int>> tree_edges;
+	tree_edges.reserve(n_ - 1);
+
+	for (int i : order) {
+		auto [u, v] = g.edges()[i];
+		if (!dsu_.unite(u, v))
+			continue;
+		if (u > v)
+			std::swap(u, v);
+
+		tree_edges.emplace_back(u, v);
+		adj_[u].insert(v);
+		adj_[v].insert(u);
+		if (edge_weights_.has_value())
+			edge_weights_->push_back((*g.edge_weights())[i]);
+		if (static_cast<int>(tree_edges.size()) == n_ - 1)
+			break;
+	}
+
+	tgen_ensure(static_cast<int>(tree_edges.size()) == n_ - 1,
+				"wtree: value: graph must be connected to form a tree");
+
+	edges_ = std::move(tree_edges);
+}
 
 /*
  * Other types of weighted-ness.

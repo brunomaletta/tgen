@@ -38,6 +38,28 @@ template <typename Tree> bool is_tree_like(const Tree &t) {
 	return seen == t.n();
 }
 
+template <typename Graph> bool is_connected_undirected(const Graph &g) {
+	if (g.n() <= 0)
+		return false;
+	std::vector<bool> vis(g.n(), false);
+	std::queue<int> q;
+	q.push(0);
+	vis[0] = true;
+	int seen = 0;
+	while (!q.empty()) {
+		int u = q.front();
+		q.pop();
+		++seen;
+		for (int v : g.adj()[u]) {
+			if (!vis[v]) {
+				vis[v] = true;
+				q.push(v);
+			}
+		}
+	}
+	return seen == g.n();
+}
+
 bool is_tree_shape(const tgen::tree::value &t) { return is_tree_like(t); }
 
 // Unrooted tree isomorphism via centroid decomposition and multiset hashing.
@@ -494,4 +516,52 @@ TEST(tree_test, wtree_both_weight_dimensions) {
 
 	EXPECT_EQ(*wv.vertex_weights(), vw);
 	EXPECT_EQ(*we.edge_weights(), ew);
+}
+
+TEST(tree_test, from_graph_random_spanning_tree) {
+	tgen::register_gen();
+
+	auto g = tgen::graph(8, 20).gen();
+	EXPECT_TRUE(is_connected_undirected(g));
+
+	for (int rep = 0; rep < 20; ++rep) {
+		auto t = tgen::tree::value(g);
+		EXPECT_TRUE(is_tree_like(t));
+		EXPECT_EQ(t.n(), g.n());
+		for (auto [u, v] : t.edges()) {
+			EXPECT_TRUE((std::find(g.edges().begin(), g.edges().end(),
+								   std::pair(u, v)) != g.edges().end()));
+		}
+	}
+}
+
+TEST(tree_test, from_graph_already_tree) {
+	tgen::register_gen();
+
+	auto t0 = tgen::tree(6).gen();
+	auto g = tgen::graph::value(t0);
+	auto t = tgen::tree::value(g);
+
+	EXPECT_TRUE(is_tree_like(t));
+	EXPECT_EQ(t.n(), t0.n());
+	EXPECT_EQ(t.edges().size(), t0.edges().size());
+}
+
+TEST(tree_test, from_graph_fails_disconnected) {
+	tgen::register_gen();
+
+	auto g = tgen::graph(6, 4).gen();
+	EXPECT_FALSE(is_connected_undirected(g));
+	EXPECT_THROW_TGEN_PREFIX(
+		(tgen::tree::value(g)),
+		"wtree: value: graph must be connected to form a tree");
+}
+
+TEST(tree_test, from_graph_fails_directed) {
+	tgen::register_gen();
+
+	auto g = tgen::graph(5, 6, true).gen();
+	EXPECT_THROW_TGEN_PREFIX(
+		(tgen::tree::value(g)),
+		"wtree: value: graph must be undirected to form a tree");
 }

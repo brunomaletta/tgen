@@ -492,6 +492,30 @@ namespace tgen {
 
 
 /**
+ * @brief Builds an undirected graph from a tree.
+ *
+ * @param t Tree to convert.
+ *
+ * The result has the same vertices and edges as @pname{t}, with
+ * @tt{is_directed() == false}. Vertex and edge weights are copied when the
+ * weight types match.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto t = tgen::tree(5).gen();
+ * auto g = tgen::graph::value(t);
+ * ```
+ *
+ * @fn wgraph::value::value(const typename wtree<VWeight, EWeight>::value &t);
+ */
+
+
+/**
  * @brief Number of vertices.
  *
  * @return The number of vertices.

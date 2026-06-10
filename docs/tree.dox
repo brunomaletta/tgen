@@ -329,6 +329,33 @@ namespace tgen {
 
 
 /**
+ * @brief Builds a tree from a graph via a Kruskal-like random spanning tree.
+ *
+ * @param g Undirected connected graph.
+ *
+ * Shuffles the edges of @pname{g} and greedily adds them while avoiding cycles,
+ * in the spirit of Kruskal's algorithm. The result is a random spanning tree.
+ *
+ * Vertex and edge weights are copied when the weight types match.
+ *
+ * @note This operation is not uniformly random.
+ *
+ * #### Complexity
+ *
+ * @tt{O(n + m alpha(n))}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto g = tgen::graph(10, 20).gen();
+ * auto t = tgen::tree::value(g);
+ * ```
+ *
+ * @fn wtree::value::value(const typename wgraph<VWeight, EWeight>::value &g);
+ */
+
+
+/**
  * @brief Returns the number of vertices.
  *
  * @return The number of vertices.

@@ -979,3 +979,38 @@ TEST(graph_test, gen_directed_with_self_loops_full_includes_all_ordered_pairs) {
 	EXPECT_TRUE(expect.empty());
 	EXPECT_TRUE((graph_gen_result_valid(g, n, m, true, true)));
 }
+
+TEST(graph_test, from_tree) {
+	tgen::register_gen();
+
+	auto t = tgen::tree(7).gen();
+	auto g = tgen::graph::value(t);
+
+	EXPECT_EQ(g.n(), t.n());
+	EXPECT_EQ(g.m(), static_cast<int>(t.edges().size()));
+	EXPECT_FALSE(g.is_directed());
+	EXPECT_EQ(g.edges(), t.edges());
+	EXPECT_TRUE(is_connected_undirected(g));
+}
+
+TEST(graph_test, from_tree_preserves_weights) {
+	tgen::register_gen();
+
+	auto t = tgen::etree<int>(4).gen().set_edge_weights({1, 2, 3});
+	auto g = tgen::egraph<int>::value(t);
+
+	ASSERT_TRUE(g.edge_weights().has_value());
+	EXPECT_EQ(*g.edge_weights(), *t.edge_weights());
+}
+
+TEST(graph_test, tree_graph_roundtrip) {
+	tgen::register_gen();
+
+	auto t0 = tgen::tree(5).gen();
+	auto g = tgen::graph::value(t0);
+	auto t = tgen::tree::value(g);
+
+	EXPECT_EQ(t.n(), t0.n());
+	EXPECT_EQ(std::set(t.edges().begin(), t.edges().end()),
+			  std::set(t0.edges().begin(), t0.edges().end()));
+}
