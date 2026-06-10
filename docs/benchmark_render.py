@@ -117,9 +117,9 @@ def render_html(data, symbol_index):
         '<div id="benchmark-results">',
         '  <p class="benchmark-meta">Timestamp: %s</p>'
         % html.escape(data.get("generated_at", "")),
-        '  <p class="benchmark-meta">GCC version: %s</p>'
+        '  <p class="benchmark-meta">Compiler: %s</p>'
         % html.escape(data.get("compiler", "")),
-        '  <p class="benchmark-meta">GCC flags: %s</p>'
+        '  <p class="benchmark-meta">Flags: %s</p>'
         % html.escape(data.get("flags", "")),
         '  <div class="table-scroll">',
         '  <table class="markdownTable">',

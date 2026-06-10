@@ -50,7 +50,7 @@ inline double median(std::vector<double> values) {
 template <typename Fn>
 CaseResult run_case(const std::string &name, const std::string &name_suffix,
 					const std::string &params, const std::string &doc_symbol,
-					Fn fn) {
+					Fn fn, int num_runs = 7) {
 	CaseResult result{name, name_suffix, params, doc_symbol, {}, 0};
 
 	std::cout << "Benchmarking " << name << name_suffix << "...\n"
@@ -58,7 +58,7 @@ CaseResult run_case(const std::string &name, const std::string &name_suffix,
 
 	fn(); // warmup
 
-	for (int i = 0; i < 3; ++i) {
+	for (int i = 0; i < num_runs; ++i) {
 		auto start = clock::now();
 		fn();
 		result.runs_ms.push_back(elapsed_ms(start));

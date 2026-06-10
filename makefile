@@ -84,7 +84,8 @@ BENCHMARK_HTML := $(DOC_BUILD_DIR)/benchmark_include.html
 BENCHMARK_CXXFLAGS := -std=c++17 -O2
 
 .PHONY: all doc doc-prepare llms doc-rebuild clean-doc opendoc lint lint-check test test_clang test_asan \
-	sample sample_debug unordered range_queries unordered_clang graph geometry benchmark cloc \
+	sample sample_debug unordered range_queries unordered_clang graph geometry benchmark \
+	benchmark-baseline-local benchmark-check-local benchmark-check cloc \
 	help print-% %-asan
 
 clean:
@@ -137,6 +138,19 @@ $(BENCHMARK_BIN): benchmarks/main.cpp benchmarks/benchmark.h $(TGEN_HEADER) | $(
 benchmark: $(BENCHMARK_BIN)
 	$< --json $(BENCHMARK_JSON)
 	@echo "Wrote $(BENCHMARK_JSON). Run 'make doc' to render $(BENCHMARK_HTML)."
+
+benchmark-baseline-local: $(BENCHMARK_BIN)
+	$< --update-baseline benchmarks/local_baseline.json
+	@echo "Wrote benchmarks/local_baseline.json (gitignored)."
+
+benchmark-check-local: $(BENCHMARK_BIN)
+	@test -f benchmarks/local_baseline.json || { printf '%s\n' "Run 'make benchmark-baseline-local' first." >&2; exit 1; }
+	$< --check benchmarks/local_baseline.json --threshold 2.0 --json /tmp/tgen_bench_local.json
+
+# CI: smoke run (crash test) + smoke regression vs ci_baseline.json (ubuntu-latest timings).
+benchmark-check: $(BENCHMARK_BIN)
+	$< --smoke --json /tmp/tgen_bench_smoke.json
+	$< --smoke --check benchmarks/ci_baseline.json --threshold 2.0 --json /tmp/tgen_bench_ci.json
 
 # XML-only Doxygen pass + llms markdown. Benchmark HTML is rendered in `doc` (needs XML).
 doc-prepare:
@@ -247,7 +261,8 @@ help:
 	@echo " + argv:   make graph ARGS='…'   (sample, graph, graph-asan, …)"
 	@echo " + ASan:   make graph ASAN=1   or   make graph-asan   (same for sample-asan, unordered-asan, …)"
 	@echo "           Binaries: build/examples/rel/… and build/examples/asan/… (see ASAN=1)"
-	@echo "Benchmark: make benchmark   (writes $(BENCHMARK_JSON); make doc renders $(BENCHMARK_HTML))"
+	@echo "Benchmark: make benchmark | benchmark-baseline-local | benchmark-check-local | benchmark-check"
+	@echo " + benchmark writes $(BENCHMARK_JSON); make doc renders $(BENCHMARK_HTML)"
 	@echo "Docs:      make doc | doc-rebuild | opendoc | clean-doc | llms   (doc also builds llms; doc-rebuild = clean + doc)"
 	@echo "Other:     make lint | lint-check | clean | cloc | print-CXXFLAGS_COMMON"
 

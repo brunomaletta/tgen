@@ -44,7 +44,7 @@ jobs:
         run: make doc
 
       - name: Test doc scripts
-        run: cd docs && python3 -m unittest test_llms_gen test_benchmark_render -v
+        run: cd docs && python3 -m unittest test_llms_gen test_benchmark_render test_benchmark_check -v
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -12,3 +12,6 @@ Testing
 
 # Python (docs/llms_gen.py tooling)
 __pycache__/
+
+# Local benchmark regression baseline (your machine only)
+benchmarks/local_baseline.json

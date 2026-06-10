@@ -37,5 +37,8 @@ jobs:
       - name: Run tests ASan
         run: make test_asan
 
-      - name: Test llms_gen.py
-        run: cd docs && python3 -m unittest test_llms_gen -v
+      - name: Benchmark smoke and regression check
+        run: make benchmark-check
+
+      - name: Test doc scripts
+        run: cd docs && python3 -m unittest test_llms_gen test_benchmark_render test_benchmark_check -v
