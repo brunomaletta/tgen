@@ -3295,13 +3295,13 @@ inline std::vector<uint64_t> gen_partition_fixed_size_fast(
 		part[k - 1] = slack_total - prev;
 	}
 
-	auto add_part_left = [part_left](uint64_t x) {
+	auto add_part_left = [part_left](uint64_t x) -> uint64_t {
 		detail::u128 val = x + part_left;
 		detail::tgen_ensure_against_bug(
 			val <= std::numeric_limits<uint64_t>::max(),
 			"math: part + part_left exceeds uint64_t in "
 			"gen_partition_fixed_size_fast");
-		return static_cast<uint64_t>(val);
+		return val;
 	};
 
 	if (slack_max >= slack_total) {

@@ -170,10 +170,10 @@ std::vector<benchmark::CaseResult> run_all() {
 
 	results.push_back(benchmark::run_case(
 		"tgen::math::gen_partition_fixed_size_fast", "",
-		"n=1e18, k=1e6, part_left=0",
+		"n=1e18, k=3e6, part_left=0",
 		"tgen::math::gen_partition_fixed_size_fast", [] {
 			consume_partition(tgen::math::gen_partition_fixed_size_fast(
-				1'000'000'000'000'000'000ULL, 1'000'000));
+				1'000'000'000'000'000'000ULL, 3'000'000));
 		}));
 
 	return results;
