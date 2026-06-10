@@ -7,7 +7,7 @@ int main(int argc, char **argv) {
 	tgen::register_gen(argc, argv);
 
 	// Random 20 distinct values from 1 to 100.
-	std::cout << tgen::list<int>(20, 1, 100).distinct().gen() << std::endl;
+	std::cout << tgen::list<int>(20, 1, 100).all_different().gen() << std::endl;
 
 	// Random palindrome of length 7.
 	std::cout << tgen::str(7, 'a', 'z').palindrome().gen() << std::endl;

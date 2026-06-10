@@ -69,9 +69,7 @@ endef
 $(eval $(call EXAMPLE_LINK_RULE,graph,graph.cpp,$(CXX_CLANG)))
 $(eval $(call EXAMPLE_LINK_RULE,geometry,geometry.cpp,$(CXX_GCC)))
 $(eval $(call EXAMPLE_LINK_RULE,sample,all.cpp,$(CXX_GCC)))
-$(eval $(call EXAMPLE_LINK_RULE,unordered,unordered_set.cpp,$(CXX_GCC)))
 $(eval $(call EXAMPLE_LINK_RULE,range_queries,range_queries.cpp,$(CXX_GCC)))
-$(eval $(call EXAMPLE_LINK_RULE,unordered_clang,unordered_set.cpp,$(CXX_CLANG)))
 $(eval $(call EXAMPLE_DEBUG_RULE,sample_debug,all.cpp,$(CXX_GCC)))
 
 GEOMETRY_HTML := $(BUILD_ROOT)/geometry.html
@@ -84,7 +82,7 @@ BENCHMARK_HTML := $(DOC_BUILD_DIR)/benchmark_include.html
 BENCHMARK_CXXFLAGS := -std=c++17 -O2
 
 .PHONY: all doc doc-prepare llms doc-rebuild clean-doc opendoc lint lint-check test test_clang test_asan \
-	sample sample_debug unordered range_queries unordered_clang graph geometry benchmark \
+	sample sample_debug range_queries graph geometry benchmark \
 	benchmark-baseline-local benchmark-check-local benchmark-check cloc \
 	help print-% %-asan
 
@@ -242,11 +240,7 @@ geometry: $(EXAMPLE_OUT)/geometry
 	python3 examples/geometry_plot.py -o $(GEOMETRY_HTML) < $(GEOMETRY_OUT)
 	@echo "Wrote $(GEOMETRY_HTML)"
 
-unordered: $(EXAMPLE_OUT)/unordered
-
 range_queries: $(EXAMPLE_OUT)/range_queries
-
-unordered_clang: $(EXAMPLE_OUT)/unordered_clang
 
 sample_debug: $(EXAMPLE_OUT)/sample_debug
 
@@ -256,10 +250,10 @@ sample_debug: $(EXAMPLE_OUT)/sample_debug
 
 help:
 	@echo "Tests:     make test | test_clang | test_asan"
-	@echo "Examples:  make graph | geometry | sample | unordered | range_queries | unordered_clang | sample_debug"
+	@echo "Examples:  make graph | geometry | sample | range_queries | sample_debug"
 	@echo " + geometry writes $(GEOMETRY_HTML) (stdout + plot)"
 	@echo " + argv:   make graph ARGS='…'   (sample, graph, graph-asan, …)"
-	@echo " + ASan:   make graph ASAN=1   or   make graph-asan   (same for sample-asan, unordered-asan, …)"
+	@echo " + ASan:   make graph ASAN=1   or   make graph-asan   (same for sample-asan, …)"
 	@echo "           Binaries: build/examples/rel/… and build/examples/asan/… (see ASAN=1)"
 	@echo "Benchmark: make benchmark | benchmark-baseline-local | benchmark-check-local | benchmark-check"
 	@echo " + benchmark writes $(BENCHMARK_JSON); make doc renders $(BENCHMARK_HTML)"

@@ -111,7 +111,8 @@ bool trees_isomorphic(const std::vector<std::set<int>> &adj_1,
 TEST(tree_test, constructor_non_positive_n) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::tree(0), "wtree: n must be positive");
+	EXPECT_THROW_TGEN_PREFIX(tgen::tree(0),
+							 "wtree: number of vertices must be positive");
 }
 
 TEST(tree_test, gen_is_labeled_tree) {
@@ -156,7 +157,19 @@ TEST(tree_test, value_constructor_rejects_cycle) {
 												   {1, 2},
 												   {0, 2},
 											   }),
-							 "wtree: value: initial edges must form a tree");
+							 "wtree: value: initial graph must form a tree");
+}
+
+TEST(tree_test, value_constructor_rejects_cycle_from_adjacency) {
+	tgen::register_gen();
+
+	std::vector<std::set<int>> a(3);
+	a[0] = {1, 2};
+	a[1] = {0, 2};
+	a[2] = {0, 1};
+	EXPECT_THROW_TGEN_PREFIX(
+		{ (void)tgen::tree::value(a); },
+		"wtree: value: initial graph must form a tree");
 }
 
 TEST(tree_test, value_from_adjacency_list) {
@@ -246,8 +259,9 @@ TEST(tree_test, add_unweighted_vertices_to_weighted_tree) {
 
 	auto t = tgen::tree(5).gen();
 	auto w = t.set_vertex_weights(std::vector<int>{0, 1, 2, 3, 4});
+	tgen::tree::value extra(3, {});
 
-	EXPECT_THROW_TGEN_PREFIX(w.add_vertices(10),
+	EXPECT_THROW_TGEN_PREFIX(w.link(extra, 0, 0),
 							 "wtree: value: cannot add unweighted vertices to "
 							 "vertex-weighted tree");
 }
@@ -305,11 +319,11 @@ TEST(tree_test, glue_composes_trees) {
 	}
 }
 
-TEST(tree_test, value_add_vertices_and_add_edge) {
+TEST(tree_test, value_disjoint_glue_and_add_edge) {
 	tgen::register_gen();
 
 	tgen::tree::value t(3, std::vector<std::pair<int, int>>({{0, 1}, {1, 2}}));
-	t.add_vertices(2);
+	t.glue(tgen::tree::value(2, {}), std::set<int>{});
 
 	EXPECT_EQ(t.n(), 5);
 	EXPECT_TRUE(!is_tree_shape(t));

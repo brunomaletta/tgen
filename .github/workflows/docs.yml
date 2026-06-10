@@ -27,9 +27,18 @@ jobs:
           sudo apt install -y \
             graphviz \
             make \
+            g++ \
             clang \
+            cmake \
+            libgtest-dev \
+            clang-format \
             libc++-dev \
             libc++abi-dev
+
+          cd /usr/src/gtest
+          sudo cmake .
+          sudo make
+          sudo cp lib/*.a /usr/lib
 
       - name: Install Doxygen 1.14.0
         run: |
@@ -42,6 +51,12 @@ jobs:
 
       - name: Build documentation
         run: make doc
+
+      - name: Run tests
+        run: make test
+
+      - name: Benchmark smoke and regression check
+        run: make benchmark-check
 
       - name: Test doc scripts
         run: cd docs && python3 -m unittest test_llms_gen test_benchmark_render test_benchmark_check -v

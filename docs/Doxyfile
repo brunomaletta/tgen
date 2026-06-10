@@ -1114,7 +1114,8 @@ EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = */llms_gen.py \
                          */test_llms_gen.py \
                          */benchmark_render.py \
-                         */test_benchmark_render.py
+                         */test_benchmark_render.py \
+                         */test_benchmark_check.py
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the

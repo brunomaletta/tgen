@@ -323,7 +323,7 @@ namespace tgen {
  *
  * Preset edges must be acyclic. Remaining edges respect a random topological order (randomized Kahn).
  *
- * @throws std::runtime_error preset edges forms a cycle.
+ * @throws std::runtime_error preset edges form a cycle.
  *
  * @note This operation is not uniformly random.
  *
@@ -753,7 +753,7 @@ namespace tgen {
  * std::cout << g.n() << std::endl; // Prints "3".
  * ```
  *
- * @fn wgraph::value::add_vertices(int k, std::optional<std::vector<int>> new_vertex_weights = std::nullopt);
+ * @fn wgraph::value::add_vertices(int k, std::optional<std::vector<VWeight>> new_vertex_weights = std::nullopt);
  */
 
 
@@ -779,7 +779,7 @@ namespace tgen {
  * std::cout << g.m() << std::endl; // Prints "2".
  * ```
  *
- * @fn wgraph::value::add_edge(int u, int v, std::optional<int> w = std::nullopt);
+ * @fn wgraph::value::add_edge(int u, int v, std::optional<EWeight> w = std::nullopt);
  */
 
 

@@ -3581,7 +3581,8 @@ inline regex_node parse_regex(std::string regex) {
 						"str: invalid regex: unmatched `{`");
 			tgen_ensure(l != -1 and r != -1,
 						"str: invalid regex: missing number inside `{}`");
-			tgen_ensure(l <= r, "invalid regex: invalid range inside `{}`");
+			tgen_ensure(l <= r,
+						"str: invalid regex: invalid range inside `{}`");
 
 			// Creates a REP node from the previous node.
 			tgen_ensure(!cur.cur.empty(),
@@ -4355,7 +4356,9 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 
 	// Creates tree generator with `n` vertices.
 	// O(1).
-	wtree(int n) : n_(n) { tgen_ensure(n > 0, "wtree: n must be positive"); }
+	wtree(int n) : n_(n) {
+		tgen_ensure(n > 0, "wtree: number of vertices must be positive");
+	}
 
 	// Adds edge between u and v (this edge must be generated).
 	// O(log n).
@@ -4404,7 +4407,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 						edges_.emplace_back(u, v);
 						tgen_ensure(
 							dsu_.unite(u, v),
-							"wtree: value: initial adjacency must form a tree");
+							"wtree: value: initial graph must form a tree");
 					}
 				}
 		}
@@ -4418,7 +4421,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 				tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n,
 							"wtree: value: vertices must be indexed in [0, n)");
 				tgen_ensure(dsu_.unite(u, v),
-							"wtree: value: initial edges must form a tree");
+							"wtree: value: initial graph must form a tree");
 				adj_[u].insert(v);
 				adj_[v].insert(u);
 			}
@@ -4605,35 +4608,6 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// Shuffles the tree's vertices and edge order.
 		// O(n).
 		value &shuffle() { return shuffle_except({}); }
-
-		// Adds `k` vertices to the tree (labeled n, n+1, ...n+k-1). Updates
-		// `n` accordingly. This makes the tree invalid (not a tree anymore).
-		// O(k) amortized.
-		value &add_vertices(int k, std::optional<std::vector<VWeight>>
-									   new_vertex_weights = std::nullopt) {
-			n_ += k;
-			adj_.resize(n());
-			if (new_vertex_weights.has_value()) {
-				tgen_ensure(vertex_weights().has_value(),
-							"wtree: value: cannot add weighted vertices to "
-							"vertex-unweighted tree");
-				tgen_ensure(
-					static_cast<int>(new_vertex_weights->size()) == k,
-					"wtree: value: number of vertex weights must be equal "
-					"to number of added vertices");
-
-				vertex_weights_->insert(vertex_weights_->end(),
-										new_vertex_weights->begin(),
-										new_vertex_weights->end());
-			} else
-				tgen_ensure(!vertex_weights().has_value(),
-							"wtree: value: cannot add unweighted vertices to "
-							"vertex-weighted tree");
-
-			dsu_.add_elements(k);
-
-			return *this;
-		}
 
 		// Adds edge (u, v).
 		// O(log n) amortized.
@@ -4860,6 +4834,36 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// Gets a std::pair<n, adj> representing the value.
 		std::pair<int, std::vector<std::set<int>>> to_std() const {
 			return std_type(n_, adj_);
+		}
+
+	  private:
+		// Adds `k` vertices to the tree (labeled n, n+1, ...n+k-1). Updates
+		// `n` accordingly. This makes the tree invalid (not a tree anymore).
+		// O(k) amortized.
+		value &add_vertices(int k, std::optional<std::vector<VWeight>>
+									   new_vertex_weights = std::nullopt) {
+			n_ += k;
+			adj_.resize(n());
+			if (new_vertex_weights.has_value()) {
+				tgen_ensure(vertex_weights().has_value(),
+							"wtree: value: cannot add weighted vertices to "
+							"vertex-unweighted tree");
+				tgen_ensure(
+					static_cast<int>(new_vertex_weights->size()) == k,
+					"wtree: value: number of vertex weights must be equal "
+					"to number of added vertices");
+
+				vertex_weights_->insert(vertex_weights_->end(),
+										new_vertex_weights->begin(),
+										new_vertex_weights->end());
+			} else
+				tgen_ensure(!vertex_weights().has_value(),
+							"wtree: value: cannot add unweighted vertices to "
+							"vertex-weighted tree");
+
+			dsu_.add_elements(k);
+
+			return *this;
 		}
 	};
 
@@ -5714,7 +5718,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// O(N + M log N), N = n + rhs.n, M = m + rhs.m.
 		value operator+(const value &rhs) const {
 			tgen_ensure(is_directed() == rhs.is_directed(),
-						"wgraph: value: concatenated graphs must have the same "
+						"wgraph: value: graphs must have the same "
 						"is_directed value");
 
 			tgen_ensure(vertex_weights().has_value() ==

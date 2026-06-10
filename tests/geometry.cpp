@@ -383,13 +383,14 @@ TEST(geometry_test, random_points_general_position_offset_box) {
 	expect_no_three_collinear(pts);
 }
 
-TEST(geometry_test, random_points_general_position_many_seeds_in_offset_box) {
+TEST(geometry_test,
+	 random_points_general_position_repeated_calls_in_offset_box) {
 	tgen::register_gen();
 
 	int n = 15;
 	long long min_coord = 500, max_coord = 800;
 
-	for (int seed = 0; seed < 100; ++seed) {
+	for (int i = 0; i < 100; ++i) {
 		auto pts = tgen::geometry::random_points_general_position(n, min_coord,
 																  max_coord);
 		EXPECT_EQ(pts.size(), static_cast<size_t>(n));
@@ -565,13 +566,27 @@ TEST(geometry_test, random_convex_polygon_nonzero_min) {
 	EXPECT_TRUE(verify_random_convex_polygon(pts, n, min_coord, max_coord));
 }
 
-TEST(geometry_test, random_convex_polygon_many_seeds) {
+TEST(geometry_test, random_convex_polygon_repeated_calls) {
 	tgen::register_gen();
 
 	int n = 20;
 	long long min_coord = 0, max_coord = 500;
 
-	for (int seed = 0; seed < 100; ++seed) {
+	for (int i = 0; i < 100; ++i) {
+		auto pts = tgen::geometry::random_convex_polygon(n, min_coord,
+														 max_coord, true);
+		EXPECT_EQ(pts.size(), static_cast<size_t>(n));
+		EXPECT_TRUE(verify_random_convex_polygon(pts, n, min_coord, max_coord));
+	}
+}
+
+TEST(geometry_test, random_convex_polygon_strict_repeated_calls) {
+	tgen::register_gen();
+
+	int n = 20;
+	long long min_coord = 0, max_coord = 500;
+
+	for (int i = 0; i < 1000; ++i) {
 		auto pts = tgen::geometry::random_convex_polygon(n, min_coord,
 														 max_coord, true);
 		EXPECT_EQ(pts.size(), static_cast<size_t>(n));
@@ -589,19 +604,6 @@ TEST(geometry_test, random_convex_polygon_non_strict) {
 	EXPECT_EQ(pts.size(), static_cast<size_t>(n));
 	expect_in_range(pts, min_coord, max_coord);
 	expect_distinct(pts);
-}
-
-TEST(geometry_test, random_convex_polygon_strict_per_seed) {
-	int n = 20;
-	long long min_coord = 0, max_coord = 500;
-
-	for (int seed = 0; seed < 1000; ++seed) {
-		tgen::register_gen(seed);
-		auto pts = tgen::geometry::random_convex_polygon(n, min_coord,
-														 max_coord, true);
-		EXPECT_EQ(pts.size(), static_cast<size_t>(n));
-		EXPECT_TRUE(verify_random_convex_polygon(pts, n, min_coord, max_coord));
-	}
 }
 
 TEST(geometry_test, random_convex_polygon_large_coordinates) {

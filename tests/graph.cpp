@@ -790,6 +790,16 @@ TEST(graph_test, add_edges_from_directedness_mismatch) {
 		"wgraph: graphs must have the same is_directed value");
 }
 
+TEST(graph_test, operator_plus_directedness_mismatch) {
+	tgen::register_gen();
+
+	auto a = tgen::graph(3, 1).gen();
+	auto b = tgen::graph(2, 0, true).gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		a + b, "wgraph: value: graphs must have the same is_directed value");
+}
+
 TEST(graph_test, print_edge_list) {
 	tgen::register_gen();
 

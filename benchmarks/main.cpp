@@ -17,15 +17,15 @@ struct BenchmarkScale {
 	int n_tree() const { return smoke ? 10'000 : 1'000'000; }
 	int n_list() const { return smoke ? 100'000 : 5'000'000; }
 	int n_perm() const { return smoke ? 100'000 : 5'000'000; }
-	int n_geom() const { return smoke ? 1'000 : 1'000'000; }
-	long long geom_max() const { return smoke ? 3'000 : 3'000'000; }
+	int n_geom() const { return smoke ? 5'000 : 1'000'000; }
+	long long geom_max() const { return smoke ? 50'000 : 3'000'000; }
 	int n_bipartite_side() const { return smoke ? 100 : 1'000; }
 	int m_bipartite() const { return smoke ? 5'000 : 500'000; }
 
 	int partition_n() const { return smoke ? 50'000 : 5'050'000; }
 	int partition_fixed_n() const { return smoke ? 500'000 : 58'000'000; }
 	int partition_bounded_n() const { return smoke ? 400 : 4'200; }
-	int partition_fast_k() const { return smoke ? 3'000 : 3'000'000; }
+	int partition_fast_k() const { return smoke ? 300'000 : 3'000'000; }
 };
 
 template <typename G> void consume_graph_like(const G &g) {
@@ -168,29 +168,28 @@ std::vector<benchmark::CaseResult> run_all(const BenchmarkScale &scale) {
 			? "pattern=(([1-9][0-9]{3}|[A-F]{4})|(ab|cd){2}){r}, len=1e5"
 			: "pattern=(([1-9][0-9]{3}|[A-F]{4})|(ab|cd){2}){r}, len=1e7",
 		"tgen::str::gen", [=] {
-			consume_str(
-				tgen::str("(([1-9][0-9]{3}|[A-F]{4})|(ab|cd){2}){%d}",
-						  regex_reps)
-					.gen());
+			consume_str(tgen::str("(([1-9][0-9]{3}|[A-F]{4})|(ab|cd){2}){%d}",
+								  regex_reps)
+							.gen());
 		});
 
 	int ng = scale.n_geom();
 	long long gmax = scale.geom_max();
 	run("tgen::geometry::random_simple_polygon", "",
-		scale.smoke ? "n=1e3, min=0, max=3e3" : "n=1e6, min=0, max=3e6",
+		scale.smoke ? "n=5e3, min=0, max=5e4" : "n=1e6, min=0, max=3e6",
 		"tgen::geometry::random_simple_polygon", [=] {
 			consume_polygon(tgen::geometry::random_simple_polygon(ng, 0, gmax));
 		});
 
 	run("tgen::geometry::random_points_general_position", "",
-		scale.smoke ? "n=1e3, min=0, max=3e3" : "n=1e6, min=0, max=3e6",
+		scale.smoke ? "n=5e3, min=0, max=5e4" : "n=1e6, min=0, max=3e6",
 		"tgen::geometry::random_points_general_position", [=] {
 			consume_polygon(
 				tgen::geometry::random_points_general_position(ng, 0, gmax));
 		});
 
 	run("tgen::geometry::random_convex_polygon", "",
-		scale.smoke ? "n=1e3, min=0, max=3e3" : "n=1e6, min=0, max=3e6",
+		scale.smoke ? "n=5e3, min=0, max=5e4" : "n=1e6, min=0, max=3e6",
 		"tgen::geometry::random_convex_polygon", [=] {
 			consume_polygon(tgen::geometry::random_convex_polygon(ng, 0, gmax));
 		});
@@ -198,7 +197,7 @@ std::vector<benchmark::CaseResult> run_all(const BenchmarkScale &scale) {
 	auto polygon_points =
 		tgen::geometry::random_points_general_position(ng, 0, gmax);
 	run("tgen::geometry::random_simple_polygon_through_points", "",
-		scale.smoke ? "n=1e3" : "n=1e6",
+		scale.smoke ? "n=5e3" : "n=1e6",
 		"tgen::geometry::random_simple_polygon_through_points",
 		[&polygon_points] {
 			consume_polygon(
@@ -228,7 +227,7 @@ std::vector<benchmark::CaseResult> run_all(const BenchmarkScale &scale) {
 		});
 
 	run("tgen::math::gen_partition_fixed_size_fast", "",
-		scale.smoke ? "n=1e18, k=3e3, part_left=0"
+		scale.smoke ? "n=1e18, k=3e5, part_left=0"
 					: "n=1e18, k=3e6, part_left=0",
 		"tgen::math::gen_partition_fixed_size_fast", [=] {
 			consume_partition(tgen::math::gen_partition_fixed_size_fast(

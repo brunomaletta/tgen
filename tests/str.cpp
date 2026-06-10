@@ -142,6 +142,13 @@ TEST(str_test, gen_regex_uniform) {
 	expect_generator_uniform(tgen::str("0 | [1-9][0-9]{0, 1}"), 100);
 }
 
+TEST(str_test, gen_regex_invalid_repetition_range) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::str("a{3,2}"),
+							 "str: invalid regex: invalid range inside `{}`");
+}
+
 TEST(str_test, add_restriction_after_regex_throws) {
 	tgen::register_gen();
 

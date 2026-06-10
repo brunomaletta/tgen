@@ -18,7 +18,7 @@ jobs:
       - name: Install compiler and gtest
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++ clang make cmake libgtest-dev
+          sudo apt-get install -y g++ clang make cmake libgtest-dev clang-format
 
           cd /usr/src/gtest
           sudo cmake .
@@ -36,6 +36,9 @@ jobs:
 
       - name: Run tests ASan
         run: make test_asan
+
+      - name: Build examples
+        run: make sample graph range_queries geometry
 
       - name: Benchmark smoke and regression check
         run: make benchmark-check
