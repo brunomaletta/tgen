@@ -1114,6 +1114,7 @@ EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = */llms_gen.py \
                          */test_llms_gen.py \
                          */benchmark_render.py \
+                         */benchmark_check.py \
                          */test_benchmark_render.py \
                          */test_benchmark_check.py
 
