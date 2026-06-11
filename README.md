@@ -25,7 +25,7 @@
 
 Instead of manually coding ad-hoc generators, use powerful algorithmic machinery to guarantee simple, correct generation—with uniform sampling where the API promises it.
 
-There is support for lists, permutations, math, and more.
+There is support for lists, permutations, math operations, strings, tree, graphs, geometry operations, and more.
 
 ---
 
