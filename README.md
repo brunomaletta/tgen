@@ -102,7 +102,7 @@ For a detailed feature-by-feature comparison with benchmarks, see [tgen vs jngen
 Header-only. Download
 
 ```bash
-wget https://raw.githubusercontent.com/brunomaletta/tgen/main/single_include/tgen.h
+wget https://raw.githubusercontent.com/brunomaletta/tgen/v1.0.0/single_include/tgen.h
 ```
 
 and include
