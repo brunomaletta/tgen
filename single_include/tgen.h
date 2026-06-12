@@ -7078,7 +7078,7 @@ inline std::string abacaba(int n) {
 // mod = power of 2 up to 2^64.
 // Thue–Morse.
 // O(1).
-inline std::pair<std::string, std::string> unsigned_polynomial_hash_hack() {
+inline std::pair<std::string, std::string> unsigned_polynomial_hash() {
 	std::string a, b;
 	int size = 1 << 10;
 	for (int i = 0; i < size; ++i) {
@@ -7091,13 +7091,13 @@ inline std::pair<std::string, std::string> unsigned_polynomial_hash_hack() {
 // Collides two strings to have the same polynomial hash.
 // O(sqrt(mod) log(mod)) with high probability.
 // 0 < base < mod.
-inline std::pair<std::string, std::string>
-polynomial_hash_hack(int alphabet_size, int base, int mod) {
+inline std::pair<std::string, std::string> polynomial_hash(int alphabet_size,
+														   int base, int mod) {
 	tgen_ensure(alphabet_size > 1,
-				"hack: polynomial_hash_hack: alphabet size must be greater "
+				"hack: polynomial_hash: alphabet size must be greater "
 				"than 1");
 	tgen_ensure(0 < base and base < mod,
-				"hack: polynomial_hash_hack: base must be in (0, mod)");
+				"hack: polynomial_hash: base must be in (0, mod)");
 
 	std::vector<std::string> alphabet(alphabet_size);
 	for (int i = 0; i < alphabet_size; ++i)
@@ -7111,17 +7111,16 @@ polynomial_hash_hack(int alphabet_size, int base, int mod) {
 // O(sqrt(mod) log^2 (mod)) with high probability,
 // with mod = max(mod_1, mod_2).
 inline std::pair<std::string, std::string>
-polynomial_hash_hack(int alphabet_size, std::vector<int> bases,
-					 std::vector<int> mods) {
+polynomial_hash(int alphabet_size, std::vector<int> bases,
+				std::vector<int> mods) {
 	tgen_ensure(bases.size() == mods.size(),
-				"hack: polynomial_hash_hack: bases and mods must have the same "
+				"hack: polynomial_hash: bases and mods must have the same "
 				"size");
-	tgen_ensure(
-		bases.size() > 0,
-		"hack: polynomial_hash_hack: must have at least one (base, mod) "
-		"pair");
+	tgen_ensure(bases.size() > 0,
+				"hack: polynomial_hash: must have at least one (base, mod) "
+				"pair");
 	tgen_ensure(bases.size() <= 2,
-				"hack: polynomial_hash_hack: multi-hash hack only supported "
+				"hack: polynomial_hash: multi-hash hack only supported "
 				"for up to 2 (base, mod) pairs");
 
 	std::vector<std::string> alphabet(alphabet_size);
@@ -7157,7 +7156,7 @@ inline std::vector<long long> std_unordered(int size) {
 // for Mo algorithm for offline range queries.
 // Forces \Theta(q sqrt n) pointer moves for any ordering.
 // O(n log n + q).
-inline std::vector<std::pair<int, int>> mo(int n, int q) {
+inline std::vector<std::pair<int, int>> mo_worst_case(int n, int q) {
 	std::set<std::pair<int, int>> queries;
 
 	// Adversarial case.
@@ -7190,7 +7189,7 @@ inline std::vector<std::pair<int, int>> mo(int n, int q) {
 // Forces cost \Theta(size log(size)).
 // Generates: {b, ab, aab, aaab, ...}.
 // O(size log(size)).
-inline std::vector<std::string> string_set(int size) {
+inline std::vector<std::string> string_set_worst_case(int size) {
 	std::vector<std::string> list;
 	int k = 0, left = size;
 	while (left > 0) {
@@ -7265,9 +7264,9 @@ inline egraph<int>::value stale_heap_dijkstra_bug(int n) {
 // loose dist first; cross edges from settled bi then improve a(i+1).
 // m = 2n - 3.
 // O(n).
-inline egraph<int>::value spfa_hack(int n) {
-	tgen_ensure(n >= 2, "hack: spfa_hack: n must be at least 2");
-	tgen_ensure(n % 2 == 0, "hack: spfa_hack: n must be even");
+inline egraph<int>::value spfa(int n) {
+	tgen_ensure(n >= 2, "hack: spfa: n must be at least 2");
+	tgen_ensure(n % 2 == 0, "hack: spfa: n must be even");
 
 	egraph<int>::value g(n, {}, true);
 	g.edge_weighted();
@@ -7336,9 +7335,9 @@ inline egraph<int>::value dinitz_worst_case(int k, int l) {
 // Returns a mask of length 19938, with weights such that xor-ing with mt19937
 // outputs yields 0.
 // O(1).
-template <typename T> std::vector<bool> mt19937_xor_hash_hack() {
+template <typename T> std::vector<bool> mt19937_xor_hash() {
 	static_assert(std::is_same_v<T, int> or std::is_same_v<T, long long>,
-				  "hack: mt19937_xor_hash_hack: T must be int or long long");
+				  "hack: mt19937_xor_hash: T must be int or long long");
 
 	constexpr std::size_t deg = 19937;
 
@@ -7392,8 +7391,9 @@ namespace detail {
 
 // Builds a hack block of order k (length fib(2k+1)).
 // O(fib(2k+1)).
-inline std::vector<int> segment_tree_beats_hack_block(int k) {
-	tgen_ensure(k >= 1, "hack: segment_tree_beats_hack: k must be at least 1");
+inline std::vector<int> segment_tree_beats_worst_case_block(int k) {
+	tgen_ensure(k >= 1,
+				"hack: segment_tree_beats_worst_case: k must be at least 1");
 
 	std::vector<int> a(k + 1), b(k + 1);
 	std::vector<std::vector<int>> vf(k + 1), vg(k + 1);
@@ -7457,10 +7457,12 @@ segment_tree_beats_append_round(std::vector<std::vector<int>> &updates,
 // Array and updates for worst case of segment tree beats.
 // O(fib(2k+1)^3 + q).
 inline std::pair<std::vector<int>, std::vector<std::vector<int>>>
-segment_tree_beats_hack(int k, int q) {
-	tgen_ensure(k >= 1, "hack: segment_tree_beats_hack: k must be at least 1");
-	tgen_ensure(k <= 7, "hack: segment_tree_beats_hack: k too large");
-	tgen_ensure(q > 0, "hack: segment_tree_beats_hack: q must be positive");
+segment_tree_beats_worst_case(int k, int q) {
+	tgen_ensure(k >= 1,
+				"hack: segment_tree_beats_worst_case: k must be at least 1");
+	tgen_ensure(k <= 7, "hack: segment_tree_beats_worst_case: k too large");
+	tgen_ensure(q > 0,
+				"hack: segment_tree_beats_worst_case: q must be positive");
 
 	const auto &fib = math::fibonacci();
 	const int block_len = fib[k * 2 + 1];
@@ -7470,7 +7472,7 @@ segment_tree_beats_hack(int k, int q) {
 	const int len = block_len;
 	const int total = len * len * len;
 
-	std::vector<int> block = detail::segment_tree_beats_hack_block(k);
+	std::vector<int> block = detail::segment_tree_beats_worst_case_block(k);
 	std::vector<int> arr(total, 0);
 	for (int x = 0; x < block_len; ++x) {
 		const int s = x * len * len;

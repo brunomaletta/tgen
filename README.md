@@ -78,7 +78,7 @@ std::cout << tgen::hack::dinitz_worst_case(100, 100).print_nm();
 std::cout << tgen::print(tgen::hack::std_unordered(1e6)) << std::endl;
 
 // Two binary strings with the same polynomial hash (base 31, mod 1e9+7).
-std::cout << tgen::print(tgen::hack::polynomial_hash_hack(2, 31, 1e9+7), '\n') << std::endl;
+std::cout << tgen::print(tgen::hack::polynomial_hash(2, 31, 1e9+7), '\n') << std::endl;
 ```
 
 No loops. No backtracking. No custom generator code.

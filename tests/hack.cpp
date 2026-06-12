@@ -21,7 +21,7 @@ TEST(hack_test, abacaba) {
 TEST(hack_test, unsigned_hash_hack) {
 	tgen::register_gen();
 
-	auto [a, b] = tgen::hack::unsigned_polynomial_hash_hack();
+	auto [a, b] = tgen::hack::unsigned_polynomial_hash();
 	uint64_t hash_a = 0, hash_b = 0, base = 127;
 	for (int i = 0; i < static_cast<int>(a.size()); ++i) {
 		hash_a = hash_a * base + a[i];
@@ -38,29 +38,26 @@ TEST(hack_test, hash_hack_invalid) {
 	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::hack::polynomial_hash_hack(1, 31, 1e9 + 7),
-		"hack: polynomial_hash_hack: alphabet size must be greater than 1");
-	EXPECT_THROW_TGEN_PREFIX(
-		tgen::hack::polynomial_hash_hack(2, 0, 1e9 + 7),
-		"hack: polynomial_hash_hack: base must be in (0, mod)");
-	EXPECT_THROW_TGEN_PREFIX(
-		tgen::hack::polynomial_hash_hack(2, 31, 31),
-		"hack: polynomial_hash_hack: base must be in (0, mod)");
+		tgen::hack::polynomial_hash(1, 31, 1e9 + 7),
+		"hack: polynomial_hash: alphabet size must be greater than 1");
+	EXPECT_THROW_TGEN_PREFIX(tgen::hack::polynomial_hash(2, 0, 1e9 + 7),
+							 "hack: polynomial_hash: base must be in (0, mod)");
+	EXPECT_THROW_TGEN_PREFIX(tgen::hack::polynomial_hash(2, 31, 31),
+							 "hack: polynomial_hash: base must be in (0, mod)");
 
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::hack::polynomial_hash_hack(2, std::vector<int>{},
-										 std::vector<int>{}),
-		"hack: polynomial_hash_hack: must have at least one (base, mod) pair");
+		tgen::hack::polynomial_hash(2, std::vector<int>{}, std::vector<int>{}),
+		"hack: polynomial_hash: must have at least one (base, mod) pair");
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::hack::polynomial_hash_hack(
+		tgen::hack::polynomial_hash(
 			2, {31}, {static_cast<int>(1e9 + 7), static_cast<int>(1e9 + 9)}),
-		"hack: polynomial_hash_hack: bases and mods must have the same size");
+		"hack: polynomial_hash: bases and mods must have the same size");
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::hack::polynomial_hash_hack(2, {31, 33, 37},
-										 {static_cast<int>(1e9 + 7),
-										  static_cast<int>(1e9 + 9),
-										  static_cast<int>(1e9 + 9)}),
-		"hack: polynomial_hash_hack: multi-hash hack only supported for up to "
+		tgen::hack::polynomial_hash(2, {31, 33, 37},
+									{static_cast<int>(1e9 + 7),
+									 static_cast<int>(1e9 + 9),
+									 static_cast<int>(1e9 + 9)}),
+		"hack: polynomial_hash: multi-hash hack only supported for up to "
 		"2 "
 		"(base, mod) pairs");
 }
@@ -76,26 +73,26 @@ TEST(hack_test, hash_hack) {
 		return h;
 	};
 
-	auto [a, b] = tgen::hack::polynomial_hash_hack(2, 31, 1e9 + 7);
+	auto [a, b] = tgen::hack::polynomial_hash(2, 31, 1e9 + 7);
 	EXPECT_EQ(hash(a, 31, 1e9 + 7), hash(b, 31, 1e9 + 7));
 	for (char c : a)
 		EXPECT_TRUE(c == 'a' or c == 'b');
 	for (char c : b)
 		EXPECT_TRUE(c == 'a' or c == 'b');
-	std::tie(a, b) = tgen::hack::polynomial_hash_hack(4, 31, 1e9 + 7);
+	std::tie(a, b) = tgen::hack::polynomial_hash(4, 31, 1e9 + 7);
 	EXPECT_EQ(hash(a, 31, 1e9 + 7), hash(b, 31, 1e9 + 7));
 	for (char c : a)
 		EXPECT_TRUE('a' <= c and c < 'a' + 4);
 	for (char c : b)
 		EXPECT_TRUE('a' <= c and c < 'a' + 4);
-	std::tie(a, b) = tgen::hack::polynomial_hash_hack(26, 31, 1e9 + 7);
+	std::tie(a, b) = tgen::hack::polynomial_hash(26, 31, 1e9 + 7);
 	EXPECT_EQ(hash(a, 31, 1e9 + 7), hash(b, 31, 1e9 + 7));
 	for (char c : a)
 		EXPECT_TRUE('a' <= c and c < 'a' + 26);
 	for (char c : b)
 		EXPECT_TRUE('a' <= c and c < 'a' + 26);
 
-	std::tie(a, b) = tgen::hack::polynomial_hash_hack(
+	std::tie(a, b) = tgen::hack::polynomial_hash(
 		2, {31, 33}, {static_cast<int>(1e9 + 7), static_cast<int>(1e9 + 9)});
 	EXPECT_EQ(hash(a, 31, 1e9 + 7), hash(b, 31, 1e9 + 7));
 	EXPECT_EQ(hash(a, 33, 1e9 + 9), hash(b, 33, 1e9 + 9));
@@ -103,7 +100,7 @@ TEST(hack_test, hash_hack) {
 		EXPECT_TRUE(c == 'a' or c == 'b');
 	for (char c : b)
 		EXPECT_TRUE(c == 'a' or c == 'b');
-	std::tie(a, b) = tgen::hack::polynomial_hash_hack(
+	std::tie(a, b) = tgen::hack::polynomial_hash(
 		26, {31, 33}, {static_cast<int>(1e9 + 7), static_cast<int>(1e9 + 9)});
 	EXPECT_EQ(hash(a, 31, 1e9 + 7), hash(b, 31, 1e9 + 7));
 	EXPECT_EQ(hash(a, 33, 1e9 + 9), hash(b, 33, 1e9 + 9));
@@ -126,7 +123,8 @@ TEST(hack_test, mo) {
 	tgen::register_gen();
 
 	int size = 1e5;
-	std::vector<std::pair<int, int>> hack = tgen::hack::mo(size, size);
+	std::vector<std::pair<int, int>> hack =
+		tgen::hack::mo_worst_case(size, size);
 
 	for (auto [l, r] : hack)
 		EXPECT_TRUE(0 <= l and l <= r and r < size);
@@ -137,7 +135,7 @@ TEST(hack_test, mo_more_queries_than_adversarial_pool) {
 
 	const int n = 10;
 	const int q = 200;
-	std::vector<std::pair<int, int>> hack = tgen::hack::mo(n, q);
+	std::vector<std::pair<int, int>> hack = tgen::hack::mo_worst_case(n, q);
 
 	EXPECT_EQ(hack.size(), static_cast<size_t>(q));
 	for (auto [l, r] : hack)
@@ -148,7 +146,7 @@ TEST(hack_test, string_set) {
 	tgen::register_gen();
 
 	int size = 1e5;
-	std::vector<std::string> hack = tgen::hack::string_set(size);
+	std::vector<std::string> hack = tgen::hack::string_set_worst_case(size);
 
 	int sum = 0;
 	for (std::string &s : hack)
@@ -197,22 +195,21 @@ TEST(hack_test, stale_heap_dijkstra_bug) {
 	}
 }
 
-TEST(hack_test, spfa_hack_invalid) {
+TEST(hack_test, spfa_invalid) {
 	tgen::register_gen();
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::hack::spfa_hack(1),
-							 "hack: spfa_hack: n must be at least 2");
-	EXPECT_THROW_TGEN_PREFIX(tgen::hack::spfa_hack(3),
-							 "hack: spfa_hack: n must be even");
+	EXPECT_THROW_TGEN_PREFIX(tgen::hack::spfa(1),
+							 "hack: spfa: n must be at least 2");
+	EXPECT_THROW_TGEN_PREFIX(tgen::hack::spfa(3), "hack: spfa: n must be even");
 }
 
-TEST(hack_test, spfa_hack) {
+TEST(hack_test, spfa) {
 	tgen::register_gen();
 
 	for (int n : {2, 4, 10, 100}) {
 		const int k = n / 2;
 		const int m = 4 * k - 3;
-		auto g = tgen::hack::spfa_hack(n);
+		auto g = tgen::hack::spfa(n);
 		EXPECT_TRUE(graph_gen_result_valid(g, n, m, true, false));
 		ASSERT_TRUE(g.edge_weights().has_value());
 		EXPECT_EQ(static_cast<int>(g.edge_weights()->size()), m);
@@ -252,10 +249,10 @@ TEST(hack_test, naive_rotating_calipers_max_dist_bug) {
 	EXPECT_EQ(poly.size(), 6u);
 }
 
-TEST(hack_test, mt19937_xor_hash_hack) {
+TEST(hack_test, mt19937_xor_hash) {
 	tgen::register_gen();
 
-	const std::vector<bool> mask = tgen::hack::mt19937_xor_hash_hack<int>();
+	const std::vector<bool> mask = tgen::hack::mt19937_xor_hash<int>();
 
 	EXPECT_EQ(mask.size(), 19938u);
 	EXPECT_TRUE(mask.back());
@@ -279,8 +276,7 @@ TEST(hack_test, mt19937_xor_hash_hack) {
 TEST(hack_test, mt19937_64_xor_hash_hack) {
 	tgen::register_gen();
 
-	const std::vector<bool> mask =
-		tgen::hack::mt19937_xor_hash_hack<long long>();
+	const std::vector<bool> mask = tgen::hack::mt19937_xor_hash<long long>();
 
 	EXPECT_EQ(mask.size(), 19938u);
 	EXPECT_TRUE(mask.back());
@@ -301,17 +297,18 @@ TEST(hack_test, mt19937_64_xor_hash_hack) {
 		EXPECT_EQ(xor_hash(seed), 0ULL);
 }
 
-TEST(hack_test, segment_tree_beats_hack_invalid) {
+TEST(hack_test, segment_tree_beats_worst_case_invalid) {
 	tgen::register_gen();
 
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::hack::segment_tree_beats_hack(0, 1),
-		"hack: segment_tree_beats_hack: k must be at least 1");
+		tgen::hack::segment_tree_beats_worst_case(0, 1),
+		"hack: segment_tree_beats_worst_case: k must be at least 1");
 	EXPECT_THROW_TGEN_PREFIX(
-		tgen::hack::segment_tree_beats_hack(1, 0),
-		"hack: segment_tree_beats_hack: q must be positive");
-	EXPECT_THROW_TGEN_PREFIX(tgen::hack::segment_tree_beats_hack(8, 1),
-							 "hack: segment_tree_beats_hack: k too large");
+		tgen::hack::segment_tree_beats_worst_case(1, 0),
+		"hack: segment_tree_beats_worst_case: q must be positive");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::segment_tree_beats_worst_case(8, 1),
+		"hack: segment_tree_beats_worst_case: k too large");
 }
 
 namespace {
@@ -382,13 +379,13 @@ void expect_segment_tree_beats_cyclic_shifts(
 
 } // namespace
 
-TEST(hack_test, segment_tree_beats_hack) {
+TEST(hack_test, segment_tree_beats_worst_case) {
 	tgen::register_gen();
 
 	const std::vector<int> expected_head = {19, 16, 17, 16, 8, 14, 11,
 											12, 11, 8,	9,	8, 0};
 	const int q = 40;
-	auto [arr, updates] = tgen::hack::segment_tree_beats_hack(3, q);
+	auto [arr, updates] = tgen::hack::segment_tree_beats_worst_case(3, q);
 
 	EXPECT_EQ(arr.size(), 13u * 13u * 13u);
 	EXPECT_EQ(*std::max_element(arr.begin(), arr.end()), 19);

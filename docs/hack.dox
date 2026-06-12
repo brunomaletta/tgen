@@ -13,16 +13,16 @@ namespace tgen::hack {
  * std::vector<long long> unord_hack = tgen::hack::std_unordered(1e6);
  *
  * // Creates queries that force worst-case for Mo's algorithm.
- * std::vector<std::pair<int, int>> mo_hack = tgen::hack::mo(1e6, 1e6);
+ * std::vector<std::pair<int, int>> mo_hack = tgen::hack::mo_worst_case(1e6, 1e6);
  *
  * // Mask for XOR-hashing std::mt19937 outputs to zero.
- * std::vector<bool> xor_mask = tgen::hack::mt19937_xor_hash_hack<int>();
+ * std::vector<bool> xor_mask = tgen::hack::mt19937_xor_hash<int>();
  *
  * // Mask for XOR-hashing std::mt19937_64 outputs to zero.
- * std::vector<bool> xor_mask_64 = tgen::hack::mt19937_xor_hash_hack<long long>();
+ * std::vector<bool> xor_mask_64 = tgen::hack::mt19937_xor_hash<long long>();
  *
  * // Hack for segment tree beats: initial array and update list.
- * auto [arr, updates] = tgen::hack::segment_tree_beats_hack(3, 146);
+ * auto [arr, updates] = tgen::hack::segment_tree_beats_worst_case(3, 146);
  * ```
  */
 
@@ -72,10 +72,10 @@ namespace tgen::hack {
  *
  * ```cpp
  * // Prints unsigned polynomial hash hack.
- * std::cout << tgen::print(tgen::hack::unsigned_polynomial_hash_hack()) << std::endl;
+ * std::cout << tgen::print(tgen::hack::unsigned_polynomial_hash()) << std::endl;
  * ```
  *
- * @fn unsigned_polynomial_hash_hack();
+ * @fn unsigned_polynomial_hash();
  */
 
 
@@ -107,10 +107,10 @@ namespace tgen::hack {
  *
  * ```cpp
  * // Prints polynomial hash hack.
- * std::cout << tgen::print(tgen::hack::polynomial_hash_hack(2, 31, 1e9+7), '\n') << std::endl;
+ * std::cout << tgen::print(tgen::hack::polynomial_hash(2, 31, 1e9+7), '\n') << std::endl;
  * ```
  *
- * @fn polynomial_hash_hack(int alphabet_size, int base, int mod);
+ * @fn polynomial_hash(int alphabet_size, int base, int mod);
  */
 
 
@@ -145,10 +145,10 @@ namespace tgen::hack {
  *
  * ```cpp
  * // Prints polynomial hash hack for double hash.
- * std::cout << tgen::print(tgen::hack::polynomial_hash_hack(2, {31, 33}, {1000000007, 1000000009}), '\n') << std::endl;
+ * std::cout << tgen::print(tgen::hack::polynomial_hash(2, {31, 33}, {1000000007, 1000000009}), '\n') << std::endl;
  * ```
  *
- * @fn polynomial_hash_hack(int alphabet_size, std::vector<int> bases, std::vector<int> mods);
+ * @fn polynomial_hash(int alphabet_size, std::vector<int> bases, std::vector<int> mods);
  */
 
 
@@ -196,10 +196,10 @@ namespace tgen::hack {
  *
  * ```cpp
  * // Creates queries that force worst-case for Mo.
- * std::vector<std::pair<int, int>> hack = tgen::hack::mo(1e6, 1e6);
+ * std::vector<std::pair<int, int>> hack = tgen::hack::mo_worst_case(1e6, 1e6);
  * ```
  *
- * @fn mo(int n, int q);
+ * @fn mo_worst_case(int n, int q);
  */
 
 
@@ -220,10 +220,10 @@ namespace tgen::hack {
  *
  * ```cpp
  * // Creates strings that have high cost to insert in std::set.
- * std::vector<std::string> hack = tgen::hack::string_set(1e6);
+ * std::vector<std::string> hack = tgen::hack::string_set_worst_case(1e6);
  * ```
  *
- * @fn string_set(int size);
+ * @fn string_set_worst_case(int size);
  */
 
 
@@ -314,10 +314,10 @@ namespace tgen::hack {
  * #### Examples
  *
  * ```cpp
- * auto g = tgen::hack::spfa_hack(1e5);
+ * auto g = tgen::hack::spfa(1e5);
  * ```
  *
- * @fn spfa_hack(int n);
+ * @fn spfa(int n);
  */
 
 
@@ -403,7 +403,7 @@ namespace tgen::hack {
  * @code
  * std::mt19937 rng(42);
  * int hash = 0;
- * for (bool use : tgen::hack::mt19937_xor_hash_hack<T>()) {
+ * for (bool use : tgen::hack::mt19937_xor_hash<T>()) {
  *   if (use) hash ^= rng();
  * }
  * @endcode
@@ -421,11 +421,11 @@ namespace tgen::hack {
  * ```cpp
  * std::mt19937 rng(seed);
  * uint32_t hash = 0;
- * for (bool use : tgen::hack::mt19937_xor_hash_hack<int>())
+ * for (bool use : tgen::hack::mt19937_xor_hash<int>())
  *   if (use) hash ^= rng();
  * ```
  *
- * @fn mt19937_xor_hash_hack();
+ * @fn mt19937_xor_hash();
  */
 
 
@@ -461,7 +461,7 @@ namespace tgen::hack {
  * #### Examples
  *
  * ```cpp
- * auto [arr, updates] = tgen::hack::segment_tree_beats_hack(3, 146);
+ * auto [arr, updates] = tgen::hack::segment_tree_beats_worst_case(3, 146);
  * for (const auto &u : updates) {
  *   if (u[0] == 0)
  *     for (int i = u[1]; i < u[2]; ++i) arr[i] += u[3];
@@ -474,7 +474,7 @@ namespace tgen::hack {
  * }
  * ```
  *
- * @fn segment_tree_beats_hack(int k, int q);
+ * @fn segment_tree_beats_worst_case(int k, int q);
  */
 
 };

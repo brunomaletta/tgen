@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
 
 	// Prints two strings that force polynomial hash collision for multiple
 	// bases and mods.
-	std::cout << tgen::print(tgen::hack::polynomial_hash_hack(
+	std::cout << tgen::print(tgen::hack::polynomial_hash(
 								 26, {31, 33}, {(int)1e9 + 7, (int)1e9 + 9}),
 							 '\n')
 			  << std::endl;
