@@ -156,7 +156,7 @@ namespace tgen {
  * @tt{tgen::wgraph::gen}.
  *
  * There are other static generation methods:
- * - For random bipartite graphs (uniform when @tt{connected = false}):
+ * - For random bipartite graphs (uniform when @tt{connected = @primitive{false}}):
  *   @tt{tgen::wgraph::gen_bipartite};
  * - For random skewed connected graphs: @tt{tgen::wgraph::gen_skewed}.
  *
@@ -203,8 +203,8 @@ namespace tgen {
  *
  * @param n Number of vertices.
  * @param m Target number of edges.
- * @param is_directed If true, edges are directed and distinguish @tt{(u,v)} from @tt{(v,u)}.
- * @param has_self_loops If true, pairs @tt{(i,i)} may be generated.
+ * @param is_directed If @tt{@primitive{true}}, edges are directed and distinguish @tt{(u,v)} from @tt{(v,u)}.
+ * @param has_self_loops If @tt{@primitive{true}}, pairs @tt{(i,i)} may be generated.
  *
  * #### Complexity
  *
@@ -349,7 +349,7 @@ namespace tgen {
  * @param m Edge count.
  * @param elongation Passed to @tt{tgen::wnext}; controls how star-like or path-like the spanning tree is.
  * @param spread Maximum walk length toward the root when sampling an extra edge.
- * @param is_directed If @tt{true}, orients every edge down spanning tree.
+ * @param is_directed If @tt{@primitive{true}}, orients every edge down spanning tree.
  *
  * @pre @tt{@pname{spread} >= 2}.
  *
@@ -364,7 +364,7 @@ namespace tgen {
  * small diameter. If @pname{elongation} is large (positive), the spanning tree tends to be path-like and vertices
  * @tt{0} and @tt{n - 1} tend to be far apart.
  *
- * When @pname{is_directed} is @tt{true}, the result is a directed acyclic graph weakly connected with root @tt{0}.
+ * When @pname{is_directed} is @tt{@primitive{true}}, the result is a directed acyclic graph weakly connected with root @tt{0}.
  *
  * @note This operation is not uniformly random.
  *
@@ -393,22 +393,22 @@ namespace tgen {
  * @param n1 Size of the left side.
  * @param n2 Size of the right side.
  * @param m Target edge count.
- * @param connected If @tt{true}, the graph is connected (requires @tt{m >= @pname{n1} + @pname{n2} - 1}).
+ * @param connected If @tt{@primitive{true}}, the graph is connected (requires @tt{m >= @pname{n1} + @pname{n2} - 1}).
  *
  * @return A bipartite @tt{tgen::wgraph::value} with @tt{n1 + n2} vertices and @tt{m} edges.
  *
  * The vertices on the left side are indexed in @tt{[0, @pname{n1})},
  * and those on right side in @tt{[@pname{n1}, @pname{n1} + @pname{n2})}.
  *
- * When @pname{connected} is @tt{false}, @tt{m} cross edges are chosen uniformly
+ * When @pname{connected} is @tt{@primitive{false}}, @tt{m} cross edges are chosen uniformly
  * without replacement from @tt{K_{@pname{n1}, @pname{n2}}}.
  *
- * When @pname{connected} is @tt{true}, a spanning tree is built first via a
+ * When @pname{connected} is @tt{@primitive{true}}, a spanning tree is built first via a
  * bipartite Prüfer sequence, then remaining cross edges are added by rejection
  * sampling.
  *
  * @note This function is not always uniformly random: it is uniform only when
- * @pname{connected} is @tt{false}.
+ * @pname{connected} is @tt{@primitive{false}}.
  *
  * #### Complexity
  *
@@ -446,7 +446,7 @@ namespace tgen {
  * @brief Builds a graph from an adjacency list.
  *
  * @param adj Adjacency list; @tt{adj[u]} contains every neighbor of @tt{u} (out-neighbors if directed).
- * @param is_directed If false, @tt{adj} must be symmetric and each undirected edge must appear in both directions.
+ * @param is_directed If @tt{@primitive{false}}, @tt{adj} must be symmetric and each undirected edge must appear in both directions.
  *
  * #### Complexity
  *
@@ -497,7 +497,7 @@ namespace tgen {
  * @param t Tree to convert.
  *
  * The result has the same vertices and edges as @pname{t}, with
- * @tt{is_directed() == false}. Vertex and edge weights are copied when the
+ * @tt{is_directed() == @primitive{false}}. Vertex and edge weights are copied when the
  * weight types match.
  *
  * #### Complexity
@@ -1130,7 +1130,7 @@ namespace tgen {
  * @brief Path graph.
  *
  * @param n Number of vertices.
- * @param is_directed If @tt{true}, edges are @tt{i -> i+1} for @tt{i} in
+ * @param is_directed If @tt{@primitive{true}}, edges are @tt{i -> i+1} for @tt{i} in
  * @tt{[0, @pname{n} - 2)}; otherwise the graph is undirected.
  *
  * The endpoints of the path are vertices @tt{0} and @tt{@pname{n} - 1}.
@@ -1158,7 +1158,7 @@ namespace tgen {
  * @brief Cycle graph.
  *
  * @param n Number of vertices.
- * @param is_directed If @tt{true}, edges are @tt{i -> (i+1) % @pname{n}};
+ * @param is_directed If @tt{@primitive{true}}, edges are @tt{i -> (i+1) % @pname{n}};
  * otherwise the graph is undirected.
  *
  * @pre @tt{@pname{n} >= 3}.

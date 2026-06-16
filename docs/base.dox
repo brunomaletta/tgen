@@ -1146,8 +1146,8 @@ namespace tgen {
  *        satisfying @pname{predicate}.
  * @param args Arguments for the function @tt{tgen::@type{Gen}::gen}.
  *
- * Calls @tt{tgen::@type{Gen}::gen(@pname{args}...)} until @pname{predicate} is true, at most @pname{max_tries} times.
- * If @pname{predicate} has probability @tt{p} of returning @tt{true}, then such a value
+ * Calls @tt{tgen::@type{Gen}::gen(@pname{args}...)} until @pname{predicate} is @tt{@primitive{true}}, at most @pname{max_tries} times.
+ * If @pname{predicate} has probability @tt{p} of returning @tt{@primitive{true}}, then such a value
  * will be found with probability @tt{1 - (1-p)^@pname{max_tries}}.
  *
  * @return A @tt{tgen::@type{Gen}::value} found by repeatedly drawing from the generator and checking
@@ -1159,7 +1159,7 @@ namespace tgen {
  * #### Complexity
  *
  * @tt{O(T(n) * (1 / p))} expected, if @tt{@type{Gen}::value} runs in @tt{O(T(n))} time, and @pname{predicate} has probability
- * @tt{p} of returning @tt{true}.
+ * @tt{p} of returning @tt{@primitive{true}}.
  * @tt{O(T(n) * @pname{max_tries})}, worst case.
  *
  * #### Examples
