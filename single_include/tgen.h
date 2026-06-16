@@ -251,6 +251,8 @@ template <typename T> struct print_cols_view<T, false> {
 constexpr int distinct_attempt_multiplier = 84;
 
 // One rejection-sampling step for distinct generation.
+// O(T * log k + log^2 k) amortized expected time per call when generating k
+// distinct values and next() runs in O(T).
 template <typename Seen, typename Fn>
 auto try_generate_distinct(Seen &seen, Fn &&next, bool insert = true)
 	-> std::optional<std::invoke_result_t<Fn &>> {
@@ -5836,7 +5838,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// Generates graph value.
 	// Optimized for performance: dense no-preset graphs use index sampling;
 	// otherwise gen_remaining_edges.
-	// O(n + m log n).
+	// O(n + m log^2 n) expected.
 	value gen() const {
 		detail::tgen_ensure_against_bug(static_cast<int>(edges_.size()) <= m_,
 										"wgraph: too many edges were added");
@@ -5860,7 +5862,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// 1. Preset edges induce a spanning forest on their components.
 	// 2. Then, uniformly random edges between components are added.
 	// 3. Remaining edges are added uniformly at random.
-	// O(n + m log n).
+	// O(n + m log^2 n) expected.
 	value get_connected() const {
 		tgen_ensure(!is_directed_,
 					"wgraph: get_connected is only for undirected graphs");
@@ -5934,7 +5936,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// With no preset edges: sample a random graph then orient acyclically.
 	// Optimized for performance (distinct upper-triangle edge-index sampling;
 	// rejection instead of pair::distinct for preset edges).
-	// O(n + m log n).
+	// O(n + m log^2 n) expected.
 	value get_acyclic() const {
 		tgen_ensure(is_directed_,
 					"wgraph: get_acyclic is only for directed graphs");
@@ -6037,7 +6039,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// If elongation is large, generates a graph with large diameter, with
 	// vertices 0 and n-1 being far apart.
 	// O(n + m log n) if spread is O(1);
-	// O(n log n + m log^2 n) otherwise.
+	// O(n log n + m log^2 n) expected otherwise.
 	static value gen_skewed(int n, int m, int elongation, int spread,
 							bool is_directed = false) {
 		tgen_ensure(
@@ -6231,7 +6233,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 	// Fills `edges` up to m_ with uniform random edges not already present.
 	// Optimized for performance (uint64 edge keys + try_generate_distinct).
-	// O(m log n).
+	// O(m log^2 n) expected.
 	value gen_remaining_edges(std::vector<std::pair<int, int>> edges) const {
 		detail::tgen_ensure_against_bug(static_cast<int>(edges.size()) <= m_,
 										"wgraph: too many edges were added");
