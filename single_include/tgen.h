@@ -6956,15 +6956,71 @@ inline std::vector<point<long long>> random_simple_polygon_through_points(
 	return poly;
 }
 
+namespace detail {
+
+// Samples n distinct integer points in [min_coord, max_coord]^2.
+// O(n log n).
+inline std::vector<point<long long>>
+random_distinct_points_in_box(int n, long long min_coord, long long max_coord) {
+	long long width = max_coord - min_coord;
+	i128 side_128 = width + 1;
+	i128 universe = side_128 * side_128;
+	tgen_ensure(universe <= std::numeric_limits<long long>::max(),
+				"geometry: random_simple_polygon: coordinate range too large");
+	long long side = side_128;
+	tgen_ensure(universe >= n,
+				"geometry: random_simple_polygon: coordinate range too small "
+				"for n distinct points");
+
+	// Decodes a linear grid key (x * side + y) to a point.
+	auto decode = [&](long long key) -> point<long long> {
+		return point<long long>(min_coord + key / side, min_coord + key % side);
+	};
+
+	// Repeats until all generated points are not collinear.
+	// Runs O(1) times expected.
+	while (true) {
+		std::vector<long long> keys =
+			distinct_range<long long>(0, universe - 1).gen_list(n).to_std();
+
+		std::vector<point<long long>> points;
+		points.reserve(n);
+		for (long long key : keys)
+			points.push_back(decode(key));
+
+		// Checks if the points are not all collinear.
+		for (int i = 2; i < n; ++i) {
+			if (ccw(points[0], points[1], points[i]) != 0)
+				return points;
+		}
+	}
+}
+
+} // namespace detail
+
 // Random simple polygon.
+// If strict, vertex set has no three collinear points
+// (random_points_general_position); otherwise samples distinct grid points
+// (collinear triples allowed), so it might be the case that (polygon[i],
+// polygon[i+1], and polygon[i+2]) are collinear. Polygonizes via
+// random_simple_polygon_through_points.
 // O(n log n) expected.
 inline std::vector<point<long long>>
-random_simple_polygon(int n, long long min_coord, long long max_coord) {
+random_simple_polygon(int n, long long min_coord, long long max_coord,
+					  bool strict = false) {
 	tgen_ensure(n >= 3,
 				"geometry: random_simple_polygon: n must be at least 3");
+	tgen_ensure(max_coord >= min_coord,
+				"geometry: random_simple_polygon: min_coord must be at most "
+				"max_coord");
+	tgen_ensure(static_cast<i128>(max_coord) - min_coord <=
+					std::numeric_limits<long long>::max(),
+				"geometry: random_simple_polygon: coordinate range too large");
 
-	return random_simple_polygon_through_points(
-		random_points_general_position(n, min_coord, max_coord));
+	std::vector<point<long long>> points =
+		strict ? random_points_general_position(n, min_coord, max_coord)
+			   : detail::random_distinct_points_in_box(n, min_coord, max_coord);
+	return random_simple_polygon_through_points(points);
 }
 
 } // namespace geometry

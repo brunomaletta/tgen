@@ -1006,12 +1006,10 @@ namespace tgen {
  * #### Complexity
  *
  * @tt{O(T * log k + log^2 k)} amortized expected, if the function runs in @tt{O(T)} time
- * and @tt{k} distinct values have been generated.
+ * and @tt{k} values are to be generated in total.
  *
  * Reference:
- * - <a href="https://arxiv.org/abs/1211.0303">Lorenz, William Andrew, and Yann Ponty. "Non-redundant random
- *    generation algorithms for weighted context-free grammars." Theoretical Computer Science 502 (2013):
- *    177-194</a>: Theorem 3.2.
+ * - <a href="https://en.wikipedia.org/wiki/Coupon_collector%27s_problem">Coupon collector's problem</a>.
  *
  * #### Examples
  *

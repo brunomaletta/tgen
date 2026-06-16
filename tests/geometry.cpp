@@ -791,7 +791,11 @@ TEST(geometry_test, random_simple_polygon_basic) {
 
 	EXPECT_EQ(poly.size(), static_cast<size_t>(n));
 	EXPECT_TRUE(verify_simple_polygon(poly, n, 0, 100));
-	expect_no_three_collinear(poly);
+
+	auto strict_poly = tgen::geometry::random_simple_polygon(n, 0, 100, true);
+	EXPECT_EQ(strict_poly.size(), static_cast<size_t>(n));
+	EXPECT_TRUE(verify_simple_polygon(strict_poly, n, 0, 100));
+	expect_no_three_collinear(strict_poly);
 }
 
 TEST(geometry_test, random_simple_polygon_invalid_n) {
@@ -813,11 +817,11 @@ TEST(geometry_test, random_simple_polygon_invalid_range) {
 
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::geometry::random_simple_polygon(10, 5, 4),
-		"geometry: random_points_general_position: min_coord must be at most "
+		"geometry: random_simple_polygon: min_coord must be at most "
 		"max_coord");
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::geometry::random_simple_polygon(10, 0, -1),
-		"geometry: random_points_general_position: min_coord must be at most "
+		"geometry: random_simple_polygon: min_coord must be at most "
 		"max_coord");
 }
 
@@ -825,10 +829,16 @@ TEST(geometry_test, random_simple_polygon_range_too_small) {
 	tgen::register_gen();
 
 	const int n = 10;
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_simple_polygon(n, 0, 2),
+		"geometry: random_simple_polygon: coordinate range "
+		"too small for n distinct points");
+
 	const long long width = min_width_for(n) - 1;
-	EXPECT_THROW_TGEN_PREFIX(tgen::geometry::random_simple_polygon(n, 0, width),
-							 "geometry: random_points_general_position: "
-							 "coordinate range too small for n");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_simple_polygon(n, 0, width, true),
+		"geometry: random_points_general_position: "
+		"coordinate range too small for n");
 }
 
 TEST(geometry_test, random_simple_polygon_minimum_range) {
@@ -836,7 +846,7 @@ TEST(geometry_test, random_simple_polygon_minimum_range) {
 
 	const int n = 10;
 	const long long width = min_width_for(n);
-	auto poly = tgen::geometry::random_simple_polygon(n, 0, width);
+	auto poly = tgen::geometry::random_simple_polygon(n, 0, width, true);
 
 	EXPECT_EQ(poly.size(), static_cast<size_t>(n));
 	EXPECT_TRUE(verify_simple_polygon(poly, n, 0, width));
@@ -879,7 +889,6 @@ TEST(geometry_test, random_simple_polygon_near_llong_limits) {
 		expect_distinct(poly);
 		if (i == 0) {
 			EXPECT_TRUE(verify_simple_polygon(poly, n, min_coord, max_coord));
-			expect_no_three_collinear(poly);
 		}
 	}
 
@@ -904,5 +913,10 @@ TEST(geometry_test, random_simple_polygon_full_long_long_range) {
 		tgen::geometry::random_simple_polygon(
 			50, std::numeric_limits<long long>::min(),
 			std::numeric_limits<long long>::max()),
-		"geometry: random_points_general_position: coordinate range too large");
+		"geometry: random_simple_polygon: coordinate range too large");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_simple_polygon(
+			50, std::numeric_limits<long long>::min(),
+			std::numeric_limits<long long>::max(), true),
+		"geometry: random_simple_polygon: coordinate range too large");
 }

@@ -329,18 +329,21 @@ namespace tgen::geometry {
  * @param n Number of vertices to generate.
  * @param min_coord Minimum allowed coordinate on each axis.
  * @param max_coord Maximum allowed coordinate on each axis.
+ * @param strict If @tt{@primitive{true}}, the vertex set has no three
+ * collinear points. If @tt{@primitive{false}}, there might be collinear
+ * triplets and three consecutive collinear points in the polygon.
  *
  * @pre @tt{@pname{n} >= 3}.
  *
  * @return @tt{@pname{n}} distinct vertices listed in boundary order of a
  * simple (non-self-intersecting) polygon. Coordinates lie in the inclusive
- * square @tt{[@pname{min_coord}, @pname{max_coord}]^2}. There will be no 3 collinear points.
+ * square @tt{[@pname{min_coord}, @pname{max_coord}]^2}.
  *
- * The point set is built with @ref random_points_general_position, then polygonized by
+ * When @pname{strict} is @tt{@primitive{true}}, the point set is built with
+ * @ref random_points_general_position, othwerwise randomly generated. Points are polygonized by
  * @ref random_simple_polygon_through_points.
  *
- * @throws std::runtime_error if the coordinate range
- * is not large enough for @ref random_points_general_position.
+ * @throws std::runtime_error if the coordinate range is not large enough.
  *
  * @note This operation is not uniformly random.
  *
@@ -353,9 +356,12 @@ namespace tgen::geometry {
  * ```cpp
  * std::vector<tgen::geometry::point<long long>> poly = tgen::geometry::random_simple_polygon(10, 0, 100);
  * std::cout << tgen::print(poly, '\n') << std::endl;
+ *
+ * // Strict: no three collinear vertices.
+ * auto strict_poly = tgen::geometry::random_simple_polygon(10, 0, 100, true);
  * ```
  *
- * @fn random_simple_polygon(int n, long long min_coord, long long max_coord);
+ * @fn random_simple_polygon(int n, long long min_coord, long long max_coord, bool strict = false);
  */
 
 

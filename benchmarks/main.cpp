@@ -176,9 +176,11 @@ std::vector<benchmark::CaseResult> run_all(const BenchmarkScale &scale) {
 	int ng = scale.n_geom();
 	long long gmax = scale.geom_max();
 	run("tgen::geometry::random_simple_polygon", "",
-		scale.smoke ? "n=5e3, min=0, max=5e4" : "n=1e6, min=0, max=3e6",
+		scale.smoke ? "n=5e3, min=0, max=5e4, strict=false"
+					: "n=1e6, min=0, max=3e6, strict=false",
 		"tgen::geometry::random_simple_polygon", [=] {
-			consume_polygon(tgen::geometry::random_simple_polygon(ng, 0, gmax));
+			consume_polygon(
+				tgen::geometry::random_simple_polygon(ng, 0, gmax, false));
 		});
 
 	run("tgen::geometry::random_points_general_position", "",
@@ -189,9 +191,11 @@ std::vector<benchmark::CaseResult> run_all(const BenchmarkScale &scale) {
 		});
 
 	run("tgen::geometry::random_convex_polygon", "",
-		scale.smoke ? "n=5e3, min=0, max=5e4" : "n=1e6, min=0, max=3e6",
+		scale.smoke ? "n=5e3, min=0, max=5e4, strict=false"
+					: "n=1e6, min=0, max=3e6, strict=false",
 		"tgen::geometry::random_convex_polygon", [=] {
-			consume_polygon(tgen::geometry::random_convex_polygon(ng, 0, gmax));
+			consume_polygon(
+				tgen::geometry::random_convex_polygon(ng, 0, gmax, false));
 		});
 
 	auto polygon_points =

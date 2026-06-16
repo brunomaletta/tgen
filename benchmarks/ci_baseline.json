@@ -127,10 +127,10 @@
     {
       "name": "tgen::geometry::random_simple_polygon",
       "name_suffix": "",
-      "params": "n=5e3, min=0, max=5e4",
+      "params": "n=5e3, min=0, max=5e4, strict=false",
       "doc_symbol": "tgen::geometry::random_simple_polygon",
-      "median_ms": 4,
-      "runs_ms": [4, 4, 4]
+      "median_ms": 2,
+      "runs_ms": [2, 2, 2]
     },
     {
       "name": "tgen::geometry::random_points_general_position",
@@ -143,7 +143,7 @@
     {
       "name": "tgen::geometry::random_convex_polygon",
       "name_suffix": "",
-      "params": "n=5e3, min=0, max=5e4",
+      "params": "n=5e3, min=0, max=5e4, strict=false",
       "doc_symbol": "tgen::geometry::random_convex_polygon",
       "median_ms": 2,
       "runs_ms": [2, 2, 2]
