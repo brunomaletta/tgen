@@ -6389,8 +6389,6 @@ inline graph::value S(int n) { return K(1, n - 1); }
 
 namespace geometry {
 
-using i128 = ::tgen::detail::i128;
-
 // Point on the plane with coordinates of type T.
 template <typename T> struct point {
 	static_assert(std::is_arithmetic_v<T>,
@@ -6399,7 +6397,7 @@ template <typename T> struct point {
 	// Dot/cross product type: __int128 for T = long long, long long for other
 	// integral T, T for floating-point.
 	using product_t = std::conditional_t<
-		std::is_same_v<T, long long>, i128,
+		std::is_same_v<T, long long>, detail::i128,
 		std::conditional_t<std::is_integral_v<T>, long long, T>>;
 
 	// x and y coordinates.
@@ -6481,7 +6479,7 @@ random_points_general_position(int n, long long min_coord,
 				"geometry: random_points_general_position: min_coord must be "
 				"at most max_coord");
 	tgen_ensure(
-		static_cast<i128>(max_coord) - min_coord <=
+		static_cast<detail::i128>(max_coord) - min_coord <=
 			std::numeric_limits<long long>::max(),
 		"geometry: random_points_general_position: coordinate range too large");
 	uint64_t width = max_coord - min_coord;
@@ -6500,7 +6498,7 @@ random_points_general_position(int n, long long min_coord,
 	std::vector<uint64_t> x_range(p - 1);
 	std::iota(x_range.begin(), x_range.end(), 1);
 	shuffle(x_range.begin(), x_range.end());
-	std::vector<i128> bx(n), by(n);
+	std::vector<detail::i128> bx(n), by(n);
 	for (int i = 0; i < n; ++i) {
 		uint64_t x = x_range[i];
 		bx[i] = x;
@@ -6526,7 +6524,7 @@ random_points_general_position(int n, long long min_coord,
 	// three collinear points, the transformed set also contains no three
 	// collinear points.
 	const int num_shears = 8;
-	std::vector<i128> lin_x = bx, lin_y = by;
+	std::vector<detail::i128> lin_x = bx, lin_y = by;
 
 	for (int it = 0; it < num_shears; ++it) {
 		bool vertical_shear = next(2) == 0;
@@ -6545,7 +6543,8 @@ random_points_general_position(int n, long long min_coord,
 		}
 	}
 
-	i128 min_x = lin_x[0], max_x = lin_x[0], min_y = lin_y[0], max_y = lin_y[0];
+	detail::i128 min_x = lin_x[0], max_x = lin_x[0], min_y = lin_y[0],
+				 max_y = lin_y[0];
 	for (int i = 1; i < n; ++i) {
 		min_x = std::min(min_x, lin_x[i]);
 		max_x = std::max(max_x, lin_x[i]);
@@ -6565,6 +6564,8 @@ random_points_general_position(int n, long long min_coord,
 }
 
 namespace detail {
+
+using i128 = tgen::detail::i128;
 
 // Signed area of triangle (a, b, p); positive iff (a, b, p) are in
 // counterclockwise order. 0 iff (a, b, p) are collinear. O(1).
@@ -6720,22 +6721,6 @@ sample_sorted_distinct_in_range(int k, long long left, long long right) {
 	return res;
 }
 
-// Generates n >= 3 sorted distinct coordinates in [0, width] with endpoints 0
-// and width.
-// Optimized for performance via sample_sorted_distinct_in_range.
-// O(n log n).
-inline std::vector<long long>
-generate_sorted_coords_with_endpoints(int n, long long width) {
-	std::vector<long long> coords;
-	coords.reserve(n);
-	coords.push_back(0);
-	std::vector<long long> inner =
-		sample_sorted_distinct_in_range(n - 2, 1, width - 1);
-	coords.insert(coords.end(), inner.begin(), inner.end());
-	coords.push_back(width);
-	return coords;
-}
-
 // Valtr-style signed edge components along one axis from n sorted distinct
 // coordinates. The n differences sum to zero.
 inline std::vector<long long>
@@ -6766,11 +6751,134 @@ valtr_edge_components(const std::vector<long long> &sorted_coords) {
 	return comps;
 }
 
+// Drops boundary vertices that are collinear with their cyclic neighbors.
+// O(m), m = |points|.
+inline std::vector<point<long long>>
+simplify_strict_boundary(std::vector<point<long long>> points) {
+	int n = points.size();
+	if (n < 3)
+		return points;
+
+	std::vector<point<long long>> strict_points;
+	strict_points.reserve(n);
+	for (int i = 0; i < n; ++i) {
+		if (ccw(points[(i + n - 1) % n], points[i], points[(i + 1) % n]) != 0)
+			strict_points.push_back(points[i]);
+	}
+	return strict_points;
+}
+
+// Picks k evenly spaced vertices along a longer cyclic boundary.
+// O(k).
+inline std::vector<point<long long>>
+subsample_boundary(const std::vector<point<long long>> &points, int k) {
+	int n = points.size();
+	if (n <= k)
+		return points;
+
+	std::vector<point<long long>> sampled_points;
+	sampled_points.reserve(k);
+	for (int i = 0; i < k; ++i)
+		sampled_points.push_back(points[(static_cast<i128>(i) * n) / k]);
+	return sampled_points;
+}
+
+// Random translation so the polygon lies in the box.
+// O(|points|).
+inline void place_inside_box(std::vector<point<long long>> &points,
+							 long long min_coord, long long max_coord) {
+	long long width = max_coord - min_coord + 1;
+
+	i128 min_x = points[0].x(), max_x = points[0].x();
+	i128 min_y = points[0].y(), max_y = points[0].y();
+	for (const point<long long> &p : points) {
+		min_x = std::min(min_x, static_cast<i128>(p.x()));
+		max_x = std::max(max_x, static_cast<i128>(p.x()));
+		min_y = std::min(min_y, static_cast<i128>(p.y()));
+		max_y = std::max(max_y, static_cast<i128>(p.y()));
+	}
+
+	i128 span_x = max_x - min_x;
+	i128 span_y = max_y - min_y;
+	// Random slack keeps the polygon inside the box without filling it.
+	i128 shift_x =
+		min_coord - min_x +
+		next<long long>(0, width - 1 - static_cast<long long>(span_x));
+	i128 shift_y =
+		min_coord - min_y +
+		next<long long>(0, width - 1 - static_cast<long long>(span_y));
+
+	for (point<long long> &p : points)
+		p = point<long long>(p.x() + shift_x, p.y() + shift_y);
+}
+
+// Random cyclic shift; Valtr walk is already counterclockwise.
+// O(|points|).
+inline void randomize_boundary_order(std::vector<point<long long>> &points) {
+	int rot = next(points.size());
+	if (rot > 0)
+		std::rotate(points.begin(), points.begin() + rot, points.end());
+}
+
+// Valtr walk for m edges; bbox minimum translated to the origin.
+// O(m log m).
+inline std::vector<point<long long>>
+valtr_vertices(int m, const std::vector<long long> &x_comp,
+			   std::vector<long long> y_comp) {
+	shuffle(y_comp.begin(), y_comp.end());
+
+	std::vector<point<long long>> edges(m);
+	// Upper half-plane (positive y, or y = 0 and x > 0) sorts before lower.
+	auto upper = [](const point<long long> &p) {
+		return p.y() > 0 or (p.y() == 0 and p.x() > 0);
+	};
+	for (int i = 0; i < m; ++i)
+		edges[i] = point<long long>(x_comp[i], y_comp[i]);
+
+	std::sort(edges.begin(), edges.end(),
+			  [&upper](const point<long long> &a, const point<long long> &b) {
+				  bool au = upper(a), bu = upper(b);
+				  if (au != bu)
+					  return au;
+				  auto cross = a ^ b;
+				  if (cross != 0)
+					  return cross > 0;
+				  return (a * a) < (b * b);
+			  });
+
+	// Prefix-sum the sorted edge vectors to obtain vertex coordinates.
+	i128 cur_x = 0, cur_y = 0;
+	std::vector<i128> px(m), py(m);
+	for (int i = 0; i < m; ++i) {
+		px[i] = cur_x;
+		py[i] = cur_y;
+		cur_x += edges[i].x();
+		cur_y += edges[i].y();
+	}
+	tgen::detail::tgen_ensure_against_bug(
+		cur_x == 0 and cur_y == 0,
+		"geometry: random_convex_polygon: walk did not close");
+
+	i128 min_x = px[0], min_y = py[0];
+	for (int i = 1; i < m; ++i) {
+		min_x = std::min(min_x, px[i]);
+		min_y = std::min(min_y, py[i]);
+	}
+
+	// Shift so the bbox minimum is at the origin.
+	std::vector<point<long long>> points;
+	points.reserve(m);
+	for (int i = 0; i < m; ++i)
+		points.emplace_back(px[i] - min_x, py[i] - min_y);
+	return points;
+}
+
 } // namespace detail
 
 // Generates n vertices of a convex integer polygon inside a box.
 // If strict is true, boundary vertices are guaranteed non-collinear when
 // generation succeeds; retry count depends on n and width.
+// Always returns points in counterclockwise order.
 // O(n log n).
 inline std::vector<point<long long>>
 random_convex_polygon(int n, long long min_coord, long long max_coord,
@@ -6780,108 +6888,60 @@ random_convex_polygon(int n, long long min_coord, long long max_coord,
 	tgen_ensure(max_coord >= min_coord,
 				"geometry: random_convex_polygon: min_coord must be at most "
 				"max_coord");
-	tgen_ensure(static_cast<i128>(max_coord) - min_coord <=
+	tgen_ensure(static_cast<detail::i128>(max_coord) - min_coord + 1 <=
 					std::numeric_limits<long long>::max(),
 				"geometry: random_convex_polygon: coordinate range too large");
-	long long width = max_coord - min_coord;
+	long long width = max_coord - min_coord + 1;
 	tgen_ensure(
-		width >= n - 1,
+		width >= n,
 		"geometry: random_convex_polygon: coordinate range too small for n");
 
-	// Grid spans [0, width]; after the walk, the bounding box span equals
-	// width on each axis, so shifting by (min_coord - min_x, min_coord - min_y)
-	// fills the box.
-	std::vector<long long> x_sorted =
-		detail::generate_sorted_coords_with_endpoints(n, width);
-	std::vector<long long> y_sorted =
-		detail::generate_sorted_coords_with_endpoints(n, width);
-
-	std::vector<long long> x_comp = detail::valtr_edge_components(x_sorted);
-	std::vector<long long> y_comp = detail::valtr_edge_components(y_sorted);
-
-	std::vector<point<long long>> edges(n);
-	auto upper = [](const point<long long> &p) {
-		return p.y() > 0 or (p.y() == 0 and p.x() > 0);
-	};
-
-	// When strict, retry pairings that yield consecutive parallel edges.
-	int max_strict_attempts = 1;
+	// Valtr walk size: n in weak mode; strict mode uses a larger grid so
+	// collinear removal still leaves at least n vertices to subsample.
+	int num_coords = n;
 	if (strict) {
-		if (width < 2 * n - 1 or n > 1000)
-			max_strict_attempts = 4;
-		else if (n <= 50)
-			max_strict_attempts = 12;
-		else
-			max_strict_attempts = 8;
+		// Extra grid lines beyond n: at least 100 (small-n headroom), about
+		// n/1000 for large n, and never more than width - n.
+		int extra = width <= n ? 0
+							   : std::min<long long>(std::max(100, n / 1000),
+													 width - n);
+		num_coords = n + extra;
 	}
-	for (int attempt = 0;; ++attempt) {
-		shuffle(y_comp.begin(), y_comp.end());
-		for (int i = 0; i < n; ++i)
-			edges[i] = point<long long>(x_comp[i], y_comp[i]);
-		std::sort(
-			edges.begin(), edges.end(),
-			[&upper](const point<long long> &a, const point<long long> &b) {
-				bool au = upper(a), bu = upper(b);
-				if (au != bu)
-					return au;
-				auto cross = a ^ b;
-				if (cross != 0)
-					return cross > 0;
-				return (a * a) < (b * b);
-			});
-		if (!strict)
-			break;
-		bool collinear = false;
-		for (int i = 0; i < n; ++i) {
-			const auto &cur = edges[i];
-			const auto &nxt = edges[(i + 1) % n];
-			if ((cur ^ nxt) == 0) {
-				collinear = true;
-				break;
-			}
+
+	// Strict mode retries coordinate sampling when simplification leaves < n
+	// vertices; weak mode has no failure path, so one attempt always suffices.
+	const int max_attempts = strict ? 32 : 1;
+	for (int i = 0; i < max_attempts; ++i) {
+		// Build a convex lattice polygon on [0, width - 1]^2, then translate.
+		std::vector<long long> x_sorted =
+			detail::sample_sorted_distinct_in_range(num_coords, 0, width - 1);
+		std::vector<long long> y_sorted =
+			detail::sample_sorted_distinct_in_range(num_coords, 0, width - 1);
+		std::vector<long long> x_comp = detail::valtr_edge_components(x_sorted);
+		std::vector<long long> y_comp = detail::valtr_edge_components(y_sorted);
+
+		std::vector<point<long long>> points =
+			detail::valtr_vertices(num_coords, x_comp, std::move(y_comp));
+
+		if (strict) {
+			std::vector<point<long long>> simplified =
+				detail::simplify_strict_boundary(std::move(points));
+			// Tight boxes can leave too few vertices -> resample coordinates.
+			if (static_cast<int>(simplified.size()) < n)
+				continue;
+
+			points = detail::subsample_boundary(simplified, n);
 		}
-		if (!collinear)
-			break;
 
-		tgen_ensure(attempt + 1 < max_strict_attempts,
-					"geometry: random_convex_polygon: generation failed: "
-					"coordinate range too small for n");
+		detail::place_inside_box(points, min_coord, max_coord);
+		detail::randomize_boundary_order(points);
+		return points;
 	}
 
-	i128 cur_x = 0, cur_y = 0;
-	std::vector<i128> px(n), py(n);
-	for (int i = 0; i < n; ++i) {
-		px[i] = cur_x;
-		py[i] = cur_y;
-		cur_x += edges[i].x();
-		cur_y += edges[i].y();
-	}
-	tgen::detail::tgen_ensure_against_bug(
-		cur_x == 0 and cur_y == 0, "geometry: random_convex_polygon: walk did "
-								   "not close");
-
-	i128 min_x = px[0], min_y = py[0];
-	for (int i = 1; i < n; ++i) {
-		min_x = std::min(min_x, px[i]);
-		min_y = std::min(min_y, py[i]);
-	}
-
-	// Translates the polygon so the bounding box is [min_coord, min_coord].
-	i128 shift_x = min_coord - min_x;
-	i128 shift_y = min_coord - min_y;
-
-	std::vector<point<long long>> pts;
-	pts.reserve(n);
-	for (int i = 0; i < n; ++i)
-		pts.emplace_back(px[i] + shift_x, py[i] + shift_y);
-
-	// Randomly rotates the polygon.
-	int rot = next(n);
-	if (rot > 0)
-		std::rotate(pts.begin(), pts.begin() + rot, pts.end());
-	if (next(2) == 0)
-		std::reverse(pts.begin(), pts.end());
-	return pts;
+	// Generation failed.
+	throw tgen::detail::error(
+		"geometry: random_convex_polygon: generation failed: coordinate "
+		"range too small for n");
 }
 
 // Random simple polygon through given distinct points.
@@ -7013,7 +7073,7 @@ random_simple_polygon(int n, long long min_coord, long long max_coord,
 	tgen_ensure(max_coord >= min_coord,
 				"geometry: random_simple_polygon: min_coord must be at most "
 				"max_coord");
-	tgen_ensure(static_cast<i128>(max_coord) - min_coord <=
+	tgen_ensure(static_cast<detail::i128>(max_coord) - min_coord <=
 					std::numeric_limits<long long>::max(),
 				"geometry: random_simple_polygon: coordinate range too large");
 

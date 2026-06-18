@@ -367,41 +367,40 @@ namespace tgen::geometry {
 
 /**
  * @ingroup geometry
- * @brief Generates a random convex polygon with given bounding box.
+ * @brief Generates a random convex polygon with given coordinate range.
  *
  * @param n Number of vertices.
  * @param min_coord Minimum allowed coordinate on each axis.
  * @param max_coord Maximum allowed coordinate on each axis.
  * @param strict If @tt{@primitive{true}}, the polygon is strictly convex.
- * If @tt{@primitive{false}}, collinear boundary vertices may occur.
+ * If @tt{@primitive{false}}, collinear vertices may occur.
  *
  * @pre @tt{@pname{n} >= 3}.
  *
  * @return @tt{@pname{n}} distinct vertices of a convex polygon with integer
  * coordinates in the inclusive square
- * @tt{[@pname{min_coord}, @pname{max_coord}]^2}, listed in boundary order
- * (clockwise or counterclockwise). The polygon touches all four sides of that
- * square (its axis-aligned bounding box equals the requested box). When
- * @pname{strict} is @tt{@primitive{true}}, the polygon is strictly convex.
+ * @tt{[@pname{min_coord}, @pname{max_coord}]^2}, listed in counterclockwise
+ * order. When @pname{strict} is @tt{@primitive{true}}, the polygon is
+ * strictly convex.
  *
- * Uses Valtr's classical construction: choose @tt{@pname{n}} distinct sorted
- * @tt{x} and @tt{y} coordinates spanning @tt{[0, width]} via
- * @tt{tgen::distinct_range}, build monotone signed edge components, shuffle the
- * @tt{y}-components, pair with the @tt{x}-components, and sort by polar angle
- * without floating point, then prefix-sum and translate so the bouding box minimum is
- * @pname{min_coord} on each axis. The grid uses endpoints @tt{0} and @tt{width},
- * so the polygon span is exactly @tt{width} on each axis and fills the box after
- * translation.
+ * Uses Valtr's classical construction: choose @tt{m} distinct sorted @tt{x} and
+ * @tt{y} coordinates in @tt{[@pname{min_coord}, @pname{max_coord}]} via @tt{tgen::distinct_range} (with
+ * @tt{m = @pname{n}} when @pname{strict} is @tt{@primitive{false}}, and
+ * @tt{m > @pname{n}} when @pname{strict} is @tt{@primitive{true}}), build
+ * monotone signed edge components, shuffle the @tt{y}-components, pair with the
+ * @tt{x}-components, and sort by polar angle, then
+ * prefix-sum to obtain vertex coordinates. When @pname{strict} is
+ * @tt{@primitive{true}}, collinear boundary vertices are removed and the walk
+ * is subsampled to @tt{@pname{n}} vertices. The polygon is then translated by
+ * a random amount so it lies inside the requested box.
  *
  * @throws std::runtime_error if the coordinate range is not large enough.
  *
- * @warning When @pname{strict} is @tt{@primitive{true}}, the implementation retries
- * @tt{y}-component shuffles a bounded number of times (fewer when @pname{n} is
- * large or the coordinate range is tight). Fails if no strictly convex polygon
- * is found; use a larger coordinate range in that case. <br>
- * When @pname{strict} is
- * @tt{@primitive{false}}, a convex polygon is always found as long as
- * @tt{@pname{max_coord} - @pname{min_coord} >= @pname{n} - 1}.
+ * @warning When @pname{strict} is @tt{@primitive{true}}, the implementation
+ * retries a bounded number of times. Use a
+ * larger coordinate range if generation fails. <br>
+ * When @pname{strict} is @tt{@primitive{false}}, generation succeeds as long as
+ * @tt{@pname{max_coord} - @pname{min_coord} + 1 >= @pname{n}}.
  *
  * @note This operation is not uniformly random.
  *
