@@ -198,6 +198,14 @@ std::vector<benchmark::CaseResult> run_all(const BenchmarkScale &scale) {
 				tgen::geometry::random_convex_polygon(ng, 0, gmax, false));
 		});
 
+	run("tgen::geometry::random_convex_polygon", " (strict)",
+		scale.smoke ? "n=5e3, min=0, max=1e12, strict=true"
+					: "n=1e6, min=0, max=1e12, strict=true",
+		"tgen::geometry::random_convex_polygon", [=] {
+			consume_polygon(tgen::geometry::random_convex_polygon(
+				ng, 0, 1'000'000'000'000LL, true));
+		});
+
 	auto polygon_points =
 		tgen::geometry::random_points_general_position(ng, 0, gmax);
 	run("tgen::geometry::random_simple_polygon_through_points", "",

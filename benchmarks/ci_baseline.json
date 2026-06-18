@@ -149,6 +149,14 @@
       "runs_ms": [2, 2, 2]
     },
     {
+      "name": "tgen::geometry::random_convex_polygon",
+      "name_suffix": " (strict)",
+      "params": "n=5e3, min=0, max=1e12, strict=true",
+      "doc_symbol": "tgen::geometry::random_convex_polygon",
+      "median_ms": 4,
+      "runs_ms": [4, 4, 4]
+    },
+    {
       "name": "tgen::geometry::random_simple_polygon_through_points",
       "name_suffix": "",
       "params": "n=5e3",
