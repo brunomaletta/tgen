@@ -18,6 +18,7 @@ struct BenchmarkScale {
 	int n_list() const { return smoke ? 100'000 : 5'000'000; }
 	int n_perm() const { return smoke ? 100'000 : 5'000'000; }
 	int n_geom() const { return smoke ? 5'000 : 1'000'000; }
+	int n_ortho_geom() const { return smoke ? 500 : 10'000; }
 	long long geom_max() const { return smoke ? 50'000 : 3'000'000; }
 	int n_bipartite_side() const { return smoke ? 100 : 1'000; }
 	int m_bipartite() const { return smoke ? 5'000 : 500'000; }
@@ -204,6 +205,23 @@ std::vector<benchmark::CaseResult> run_all(const BenchmarkScale &scale) {
 		"tgen::geometry::random_convex_polygon", [=] {
 			consume_polygon(tgen::geometry::random_convex_polygon(
 				ng, 0, 1'000'000'000'000LL, true));
+		});
+
+	int no = scale.n_ortho_geom();
+	run("tgen::geometry::random_orthogonal_polygon", "",
+		scale.smoke ? "n=5e2, min=0, max=5e4, strict=false"
+					: "n=1e4, min=0, max=3e6, strict=false",
+		"tgen::geometry::random_orthogonal_polygon", [=] {
+			consume_polygon(
+				tgen::geometry::random_orthogonal_polygon(no, 0, gmax, false));
+		});
+
+	run("tgen::geometry::random_orthogonal_polygon", " (strict)",
+		scale.smoke ? "n=5e2, min=0, max=5e4, strict=true"
+					: "n=1e4, min=0, max=3e6, strict=true",
+		"tgen::geometry::random_orthogonal_polygon", [=] {
+			consume_polygon(
+				tgen::geometry::random_orthogonal_polygon(no, 0, gmax, true));
 		});
 
 	auto polygon_points =

@@ -176,6 +176,20 @@ bool segments_properly_intersect(const tgen::geometry::point<long long> &a,
 		   ((o3 > 0 and o4 < 0) or (o3 < 0 and o4 > 0));
 }
 
+bool is_counterclockwise(
+	const std::vector<tgen::geometry::point<long long>> &poly) {
+	int n = static_cast<int>(poly.size());
+	if (n < 3)
+		return false;
+	__int128 area2 = 0;
+	for (int i = 0; i < n; ++i) {
+		int j = (i + 1) % n;
+		area2 += static_cast<__int128>(poly[i].x()) * poly[j].y() -
+				 static_cast<__int128>(poly[j].x()) * poly[i].y();
+	}
+	return area2 > 0;
+}
+
 bool verify_simple_polygon(
 	const std::vector<tgen::geometry::point<long long>> &poly, int n,
 	long long min_coord, long long max_coord) {
@@ -200,7 +214,7 @@ bool verify_simple_polygon(
 				return false;
 		}
 	}
-	return true;
+	return is_counterclockwise(poly);
 }
 
 bool contains_all_points(
@@ -918,6 +932,26 @@ TEST(geometry_test, random_simple_polygon_many_n) {
 	}
 }
 
+TEST(geometry_test, random_simple_polygon_counterclockwise) {
+	tgen::register_gen();
+
+	const int n = 50;
+	long long max_coord = 10'000;
+
+	for (int i = 0; i < 200; ++i) {
+		tgen::register_gen(i);
+		for (bool strict : {false, true}) {
+			auto poly =
+				tgen::geometry::random_simple_polygon(n, 0, max_coord, strict);
+			EXPECT_TRUE(is_counterclockwise(poly));
+		}
+		auto pts =
+			tgen::geometry::random_points_general_position(30, 0, max_coord);
+		auto poly = tgen::geometry::random_simple_polygon_through_points(pts);
+		EXPECT_TRUE(is_counterclockwise(poly));
+	}
+}
+
 TEST(geometry_test, random_simple_polygon_nonzero_min) {
 	tgen::register_gen(11);
 
@@ -975,4 +1009,126 @@ TEST(geometry_test, random_simple_polygon_full_long_long_range) {
 			50, std::numeric_limits<long long>::min(),
 			std::numeric_limits<long long>::max(), true),
 		"geometry: random_simple_polygon: coordinate range too large");
+}
+
+bool is_orthogonal_edge(const tgen::geometry::point<long long> &a,
+						const tgen::geometry::point<long long> &b) {
+	return a.x() == b.x() or a.y() == b.y();
+}
+
+bool has_consecutive_collinear(
+	const std::vector<tgen::geometry::point<long long>> &poly) {
+	int m = static_cast<int>(poly.size());
+	if (m < 3)
+		return false;
+	for (int i = 0; i < m; ++i) {
+		const auto &a = poly[i];
+		const auto &b = poly[(i + 1) % m];
+		const auto &c = poly[(i + 2) % m];
+		if ((a.x() == b.x() and b.x() == c.x()) or
+			(a.y() == b.y() and b.y() == c.y()))
+			return true;
+	}
+	return false;
+}
+
+bool verify_orthogonal_polygon(
+	const std::vector<tgen::geometry::point<long long>> &poly, int n,
+	long long min_coord, long long max_coord) {
+	if (static_cast<int>(poly.size()) < 4)
+		return false;
+	if (static_cast<int>(poly.size()) > n)
+		return false;
+	for (const tgen::geometry::point<long long> &p : poly) {
+		if (p.x() < min_coord or p.x() > max_coord or p.y() < min_coord or
+			p.y() > max_coord)
+			return false;
+	}
+	int m = static_cast<int>(poly.size());
+	for (int i = 0; i < m; ++i) {
+		if (!is_orthogonal_edge(poly[i], poly[(i + 1) % m]))
+			return false;
+	}
+	return verify_simple_polygon(poly, m, min_coord, max_coord);
+}
+
+TEST(geometry_test, random_orthogonal_polygon_basic) {
+	tgen::register_gen(42);
+
+	const int n = 40;
+	auto poly = tgen::geometry::random_orthogonal_polygon(n, 0, 1000);
+
+	EXPECT_GE(poly.size(), 4u);
+	EXPECT_LE(poly.size(), static_cast<size_t>(n));
+	EXPECT_TRUE(verify_orthogonal_polygon(poly, n, 0, 1000));
+
+	auto strict_poly =
+		tgen::geometry::random_orthogonal_polygon(n, 0, 1000, true);
+	EXPECT_GE(strict_poly.size(), 4u);
+	EXPECT_LE(strict_poly.size(), static_cast<size_t>(n));
+	EXPECT_TRUE(verify_orthogonal_polygon(strict_poly, n, 0, 1000));
+	EXPECT_FALSE(has_consecutive_collinear(strict_poly));
+}
+
+TEST(geometry_test, random_orthogonal_polygon_invalid_n) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_orthogonal_polygon(3, 0, 100),
+		"geometry: random_orthogonal_polygon: n must be at least 4");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_orthogonal_polygon(0, 0, 100),
+		"geometry: random_orthogonal_polygon: n must be at least 4");
+}
+
+TEST(geometry_test, random_orthogonal_polygon_invalid_range) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_orthogonal_polygon(20, 5, 4),
+		"geometry: random_orthogonal_polygon: min_coord must be at most "
+		"max_coord");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_orthogonal_polygon(20, 0, 2),
+		"geometry: random_orthogonal_polygon: coordinate range too small");
+}
+
+TEST(geometry_test, random_orthogonal_polygon_repeated_calls) {
+	tgen::register_gen(7);
+
+	const int n = 60;
+	for (int trial = 0; trial < 5; ++trial) {
+		auto poly = tgen::geometry::random_orthogonal_polygon(n, 0, 5000);
+		EXPECT_TRUE(verify_orthogonal_polygon(poly, n, 0, 5000));
+	}
+}
+
+TEST(geometry_test, random_orthogonal_polygon_many_n) {
+	tgen::register_gen(0);
+
+	for (int n = 4; n <= 40; n += 4) {
+		auto poly = tgen::geometry::random_orthogonal_polygon(n, 0, 10'000);
+		EXPECT_TRUE(verify_orthogonal_polygon(poly, n, 0, 10'000));
+
+		auto strict_poly =
+			tgen::geometry::random_orthogonal_polygon(n, 0, 10'000, true);
+		EXPECT_TRUE(verify_orthogonal_polygon(strict_poly, n, 0, 10'000));
+		EXPECT_FALSE(has_consecutive_collinear(strict_poly));
+	}
+}
+
+TEST(geometry_test, random_orthogonal_polygon_counterclockwise) {
+	tgen::register_gen();
+
+	const int n = 80;
+	long long max_coord = 10'000;
+
+	for (int i = 0; i < 200; ++i) {
+		tgen::register_gen(i);
+		for (bool strict : {false, true}) {
+			auto poly = tgen::geometry::random_orthogonal_polygon(
+				n, 0, max_coord, strict);
+			EXPECT_TRUE(is_counterclockwise(poly));
+		}
+	}
 }

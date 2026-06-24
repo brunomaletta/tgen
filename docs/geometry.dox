@@ -91,6 +91,22 @@ namespace tgen::geometry {
  * ...
  * ```
  * @image html grid_polygon.png "Example grid polygon" width=600
+ *
+ * Generates a random orthogonal (axis-aligned) simple polygon.
+ *
+ * ```cpp
+ * auto poly = tgen::geometry::random_orthogonal_polygon(200, 0, 2000);
+ * std::cout << poly.size() << std::endl;
+ * std::cout << tgen::print(poly, '\n') << std::endl;
+ * ```
+ *
+ * ```
+ * 199
+ * 1164 1866
+ * 1164 1862
+ * ...
+ * ```
+ * @image html random_orthogonal_polygon.png "Example generated orthogonal polygon" width=600
  */
 
 
@@ -297,8 +313,8 @@ namespace tgen::geometry {
  * @pre @tt{@pname{points}.size() >= 3}, all points are distinct, and they are
  * not all collinear.
  *
- * @return The same points listed in boundary order of a simple
- * (non-self-intersecting) polygon.
+ * @return The same points listed in counterclockwise boundary order of a
+ * simple (non-self-intersecting) polygon.
  *
  * Uses a randomized divide-and-conquer Hamiltonian-path construction on the
  * leftmost and rightmost vertices.
@@ -335,9 +351,9 @@ namespace tgen::geometry {
  *
  * @pre @tt{@pname{n} >= 3}.
  *
- * @return @tt{@pname{n}} distinct vertices listed in boundary order of a
- * simple (non-self-intersecting) polygon. Coordinates lie in the inclusive
- * square @tt{[@pname{min_coord}, @pname{max_coord}]^2}.
+ * @return @tt{@pname{n}} distinct vertices listed in counterclockwise
+ * boundary order of a simple (non-self-intersecting) polygon. Coordinates lie
+ * in the inclusive square @tt{[@pname{min_coord}, @pname{max_coord}]^2}.
  *
  * When @pname{strict} is @tt{@primitive{true}}, the point set is built with
  * @ref random_points_general_position, othwerwise randomly generated. Points are polygonized by
@@ -415,6 +431,61 @@ namespace tgen::geometry {
  * ```
  *
  * @fn random_convex_polygon(int n, long long min_coord, long long max_coord, bool strict);
+ */
+
+
+/**
+ * @ingroup geometry
+ * @brief Generates a random orthogonal simple polygon.
+ *
+ * @param n Target number of boundary vertices.
+ * @param min_coord Minimum allowed coordinate on each axis.
+ * @param max_coord Maximum allowed coordinate on each axis.
+ * @param strict If @tt{@primitive{true}}, every vertex turns 90 degrees
+ * (no three consecutive collinear vertices). If @tt{@primitive{false}},
+ * collinear vertices may appear on straight horizontal or vertical edges.
+ *
+ * @pre @tt{@pname{n} >= 4}.
+ *
+ * @return Vertices of a simple orthogonal polygon with axis-aligned edges,
+ * listed in counterclockwise order. The vertex count is at most @pname{n} and
+ * typically close to it.
+ *
+ * #### Generation
+ *
+ * The polygon starts as a small axis-aligned square. The implementation then
+ * applies about @tt{(@pname{n} - 4) / 2} local boundary edits inspired by
+ * inflate/cut operations:
+ *
+ * - **Inflate (outward tab):** (~75% of steps) a rectangular protrusion is
+ *   spliced onto a boundary subsegment, growing the shape outward.
+ * - **Cut (inward notch):** (~25% of steps) a rectangular bite is taken out
+ *   of the boundary, creating bays and concavities.
+ *
+ * Each step picks a boundary edge (favoring longer segments and edges that
+ * were not edited recently), chooses a subsegment and depth, then splices the
+ * rectangle if validation passes.
+ *
+ * @throws std::runtime_error if the coordinate range is too small or
+ * generation fails.
+ *
+ * @note This operation is not uniformly random.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n}^2)}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto poly = tgen::geometry::random_orthogonal_polygon(40, 0, 400);
+ * std::cout << tgen::print(poly, '\n') << std::endl;
+ *
+ * // Strict: only 90-degree corners.
+ * auto strict_poly = tgen::geometry::random_orthogonal_polygon(40, 0, 400, true);
+ * ```
+ *
+ * @fn random_orthogonal_polygon(int n, long long min_coord, long long max_coord, bool strict = false);
  */
 
 }; // namespace tgen::geometry

@@ -168,25 +168,25 @@ doc-prepare:
 llms: doc-prepare
 
 # Incremental by default (no rm -rf); use `make doc-rebuild` or `make clean-doc doc` for a full wipe.
-doc: doc-prepare
-	# Theme + project assets before Doxygen HTML (pages link to these at build time).
-	cp $(THEME_DIR)/*.css $(THEME_DIR)/*.js $(DOC_HTML_DIR)/
+doc:
+	@doc_start=$$(date +%s); \
+	$(MAKE) doc-prepare && \
+	cp $(THEME_DIR)/*.css $(THEME_DIR)/*.js $(DOC_HTML_DIR)/ && \
 	cp $(DOC_SRC_DIR)/custom.css $(DOC_SRC_DIR)/header.html $(DOC_SRC_DIR)/layout.xml \
 		$(DOC_SRC_DIR)/tgen_logo_white.svg $(DOC_SRC_DIR)/tgen_logo_black.svg \
 		$(DOC_SRC_DIR)/tgen_logo_white_small.svg $(DOC_SRC_DIR)/tgen_logo_black_small.svg \
-		$(DOC_SRC_DIR)/favicon.svg $(DOC_HTML_DIR)/
-	touch $(DOC_HTML_DIR)/.nojekyll
-
-	# Render benchmark HTML immediately before the HTML pass (needs XML from doc-prepare).
+		$(DOC_SRC_DIR)/favicon.svg $(DOC_HTML_DIR)/ && \
+	touch $(DOC_HTML_DIR)/.nojekyll && \
 	python3 $(DOC_SRC_DIR)/benchmark_render.py \
 		--json $(BENCHMARK_JSON) \
 		--xml $(DOC_BUILD_DIR)/xml \
-		--out $(BENCHMARK_HTML)
-	rm -rf $(DOC_BUILD_DIR)/xml
-
+		--out $(BENCHMARK_HTML) && \
+	rm -rf $(DOC_BUILD_DIR)/xml && \
 	cd $(DOC_SRC_DIR) && { \
 	printf '%s\n' '@INCLUDE = Doxyfile' 'NUM_PROC_THREADS = $(NPROCS)' 'DOT_NUM_THREADS = $(NPROCS)'; \
-	} | doxygen -
+	} | doxygen - && \
+	doc_secs=$$(($$(date +%s) - doc_start)); \
+	printf 'Doc built in %ds.\n' "$$doc_secs"
 
 # Two separate sub-makes (not `$(MAKE) clean-doc doc`): `MAKEFLAGS += -j$(NPROCS)`
 # forces the sub-make parallel, so passing both goals at once lets clean-doc's

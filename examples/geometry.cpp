@@ -7,12 +7,15 @@ int main(int argc, char **argv) {
 
 	constexpr bool convex = true;
 	constexpr bool use_random_polygon = false;
+	constexpr bool orthogonal = true;
 
 	const int n = 200;
 	const long long max_coord = 10 * n;
 
 	std::vector<geometry::point<long long>> poly;
-	if (use_random_polygon) {
+	if (orthogonal) {
+		poly = geometry::random_orthogonal_polygon(n, 0, max_coord);
+	} else if (use_random_polygon) {
 		if (convex)
 			poly = geometry::random_convex_polygon(n, 0, max_coord, true);
 		else
