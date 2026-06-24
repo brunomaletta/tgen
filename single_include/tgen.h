@@ -7355,17 +7355,64 @@ inline bool ortho_remove_one_collinear(std::vector<point<long long>> &poly) {
 	return false;
 }
 
+// Insert collinear vertices on straight edges until size reaches `target` (or
+// no edge has spare integer points). To be used for small `target - |poly|`.
+// O(|poly| + target).
+inline void ortho_fill_collinear(std::vector<point<long long>> &poly,
+								 int target) {
+	int need = target - static_cast<int>(poly.size());
+	if (need <= 0)
+		return;
+
+	std::vector<point<long long>> out;
+	int m = static_cast<int>(poly.size());
+	out.reserve(poly.size() + static_cast<size_t>(need));
+
+	for (int i = 0; i < m; ++i) {
+		point<long long> a = poly[i], b = poly[(i + 1) % m];
+		out.push_back(a);
+		if (need <= 0)
+			continue;
+
+		ortho_poly_edge e = ortho_analyze_edge(poly, i);
+		if (e.len < 2)
+			continue;
+
+		// Adds `take` collinear vertices to the boundary.
+		long long take = std::min<long long>(need, e.len - 1);
+		bool forward = e.horiz ? a.x() < b.x() : a.y() < b.y();
+		for (long long k = 0; k < take; ++k) {
+			long long c = forward ? e.lo + 1 + k : e.hi - 1 - k;
+			out.push_back(e.horiz ? point<long long>{c, e.fixed}
+								  : point<long long>{e.fixed, c});
+		}
+		need -= take;
+	}
+	poly = std::move(out);
+}
+
 // CCW square seed plus boundary inflate/cut to about n vertices.
-// O(n^2).
+// O(n^2) for small n; O(n) collinear fill dominates for large n.
 inline std::vector<point<long long>> build_orthogonal_polygon(int n,
 															  bool strict) {
-	// Larger n gets a larger seed square (only translated later, not scaled).
-	long long side = std::max(3LL, static_cast<long long>(std::sqrt(n)));
+	// Seed square side: sqrt(n) for small n, ~n/4 for large n (collinear fill).
+	long long side = std::max<int>(3, std::sqrt(n));
+	if (n > 1000)
+		side = std::max(side, static_cast<long long>((n + 3) / 4));
 	std::vector<point<long long>> poly = {
 		{0, 0}, {side, 0}, {side, side}, {0, side}};
 
 	// Each successful bump adds at most two vertices.
 	int target_ops = std::max(1, (n - 4) / 2);
+
+	// For large n, cap the number of operations to avoid quadratic complexity.
+	if (n > 1000)
+		target_ops = std::min(
+			target_ops,
+			400 + static_cast<int>(4 * std::sqrt(static_cast<double>(n))));
+
+	int failure_limit = std::min(target_ops * 8, 2000);
+
 	std::vector<int> last_used;
 	int time_stamp = 0, consecutive_failures = 0;
 	for (int ops = 0; ops < target_ops;) {
@@ -7376,7 +7423,7 @@ inline std::vector<point<long long>> build_orthogonal_polygon(int n,
 		if (ortho_try_bump(poly, n, last_used, time_stamp)) {
 			++ops;
 			consecutive_failures = 0;
-		} else if (++consecutive_failures >= target_ops * 8) {
+		} else if (++consecutive_failures >= failure_limit) {
 			// Stop bumping after many consecutive failures.
 			break;
 		}
@@ -7388,6 +7435,9 @@ inline std::vector<point<long long>> build_orthogonal_polygon(int n,
 	while (static_cast<int>(poly.size()) > n and
 		   ortho_remove_one_collinear(poly))
 		;
+
+	if (!strict)
+		ortho_fill_collinear(poly, n);
 
 	return poly;
 }

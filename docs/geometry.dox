@@ -96,12 +96,10 @@ namespace tgen::geometry {
  *
  * ```cpp
  * auto poly = tgen::geometry::random_orthogonal_polygon(200, 0, 2000);
- * std::cout << poly.size() << std::endl;
  * std::cout << tgen::print(poly, '\n') << std::endl;
  * ```
  *
  * ```
- * 199
  * 1164 1866
  * 1164 1862
  * ...
@@ -448,14 +446,16 @@ namespace tgen::geometry {
  * @pre @tt{@pname{n} >= 4}.
  *
  * @return Vertices of a simple orthogonal polygon with axis-aligned edges,
- * listed in counterclockwise order. The vertex count is at most @pname{n} and
- * typically close to it.
+ * listed in counterclockwise order. When @pname{strict} is
+ * @tt{@primitive{false}}, the vertex count is exactly @pname{n}. When
+ * @pname{strict} is @tt{@primitive{true}}, the count is at most @pname{n}
+ * (generally close to @pname{n}).
  *
  * #### Generation
  *
- * The polygon starts as a small axis-aligned square. The implementation then
- * applies about @tt{(@pname{n} - 4) / 2} local boundary edits inspired by
- * inflate/cut operations:
+ * The polygon starts as a small axis-aligned square. The
+ * implementation then applies local boundary edits inspired by inflate/cut
+ * operations:
  *
  * - **Inflate (outward tab):** (~75% of steps) a rectangular protrusion is
  *   spliced onto a boundary subsegment, growing the shape outward.
@@ -464,7 +464,8 @@ namespace tgen::geometry {
  *
  * Each step picks a boundary edge (favoring longer segments and edges that
  * were not edited recently), chooses a subsegment and depth, then splices the
- * rectangle if validation passes.
+ * rectangle if validation passes. When @pname{strict} is
+ * @tt{@primitive{true}}, collinear vertices are removed.
  *
  * @throws std::runtime_error if the coordinate range is too small or
  * generation fails.
@@ -473,7 +474,8 @@ namespace tgen::geometry {
  *
  * #### Complexity
  *
- * @tt{O(@pname{n}^2)}.
+ * @tt{O(@pname{n}^2)} for @tt{@pname{n} <= 1000}; <br>
+ * @tt{O(@pname{n})} otherwise.
  *
  * #### Examples
  *

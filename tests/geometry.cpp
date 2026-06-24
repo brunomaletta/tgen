@@ -1058,8 +1058,7 @@ TEST(geometry_test, random_orthogonal_polygon_basic) {
 	const int n = 40;
 	auto poly = tgen::geometry::random_orthogonal_polygon(n, 0, 1000);
 
-	EXPECT_GE(poly.size(), 4u);
-	EXPECT_LE(poly.size(), static_cast<size_t>(n));
+	EXPECT_EQ(poly.size(), static_cast<size_t>(n));
 	EXPECT_TRUE(verify_orthogonal_polygon(poly, n, 0, 1000));
 
 	auto strict_poly =
@@ -1099,6 +1098,7 @@ TEST(geometry_test, random_orthogonal_polygon_repeated_calls) {
 	const int n = 60;
 	for (int trial = 0; trial < 5; ++trial) {
 		auto poly = tgen::geometry::random_orthogonal_polygon(n, 0, 5000);
+		EXPECT_EQ(poly.size(), static_cast<size_t>(n));
 		EXPECT_TRUE(verify_orthogonal_polygon(poly, n, 0, 5000));
 	}
 }
@@ -1108,6 +1108,7 @@ TEST(geometry_test, random_orthogonal_polygon_many_n) {
 
 	for (int n = 4; n <= 40; n += 4) {
 		auto poly = tgen::geometry::random_orthogonal_polygon(n, 0, 10'000);
+		EXPECT_EQ(poly.size(), static_cast<size_t>(n));
 		EXPECT_TRUE(verify_orthogonal_polygon(poly, n, 0, 10'000));
 
 		auto strict_poly =
