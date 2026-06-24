@@ -210,7 +210,7 @@ std::vector<benchmark::CaseResult> run_all(const BenchmarkScale &scale) {
 	int no = scale.n_ortho_geom();
 	run("tgen::geometry::random_orthogonal_polygon", "",
 		scale.smoke ? "n=5e2, min=0, max=5e4, strict=false"
-					: "n=1e4, min=0, max=3e6, strict=false",
+					: "n=1e6, min=0, max=3e6, strict=false",
 		"tgen::geometry::random_orthogonal_polygon", [=] {
 			consume_polygon(
 				tgen::geometry::random_orthogonal_polygon(no, 0, gmax, false));
@@ -218,7 +218,7 @@ std::vector<benchmark::CaseResult> run_all(const BenchmarkScale &scale) {
 
 	run("tgen::geometry::random_orthogonal_polygon", " (strict)",
 		scale.smoke ? "n=5e2, min=0, max=5e4, strict=true"
-					: "n=1e4, min=0, max=3e6, strict=true",
+					: "n=1e6, min=0, max=3e6, strict=true",
 		"tgen::geometry::random_orthogonal_polygon", [=] {
 			consume_polygon(
 				tgen::geometry::random_orthogonal_polygon(no, 0, gmax, true));

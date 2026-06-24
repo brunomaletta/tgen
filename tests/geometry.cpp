@@ -1090,6 +1090,9 @@ TEST(geometry_test, random_orthogonal_polygon_invalid_range) {
 	EXPECT_THROW_TGEN_PREFIX(
 		tgen::geometry::random_orthogonal_polygon(20, 0, 2),
 		"geometry: random_orthogonal_polygon: coordinate range too small");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::geometry::random_orthogonal_polygon(5000, 0, 100),
+		"geometry: random_orthogonal_polygon: coordinate range too small");
 }
 
 TEST(geometry_test, random_orthogonal_polygon_repeated_calls) {
@@ -1101,6 +1104,21 @@ TEST(geometry_test, random_orthogonal_polygon_repeated_calls) {
 		EXPECT_EQ(poly.size(), static_cast<size_t>(n));
 		EXPECT_TRUE(verify_orthogonal_polygon(poly, n, 0, 5000));
 	}
+}
+
+TEST(geometry_test, random_orthogonal_polygon_large_n_contract) {
+	tgen::register_gen(11);
+
+	const int n = 5000;
+	auto poly = tgen::geometry::random_orthogonal_polygon(n, 0, 50'000);
+	EXPECT_EQ(poly.size(), static_cast<size_t>(n));
+	EXPECT_TRUE(verify_orthogonal_polygon(poly, n, 0, 50'000));
+
+	auto strict_poly =
+		tgen::geometry::random_orthogonal_polygon(n, 0, 50'000, true);
+	EXPECT_LT(strict_poly.size(), static_cast<size_t>(n));
+	EXPECT_TRUE(verify_orthogonal_polygon(strict_poly, n, 0, 50'000));
+	EXPECT_FALSE(has_consecutive_collinear(strict_poly));
 }
 
 TEST(geometry_test, random_orthogonal_polygon_many_n) {

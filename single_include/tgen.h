@@ -7356,7 +7356,7 @@ inline bool ortho_remove_one_collinear(std::vector<point<long long>> &poly) {
 }
 
 // Insert collinear vertices on straight edges until size reaches `target` (or
-// no edge has spare integer points). To be used for small `target - |poly|`.
+// no edge has spare integer points). Preserves boundary order.
 // O(|poly| + target).
 inline void ortho_fill_collinear(std::vector<point<long long>> &poly,
 								 int target) {
@@ -7375,16 +7375,20 @@ inline void ortho_fill_collinear(std::vector<point<long long>> &poly,
 			continue;
 
 		ortho_poly_edge e = ortho_analyze_edge(poly, i);
-		if (e.len < 2)
+		long long cap = e.len - 1;
+		if (cap <= 0)
 			continue;
 
 		// Adds `take` collinear vertices to the boundary.
-		long long take = std::min<long long>(need, e.len - 1);
+		long long take = std::min<long long>(need, cap);
 		bool forward = e.horiz ? a.x() < b.x() : a.y() < b.y();
 		for (long long k = 0; k < take; ++k) {
-			long long c = forward ? e.lo + 1 + k : e.hi - 1 - k;
-			out.push_back(e.horiz ? point<long long>{c, e.fixed}
-								  : point<long long>{e.fixed, c});
+			long long off = (k + 1) * (cap + 1) / (take + 1);
+			long long coord = forward ? e.lo + off : e.hi - off;
+			if (e.horiz)
+				out.push_back({coord, e.fixed});
+			else
+				out.push_back({e.fixed, coord});
 		}
 		need -= take;
 	}
@@ -7396,13 +7400,13 @@ inline void ortho_fill_collinear(std::vector<point<long long>> &poly,
 inline std::vector<point<long long>> build_orthogonal_polygon(int n,
 															  bool strict) {
 	// Seed square side: sqrt(n) for small n, ~n/4 for large n (collinear fill).
-	long long side = std::max<int>(3, std::sqrt(n));
+	long long side = std::max(3LL, static_cast<long long>(std::sqrt(n)));
 	if (n > 1000)
 		side = std::max(side, static_cast<long long>((n + 3) / 4));
 	std::vector<point<long long>> poly = {
 		{0, 0}, {side, 0}, {side, side}, {0, side}};
 
-	// Each successful bump adds at most two vertices.
+	// Each successful bump adds 2 to 4 vertices.
 	int target_ops = std::max(1, (n - 4) / 2);
 
 	// For large n, cap the number of operations to avoid quadratic complexity.
@@ -7469,8 +7473,9 @@ random_simple_polygon(int n, long long min_coord, long long max_coord,
 	return random_simple_polygon_through_points(points);
 }
 
-// Random orthogonal simple polygon, at most n vertices, CCW.
-// O(n^2).
+// Random orthogonal simple polygon, CCW.
+// Exactly n vertices when !strict; at most n vertices when strict.
+// O(n^2) for small n; O(n) for large n.
 inline std::vector<point<long long>>
 random_orthogonal_polygon(int n, long long min_coord, long long max_coord,
 						  bool strict = false) {
@@ -7479,7 +7484,7 @@ random_orthogonal_polygon(int n, long long min_coord, long long max_coord,
 	tgen_ensure(max_coord >= min_coord,
 				"geometry: random_orthogonal_polygon: min_coord must be at "
 				"most max_coord");
-	tgen_ensure(detail::i128(max_coord) - min_coord + 1 <=
+	tgen_ensure(static_cast<detail::i128>(max_coord) - min_coord + 1 <=
 					std::numeric_limits<long long>::max(),
 				"geometry: random_orthogonal_polygon: coordinate range too "
 				"large");
@@ -7490,6 +7495,18 @@ random_orthogonal_polygon(int n, long long min_coord, long long max_coord,
 
 	std::vector<point<long long>> poly =
 		detail::build_orthogonal_polygon(n, strict);
+
+	detail::i128 min_x = poly[0].x(), max_x = poly[0].x();
+	detail::i128 min_y = poly[0].y(), max_y = poly[0].y();
+	for (const point<long long> &p : poly) {
+		min_x = std::min(min_x, static_cast<detail::i128>(p.x()));
+		max_x = std::max(max_x, static_cast<detail::i128>(p.x()));
+		min_y = std::min(min_y, static_cast<detail::i128>(p.y()));
+		max_y = std::max(max_y, static_cast<detail::i128>(p.y()));
+	}
+	tgen_ensure(max_x - min_x < width and max_y - min_y < width,
+				"geometry: random_orthogonal_polygon: coordinate range too "
+				"small");
 
 	detail::place_inside_box(poly, min_coord, max_coord);
 	detail::randomize_cyclic_shift(poly);

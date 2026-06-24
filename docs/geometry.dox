@@ -448,8 +448,9 @@ namespace tgen::geometry {
  * @return Vertices of a simple orthogonal polygon with axis-aligned edges,
  * listed in counterclockwise order. When @pname{strict} is
  * @tt{@primitive{false}}, the vertex count is exactly @pname{n}. When
- * @pname{strict} is @tt{@primitive{true}}, the count is at most @pname{n}
- * (generally close to @pname{n}).
+ * @pname{strict} is @tt{@primitive{true}}, the count is at most @pname{n};
+ * for large @pname{n}, it can be much smaller because boundary edits are
+ * capped to avoid quadratic running time.
  *
  * #### Generation
  *
@@ -467,8 +468,7 @@ namespace tgen::geometry {
  * rectangle if validation passes. When @pname{strict} is
  * @tt{@primitive{true}}, collinear vertices are removed.
  *
- * @throws std::runtime_error if the coordinate range is too small or
- * generation fails.
+ * @throws std::runtime_error if the coordinate range is too small.
  *
  * @note This operation is not uniformly random.
  *
