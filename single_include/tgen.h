@@ -6490,11 +6490,12 @@ random_points_general_position(int n, long long min_coord,
 				"geometry: random_points_general_position: coordinate range "
 				"too small for n");
 
-	// Base set {(x, x^-1 mod p) : x \in {1, ..., p - 1}}.
+	// Base set: (x, x^-1 mod p) for x = 1, ..., p - 1.
 	//
-	// Over F_p, y = x^-1 is a rational map on nonzero x, so any line meets the
-	// graph in at most two points. Distinct x therefore give distinct points;
-	// no three of them can be collinear in the integer plane.
+	// For a line ax + by + c = 0, substituting y = x^-1 gives ax^2 + cx + b = 0
+	// (for x != 0), a quadratic with at most two roots in F_p. So at most two base
+	// points lie on any line. x |-> x^-1 is bijective on {1, ..., p - 1}, so all
+	// points are distinct and no three are collinear.
 	std::vector<uint64_t> x_range(p - 1);
 	std::iota(x_range.begin(), x_range.end(), 1);
 	shuffle(x_range.begin(), x_range.end());
@@ -6505,24 +6506,11 @@ random_points_general_position(int n, long long min_coord,
 		by[i] = math::modular_inverse(x, p);
 	}
 
-	// Applies a random element of SL(2, p) by composing several elementary
-	// shear matrices over F_p.
-	//
-	// Each step applies either
-	//     [1 r]       or       [1 0]
-	//     [0 1]                [r 1]
-	//
-	// with r \in {-2, -1, 1, 2}, and all arithmetic performed modulo p.
-	// After all iterations, the resulting transformation is
-	// A = S_k S_{k-1} ... S_1
-	//
-	// where every S_i has determinant 1. Therefore det(A) = 1 (mod p),
-	// so A is invertible.
-	//
-	// Invertible affine transformations of F_p^2 preserve collinearity and
-	// non-collinearity. Since the base set {(x, x^-1 mod p)} contains no
-	// three collinear points, the transformed set also contains no three
-	// collinear points.
+	// Randomize placement without breaking general position: compose elementary
+	// shears in SL(2, F_p), each either [1 r; 0 1] or [1 0; r 1] with
+	// r in {-2, -1, 1, 2} (mod p). Every shear has determinant 1, so their
+	// product is invertible. Invertible linear maps preserve collinearity, so
+	// the image still has no three collinear points.
 	const int num_shears = 8;
 	std::vector<detail::i128> lin_x = bx, lin_y = by;
 
