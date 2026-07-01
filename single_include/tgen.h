@@ -6493,9 +6493,9 @@ random_points_general_position(int n, long long min_coord,
 	// Base set: (x, x^-1 mod p) for x = 1, ..., p - 1.
 	//
 	// For a line ax + by + c = 0, substituting y = x^-1 gives ax^2 + cx + b = 0
-	// (for x != 0), a quadratic with at most two roots in F_p. So at most two base
-	// points lie on any line. x |-> x^-1 is bijective on {1, ..., p - 1}, so all
-	// points are distinct and no three are collinear.
+	// (for x != 0), a quadratic with at most two roots in F_p. So at most two
+	// base points lie on any line. x |-> x^-1 is bijective on {1, ..., p - 1},
+	// so all points are distinct and no three are collinear.
 	std::vector<uint64_t> x_range(p - 1);
 	std::iota(x_range.begin(), x_range.end(), 1);
 	shuffle(x_range.begin(), x_range.end());
