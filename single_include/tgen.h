@@ -6971,13 +6971,25 @@ inline std::vector<point<long long>> random_simple_polygon_through_points(
 				"geometry: random_simple_polygon_through_points: all points "
 				"are collinear; no simple polygon exists");
 
+	// Keep points collinear with AB on the chain that has no other points on
+	// its side, so AB is split through those vertices instead of crossing them
+	// later.
+	int negative_count = 0;
+	for (int i = 0; i < n; ++i) {
+		if (i == idx_a or i == idx_b)
+			continue;
+		if (detail::ccw(A, B, points[i]) < 0)
+			++negative_count;
+	}
+
 	std::vector<point<long long>> chain;
 	chain.push_back(A);
 	int left_count = 0;
 	for (int i = 0; i < n; ++i) {
 		if (i == idx_a or i == idx_b)
 			continue;
-		if (detail::ccw(A, B, points[i]) <= 0) {
+		detail::i128 side = detail::ccw(A, B, points[i]);
+		if (side < 0 or (side == 0 and negative_count == 0)) {
 			chain.push_back(points[i]);
 			++left_count;
 		}
@@ -6986,7 +6998,8 @@ inline std::vector<point<long long>> random_simple_polygon_through_points(
 	for (int i = 0; i < n; ++i) {
 		if (i == idx_a or i == idx_b)
 			continue;
-		if (detail::ccw(A, B, points[i]) > 0)
+		detail::i128 side = detail::ccw(A, B, points[i]);
+		if (side > 0 or (side == 0 and negative_count != 0))
 			chain.push_back(points[i]);
 	}
 	chain.push_back(A);

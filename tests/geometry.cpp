@@ -176,6 +176,26 @@ bool segments_properly_intersect(const tgen::geometry::point<long long> &a,
 		   ((o3 > 0 and o4 < 0) or (o3 < 0 and o4 > 0));
 }
 
+bool point_on_segment(const tgen::geometry::point<long long> &a,
+					  const tgen::geometry::point<long long> &p,
+					  const tgen::geometry::point<long long> &b) {
+	if (!collinear(a, p, b))
+		return false;
+	return std::min(a.x(), b.x()) <= p.x() and
+		   p.x() <= std::max(a.x(), b.x()) and
+		   std::min(a.y(), b.y()) <= p.y() and p.y() <= std::max(a.y(), b.y());
+}
+
+bool segments_intersect(const tgen::geometry::point<long long> &a,
+						const tgen::geometry::point<long long> &b,
+						const tgen::geometry::point<long long> &c,
+						const tgen::geometry::point<long long> &d) {
+	if (segments_properly_intersect(a, b, c, d))
+		return true;
+	return point_on_segment(a, c, b) or point_on_segment(a, d, b) or
+		   point_on_segment(c, a, d) or point_on_segment(c, b, d);
+}
+
 bool is_counterclockwise(
 	const std::vector<tgen::geometry::point<long long>> &poly) {
 	int n = static_cast<int>(poly.size());
@@ -209,8 +229,7 @@ bool verify_simple_polygon(
 			int nj = (j + 1) % n;
 			if (j == i + 1 or (i == 0 and j == n - 1))
 				continue;
-			if (segments_properly_intersect(poly[i], poly[ni], poly[j],
-											poly[nj]))
+			if (segments_intersect(poly[i], poly[ni], poly[j], poly[nj]))
 				return false;
 		}
 	}
@@ -868,6 +887,15 @@ TEST(geometry_test, random_simple_polygon_basic) {
 	expect_no_three_collinear(strict_poly);
 }
 
+TEST(geometry_test, random_simple_polygon_reproducer_seed) {
+	tgen::register_gen(1);
+
+	for (int i = 0; i < 1000; ++i) {
+		auto poly = tgen::geometry::random_simple_polygon(5, 0, 10);
+		EXPECT_TRUE(verify_simple_polygon(poly, 5, 0, 10));
+	}
+}
+
 TEST(geometry_test, random_simple_polygon_invalid_n) {
 	tgen::register_gen();
 
@@ -1045,11 +1073,25 @@ bool verify_orthogonal_polygon(
 			return false;
 	}
 	int m = static_cast<int>(poly.size());
+	std::set<tgen::geometry::point<long long>> seen(poly.begin(), poly.end());
+	if (static_cast<int>(seen.size()) != m)
+		return false;
 	for (int i = 0; i < m; ++i) {
 		if (!is_orthogonal_edge(poly[i], poly[(i + 1) % m]))
 			return false;
 	}
-	return verify_simple_polygon(poly, m, min_coord, max_coord);
+	for (int i = 0; i < m; ++i) {
+		int ni = (i + 1) % m;
+		for (int j = i + 1; j < m; ++j) {
+			int nj = (j + 1) % m;
+			if (j == i + 1 or (i == 0 and j == m - 1))
+				continue;
+			if (segments_properly_intersect(poly[i], poly[ni], poly[j],
+											poly[nj]))
+				return false;
+		}
+	}
+	return is_counterclockwise(poly);
 }
 
 TEST(geometry_test, random_orthogonal_polygon_basic) {
