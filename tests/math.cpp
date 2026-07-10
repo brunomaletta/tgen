@@ -288,9 +288,31 @@ TEST(math_test, gen_divisor_count) {
 			tgen::next<uint64_t>(largest_number_64 / 100, largest_number_64);
 
 		auto p = tgen::math::gen_prime(0, 10);
-		auto x = tgen::math::gen_divisor_count(l, r, p);
-		EXPECT_TRUE(static_cast<uint64_t>(tgen::math::num_divisors(x)) == p);
-		EXPECT_TRUE(l <= x and x <= r);
+		try {
+			auto x = tgen::math::gen_divisor_count(l, r, p);
+			EXPECT_TRUE(static_cast<uint64_t>(tgen::math::num_divisors(x)) ==
+						p);
+			EXPECT_TRUE(l <= x and x <= r);
+		} catch (const std::runtime_error &e) {
+			int root = p - 1;
+			auto lo = tgen::math::detail::kth_root_floor(l, root);
+			if (*tgen::math::detail::expo(lo, root, l) < l)
+				++lo;
+			auto hi = tgen::math::detail::kth_root_floor(r, root);
+
+			bool has_prime_base = false;
+			if (hi >= std::max<uint64_t>(lo, 2))
+				has_prime_base =
+					tgen::math::prime_upto(hi) >= std::max<uint64_t>(lo, 2);
+
+			std::string msg = e.what();
+			EXPECT_FALSE(has_prime_base)
+				<< "gen_divisor_count threw despite a valid prime base in ["
+				<< lo << ", " << hi << "]: " << msg;
+			EXPECT_TRUE(
+				msg.rfind("tgen: math: there is no prime in range", 0) == 0)
+				<< "Unexpected error: " << msg;
+		}
 	}
 }
 
