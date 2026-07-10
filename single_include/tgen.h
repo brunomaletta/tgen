@@ -7256,7 +7256,8 @@ inline bool ortho_bump_valid(const std::vector<point<long long>> &poly,
 // O(|poly|).
 inline bool ortho_bump_edge(std::vector<point<long long>> &poly, int edge_i,
 							const ortho_poly_edge &e, long long lo,
-							long long hi, long long depth, bool inward) {
+							long long hi, long long depth, bool inward,
+							size_t max_vertices) {
 	int m = poly.size();
 	point<long long> A = poly[edge_i], B = poly[(edge_i + 1) % m];
 
@@ -7299,6 +7300,8 @@ inline bool ortho_bump_edge(std::vector<point<long long>> &poly, int edge_i,
 				add.emplace_back(x, lo);
 		}
 	}
+	if (poly.size() > max_vertices or add.size() > max_vertices - poly.size())
+		return false;
 	if (!ortho_bump_valid(poly, A, B, add, edge_i, inward))
 		return false;
 
@@ -7337,9 +7340,11 @@ inline int ortho_pick_poly_edge(const std::vector<point<long long>> &poly,
 
 // One random inflate/cut attempt.
 // O(|poly|).
-inline bool ortho_try_bump(std::vector<point<long long>> &poly, int n,
-						   std::vector<int> &last_used, int &time_stamp,
-						   bool outward_only = false) {
+inline bool
+ortho_try_bump(std::vector<point<long long>> &poly, int n,
+			   std::vector<int> &last_used, int &time_stamp,
+			   bool outward_only = false,
+			   size_t max_vertices = std::numeric_limits<size_t>::max()) {
 	if (poly.size() < 3)
 		return false;
 
@@ -7363,7 +7368,8 @@ inline bool ortho_try_bump(std::vector<point<long long>> &poly, int n,
 					  : next<long long>(1, std::max(2LL, max_depth / 3));
 
 	bool inward = !outward_only and next(4) == 0;
-	return ortho_bump_edge(poly, ei, e, lo, lo + span, depth, inward);
+	return ortho_bump_edge(poly, ei, e, lo, lo + span, depth, inward,
+						   max_vertices);
 }
 
 // Drops axis-aligned collinear vertices.
@@ -7520,11 +7526,14 @@ inline std::vector<point<long long>> build_orthogonal_polygon(int n,
 
 	std::vector<int> last_used;
 	int time_stamp = 0, consecutive_failures = 0;
+	size_t max_vertices =
+		scale_up ? std::numeric_limits<size_t>::max() : static_cast<size_t>(n);
 	for (int ops = 0; ops < target_ops;) {
 		if (!scale_up and poly.size() + 2 > static_cast<size_t>(n))
 			break;
 
-		if (ortho_try_bump(poly, n, last_used, time_stamp, scale_up)) {
+		if (ortho_try_bump(poly, n, last_used, time_stamp, scale_up,
+						   max_vertices)) {
 			++ops;
 			consecutive_failures = 0;
 		} else if (++consecutive_failures >= failure_limit) {
