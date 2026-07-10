@@ -50,6 +50,13 @@ CXXFLAGS_CLANG  := $(CXXFLAGS_COMMON) -O2
 CXXFLAGS_ASAN   := $(CXXFLAGS_COMMON) -g -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer
 
 GTEST_LIBS := -lgtest -lgtest_main
+GTEST_ARGS ?=
+WERROR_FLAG := $(if $(filter 1 yes true on,$(WERROR)),-Werror,)
+
+# Run gtest binary $(1); on failure print failed case names.
+define RUN_GTEST
+	bash -c 'set -o pipefail; log="$(BUILD_ROOT)/test_last.log"; mkdir -p "$(BUILD_ROOT)"; $(1) $(GTEST_ARGS) 2>&1 | tee "$$log"; status=$$?; if [ $$status -ne 0 ]; then printf "\n%s\n" "Failed test(s):" >&2; grep -E "^\[  FAILED  \] [A-Za-z0-9_]+\.[A-Za-z0-9_]+" "$$log" | sed "s/^\[  FAILED  \] /  /; s/ ([0-9]* ms)$$//" | sort -u >&2; printf "\n%s\n" "Re-run one: $(1) --gtest_filter=Suite.TestName" >&2; exit $$status; fi'
+endef
 
 # $(1)=install name  $(2)=source under examples/  $(3)=compiler (CXX_GCC or CXX_CLANG)
 define EXAMPLE_LINK_RULE
@@ -83,7 +90,7 @@ BENCHMARK_CXXFLAGS := -std=c++17 -O2
 
 .PHONY: all doc doc-prepare llms doc-rebuild clean-doc opendoc lint lint-check test test_clang test_asan \
 	sample sample_debug range_queries graph geometry benchmark \
-	benchmark-baseline-local benchmark-check-local benchmark-check cloc \
+	benchmark-baseline-local benchmark-baseline-ci benchmark-check-local benchmark-check check cloc \
 	help print-% %-asan
 
 clean:
@@ -97,38 +104,38 @@ $(GCC_OBJDIR) $(CLANG_OBJDIR) $(ASAN_OBJDIR) $(BENCHMARK_DIR):
 
 # Per-TU objects + dependency files for incremental builds
 $(GCC_OBJDIR)/%.o: tests/%.cpp $(TGEN_HEADER) $(TEST_HEADERS) | $(GCC_OBJDIR)
-	$(CXX_GCC) $(CXXFLAGS_GCC) -MMD -MP -c $< -o $@
+	$(CXX_GCC) $(CXXFLAGS_GCC) $(WERROR_FLAG) -MMD -MP -c $< -o $@
 
 $(CLANG_OBJDIR)/%.o: tests/%.cpp $(TGEN_HEADER) $(TEST_HEADERS) | $(CLANG_OBJDIR)
-	$(CXX_CLANG) $(CXXFLAGS_CLANG) -MMD -MP -c $< -o $@
+	$(CXX_CLANG) $(CXXFLAGS_CLANG) $(WERROR_FLAG) -MMD -MP -c $< -o $@
 
 $(ASAN_OBJDIR)/%.o: tests/%.cpp $(TGEN_HEADER) $(TEST_HEADERS) | $(ASAN_OBJDIR)
-	$(CXX_ASAN) $(CXXFLAGS_ASAN) -MMD -MP -c $< -o $@
+	$(CXX_ASAN) $(CXXFLAGS_ASAN) $(WERROR_FLAG) -MMD -MP -c $< -o $@
 
 $(GCC_OBJDIR)/test: $(GCC_OBJS)
-	$(CXX_GCC) $(CXXFLAGS_GCC) $^ $(GTEST_LIBS) -o $@
+	$(CXX_GCC) $(CXXFLAGS_GCC) $(WERROR_FLAG) $^ $(GTEST_LIBS) -o $@
 
 $(CLANG_OBJDIR)/test: $(CLANG_OBJS)
-	$(CXX_CLANG) $(CXXFLAGS_CLANG) $^ $(GTEST_LIBS) -o $@
+	$(CXX_CLANG) $(CXXFLAGS_CLANG) $(WERROR_FLAG) $^ $(GTEST_LIBS) -o $@
 
 $(ASAN_OBJDIR)/test: $(ASAN_OBJS)
-	$(CXX_ASAN) $(CXXFLAGS_ASAN) $^ $(GTEST_LIBS) -o $@
+	$(CXX_ASAN) $(CXXFLAGS_ASAN) $(WERROR_FLAG) $^ $(GTEST_LIBS) -o $@
 
 -include $(GCC_OBJS:.o=.d)
 -include $(CLANG_OBJS:.o=.d)
 -include $(ASAN_OBJS:.o=.d)
 
 test: $(GCC_OBJDIR)/test
-	$<
-	@rm -f $<
+	$(call RUN_GTEST,$(GCC_OBJDIR)/test)
+	@rm -f $(GCC_OBJDIR)/test
 
 test_clang: $(CLANG_OBJDIR)/test
-	$<
-	@rm -f $<
+	$(call RUN_GTEST,$(CLANG_OBJDIR)/test)
+	@rm -f $(CLANG_OBJDIR)/test
 
 test_asan: $(ASAN_OBJDIR)/test
-	$<
-	@rm -f $<
+	$(call RUN_GTEST,$(ASAN_OBJDIR)/test)
+	@rm -f $(ASAN_OBJDIR)/test
 
 $(BENCHMARK_BIN): benchmarks/main.cpp benchmarks/benchmark.h $(TGEN_HEADER) | $(BENCHMARK_DIR)
 	$(CXX_GCC) $(BENCHMARK_CXXFLAGS) -I $(SRC_DIR) benchmarks/main.cpp -o $@
@@ -141,6 +148,10 @@ benchmark-baseline-local: $(BENCHMARK_BIN)
 	$< --update-baseline benchmarks/local_baseline.json
 	@echo "Wrote benchmarks/local_baseline.json (gitignored)."
 
+benchmark-baseline-ci: $(BENCHMARK_BIN)
+	$< --smoke --update-baseline benchmarks/ci_baseline.json
+	@echo "Wrote benchmarks/ci_baseline.json."
+
 benchmark-check-local: $(BENCHMARK_BIN)
 	@test -f benchmarks/local_baseline.json || { printf '%s\n' "Run 'make benchmark-baseline-local' first." >&2; exit 1; }
 	$< --check benchmarks/local_baseline.json --threshold 2.0 --json /tmp/tgen_bench_local.json
@@ -149,6 +160,14 @@ benchmark-check-local: $(BENCHMARK_BIN)
 benchmark-check: $(BENCHMARK_BIN)
 	$< --smoke --json /tmp/tgen_bench_smoke.json
 	$< --smoke --check benchmarks/ci_baseline.json --threshold 2.0 --json /tmp/tgen_bench_ci.json
+
+# Pre-commit gate: formatting, tests, smoke benchmark regression.
+check:
+	@printf '%s\n' 'Running pre-commit checks (lint, test, benchmark)...' ''
+	@$(MAKE) lint-check || { printf '\n%s\n' 'Fix: make lint'; exit 1; }
+	@$(MAKE) test WERROR=1 || { printf '\n%s\n' 'Fix: compiler warnings (-Werror) or failed test(s) above'; exit 1; }
+	@$(MAKE) benchmark-check || { printf '\n%s\n' 'Fix: investigate regression, or run make benchmark-baseline-ci after an intentional change'; exit 1; }
+	@printf '\n%s\n' 'All checks passed — ok to commit.'
 
 # XML-only Doxygen pass + llms markdown. Benchmark HTML is rendered in `doc` (needs XML).
 doc-prepare:
@@ -255,8 +274,9 @@ help:
 	@echo " + argv:   make graph ARGS='…'   (sample, graph, graph-asan, …)"
 	@echo " + ASan:   make graph ASAN=1   or   make graph-asan   (same for sample-asan, …)"
 	@echo "           Binaries: build/examples/rel/… and build/examples/asan/… (see ASAN=1)"
-	@echo "Benchmark: make benchmark | benchmark-baseline-local | benchmark-check-local | benchmark-check"
+	@echo "Benchmark: make benchmark | benchmark-baseline-local | benchmark-baseline-ci | benchmark-check-local | benchmark-check"
 	@echo " + benchmark writes $(BENCHMARK_JSON); make doc renders $(BENCHMARK_HTML)"
+	@echo "Checks:    make check   (lint + test WERROR=1 + benchmark-check, run before commit)"
 	@echo "Docs:      make doc | doc-rebuild | opendoc | clean-doc | llms   (doc also builds llms; doc-rebuild = clean + doc)"
 	@echo "Other:     make lint | lint-check | clean | cloc | print-CXXFLAGS_COMMON"
 

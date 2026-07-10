@@ -7155,48 +7155,91 @@ inline bool ortho_point_inside(const std::vector<point<long long>> &poly,
 	return inside;
 }
 
-// True if open segment s0-s1 hits any poly edge except edge_i.
-// O(|poly|).
-inline bool ortho_seg_hits_boundary(const std::vector<point<long long>> &poly,
-									int edge_i, point<long long> s0,
-									point<long long> s1) {
-	int m = poly.size();
-	for (int j = 0; j < m; ++j) {
-		if (j == edge_i)
-			continue;
-		if (ortho_open_seg_cross(s0, s1, poly[j], poly[(j + 1) % m]))
-			return true;
+// True if p lies strictly in the open segment (a, b).
+// O(1).
+inline bool ortho_point_strictly_interior(point<long long> p,
+										  point<long long> a,
+										  point<long long> b) {
+	if (a.y() == b.y()) {
+		if (p.y() != a.y())
+			return false;
+		long long lo = std::min(a.x(), b.x()), hi = std::max(a.x(), b.x());
+		return lo < p.x() and p.x() < hi;
+	}
+	if (a.x() == b.x()) {
+		if (p.x() != a.x())
+			return false;
+		long long lo = std::min(a.y(), b.y()), hi = std::max(a.y(), b.y());
+		return lo < p.y() and p.y() < hi;
 	}
 	return false;
 }
 
+// True if p lies on the closed segment [a, b].
+// O(1).
+inline bool ortho_point_on_segment(point<long long> p, point<long long> a,
+								   point<long long> b) {
+	return p == a or p == b or ortho_point_strictly_interior(p, a, b);
+}
+
 // True if splicing add between A and B on edge_i is valid: no vertex of add
-// coincides with poly, new segments do not cross other boundary edges, and
-// inward notches keep all of add inside poly.
-// O(|poly|).
+// coincides with poly, no boundary self-contact (forward or reverse
+// T-junctions, collinear overlaps), new segments do not cross other boundary
+// edges, and inward notches keep all of add inside poly.
+// O(|poly|), assuming |add| is O(1).
 inline bool ortho_bump_valid(const std::vector<point<long long>> &poly,
 							 point<long long> A, point<long long> B,
 							 const std::vector<point<long long>> &add,
 							 int edge_i, bool inward) {
-	// Checks for duplicate vertices.
-	for (point<long long> v : add) {
+	int m = poly.size();
+
+	for (point<long long> v : add)
 		for (point<long long> q : poly)
 			if (v == q)
 				return false;
+
+	// Forward T-junction: new vertex on a non-incident edge interior, or on
+	// edge_i but outside the replaced subsegment [A, B].
+	for (point<long long> v : add) {
+		for (int j = 0; j < m; ++j) {
+			point<long long> c = poly[j], d = poly[(j + 1) % m];
+			if (j == edge_i) {
+				if (ortho_point_on_segment(v, c, d) and
+					!ortho_point_on_segment(v, A, B))
+					return false;
+			} else if (ortho_point_strictly_interior(v, c, d)) {
+				return false;
+			}
+		}
 	}
 
-	// Checks for new segment crossings.
+	auto seg_ok = [&](point<long long> s0, point<long long> s1) {
+		for (int j = 0; j < m; ++j) {
+			if (j == edge_i)
+				continue;
+			point<long long> c = poly[j], d = poly[(j + 1) % m];
+			if (ortho_open_seg_cross(s0, s1, c, d))
+				return false;
+		}
+		for (int k = 0; k < m; ++k) {
+			point<long long> q = poly[k];
+			if (q == s0 or q == s1 or q == A or q == B)
+				continue;
+			if (ortho_point_strictly_interior(q, s0, s1))
+				return false;
+		}
+		return true;
+	};
+
 	point<long long> prev = A;
 	for (point<long long> v : add) {
-		if (ortho_seg_hits_boundary(poly, edge_i, prev, v))
+		if (!seg_ok(prev, v))
 			return false;
 		prev = v;
 	}
-	if (ortho_seg_hits_boundary(poly, edge_i, prev, B))
+	if (!seg_ok(prev, B))
 		return false;
 
-	// Inward cuts: crossing checks alone miss notches that extend past the
-	// interior.
 	if (inward) {
 		for (point<long long> v : add)
 			if (!ortho_point_inside(poly, v))
@@ -7267,16 +7310,15 @@ inline bool ortho_bump_edge(std::vector<point<long long>> &poly, int edge_i,
 inline int ortho_pick_poly_edge(const std::vector<point<long long>> &poly,
 								std::vector<int> &last_used, int &time_stamp) {
 	int m = poly.size();
-	if (static_cast<int>(last_used.size()) != m) {
+	if (last_used.size() != static_cast<size_t>(m)) {
 		last_used.assign(m, 0);
 		time_stamp = 0;
 	}
-	int global_timestamp = time_stamp;
 	std::vector<long long> weights(m);
 	long long total = 0;
 	for (int i = 0; i < m; ++i) {
 		ortho_poly_edge e = ortho_analyze_edge(poly, i);
-		weights[i] = e.len * (4 + std::min(global_timestamp - last_used[i], 8));
+		weights[i] = e.len * (4 + std::min(time_stamp - last_used[i], 8));
 		total += weights[i];
 	}
 	long long pick = next<long long>(0, total - 1);
@@ -7294,7 +7336,8 @@ inline int ortho_pick_poly_edge(const std::vector<point<long long>> &poly,
 // One random inflate/cut attempt.
 // O(|poly|).
 inline bool ortho_try_bump(std::vector<point<long long>> &poly, int n,
-						   std::vector<int> &last_used, int &time_stamp) {
+						   std::vector<int> &last_used, int &time_stamp,
+						   bool outward_only = false) {
 	if (poly.size() < 3)
 		return false;
 
@@ -7312,18 +7355,16 @@ inline bool ortho_try_bump(std::vector<point<long long>> &poly, int n,
 	// max_depth: cap on perpendicular tab/notch height (~sqrt(n), in [2, 12]).
 	// depth: actual height; shallow usually, up to max_depth 10% of the time.
 	long long max_depth =
-		std::clamp<long long>((long long)(std::sqrt(n)) / 2 + 2, 2LL, 12LL);
+		std::clamp<long long>(std::sqrt(n) / 2 + 2, 2LL, 12LL);
 	long long depth =
 		next(10) == 0 ? next<long long>(std::max(2LL, max_depth / 2), max_depth)
 					  : next<long long>(1, std::max(2LL, max_depth / 3));
 
-	// ~25% inward cuts; outward tabs succeed more often.
-	constexpr int ortho_inward_prob_denom = 4;
-	return ortho_bump_edge(poly, ei, e, lo, lo + span, depth,
-						   next(ortho_inward_prob_denom) == 0);
+	bool inward = !outward_only and next(4) == 0;
+	return ortho_bump_edge(poly, ei, e, lo, lo + span, depth, inward);
 }
 
-// Drop axis-aligned collinear vertices.
+// Drops axis-aligned collinear vertices.
 // O(n).
 inline std::vector<point<long long>>
 ortho_simplify_collinear(std::vector<point<long long>> poly) {
@@ -7340,7 +7381,7 @@ ortho_simplify_collinear(std::vector<point<long long>> poly) {
 	return out.size() >= 3 ? out : poly;
 }
 
-// Remove one collinear vertex.
+// Removes one collinear vertex.
 // O(n).
 inline bool ortho_remove_one_collinear(std::vector<point<long long>> &poly) {
 	int n = poly.size();
@@ -7356,18 +7397,18 @@ inline bool ortho_remove_one_collinear(std::vector<point<long long>> &poly) {
 	return false;
 }
 
-// Insert collinear vertices on straight edges until size reaches `target` (or
+// Inserts collinear vertices on straight edges until size reaches `target` (or
 // no edge has spare integer points). Preserves boundary order.
-// O(|poly| + target).
+// O(target).
 inline void ortho_fill_collinear(std::vector<point<long long>> &poly,
 								 int target) {
-	int need = target - static_cast<int>(poly.size());
+	int need = target - poly.size();
 	if (need <= 0)
 		return;
 
 	std::vector<point<long long>> out;
-	int m = static_cast<int>(poly.size());
-	out.reserve(poly.size() + static_cast<size_t>(need));
+	int m = poly.size();
+	out.reserve(poly.size() + need);
 
 	for (int i = 0; i < m; ++i) {
 		point<long long> a = poly[i], b = poly[(i + 1) % m];
@@ -7393,55 +7434,116 @@ inline void ortho_fill_collinear(std::vector<point<long long>> &poly,
 		}
 		need -= take;
 	}
-	poly = std::move(out);
+	poly.swap(out);
+}
+
+// Inserts outward depth-1 corrugation tabs on straight edges until size reaches
+// `target` (or no edge has room for another tab). Preserves boundary order.
+// Assumes the scale-up step left every edge on a grid with spacing >= 4.
+// Each tab perturbs a coordinate by 1 and keeps a >= 2 margin from both
+// corners, so tabs can only meet tabs on the same or a directly facing edge.
+// The result is therefore simple and free of collinear triples by construction.
+// O(target).
+inline void ortho_fill_corrugation(std::vector<point<long long>> &poly,
+								   size_t target) {
+	size_t n_sz = poly.size();
+	if (n_sz >= target)
+		return;
+
+	size_t extra_left = target - n_sz;
+
+	std::vector<point<long long>> out;
+	out.reserve(target);
+	int n = poly.size();
+
+	for (int i = 0; i < n; ++i) {
+		point<long long> a = poly[i], b = poly[(i + 1) % n];
+		out.push_back(a);
+
+		if (extra_left < 4)
+			continue;
+
+		ortho_poly_edge e = ortho_analyze_edge(poly, i);
+		if (e.len < 5)
+			continue;
+
+		long long dir = (e.horiz ? a.x() < b.x() : a.y() < b.y()) ? 1 : -1;
+		long long start = e.horiz ? a.x() : a.y();
+		long long end = e.horiz ? b.x() : b.y();
+
+		for (long long pos = start + 2 * dir;
+			 extra_left >= 4 and (pos - end) * dir <= -3; pos += 2 * dir) {
+			if (e.horiz) {
+				long long y2 = e.fixed + e.out_y;
+				out.push_back({pos, e.fixed});
+				out.push_back({pos, y2});
+				out.push_back({pos + dir, y2});
+				out.push_back({pos + dir, e.fixed});
+			} else {
+				long long x2 = e.fixed + e.out_x;
+				out.push_back({e.fixed, pos});
+				out.push_back({x2, pos});
+				out.push_back({x2, pos + dir});
+				out.push_back({e.fixed, pos + dir});
+			}
+			extra_left -= 4;
+		}
+	}
+
+	poly.swap(out);
 }
 
 // CCW square seed plus boundary inflate/cut to about n vertices.
-// O(n^2) for small n; O(n) collinear fill dominates for large n.
+// O(n^2) for n <= 1000; O(n) otherwise.
 inline std::vector<point<long long>> build_orthogonal_polygon(int n,
 															  bool strict) {
-	// Seed square side: sqrt(n) for small n, ~n/4 for large n (collinear fill).
-	long long side = std::max(3LL, static_cast<long long>(std::sqrt(n)));
-	if (n > 1000)
-		side = std::max(side, static_cast<long long>((n + 3) / 4));
+	bool scale_up = n > 1000;
+
+	long long side = std::max<long long>(3, std::sqrt(n));
+	if (scale_up)
+		side = std::clamp(static_cast<long long>(2 * std::sqrt(std::sqrt(n))),
+						  8LL, 64LL);
 	std::vector<point<long long>> poly = {
 		{0, 0}, {side, 0}, {side, side}, {0, side}};
 
-	// Each successful bump adds 2 to 4 vertices.
-	int target_ops = std::max(1, (n - 4) / 2);
+	int target_ops = scale_up ? std::max(1, static_cast<int>(4 * side - 4) / 2)
+							  : std::max(1, (n - 4) / 2);
 
-	// For large n, cap the number of operations to avoid quadratic complexity.
-	if (n > 1000)
+	if (scale_up)
 		target_ops = std::min(
 			target_ops,
-			400 + static_cast<int>(4 * std::sqrt(static_cast<double>(n))));
+			400 + static_cast<int>(4 * std::sqrt(static_cast<double>(side))));
 
 	int failure_limit = std::min(target_ops * 8, 2000);
 
 	std::vector<int> last_used;
 	int time_stamp = 0, consecutive_failures = 0;
 	for (int ops = 0; ops < target_ops;) {
-		// Stop early rather than overshoot n and trim.
-		if (static_cast<int>(poly.size()) + 2 > n)
+		if (!scale_up and poly.size() + 2 > static_cast<size_t>(n))
 			break;
 
-		if (ortho_try_bump(poly, n, last_used, time_stamp)) {
+		if (ortho_try_bump(poly, n, last_used, time_stamp, scale_up)) {
 			++ops;
 			consecutive_failures = 0;
 		} else if (++consecutive_failures >= failure_limit) {
-			// Stop bumping after many consecutive failures.
 			break;
 		}
 	}
 	if (strict)
 		poly = ortho_simplify_collinear(std::move(poly));
 
-	// Bumps can overshoot n; drop collinear vertices until size <= n.
-	while (static_cast<int>(poly.size()) > n and
-		   ortho_remove_one_collinear(poly))
-		;
-
-	if (!strict)
+	if (scale_up) {
+		while (poly.size() > static_cast<size_t>(n) and
+			   ortho_remove_one_collinear(poly))
+			;
+		long long upscale = std::max(4LL, ((n + 3) / 4 + side - 1) / side);
+		for (point<long long> &p : poly)
+			p = {p.x() * upscale, p.y() * upscale};
+		if (strict)
+			ortho_fill_corrugation(poly, n);
+		else
+			ortho_fill_collinear(poly, n);
+	} else if (!strict)
 		ortho_fill_collinear(poly, n);
 
 	return poly;
@@ -7474,9 +7576,10 @@ random_simple_polygon(int n, long long min_coord, long long max_coord,
 	return random_simple_polygon_through_points(points);
 }
 
-// Random orthogonal simple polygon, CCW.
-// Exactly n vertices when !strict; at most n vertices when strict.
-// O(n^2) for small n; O(n) for large n.
+// Random orthogonal simple polygon, CCW. Each local bump/scale/fill step
+// preserves full simplicity, so the result is valid by construction.
+// Exactly n vertices when !strict; at most n when strict (near n for n > 1000).
+// O(n^2) for n <= 1000; O(n) otherwise.
 inline std::vector<point<long long>>
 random_orthogonal_polygon(int n, long long min_coord, long long max_coord,
 						  bool strict = false) {
@@ -7494,24 +7597,38 @@ random_orthogonal_polygon(int n, long long min_coord, long long max_coord,
 				"geometry: random_orthogonal_polygon: coordinate range too "
 				"small");
 
-	std::vector<point<long long>> poly =
-		detail::build_orthogonal_polygon(n, strict);
-
-	detail::i128 min_x = poly[0].x(), max_x = poly[0].x();
-	detail::i128 min_y = poly[0].y(), max_y = poly[0].y();
-	for (const point<long long> &p : poly) {
-		min_x = std::min(min_x, static_cast<detail::i128>(p.x()));
-		max_x = std::max(max_x, static_cast<detail::i128>(p.x()));
-		min_y = std::min(min_y, static_cast<detail::i128>(p.y()));
-		max_y = std::max(max_y, static_cast<detail::i128>(p.y()));
-	}
-	tgen_ensure(max_x - min_x < width and max_y - min_y < width,
+	long long min_side = std::max<long long>(3, std::sqrt(n));
+	if (n > 1000)
+		min_side = std::max<long long>(min_side, (n + 3) / 4);
+	tgen_ensure(min_side < width,
 				"geometry: random_orthogonal_polygon: coordinate range too "
 				"small");
 
-	detail::place_inside_box(poly, min_coord, max_coord);
-	detail::randomize_cyclic_shift(poly);
-	return poly;
+	for (int attempt = 0; attempt < 8; ++attempt) {
+		std::vector<point<long long>> poly =
+			detail::build_orthogonal_polygon(n, strict);
+
+		if (!strict and poly.size() != static_cast<size_t>(n))
+			continue;
+
+		detail::i128 min_x = poly[0].x(), max_x = poly[0].x();
+		detail::i128 min_y = poly[0].y(), max_y = poly[0].y();
+		for (point<long long> p : poly) {
+			min_x = std::min(min_x, detail::i128(p.x()));
+			max_x = std::max(max_x, detail::i128(p.x()));
+			min_y = std::min(min_y, detail::i128(p.y()));
+			max_y = std::max(max_y, detail::i128(p.y()));
+		}
+		if (max_x - min_x >= width or max_y - min_y >= width)
+			continue;
+
+		detail::place_inside_box(poly, min_coord, max_coord);
+		detail::randomize_cyclic_shift(poly);
+		return poly;
+	}
+
+	throw tgen::detail::error(
+		"geometry: random_orthogonal_polygon: generation failed");
 }
 
 } // namespace geometry

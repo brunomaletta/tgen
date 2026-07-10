@@ -445,30 +445,47 @@ namespace tgen::geometry {
  *
  * @pre @tt{@pname{n} >= 4}.
  *
- * @return Vertices of a simple orthogonal polygon with axis-aligned edges,
- * listed in counterclockwise order. When @pname{strict} is
+ * @return Vertices of a fully simple orthogonal polygon with axis-aligned
+ * edges, listed in counterclockwise order. When @pname{strict} is
  * @tt{@primitive{false}}, the vertex count is exactly @pname{n}. When
  * @pname{strict} is @tt{@primitive{true}}, the count is at most @pname{n};
- * for large @pname{n}, it can be much smaller because boundary edits are
- * capped to avoid quadratic running time.
+ * for @tt{@pname{n} <= 1000} it is often smaller because only boundary
+ * bumps are used; for @tt{@pname{n} > 1000} it is near @pname{n}.
  *
- * #### Generation
+ * The polygon is built in local steps that each preserve full simplicity
+ * (no edge crossings, overlaps, or boundary self-contact).
  *
- * The polygon starts as a small axis-aligned square. The
- * implementation then applies local boundary edits inspired by inflate/cut
- * operations:
+ * @tt{@pname{n} <= 1000} bump on a square whose side is about
+ * @tt{sqrt(@pname{n})}:
  *
- * - **Inflate (outward tab):** (~75% of steps) a rectangular protrusion is
- *   spliced onto a boundary subsegment, growing the shape outward.
- * - **Cut (inward notch):** (~25% of steps) a rectangular bite is taken out
- *   of the boundary, creating bays and concavities.
+ * - Start from a small axis-aligned square.
+ * - Apply random <b>inflate</b> (outward tab, ~75% of accepted steps) and
+ *   <b>cut</b> (inward notch, ~25%) operations on boundary subsegments. Each
+ *   edit is accepted only if it keeps the boundary simple.
+ * - When @pname{strict} is @tt{@primitive{true}}, remove collinear vertices.
+ * - <b>Loose:</b> insert collinear vertices along straight edges until the
+ *   count reaches @pname{n}.
+ * - <b>Strict:</b> stop once the count is at most @pname{n} (often below
+ *   @pname{n}).
  *
- * Each step picks a boundary edge (favoring longer segments and edges that
- * were not edited recently), chooses a subsegment and depth, then splices the
- * rectangle if validation passes. When @pname{strict} is
- * @tt{@primitive{true}}, collinear vertices are removed.
+ * @tt{@pname{n} > 1000} scale-up macro shape, then fill:
  *
- * @throws std::runtime_error if the coordinate range is too small.
+ * - Start from a small square (side between 8 and 64).
+ * - Apply outward bumps only to obtain an irregular macro silhouette.
+ * - Multiply all coordinates by an integer factor so the shape spans about
+ *   @tt{(@pname{n}+3)/4} per side.
+ * - <b>Loose:</b> insert collinear vertices along edges until the count
+ *   reaches @pname{n}.
+ * - <b>Strict:</b> insert outward depth-1 corrugation tabs along long edges
+ *   until the count is near @pname{n} (no collinear triples).
+ *
+ * Finally, the polygon is translated into
+ * @tt{[@pname{min_coord}, @pname{max_coord}]} (retrying up to 8 times if
+ * the bounding box is too large for the coordinate range) and cyclically
+ * shifted.
+ *
+ * @throws std::runtime_error if the coordinate range is too small or no
+ * attempt fits inside the box.
  *
  * @note This operation is not uniformly random.
  *

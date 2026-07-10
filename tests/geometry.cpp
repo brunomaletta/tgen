@@ -1158,7 +1158,8 @@ TEST(geometry_test, random_orthogonal_polygon_large_n_contract) {
 
 	auto strict_poly =
 		tgen::geometry::random_orthogonal_polygon(n, 0, 50'000, true);
-	EXPECT_LT(strict_poly.size(), static_cast<size_t>(n));
+	EXPECT_GE(strict_poly.size(), static_cast<size_t>(n) * 95 / 100);
+	EXPECT_LE(strict_poly.size(), static_cast<size_t>(n));
 	EXPECT_TRUE(verify_orthogonal_polygon(strict_poly, n, 0, 50'000));
 	EXPECT_FALSE(has_consecutive_collinear(strict_poly));
 }

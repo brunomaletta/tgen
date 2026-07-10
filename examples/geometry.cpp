@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
 	constexpr bool use_random_polygon = false;
 	constexpr bool orthogonal = true;
 
-	const int n = 500;
+	const int n = 200;
 	const long long max_coord = 10 * n;
 
 	std::vector<geometry::point<long long>> poly;
