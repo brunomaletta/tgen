@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdlib>
 #include <gtest/gtest.h>
 #include <map>
 #include <set>
@@ -6,6 +7,74 @@
 #include <vector>
 
 #include "../single_include/tgen.h"
+
+namespace tgen {
+namespace test_detail {
+
+inline long long stress_seed = []() {
+#ifdef TGEN_STRESSTEST
+	const char *value = std::getenv("TGEN_STRESS_SEED");
+	if (value != nullptr and *value != '\0')
+		return std::stoll(value);
+#endif
+	return 0LL;
+}();
+
+inline void append_stress_seed(std::vector<uint32_t> &seed) {
+	if (stress_seed == 0)
+		return;
+	const auto value = static_cast<unsigned long long>(stress_seed);
+	seed.push_back(
+		0x7467656e); // "tgen", separates argv bytes from stress seed.
+	seed.push_back(static_cast<uint32_t>(value));
+	seed.push_back(static_cast<uint32_t>(value >> 32));
+}
+
+inline void set_seed_with_stress_seed(int argc, char **argv) {
+	std::vector<uint32_t> seed;
+	for (int i = 1; i < argc; ++i) {
+		int size_pos = seed.size();
+		seed.push_back(0);
+		for (char *s = argv[i]; *s != '\0'; ++s) {
+			++seed[size_pos];
+			seed.push_back(*s);
+		}
+	}
+	append_stress_seed(seed);
+	std::seed_seq seq(seed.begin(), seed.end());
+	detail::rng.seed(seq);
+}
+
+} // namespace test_detail
+
+inline void register_gen_with_stress_seed(int argc, char **argv) {
+	if (test_detail::stress_seed == 0) {
+		register_gen(argc, argv);
+		return;
+	}
+
+	test_detail::set_seed_with_stress_seed(argc, argv);
+	detail::pos_opts.clear();
+	detail::named_opts.clear();
+	detail::parse_opts(argc, argv);
+	detail::registered = true;
+}
+
+inline void
+register_gen_with_stress_seed(std::optional<long long> seed = std::nullopt) {
+	const auto base_seed = seed.value_or(std::mt19937::default_seed);
+	detail::rng.seed(static_cast<std::mt19937::result_type>(
+		base_seed + test_detail::stress_seed));
+
+	detail::pos_opts.clear();
+	detail::named_opts.clear();
+	detail::registered = true;
+}
+
+} // namespace tgen
+
+// Overrides the default register_gen to use the stress seed.
+#define register_gen register_gen_with_stress_seed
 
 // Expects an error to be thrown, and asserts
 // that the error message starts with some prefix.

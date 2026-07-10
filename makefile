@@ -23,6 +23,7 @@ BUILD_ROOT := build
 GCC_OBJDIR   := $(BUILD_ROOT)/gcc
 CLANG_OBJDIR := $(BUILD_ROOT)/clang
 ASAN_OBJDIR  := $(BUILD_ROOT)/asan
+STRESS_OBJDIR := $(BUILD_ROOT)/stress
 
 # Example binaries: release vs sanitizer trees so ASAN=1 cannot reuse a release binary
 EXAMPLE_BINDIR := $(BUILD_ROOT)/examples
@@ -39,6 +40,7 @@ TGEN_HEADER   := $(SRC_DIR)/tgen.h
 GCC_OBJS   := $(patsubst tests/%.cpp,$(GCC_OBJDIR)/%.o,$(TEST_SRCS))
 CLANG_OBJS := $(patsubst tests/%.cpp,$(CLANG_OBJDIR)/%.o,$(TEST_SRCS))
 ASAN_OBJS  := $(patsubst tests/%.cpp,$(ASAN_OBJDIR)/%.o,$(TEST_SRCS))
+STRESS_OBJS := $(patsubst tests/%.cpp,$(STRESS_OBJDIR)/%.o,$(TEST_SRCS))
 
 CXX_GCC   := $(if $(CCACHE),ccache )g++
 CXX_CLANG := $(if $(CCACHE),ccache )clang++
@@ -48,6 +50,7 @@ CXXFLAGS_COMMON := -std=c++17 -Wall -Wshadow -pthread
 CXXFLAGS_GCC    := $(CXXFLAGS_COMMON) -O2
 CXXFLAGS_CLANG  := $(CXXFLAGS_COMMON) -O2
 CXXFLAGS_ASAN   := $(CXXFLAGS_COMMON) -g -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer
+CXXFLAGS_STRESS := $(CXXFLAGS_GCC) -DTGEN_STRESSTEST
 
 GTEST_LIBS := -lgtest -lgtest_main
 GTEST_ARGS ?=
@@ -88,7 +91,7 @@ BENCHMARK_JSON := docs/benchmark_results.json
 BENCHMARK_HTML := $(DOC_BUILD_DIR)/benchmark_include.html
 BENCHMARK_CXXFLAGS := -std=c++17 -O2
 
-.PHONY: all doc doc-prepare llms doc-rebuild clean-doc opendoc lint lint-check test test_clang test_asan \
+.PHONY: all doc doc-prepare llms doc-rebuild clean-doc opendoc lint lint-check test test_clang test_asan stresstest \
 	sample sample_debug range_queries graph geometry benchmark \
 	benchmark-baseline-local benchmark-baseline-ci benchmark-check-local benchmark-check check cloc \
 	help print-% %-asan
@@ -99,7 +102,7 @@ clean:
 $(EXAMPLE_REL) $(EXAMPLE_SAN):
 	mkdir -p $@
 
-$(GCC_OBJDIR) $(CLANG_OBJDIR) $(ASAN_OBJDIR) $(BENCHMARK_DIR):
+$(GCC_OBJDIR) $(CLANG_OBJDIR) $(ASAN_OBJDIR) $(STRESS_OBJDIR) $(BENCHMARK_DIR):
 	mkdir -p $@
 
 # Per-TU objects + dependency files for incremental builds
@@ -112,6 +115,9 @@ $(CLANG_OBJDIR)/%.o: tests/%.cpp $(TGEN_HEADER) $(TEST_HEADERS) | $(CLANG_OBJDIR
 $(ASAN_OBJDIR)/%.o: tests/%.cpp $(TGEN_HEADER) $(TEST_HEADERS) | $(ASAN_OBJDIR)
 	$(CXX_ASAN) $(CXXFLAGS_ASAN) $(WERROR_FLAG) -MMD -MP -c $< -o $@
 
+$(STRESS_OBJDIR)/%.o: tests/%.cpp $(TGEN_HEADER) $(TEST_HEADERS) | $(STRESS_OBJDIR)
+	$(CXX_GCC) $(CXXFLAGS_STRESS) $(WERROR_FLAG) -MMD -MP -c $< -o $@
+
 $(GCC_OBJDIR)/test: $(GCC_OBJS)
 	$(CXX_GCC) $(CXXFLAGS_GCC) $(WERROR_FLAG) $^ $(GTEST_LIBS) -o $@
 
@@ -121,9 +127,13 @@ $(CLANG_OBJDIR)/test: $(CLANG_OBJS)
 $(ASAN_OBJDIR)/test: $(ASAN_OBJS)
 	$(CXX_ASAN) $(CXXFLAGS_ASAN) $(WERROR_FLAG) $^ $(GTEST_LIBS) -o $@
 
+$(STRESS_OBJDIR)/test: $(STRESS_OBJS)
+	$(CXX_GCC) $(CXXFLAGS_STRESS) $(WERROR_FLAG) $^ $(GTEST_LIBS) -o $@
+
 -include $(GCC_OBJS:.o=.d)
 -include $(CLANG_OBJS:.o=.d)
 -include $(ASAN_OBJS:.o=.d)
+-include $(STRESS_OBJS:.o=.d)
 
 test: $(GCC_OBJDIR)/test
 	$(call RUN_GTEST,$(GCC_OBJDIR)/test)
@@ -136,6 +146,34 @@ test_clang: $(CLANG_OBJDIR)/test
 test_asan: $(ASAN_OBJDIR)/test
 	$(call RUN_GTEST,$(ASAN_OBJDIR)/test)
 	@rm -f $(ASAN_OBJDIR)/test
+
+stresstest: $(STRESS_OBJDIR)/test
+	@bash -c '\
+	log="$(BUILD_ROOT)/stresstest_last.log"; \
+	seed=0; \
+	while true; do \
+		printf "[stresstest] running iteration %s...\n" "$$seed"; \
+		TGEN_STRESS_SEED="$$seed" "$(STRESS_OBJDIR)/test" $(GTEST_ARGS) \
+			>"$$log" 2>&1; \
+		status=$$?; \
+		if [ $$status -ne 0 ]; then \
+			printf "\n[stresstest] failed at seed=%s\n" "$$seed" >&2; \
+			printf "\n%s\n" "Test output:" >&2; \
+			cat "$$log" >&2; \
+			failed_re="^\[  FAILED  \] [A-Za-z0-9_]+\.[A-Za-z0-9_]+"; \
+			failed_tests=$$(grep -E "$$failed_re" "$$log" \
+				| sed "s/^\[  FAILED  \] //; s/ ([0-9]* ms)$$//" \
+				| sort -u); \
+			printf "\n%s\n" "Failed test(s):" >&2; \
+			printf "%s\n" "$$failed_tests" | sed "s/^/  /" >&2; \
+			first_failed=$$(printf "%s\n" "$$failed_tests" | sed -n "1p"); \
+			printf "\n%s\n" "Reproduce command:" >&2; \
+			printf "  TGEN_STRESS_SEED=%s %s --gtest_filter=%s\n" \
+				"$$seed" "$(STRESS_OBJDIR)/test" "$$first_failed" >&2; \
+			exit $$status; \
+		fi; \
+		seed=$$((seed + 1)); \
+	done'
 
 $(BENCHMARK_BIN): benchmarks/main.cpp benchmarks/benchmark.h $(TGEN_HEADER) | $(BENCHMARK_DIR)
 	$(CXX_GCC) $(BENCHMARK_CXXFLAGS) -I $(SRC_DIR) benchmarks/main.cpp -o $@
@@ -268,7 +306,7 @@ sample_debug: $(EXAMPLE_OUT)/sample_debug
 	+@$(MAKE) $(@:-asan=) ASAN=1
 
 help:
-	@echo "Tests:     make test | test_clang | test_asan"
+	@echo "Tests:     make test | test_clang | test_asan | stresstest"
 	@echo "Examples:  make graph | geometry | sample | range_queries | sample_debug"
 	@echo " + geometry writes $(GEOMETRY_HTML) (stdout + plot)"
 	@echo " + argv:   make graph ARGS='…'   (sample, graph, graph-asan, …)"

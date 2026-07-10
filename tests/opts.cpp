@@ -162,6 +162,20 @@ TEST(opts_test, register_gen_with_seed) {
 	EXPECT_TRUE(tgen::detail::registered);
 }
 
+TEST(opts_test, register_gen_with_stress_seed_offset) {
+	const long long old_stress_seed = tgen::test_detail::stress_seed;
+
+	tgen::test_detail::stress_seed = 0;
+	tgen::register_gen(43);
+	const int expected = tgen::next(1, 1000000);
+
+	tgen::test_detail::stress_seed = 1;
+	tgen::register_gen(42);
+	EXPECT_EQ(tgen::next(1, 1000000), expected);
+
+	tgen::test_detail::stress_seed = old_stress_seed;
+}
+
 TEST(opts_test, register_gen_with_default_seed) {
 	// Fake reset registered status.
 	tgen::detail::registered = false;
