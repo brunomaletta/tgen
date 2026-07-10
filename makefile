@@ -154,9 +154,12 @@ test_asan: $(ASAN_OBJDIR)/test
 stresstest: $(STRESS_OBJDIR)/test
 	@bash -c '\
 	log="$(BUILD_ROOT)/stresstest_last.log"; \
-	seed=0; \
+	seed=$$(( (RANDOM << 45) ^ (RANDOM << 30) ^ (RANDOM << 15) ^ RANDOM )); \
+	iteration=0; \
+	printf "[stresstest] starting at seed %s...\n" "$$seed"; \
 	while true; do \
-		printf "[stresstest] running iteration %s...\n" "$$seed"; \
+		printf "[stresstest] running iteration %s (seed %s)...\n" \
+			"$$iteration" "$$seed"; \
 		TGEN_STRESS_SEED="$$seed" "$(STRESS_OBJDIR)/test" $(GTEST_ARGS) \
 			>"$$log" 2>&1; \
 		status=$$?; \
@@ -176,6 +179,7 @@ stresstest: $(STRESS_OBJDIR)/test
 				"$$seed" "$(STRESS_OBJDIR)/test" "$$first_failed" >&2; \
 			exit $$status; \
 		fi; \
+		iteration=$$((iteration + 1)); \
 		seed=$$((seed + 1)); \
 	done'
 
