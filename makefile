@@ -167,16 +167,25 @@ stresstest: $(STRESS_OBJDIR)/test
 			printf "\n[stresstest] failed at seed=%s\n" "$$seed" >&2; \
 			printf "\n%s\n" "Test output:" >&2; \
 			cat "$$log" >&2; \
-			failed_re="^\[  FAILED  \] [A-Za-z0-9_]+\.[A-Za-z0-9_]+"; \
+			failed_re="^\[  FAILED  \] [A-Za-z0-9_./-]+\.[A-Za-z0-9_./-]+"; \
 			failed_tests=$$(grep -E "$$failed_re" "$$log" \
 				| sed "s/^\[  FAILED  \] //; s/ ([0-9]* ms)$$//" \
 				| sort -u); \
 			printf "\n%s\n" "Failed test(s):" >&2; \
-			printf "%s\n" "$$failed_tests" | sed "s/^/  /" >&2; \
+			if [ -n "$$failed_tests" ]; then \
+				printf "%s\n" "$$failed_tests" | sed "s/^/  /" >&2; \
+			else \
+				printf "  %s\n" "(could not determine failed test name)" >&2; \
+			fi; \
 			first_failed=$$(printf "%s\n" "$$failed_tests" | sed -n "1p"); \
 			printf "\n%s\n" "Reproduce command:" >&2; \
-			printf "  TGEN_STRESS_SEED=%s %s --gtest_filter=%s\n" \
-				"$$seed" "$(STRESS_OBJDIR)/test" "$$first_failed" >&2; \
+			if [ -n "$$first_failed" ]; then \
+				printf "  TGEN_STRESS_SEED=%s %s --gtest_filter=%s\n" \
+					"$$seed" "$(STRESS_OBJDIR)/test" "$$first_failed" >&2; \
+			else \
+				printf "  TGEN_STRESS_SEED=%s %s\n" \
+					"$$seed" "$(STRESS_OBJDIR)/test" >&2; \
+			fi; \
 			exit $$status; \
 		fi; \
 		iteration=$$((iteration + 1)); \
