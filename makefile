@@ -90,11 +90,15 @@ BENCHMARK_BIN  := $(BENCHMARK_DIR)/run
 BENCHMARK_JSON := docs/benchmark_results.json
 BENCHMARK_HTML := $(DOC_BUILD_DIR)/benchmark_include.html
 BENCHMARK_CXXFLAGS := -std=c++17 -O2
+BENCHMARK_LOCAL_BASELINE := benchmarks/local_baseline.json
+BENCHMARK_LOCAL_CURRENT  := /tmp/tgen_bench_local.json
+BENCHMARK_BASELINE_WORKTREE := $(BUILD_ROOT)/benchmark_baseline_worktree
+BENCHMARK_THRESHOLD ?= 2.0
 
 .PHONY: all doc doc-prepare llms doc-rebuild clean-doc opendoc lint lint-check test test_clang test_asan stresstest \
 	sample sample_debug range_queries graph geometry benchmark \
-	benchmark-baseline-local benchmark-baseline-ci benchmark-check-local benchmark-check check cloc \
-	help print-% %-asan
+	benchmark-baseline-local benchmark-baseline-local-auto benchmark-baseline-ci benchmark-check-local \
+	benchmark-check check cloc help print-% %-asan
 
 clean:
 	-rm -rf $(BUILD_ROOT)
@@ -183,28 +187,81 @@ benchmark: $(BENCHMARK_BIN)
 	@echo "Wrote $(BENCHMARK_JSON). Run 'make doc' to render $(BENCHMARK_HTML)."
 
 benchmark-baseline-local: $(BENCHMARK_BIN)
-	$< --update-baseline benchmarks/local_baseline.json
-	@echo "Wrote benchmarks/local_baseline.json (gitignored)."
+	$< --update-baseline $(BENCHMARK_LOCAL_BASELINE)
+	@echo "Wrote $(BENCHMARK_LOCAL_BASELINE) (gitignored)."
+
+benchmark-baseline-local-auto:
+	@if [ -f "$(BENCHMARK_LOCAL_BASELINE)" ]; then \
+		printf '%s\n' "Using existing $(BENCHMARK_LOCAL_BASELINE)."; \
+		exit 0; \
+	fi; \
+	bash -c '\
+	set -eu; \
+	wt="$(BENCHMARK_BASELINE_WORKTREE)"; \
+	baseline="$(abspath $(BENCHMARK_LOCAL_BASELINE))"; \
+	printf "%s\n" "Missing $(BENCHMARK_LOCAL_BASELINE)."; \
+	printf "%s\n" "Building clean benchmark baseline from HEAD..."; \
+	mkdir -p "$(BUILD_ROOT)"; \
+	git worktree remove --force "$$wt" >/dev/null 2>&1 || true; \
+	git worktree add --detach "$$wt" HEAD >/dev/null; \
+	cleanup() { \
+		git worktree remove --force "$$wt" >/dev/null 2>&1 || true; \
+	}; \
+	trap cleanup EXIT; \
+	$(MAKE) -C "$$wt" benchmark-baseline-local; \
+	cp "$$wt/$(BENCHMARK_LOCAL_BASELINE)" "$$baseline"; \
+	printf "%s\n" "Wrote $(BENCHMARK_LOCAL_BASELINE) from clean HEAD."'
 
 benchmark-baseline-ci: $(BENCHMARK_BIN)
 	$< --smoke --update-baseline benchmarks/ci_baseline.json
 	@echo "Wrote benchmarks/ci_baseline.json."
 
-benchmark-check-local: $(BENCHMARK_BIN)
-	@test -f benchmarks/local_baseline.json || { printf '%s\n' "Run 'make benchmark-baseline-local' first." >&2; exit 1; }
-	$< --check benchmarks/local_baseline.json --threshold 2.0 --json /tmp/tgen_bench_local.json
+benchmark-check-local: $(BENCHMARK_BIN) benchmark-baseline-local-auto
+	@bash -c '\
+	set -u; \
+	set -o pipefail; \
+	out="$(BUILD_ROOT)/benchmark_check_local.log"; \
+	printf "%s\n" "Running local benchmark check (this can take a while)..."; \
+	if "$(BENCHMARK_BIN)" --check "$(BENCHMARK_LOCAL_BASELINE)" \
+		--threshold "$(BENCHMARK_THRESHOLD)" \
+		--json "$(BENCHMARK_LOCAL_CURRENT)" 2>&1 | tee "$$out"; then \
+		exit 0; \
+	fi; \
+	printf "\n%s\n" "Benchmark changed significantly."; \
+	if [ -r /dev/tty ] && [ -w /dev/tty ]; then \
+		printf "%s" "Was this performance change intentional? [y/N] " \
+			>/dev/tty; \
+		read answer </dev/tty; \
+		case "$$answer" in \
+			y|Y|yes|YES) \
+				printf "%s\n" "Continuing with acknowledged benchmark change."; \
+				printf "%s\n" \
+					"Refresh local baseline with: make benchmark-baseline-local"; \
+				exit 0; \
+				;; \
+		esac; \
+	fi; \
+	printf "%s\n" "Benchmark check failed."; \
+	printf "%s%s\n" \
+		"Investigate the regression or run make benchmark-baseline-local " \
+		"if intentional."; \
+	exit 1'
 
 # CI: smoke run (crash test) + smoke regression vs ci_baseline.json (ubuntu-latest timings).
 benchmark-check: $(BENCHMARK_BIN)
 	$< --smoke --json /tmp/tgen_bench_smoke.json
 	$< --smoke --check benchmarks/ci_baseline.json --threshold 2.0 --json /tmp/tgen_bench_ci.json
 
-# Pre-commit gate: formatting, tests, smoke benchmark regression.
+# Pre-commit gate: formatting, tests, local benchmark regression.
 check:
 	@printf '%s\n' 'Running pre-commit checks (lint, test, benchmark)...' ''
 	@$(MAKE) lint-check || { printf '\n%s\n' 'Fix: make lint'; exit 1; }
 	@$(MAKE) test WERROR=1 || { printf '\n%s\n' 'Fix: compiler warnings (-Werror) or failed test(s) above'; exit 1; }
-	@$(MAKE) benchmark-check || { printf '\n%s\n' 'Fix: investigate regression, or run make benchmark-baseline-ci after an intentional change'; exit 1; }
+	@$(MAKE) benchmark-check-local || { \
+		printf '\n%s\n' \
+			'Fix: investigate regression, or run make benchmark-baseline-local'; \
+		exit 1; \
+	}
 	@printf '\n%s\n' 'All checks passed — ok to commit.'
 
 # XML-only Doxygen pass + llms markdown. Benchmark HTML is rendered in `doc` (needs XML).
@@ -311,11 +368,13 @@ help:
 	@echo " + geometry writes $(GEOMETRY_HTML) (stdout + plot)"
 	@echo " + argv:   make graph ARGS='…'   (sample, graph, graph-asan, …)"
 	@echo " + ASan:   make graph ASAN=1   or   make graph-asan   (same for sample-asan, …)"
-	@echo "           Binaries: build/examples/rel/… and build/examples/asan/… (see ASAN=1)"
-	@echo "Benchmark: make benchmark | benchmark-baseline-local | benchmark-baseline-ci | benchmark-check-local | benchmark-check"
+	@echo "           Binaries: build/examples/rel/… and build/examples/asan/…"
+	@echo "Benchmark: make benchmark | benchmark-baseline-local | benchmark-baseline-ci"
+	@echo "           make benchmark-check-local | benchmark-check"
 	@echo " + benchmark writes $(BENCHMARK_JSON); make doc renders $(BENCHMARK_HTML)"
-	@echo "Checks:    make check   (lint + test WERROR=1 + benchmark-check, run before commit)"
-	@echo "Docs:      make doc | doc-rebuild | opendoc | clean-doc | llms   (doc also builds llms; doc-rebuild = clean + doc)"
+	@echo "Checks:    make check   (lint + test WERROR=1 + local benchmark check)"
+	@echo "Docs:      make doc | doc-rebuild | opendoc | clean-doc | llms"
+	@echo "           doc also builds llms; doc-rebuild = clean + doc"
 	@echo "Other:     make lint | lint-check | clean | cloc | print-CXXFLAGS_COMMON"
 
 print-%:
