@@ -2919,8 +2919,10 @@ inline uint64_t gen_divisor_count(uint64_t left, uint64_t right,
 	tgen_ensure(divisor_count > 0 and is_prime(divisor_count),
 				"math: divisor count must be prime");
 	int root = divisor_count - 1;
-	uint64_t p = gen_prime(detail::kth_root_floor(left, root),
-						   detail::kth_root_floor(right, root));
+	uint64_t lo = detail::kth_root_floor(left, root);
+	if (*detail::expo(lo, root, left) < left)
+		++lo;
+	uint64_t p = gen_prime(lo, detail::kth_root_floor(right, root));
 	return *detail::expo(p, root, right);
 }
 

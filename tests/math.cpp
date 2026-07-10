@@ -273,6 +273,8 @@ TEST(math_test, gen_divisor_count) {
 							 "math: divisor count must be prime");
 	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_divisor_count(0, 0, 2),
 							 "math: there is no prime in range [0, 0]");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_divisor_count(10, 16, 3),
+							 "math: there is no prime in range [4, 4]");
 
 	for (int i = 0; i < 100; ++i) {
 		auto p = tgen::math::gen_prime(0, 30);
