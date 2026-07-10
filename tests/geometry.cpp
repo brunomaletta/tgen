@@ -583,7 +583,7 @@ TEST(geometry_test, random_convex_polygon_minimum_range) {
 	tgen::register_gen(10);
 
 	int n = 10;
-	long long width = n - 1;
+	long long width = min_width_for(n);
 	auto pts = tgen::geometry::random_convex_polygon(n, 0, width, true);
 
 	EXPECT_EQ(pts.size(), static_cast<size_t>(n));
