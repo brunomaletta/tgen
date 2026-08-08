@@ -435,8 +435,7 @@ TEST(graph_test, gen_np) {
 			tgen::wgraph<int, int>::gen_np(n, p),
 		};
 		for (const auto &g : gs) {
-			EXPECT_TRUE(
-				(graph_gen_result_valid(g, n, g.m(), false, false)));
+			EXPECT_TRUE((graph_gen_result_valid(g, n, g.m(), false, false)));
 			EXPECT_GE(g.m(), 0);
 			EXPECT_LE(g.m(), n * (n - 1) / 2);
 		}
@@ -467,7 +466,8 @@ TEST(graph_test, gen_np) {
 TEST(graph_test, gen_np_edge_count_distribution) {
 	tgen::register_gen();
 
-	// For undirected simple G(3, p), N = 3 possible edges and m ~ Binomial(3, p).
+	// For undirected simple G(3, p), N = 3 possible edges and m ~ Binomial(3,
+	// p).
 	const double p = 0.4;
 	const double q = 1.0 - p;
 	std::vector<double> weights = {
@@ -476,11 +476,7 @@ TEST(graph_test, gen_np_edge_count_distribution) {
 		3 * p * p * q,
 		p * p * p,
 	};
-	expect_distribution(
-		[&] {
-			return tgen::graph::gen_np(3, p).m();
-		},
-		weights);
+	expect_distribution([&] { return tgen::graph::gen_np(3, p).m(); }, weights);
 }
 
 TEST(graph_test, gen_np_invalid_probability) {

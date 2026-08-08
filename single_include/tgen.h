@@ -6212,10 +6212,9 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// directed / self-loop mode.
 	// O(n^2 (1 + p log^2 n)) expected.
 	static value gen_np(int n, double p, bool is_directed = false,
-						 bool has_self_loops = false) {
+						bool has_self_loops = false) {
 		tgen_ensure(n > 0, "wgraph: number of vertices must be positive");
-		tgen_ensure(p >= 0 and p <= 1,
-					"wgraph: probability must be in [0, 1]");
+		tgen_ensure(p >= 0 and p <= 1, "wgraph: probability must be in [0, 1]");
 
 		long long max_edges =
 			detail::max_graph_edges(n, is_directed, has_self_loops);
