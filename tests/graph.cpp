@@ -424,6 +424,74 @@ TEST(graph_test, gen_bipartite_connected_needs_enough_edges) {
 		"wgraph: connected bipartite graph needs at least n1 + n2 - 1 edges");
 }
 
+TEST(graph_test, gen_np) {
+	tgen::register_gen();
+
+	for (int it = 0; it < 30; ++it) {
+		const int n = 8;
+		const double p = 0.35;
+		std::vector<tgen::graph::value> gs = {
+			tgen::graph::gen_np(n, p),
+			tgen::wgraph<int, int>::gen_np(n, p),
+		};
+		for (const auto &g : gs) {
+			EXPECT_TRUE(
+				(graph_gen_result_valid(g, n, g.m(), false, false)));
+			EXPECT_GE(g.m(), 0);
+			EXPECT_LE(g.m(), n * (n - 1) / 2);
+		}
+	}
+
+	{
+		auto empty = tgen::graph::gen_np(5, 0.0);
+		EXPECT_TRUE((graph_gen_result_valid(empty, 5, 0, false, false)));
+	}
+	{
+		auto complete = tgen::graph::gen_np(5, 1.0);
+		EXPECT_TRUE((graph_gen_result_valid(complete, 5, 10, false, false)));
+	}
+	{
+		auto directed = tgen::graph::gen_np(6, 0.4, true);
+		EXPECT_TRUE(
+			(graph_gen_result_valid(directed, 6, directed.m(), true, false)));
+		EXPECT_LE(directed.m(), 6 * 5);
+	}
+	{
+		auto with_loops = tgen::graph::gen_np(5, 0.5, false, true);
+		EXPECT_TRUE((graph_gen_result_valid(with_loops, 5, with_loops.m(),
+											false, true)));
+		EXPECT_LE(with_loops.m(), 5 * 6 / 2);
+	}
+}
+
+TEST(graph_test, gen_np_edge_count_distribution) {
+	tgen::register_gen();
+
+	// For undirected simple G(3, p), N = 3 possible edges and m ~ Binomial(3, p).
+	const double p = 0.4;
+	const double q = 1.0 - p;
+	std::vector<double> weights = {
+		q * q * q,
+		3 * p * q * q,
+		3 * p * p * q,
+		p * p * p,
+	};
+	expect_distribution(
+		[&] {
+			return tgen::graph::gen_np(3, p).m();
+		},
+		weights);
+}
+
+TEST(graph_test, gen_np_invalid_probability) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(tgen::graph::gen_np(5, -0.1),
+							 "wgraph: probability must be in [0, 1]");
+	EXPECT_THROW_TGEN_PREFIX(tgen::graph::gen_np(5, 1.1),
+							 "wgraph: probability must be in [0, 1]");
+}
+
 TEST(graph_test, standard_graphs) {
 	tgen::register_gen();
 

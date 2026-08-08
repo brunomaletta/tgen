@@ -17,6 +17,9 @@ int main(int argc, char **argv) {
 	std::cout << graph::gen_skewed(10, 15, 100, 2);
 	std::cout << std::endl;
 
+	std::cout << graph::gen_np(10, 0.3);
+	std::cout << std::endl;
+
 	std::cout << tgen::tree(4).gen().set_vertex_weights<std::string>(
 					 {"a", "ab", "b", "abc"})
 			  << std::endl;

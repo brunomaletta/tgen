@@ -156,6 +156,7 @@ namespace tgen {
  * @tt{tgen::wgraph::gen}.
  *
  * There are other static generation methods:
+ * - For random graphs with independent edge probability: @tt{tgen::wgraph::gen_np};
  * - For random bipartite graphs (uniform when @tt{connected = @primitive{false}}):
  *   @tt{tgen::wgraph::gen_bipartite};
  * - For random skewed connected graphs: @tt{tgen::wgraph::gen_skewed}.
@@ -423,6 +424,42 @@ namespace tgen {
  * ```
  *
  * @fn wgraph::gen_bipartite(int n1, int n2, int m, bool connected = false);
+ */
+
+
+/**
+ * @brief Generates a random graph where each edge is included independently.
+ *
+ * @param n Number of vertices.
+ * @param p Probability that each admissible edge is present, independently.
+ * @param is_directed If @tt{@primitive{true}}, edges are directed and distinguish @tt{(u,v)} from @tt{(v,u)}.
+ * @param has_self_loops If @tt{@primitive{true}}, pairs @tt{(i,i)} may be generated.
+ *
+ * @pre @tt{0 <= @pname{p} <= 1}.
+ *
+ * @return A @tt{tgen::wgraph::value} on @tt{n} vertices.
+ *
+ * Each admissible pair is included independently with probability @pname{p}.
+ * Equivalently, the edge count @tt{m} is sampled from @tt{Binomial(N, @pname{p})}
+ * (where @tt{N} is the number of admissible edges for the chosen directed / self-loop mode),
+ * then a uniformly random labeled graph with exactly those @tt{m} edges is returned
+ * (same as @tt{tgen::wgraph(n, m, @pname{is_directed}, @pname{has_self_loops}).gen()}).
+ *
+ * #### Complexity
+ *
+ * @tt{O(n^2 (1 + p log^2 n))} expected.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Undirected graph on 20 vertices with edge probability 0.25.
+ * std::cout << tgen::graph::gen_np(20, 0.25);
+ *
+ * // Directed graph with edge probability 0.1.
+ * std::cout << tgen::graph::gen_np(20, 0.1, true);
+ * ```
+ *
+ * @fn wgraph::gen_np(int n, double p, bool is_directed = false, bool has_self_loops = false);
  */
 
 
