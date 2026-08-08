@@ -6206,6 +6206,34 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		return value(n1 + n2, std::move(edges), false);
 	}
 
+	// Random graph on n vertices; each admissible edge independently with
+	// probability p. Equivalent to sampling m ~ Binomial(N, p) then a uniform
+	// G(n, m), where N is the number of admissible edges for the given
+	// directed / self-loop mode.
+	// O(n^2 (1 + p log^2 n)) expected.
+	static value gen_np(int n, double p, bool is_directed = false,
+						 bool has_self_loops = false) {
+		tgen_ensure(n > 0, "wgraph: number of vertices must be positive");
+		tgen_ensure(p >= 0 and p <= 1,
+					"wgraph: probability must be in [0, 1]");
+
+		long long max_edges =
+			detail::max_graph_edges(n, is_directed, has_self_loops);
+
+		long long m = 0;
+		if (p == 1.0)
+			m = max_edges;
+		else if (p > 0.0)
+			for (long long i = 0; i < max_edges; ++i)
+				if (next<double>(0.0, 1.0) < p)
+					++m;
+
+		tgen_ensure(m <= std::numeric_limits<int>::max(),
+					"wgraph: too many edges to generate");
+		return wgraph(n, static_cast<int>(m), is_directed, has_self_loops)
+			.gen();
+	}
+
   private:
 	// If this generator has no preset edges and m is large relative to the
 	// maximum edge count, sample by distinct edge index. Otherwise
