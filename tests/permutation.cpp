@@ -75,11 +75,31 @@ TEST(permutation_test, value_ops) {
 
 	EXPECT_EQ((std::ostringstream() << inst).str(), std::string("0 1 2"));
 
-	EXPECT_EQ((std::ostringstream() << inst.add_1()).str(),
+	EXPECT_EQ((std::ostringstream() << inst.print_1_based()).str(),
 			  std::string("1 2 3"));
 
-	EXPECT_EQ((std::ostringstream() << inst.add_1().separator(',')).str(),
-			  std::string("1,2,3"));
+	// print_1_based does not affect to_std().
+	EXPECT_EQ(inst.to_std(), std::vector<int>({0, 1, 2}));
+	EXPECT_EQ(inst.to_std_1_based(), std::vector<int>({1, 2, 3}));
+
+	EXPECT_EQ(
+		(std::ostringstream() << inst.print_1_based().separator(',')).str(),
+		std::string("1,2,3"));
+}
+
+TEST(permutation_test, add_1_deprecated_alias) {
+	tgen::register_gen();
+
+	tgen::permutation::value inst = {0, 1, 2};
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+	EXPECT_EQ((std::ostringstream() << inst.add_1()).str(), "1 2 3");
+	EXPECT_EQ(inst.add_1().to_std(), std::vector<int>({0, 1, 2}));
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 TEST(permutation_test, value_shuffle_pick) {

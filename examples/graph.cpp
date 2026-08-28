@@ -5,7 +5,7 @@ using namespace tgen;
 int main(int argc, char **argv) {
 	register_gen(argc, argv);
 
-	std::cout << (!K(4) + K(2) + C(3)).add_1();
+	std::cout << (!K(4) + K(2) + C(3)).print_1_based();
 	std::cout << std::endl;
 
 	std::cout << graph(10, 12).get_connected();

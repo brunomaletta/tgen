@@ -37,7 +37,8 @@ int main(int argc, char **argv) {
 			  << std::endl;
 
 	// Prints a random 1-based permutation of size 10 that starts with 2.
-	std::cout << tgen::permutation(10).fix(0, 1).gen().add_1() << std::endl;
+	std::cout << tgen::permutation(10).fix(0, 1).gen().print_1_based()
+			  << std::endl;
 
 	// Random permutation of size 5 with only one cycle.
 	std::cout << tgen::permutation(5).cycles({5}).gen() << std::endl;
@@ -59,7 +60,7 @@ int main(int argc, char **argv) {
 								 .gen()
 								 .to_std())
 					 .gen()
-					 .add_1()
+					 .print_1_based()
 			  << std::endl;
 
 	// Prints a random prime in [1, 1e18].

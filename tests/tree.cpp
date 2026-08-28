@@ -367,7 +367,7 @@ TEST(tree_test, print_edge_list) {
 	EXPECT_EQ((std::ostringstream() << t).str(), "0 1\n1 2\n0 3\n3 4\n");
 
 	auto ta = t;
-	EXPECT_EQ((std::ostringstream() << ta.add_1()).str(),
+	EXPECT_EQ((std::ostringstream() << ta.print_1_based()).str(),
 			  "1 2\n2 3\n1 4\n4 5\n");
 
 	auto tn = t;
@@ -379,16 +379,18 @@ TEST(tree_test, print_edge_list) {
 			  "0 1 0 3\n");
 
 	auto tc = t;
-	EXPECT_EQ((std::ostringstream() << tc.add_1().print_parents(-1)).str(),
-			  "1 2 1 4\n");
+	EXPECT_EQ(
+		(std::ostringstream() << tc.print_1_based().print_parents(-1)).str(),
+		"1 2 1 4\n");
 
 	auto td = t;
 	EXPECT_EQ((std::ostringstream() << td.print_parents(0)).str(),
 			  "-1 0 1 0 3\n");
 
 	auto te = t;
-	EXPECT_EQ((std::ostringstream() << te.add_1().print_parents(0)).str(),
-			  "0 1 2 1 4\n");
+	EXPECT_EQ(
+		(std::ostringstream() << te.print_1_based().print_parents(0)).str(),
+		"0 1 2 1 4\n");
 }
 
 TEST(tree_test, print_vertex_weights) {
@@ -400,15 +402,17 @@ TEST(tree_test, print_vertex_weights) {
 	EXPECT_EQ((std::ostringstream() << t).str(), "5 6 7\n0 1\n1 2\n");
 
 	auto ta = t;
-	EXPECT_EQ((std::ostringstream() << ta.add_1()).str(), "5 6 7\n1 2\n2 3\n");
+	EXPECT_EQ((std::ostringstream() << ta.print_1_based()).str(),
+			  "5 6 7\n1 2\n2 3\n");
 
 	auto tb = t;
 	EXPECT_EQ((std::ostringstream() << tb.print_parents(-1)).str(),
 			  "5 6 7\n0 1\n");
 
 	auto tc = t;
-	EXPECT_EQ((std::ostringstream() << tc.add_1().print_parents(1)).str(),
-			  "5 6 7\n2 0 2\n");
+	EXPECT_EQ(
+		(std::ostringstream() << tc.print_1_based().print_parents(1)).str(),
+		"5 6 7\n2 0 2\n");
 }
 
 TEST(tree_test, print_weighted_edge_list) {
@@ -420,7 +424,8 @@ TEST(tree_test, print_weighted_edge_list) {
 	EXPECT_EQ((std::ostringstream() << t).str(), "0 1 5\n1 2 6\n");
 
 	auto ta = t;
-	EXPECT_EQ((std::ostringstream() << ta.add_1()).str(), "1 2 5\n2 3 6\n");
+	EXPECT_EQ((std::ostringstream() << ta.print_1_based()).str(),
+			  "1 2 5\n2 3 6\n");
 }
 
 TEST(tree_test, to_std) {
@@ -430,6 +435,39 @@ TEST(tree_test, to_std) {
 	auto p = t.to_std();
 	EXPECT_EQ(p.first, t.n());
 	EXPECT_EQ(p.second, t.adj());
+
+	// print_1_based affects printing only; use to_std_1_based for export.
+	auto t0 = tgen::tree::value(3, {{0, 1}, {1, 2}});
+	auto printed = (std::ostringstream() << t0.print_1_based()).str();
+	EXPECT_EQ(printed, "1 2\n2 3\n");
+	auto [n, adj] = t0.to_std();
+	EXPECT_EQ(n, 3);
+	EXPECT_EQ(adj[0], std::set<int>({1}));
+	EXPECT_EQ(adj[1], std::set<int>({0, 2}));
+	EXPECT_EQ(adj[2], std::set<int>({1}));
+
+	auto [n1, adj1] = t0.to_std_1_based();
+	EXPECT_EQ(n1, 3);
+	EXPECT_EQ(static_cast<int>(adj1.size()), 4);
+	EXPECT_TRUE(adj1[0].empty());
+	EXPECT_EQ(adj1[1], std::set<int>({2}));
+	EXPECT_EQ(adj1[2], std::set<int>({1, 3}));
+	EXPECT_EQ(adj1[3], std::set<int>({2}));
+	EXPECT_EQ(t0.print_1_based().to_std().second, adj);
+}
+
+TEST(tree_test, add_1_deprecated_alias) {
+	tgen::register_gen();
+
+	auto t = tgen::tree::value(3, {{0, 1}, {1, 2}});
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+	EXPECT_EQ((std::ostringstream() << t.add_1()).str(), "1 2\n2 3\n");
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 TEST(tree_test, glue_cycle_fails) {

@@ -217,7 +217,7 @@ std::cout << tgen::print(poly, '\n') << std::endl;
 Random 1-based permutation of size 5 with only one cycle.
 
 ```cpp
-std::cout << tgen::permutation(5).cycles({5}).gen().add_1() << std::endl;
+std::cout << tgen::permutation(5).cycles({5}).gen().print_1_based() << std::endl;
 ```
 
 ```

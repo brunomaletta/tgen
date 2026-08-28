@@ -2232,7 +2232,7 @@ struct permutation : gen_base<permutation> {
 		using std_type = std::vector<int>; // std type for value.
 		std::vector<int> vec_;			   // Permutation.
 		char sep_;						   // Separator for printing.
-		bool add_1_;					   // If should add 1, for printing.
+		bool add_1_; // If should print values 1-based (print only).
 
 		value(const std::vector<int> &vec)
 			: vec_(vec), sep_(' '), add_1_(false) {
@@ -2309,11 +2309,18 @@ struct permutation : gen_base<permutation> {
 			return *this;
 		}
 
-		// Sets that should print values 1-based.
+		// Sets that should print values 1-based. Does not change stored
+		// values or to_std(); use to_std_1_based() for a 1-based export.
 		// O(1).
-		value &add_1() {
+		value &print_1_based() {
 			add_1_ = true;
 			return *this;
+		}
+
+		// Deprecated alias for print_1_based().
+		// O(1).
+		[[deprecated("use print_1_based()")]] value &add_1() {
+			return print_1_based();
 		}
 
 		// Shuffles permutation uniformly.
@@ -2352,8 +2359,18 @@ struct permutation : gen_base<permutation> {
 			return out;
 		}
 
-		// Gets a std::vector representing the value.
+		// Gets a std::vector representing the value (0-based). Unaffected by
+		// print_1_based().
 		std::vector<int> to_std() const { return std_type(vec_); }
+
+		// Gets a 1-based std::vector (each element +1). Unaffected by
+		// print_1_based().
+		std::vector<int> to_std_1_based() const {
+			std::vector<int> out = vec_;
+			for (int &x : out)
+				++x;
+			return out;
+		}
 	};
 
 	// Generates permutation value.
@@ -4390,7 +4407,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		int n_;									 // Number of vertices.
 		std::vector<std::set<int>> adj_;		 // Adjacency list.
 		std::vector<std::pair<int, int>> edges_; // Edge list.
-		bool add_1_;   // If should add 1 for printing vertex ids.
+		bool add_1_;   // If should print vertex ids 1-based (print only).
 		bool print_n_; // If should print n.
 		std::optional<int> print_parents_; // If should print in parent style
 										   // (stores the root).
@@ -4523,11 +4540,18 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			return *this;
 		}
 
-		// Adds 1 to vertex ids, for printing.
+		// Sets that should print vertex ids 1-based. Does not change stored
+		// ids; use to_std_1_based() for a 1-based export.
 		// O(1).
-		value &add_1() {
+		value &print_1_based() {
 			add_1_ = true;
 			return *this;
+		}
+
+		// Deprecated alias for print_1_based().
+		// O(1).
+		[[deprecated("use print_1_based()")]] value &add_1() {
+			return print_1_based();
 		}
 
 		// Prints `n` on a new line before printing the tree.
@@ -4846,9 +4870,20 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			return out;
 		}
 
-		// Gets a std::pair<n, adj> representing the value.
+		// Gets a std::pair<n, adj> representing the value (0-based).
+		// Unaffected by print_1_based().
 		std::pair<int, std::vector<std::set<int>>> to_std() const {
 			return std_type(n_, adj_);
+		}
+
+		// Gets a 1-based (n, adj): labels +1, adj size n+1, index 0 unused.
+		// Unaffected by print_1_based().
+		std::pair<int, std::vector<std::set<int>>> to_std_1_based() const {
+			std::vector<std::set<int>> adj(n_ + 1);
+			for (int u = 0; u < n_; ++u)
+				for (int v : adj_[u])
+					adj[u + 1].insert(v + 1);
+			return std_type(n_, adj);
 		}
 
 	  private:
@@ -5165,7 +5200,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		std::vector<std::set<int>> adj_;		 // Adjacency list.
 		std::vector<std::pair<int, int>> edges_; // Edge list.
 		bool is_directed_;						 // If graph is directed.
-		bool add_1_;	// If should add 1 for printing vertex ids.
+		bool add_1_;	// If should print vertex ids 1-based (print only).
 		bool print_nm_; // If should print n and m.
 		mutable bool adj_built_{
 			false}; // Lazy cache: true once adj_ is built from edges_; mutable
@@ -5325,11 +5360,18 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			return *this;
 		}
 
-		// Adds 1 to vertex ids, for printing.
+		// Sets that should print vertex ids 1-based. Does not change stored
+		// ids; use to_std_1_based() for a 1-based export.
 		// O(1).
-		value &add_1() {
+		value &print_1_based() {
 			add_1_ = true;
 			return *this;
+		}
+
+		// Deprecated alias for print_1_based().
+		// O(1).
+		[[deprecated("use print_1_based()")]] value &add_1() {
+			return print_1_based();
 		}
 
 		// Prints `n m` on a new line before printing the edges.
@@ -5797,10 +5839,23 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			return out;
 		}
 
-		// Gets a std::tuple<n, m, adj> representing the value.
+		// Gets a std::tuple<n, m, adj> representing the value (0-based).
+		// Unaffected by print_1_based().
 		std::tuple<int, int, std::vector<std::set<int>>> to_std() const {
 			ensure_adj_built();
 			return std_type(n_, m(), adj_);
+		}
+
+		// Gets a 1-based (n, m, adj): labels +1, adj size n+1, index 0 unused.
+		// Unaffected by print_1_based().
+		std::tuple<int, int, std::vector<std::set<int>>>
+		to_std_1_based() const {
+			ensure_adj_built();
+			std::vector<std::set<int>> adj(n_ + 1);
+			for (int u = 0; u < n_; ++u)
+				for (int v : adj_[u])
+					adj[u + 1].insert(v + 1);
+			return std_type(n_, m(), adj);
 		}
 
 	  private:

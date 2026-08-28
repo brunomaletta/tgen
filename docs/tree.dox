@@ -531,10 +531,12 @@ namespace tgen {
 
 
 /**
- * @brief Adds 1 for printing.
+ * @brief Sets that printed vertex ids are 1-based.
  *
- * This makes it so, when given to @tt{@namespace{std}::@type{cout}}, the tree will be printed with labels
- * 1-based. Weights are not affected.
+ * This only affects streaming (@tt{@namespace{std}::@type{cout}} and friends). Stored vertex ids
+ * stay 0-based. For a 1-based adjacency export, use @tt{to_std_1_based()}. Weights are not affected.
+ *
+ * @tt{add_1()} is a deprecated alias for this method.
  *
  * #### Complexity
  *
@@ -545,8 +547,17 @@ namespace tgen {
  * ```cpp
  * // Shifts printed vertex indices by one (internal ids stay 0-based).
  * auto t = tgen::tree::value(3, {{0, 1}, {1, 2}});
- * std::cout << t.add_1(); // Prints "1 2\n2 3\n".
+ * std::cout << t.print_1_based(); // Prints "1 2\n2 3\n".
  * ```
+ *
+ * @fn wtree::value::print_1_based();
+ */
+
+
+/**
+ * @brief Deprecated alias for @tt{print_1_based()}.
+ *
+ * @deprecated Use @tt{print_1_based()} instead.
  *
  * @fn wtree::value::add_1();
  */
@@ -730,6 +741,9 @@ namespace tgen {
 /**
  * @brief Converts the tree to a @namespace{std} types.
  *
+ * Returns 0-based vertex ids. Unaffected by @tt{print_1_based()}.
+ * For a 1-based export, use @tt{to_std_1_based()}.
+ *
  * @return @tt{(n, adj)} as a @tt{@namespace{std}::@type{pair}}.
  *
  * #### Examples
@@ -741,6 +755,25 @@ namespace tgen {
  * ```
  *
  * @fn wtree::value::to_std() const;
+ */
+
+
+/**
+ * @brief Converts the tree to 1-based @namespace{std} types.
+ *
+ * Vertex labels are increased by one; @tt{adj} has size @tt{n + 1} with index
+ * @tt{0} unused. Unaffected by @tt{print_1_based()}.
+ *
+ * @return @tt{(n, adj)} as a @tt{@namespace{std}::@type{pair}}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto [n1, adj1] = tgen::tree::value(3, {{0, 1}, {1, 2}}).to_std_1_based();
+ * // adj1[1] = {2}, adj1[2] = {1, 3}, adj1[3] = {2}.
+ * ```
+ *
+ * @fn wtree::value::to_std_1_based() const;
  */
 
 

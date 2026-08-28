@@ -873,7 +873,7 @@ TEST(graph_test, print_edge_list) {
 	EXPECT_TRUE((std::ostringstream() << g).str() == "0 1\n0 2\n0 3\n");
 
 	auto ga = g;
-	EXPECT_TRUE((std::ostringstream() << ga.add_1()).str() ==
+	EXPECT_TRUE((std::ostringstream() << ga.print_1_based()).str() ==
 				"1 2\n1 3\n1 4\n");
 
 	auto gb = g;
@@ -891,8 +891,8 @@ TEST(graph_test, print_vertex_weights) {
 	EXPECT_TRUE((std::ostringstream() << g).str() == "5 6 7\n0 1\n1 2\n");
 
 	auto ga = g;
-	EXPECT_TRUE(
-		((std::ostringstream() << ga.add_1()).str() == "5 6 7\n1 2\n2 3\n"));
+	EXPECT_TRUE(((std::ostringstream() << ga.print_1_based()).str() ==
+				 "5 6 7\n1 2\n2 3\n"));
 
 	auto gb = g;
 	EXPECT_TRUE(((std::ostringstream() << gb.print_nm()).str() ==
@@ -909,7 +909,8 @@ TEST(graph_test, print_weighted_edge_list) {
 	EXPECT_TRUE((std::ostringstream() << g).str() == "0 1 5\n1 2 6\n");
 
 	auto ga = g;
-	EXPECT_TRUE((std::ostringstream() << ga.add_1()).str() == "1 2 5\n2 3 6\n");
+	EXPECT_TRUE((std::ostringstream() << ga.print_1_based()).str() ==
+				"1 2 5\n2 3 6\n");
 }
 
 TEST(graph_test, to_std) {
@@ -919,6 +920,40 @@ TEST(graph_test, to_std) {
 	auto t = g.to_std();
 	EXPECT_TRUE((graph_gen_result_valid(g, 6, 8, false, false)));
 	EXPECT_TRUE((t == std::tuple(6, 8, g.adj())));
+
+	// print_1_based affects printing only; use to_std_1_based for export.
+	auto g0 = tgen::graph::value(3, {{0, 1}, {1, 2}});
+	EXPECT_EQ((std::ostringstream() << g0.print_1_based()).str(), "1 2\n2 3\n");
+	auto [n, m, adj] = g0.to_std();
+	EXPECT_EQ(n, 3);
+	EXPECT_EQ(m, 2);
+	EXPECT_EQ(adj[0], std::set<int>({1}));
+	EXPECT_EQ(adj[1], std::set<int>({0, 2}));
+	EXPECT_EQ(adj[2], std::set<int>({1}));
+
+	auto [n1, m1, adj1] = g0.to_std_1_based();
+	EXPECT_EQ(n1, 3);
+	EXPECT_EQ(m1, 2);
+	EXPECT_EQ(static_cast<int>(adj1.size()), 4);
+	EXPECT_TRUE(adj1[0].empty());
+	EXPECT_EQ(adj1[1], std::set<int>({2}));
+	EXPECT_EQ(adj1[2], std::set<int>({1, 3}));
+	EXPECT_EQ(adj1[3], std::set<int>({2}));
+	EXPECT_EQ(std::get<2>(g0.print_1_based().to_std()), adj);
+}
+
+TEST(graph_test, add_1_deprecated_alias) {
+	tgen::register_gen();
+
+	auto g = tgen::graph::value(3, {{0, 1}, {1, 2}});
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+	EXPECT_EQ((std::ostringstream() << g.add_1()).str(), "1 2\n2 3\n");
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 TEST(graph_test, gen_uniform_labeled_graphs_small) {

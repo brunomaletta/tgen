@@ -11,7 +11,7 @@ namespace tgen {
  * Prints a random 1-based permutation of size 10 that starts with 2.
  *
  * ```cpp
- * std::cout << tgen::permutation(10).fix(0, 1).gen().add_1() << std::endl;
+ * std::cout << tgen::permutation(10).fix(0, 1).gen().print_1_based() << std::endl;
  * ```
  *
  * ```
@@ -164,7 +164,7 @@ namespace tgen {
  *
  * // Also works with conversions, and std::initializer_list<T>.
  * val = {1, 0};
- * std::cout << val.add_1() << std::endl; // Prints "2 1".
+ * std::cout << val.print_1_based() << std::endl; // Prints "2 1".
  * ```
  *
  * @fn permutation::value::value(const std::vector<int> &vec);
@@ -303,10 +303,13 @@ namespace tgen {
 
 
 /**
- * @brief Adds 1 for printing.
+ * @brief Sets that printed values are 1-based.
  *
- * This makes it so, when given to @texttt{@namespace{std}::@type{cout}}, the permutation will be printed as
- * 1-based.
+ * This only affects streaming (@texttt{@namespace{std}::@type{cout}} and friends). Stored values,
+ * @tt{operator[]}, and @tt{to_std()} stay 0-based. For a 1-based
+ * @texttt{@namespace{std}::@type{vector}}, use @tt{to_std_1_based()}.
+ *
+ * @tt{add_1()} is a deprecated alias for this method.
  *
  * #### Complexity
  *
@@ -315,10 +318,21 @@ namespace tgen {
  * #### Examples
  *
  * ```cpp
- * // Prints a 1-based permutation.
+ * // Prints a 1-based permutation; to_std() remains 0-based.
  * tgen::permutation::value val = {2, 0, 1};
- * std::cout << val.add_1() << std::endl; // Prints "3 1 2".
+ * std::cout << val.print_1_based() << std::endl; // Prints "3 1 2".
+ * auto zero_based = val.to_std();           // {2, 0, 1}
+ * auto one_based = val.to_std_1_based();    // {3, 1, 2}
  * ```
+ *
+ * @fn permutation::value::print_1_based();
+ */
+
+
+/**
+ * @brief Deprecated alias for @tt{print_1_based()}.
+ *
+ * @deprecated Use @tt{print_1_based()} instead.
  *
  * @fn permutation::value::add_1();
  */
@@ -407,6 +421,9 @@ namespace tgen {
 /**
  * @brief Converts the permutation to a @texttt{@namespace{std}::@type{vector}}.
  *
+ * Returns 0-based values. Unaffected by @tt{print_1_based()}.
+ * For a 1-based export, use @tt{to_std_1_based()}.
+ *
  * @return A @texttt{@namespace{std}::@type{vector}} representing the permutation.
  *
  * #### Examples
@@ -415,10 +432,28 @@ namespace tgen {
  * // Convoluted way to reverse a permutation.
  * std::vector<int> v = {2, 0, 1};
  * v = tgen::permutation::value(v).reverse().to_std();
- * // v = {2, 1, 3}.
+ * // v = {1, 0, 2}.
  * ```
  *
  * @fn permutation::value::to_std();
+ */
+
+
+/**
+ * @brief Converts the permutation to a 1-based @texttt{@namespace{std}::@type{vector}}.
+ *
+ * Each element is increased by one. Unaffected by @tt{print_1_based()}.
+ *
+ * @return A 1-based @texttt{@namespace{std}::@type{vector}} representing the permutation.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto one_based = tgen::permutation::value({2, 0, 1}).to_std_1_based();
+ * // one_based = {3, 1, 2}.
+ * ```
+ *
+ * @fn permutation::value::to_std_1_based();
  */
 
 };

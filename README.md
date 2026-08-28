@@ -56,7 +56,7 @@ std::cout << tgen::list<int>(20, 1, 100).all_different().gen() << std::endl;
 std::cout << tgen::str(3, {'A', 'C', 'G', 'T'}).palindrome().gen_all() << std::endl;
 
 // Generates a random permutation with a single cycle.
-std::cout << tgen::permutation(5).cycles({5}).gen().add_1() << std::endl;
+std::cout << tgen::permutation(5).cycles({5}).gen().print_1_based() << std::endl;
 
 // Generates q distinct range queries.
 std::cout << tgen::pair(1, n).leq().distinct().gen_list(q) << std::endl;
@@ -121,7 +121,7 @@ Similar to traditional generators, there is registration and opts (arguments).
 int main(int argc, char** argv) {
     tgen::register_gen(argc, argv);
     int n = tgen::opt<int>("n");
-    std::cout << tgen::permutation(tgen::next(1, n)).gen().add_1() << std::endl;
+    std::cout << tgen::permutation(tgen::next(1, n)).gen().print_1_based() << std::endl;
 }
 ``` 
 
