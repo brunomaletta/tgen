@@ -87,21 +87,6 @@ TEST(permutation_test, value_ops) {
 		std::string("1,2,3"));
 }
 
-TEST(permutation_test, add_1_deprecated_alias) {
-	tgen::register_gen();
-
-	tgen::permutation::value inst = {0, 1, 2};
-#if defined(__GNUC__) || defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-	EXPECT_EQ((std::ostringstream() << inst.add_1()).str(), "1 2 3");
-	EXPECT_EQ(inst.add_1().to_std(), std::vector<int>({0, 1, 2}));
-#if defined(__GNUC__) || defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
-}
-
 TEST(permutation_test, value_shuffle_pick) {
 	tgen::register_gen();
 

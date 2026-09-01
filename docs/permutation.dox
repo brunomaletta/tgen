@@ -309,8 +309,6 @@ namespace tgen {
  * @tt{operator[]}, and @tt{to_std()} stay 0-based. For a 1-based
  * @texttt{@namespace{std}::@type{vector}}, use @tt{to_std_1_based()}.
  *
- * @tt{add_1()} is a deprecated alias for this method.
- *
  * #### Complexity
  *
  * @tt{O(1)}.
@@ -326,15 +324,6 @@ namespace tgen {
  * ```
  *
  * @fn permutation::value::print_1_based();
- */
-
-
-/**
- * @brief Deprecated alias for @tt{print_1_based()}.
- *
- * @deprecated Use @tt{print_1_based()} instead.
- *
- * @fn permutation::value::add_1();
  */
 
 

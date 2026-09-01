@@ -942,20 +942,6 @@ TEST(graph_test, to_std) {
 	EXPECT_EQ(std::get<2>(g0.print_1_based().to_std()), adj);
 }
 
-TEST(graph_test, add_1_deprecated_alias) {
-	tgen::register_gen();
-
-	auto g = tgen::graph::value(3, {{0, 1}, {1, 2}});
-#if defined(__GNUC__) || defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-	EXPECT_EQ((std::ostringstream() << g.add_1()).str(), "1 2\n2 3\n");
-#if defined(__GNUC__) || defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
-}
-
 TEST(graph_test, gen_uniform_labeled_graphs_small) {
 	tgen::register_gen();
 

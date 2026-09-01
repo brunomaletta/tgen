@@ -2239,10 +2239,10 @@ struct permutation : gen_base<permutation> {
 		using std_type = std::vector<int>; // std type for value.
 		std::vector<int> vec_;			   // Permutation.
 		char sep_;						   // Separator for printing.
-		bool add_1_; // If should print values 1-based (print only).
+		bool print_1_based_; // If should print values 1-based (print only).
 
 		value(const std::vector<int> &vec)
-			: vec_(vec), sep_(' '), add_1_(false) {
+			: vec_(vec), sep_(' '), print_1_based_(false) {
 			tgen_ensure(!vec_.empty(), "permutation: value: cannot be empty");
 			std::vector<bool> vis(vec_.size(), false);
 			for (int i = 0; i < size(); ++i) {
@@ -2320,14 +2320,8 @@ struct permutation : gen_base<permutation> {
 		// values or to_std(); use to_std_1_based() for a 1-based export.
 		// O(1).
 		value &print_1_based() {
-			add_1_ = true;
+			print_1_based_ = true;
 			return *this;
-		}
-
-		// Deprecated alias for print_1_based().
-		// O(1).
-		[[deprecated("use print_1_based()")]] value &add_1() {
-			return print_1_based();
 		}
 
 		// Shuffles permutation uniformly.
@@ -2361,7 +2355,7 @@ struct permutation : gen_base<permutation> {
 			for (int i = 0; i < val.size(); ++i) {
 				if (i > 0)
 					out << val.sep_;
-				out << val[i] + val.add_1_;
+				out << val[i] + val.print_1_based_;
 			}
 			return out;
 		}
@@ -4421,8 +4415,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		int n_;									 // Number of vertices.
 		std::vector<std::set<int>> adj_;		 // Adjacency list.
 		std::vector<std::pair<int, int>> edges_; // Edge list.
-		bool add_1_;   // If should print vertex ids 1-based (print only).
-		bool print_n_; // If should print n.
+		bool print_1_based_; // If should print vertex ids 1-based (print only).
+		bool print_n_;		 // If should print n.
 		std::optional<int> print_parents_; // If should print in parent style
 										   // (stores the root).
 		std::optional<std::vector<VWeight>> vertex_weights_; // Vertex weights.
@@ -4433,8 +4427,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// Creates value from adjacency list.
 		// O(n).
 		value(const std::vector<std::set<int>> &adj)
-			: n_(static_cast<int>(adj.size())), adj_(adj), add_1_(false),
-			  print_n_(false), dsu_(n_) {
+			: n_(static_cast<int>(adj.size())), adj_(adj),
+			  print_1_based_(false), print_n_(false), dsu_(n_) {
 			for (int u = 0; u < n_; ++u)
 				for (auto v : adj[u]) {
 					tgen_ensure(
@@ -4453,7 +4447,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// Creates value from `n` and edge list.
 		// O(n).
 		value(int n, const std::vector<std::pair<int, int>> &edges)
-			: n_(n), adj_(n), add_1_(false), print_n_(false), dsu_(n) {
+			: n_(n), adj_(n), print_1_based_(false), print_n_(false), dsu_(n) {
 			edges_.reserve(edges.size());
 			for (auto [u, v] : edges) {
 				tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n,
@@ -4489,7 +4483,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 						"assigning weights");
 
 			typename wtree<NewVWeight, NewEWeight>::value new_tree(adj_);
-			new_tree.add_1_ = add_1_;
+			new_tree.print_1_based_ = print_1_based_;
 			new_tree.print_n_ = print_n_;
 			new_tree.print_parents_ = print_parents_;
 			return new_tree;
@@ -4558,14 +4552,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// ids; use to_std_1_based() for a 1-based export.
 		// O(1).
 		value &print_1_based() {
-			add_1_ = true;
+			print_1_based_ = true;
 			return *this;
-		}
-
-		// Deprecated alias for print_1_based().
-		// O(1).
-		[[deprecated("use print_1_based()")]] value &add_1() {
-			return print_1_based();
 		}
 
 		// Prints `n` on a new line before printing the tree.
@@ -4855,13 +4843,14 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 
 						if (i > 1)
 							out << " ";
-						out << parent[i] + val.add_1_;
+						out << parent[i] + val.print_1_based_;
 					}
 				} else {
 					for (int i = 0; i < val.n(); ++i) {
 						if (i > 0)
 							out << " ";
-						out << (parent[i] == -1 ? -1 : parent[i]) + val.add_1_;
+						out << (parent[i] == -1 ? -1 : parent[i]) +
+								   val.print_1_based_;
 					}
 				}
 
@@ -4872,7 +4861,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			// Prints edges.
 			for (int i = 0; i < static_cast<int>(val.edges().size()); ++i) {
 				auto [u, v] = val.edges()[i];
-				out << (u + val.add_1_) << " " << (v + val.add_1_);
+				out << (u + val.print_1_based_) << " "
+					<< (v + val.print_1_based_);
 
 				// Edge weight.
 				if (val.edge_weights().has_value())
@@ -5214,8 +5204,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		std::vector<std::set<int>> adj_;		 // Adjacency list.
 		std::vector<std::pair<int, int>> edges_; // Edge list.
 		bool is_directed_;						 // If graph is directed.
-		bool add_1_;	// If should print vertex ids 1-based (print only).
-		bool print_nm_; // If should print n and m.
+		bool print_1_based_; // If should print vertex ids 1-based (print only).
+		bool print_nm_;		 // If should print n and m.
 		mutable bool adj_built_{
 			false}; // Lazy cache: true once adj_ is built from edges_; mutable
 					// so const adj() can populate it.
@@ -5228,8 +5218,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// O(n + m).
 		value(const std::vector<std::set<int>> &adj, bool is_directed = false)
 			: n_(static_cast<int>(adj.size())), adj_(adj),
-			  is_directed_(is_directed), add_1_(false), print_nm_(false),
-			  adj_built_(true) {
+			  is_directed_(is_directed), print_1_based_(false),
+			  print_nm_(false), adj_built_(true) {
 			for (int u = 0; u < n_; ++u)
 				for (auto v : adj[u]) {
 					tgen_ensure(
@@ -5249,7 +5239,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// O(m log m).
 		value(int n, const std::vector<std::pair<int, int>> &edges = {},
 			  bool is_directed = false)
-			: n_(n), edges_(), is_directed_(is_directed), add_1_(false),
+			: n_(n), edges_(), is_directed_(is_directed), print_1_based_(false),
 			  print_nm_(false), adj_built_(false) {
 			edges_.reserve(edges.size());
 			std::unordered_set<uint64_t> seen;
@@ -5302,7 +5292,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			typename wgraph<NewVWeight, NewEWeight>::value new_graph(
 				adj_, is_directed_);
 			new_graph.is_directed_ = is_directed_;
-			new_graph.add_1_ = add_1_;
+			new_graph.print_1_based_ = print_1_based_;
 			new_graph.print_nm_ = print_nm_;
 			return new_graph;
 		}
@@ -5378,14 +5368,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// ids; use to_std_1_based() for a 1-based export.
 		// O(1).
 		value &print_1_based() {
-			add_1_ = true;
+			print_1_based_ = true;
 			return *this;
-		}
-
-		// Deprecated alias for print_1_based().
-		// O(1).
-		[[deprecated("use print_1_based()")]] value &add_1() {
-			return print_1_based();
 		}
 
 		// Prints `n m` on a new line before printing the edges.
@@ -5815,7 +5799,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 
 			value concat = *this;
 			concat.glue(rhs, std::set<std::pair<int, int>>());
-			concat.add_1_ = add_1_ | rhs.add_1_;
+			concat.print_1_based_ = print_1_based_ | rhs.print_1_based_;
 			concat.print_nm_ = print_nm_ | rhs.print_nm_;
 
 			return concat;
@@ -5841,7 +5825,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			// Prints edges.
 			for (int i = 0; i < val.m(); ++i) {
 				auto [u, v] = val.edges()[i];
-				out << (u + val.add_1_) << " " << (v + val.add_1_);
+				out << (u + val.print_1_based_) << " "
+					<< (v + val.print_1_based_);
 
 				// Edge weight.
 				if (val.edge_weights().has_value())
@@ -6375,7 +6360,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 template <typename VWeight, typename EWeight>
 wtree<VWeight, EWeight>::value::value(
 	const typename wgraph<VWeight, EWeight>::value &g)
-	: n_(g.n()), adj_(g.n()), add_1_(false), print_n_(false), dsu_(g.n()) {
+	: n_(g.n()), adj_(g.n()), print_1_based_(false), print_n_(false),
+	  dsu_(g.n()) {
 	tgen_ensure(g.n() > 0, "wtree: value: graph must have at least one vertex");
 	tgen_ensure(!g.is_directed(),
 				"wtree: value: graph must be undirected to form a tree");

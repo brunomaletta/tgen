@@ -760,8 +760,6 @@ namespace tgen {
  * This only affects streaming (@tt{@namespace{std}::@type{cout}} and friends). Stored vertex ids
  * stay 0-based. For a 1-based adjacency export, use @tt{to_std_1_based()}. Weights are not affected.
  *
- * @tt{add_1()} is a deprecated alias for this method.
- *
  * #### Complexity
  *
  * @tt{O(1)}.
@@ -775,15 +773,6 @@ namespace tgen {
  * ```
  *
  * @fn wgraph::value::print_1_based();
- */
-
-
-/**
- * @brief Deprecated alias for @tt{print_1_based()}.
- *
- * @deprecated Use @tt{print_1_based()} instead.
- *
- * @fn wgraph::value::add_1();
  */
 
 
