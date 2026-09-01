@@ -309,6 +309,22 @@ namespace tgen {
 
 
 /**
+ * @brief Restricts generator s.t. adjacent values are different.
+ *
+ * Equivalent to calling @tt{tgen::list::different(i, i+1)} for every adjacent pair.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // DNA-like lists with no equal adjacent letters.
+ * auto seq_gen = tgen::list<char>(8, {'A', 'C', 'G', 'T'}).adjacent_different();
+ * ```
+ *
+ * @fn list::adjacent_different();
+ */
+
+
+/**
  * @brief Generates a uniformly random value from the set of valid lists.
  *
  * @return A uniformly random @tt{tgen::list::value} from the set of valid lists, given the added restrictions.

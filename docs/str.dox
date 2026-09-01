@@ -368,6 +368,24 @@ namespace tgen {
 
 
 /**
+ * @brief Restricts generator s.t. adjacent values are different.
+ *
+ * Equivalent to calling @tt{tgen::str::different(i, i+1)} for every adjacent pair.
+ *
+ * @throws std::runtime_error if the generator was created from a regex.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * // Strings with no equal adjacent characters.
+ * auto str_gen = tgen::str(10, {'A', 'C', 'G', 'T'}).adjacent_different();
+ * ```
+ *
+ * @fn str::adjacent_different();
+ */
+
+
+/**
  * @brief Generates a uniformly random value from the set of valid strings.
  *
  * @return A uniformly random @tt{tgen::str::value} satisfying the restrictions,

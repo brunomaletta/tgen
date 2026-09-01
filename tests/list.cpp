@@ -579,3 +579,14 @@ TEST(list_test, list_choose) {
 		EXPECT_TRUE(idx == subseq.size());
 	}
 }
+
+TEST(list_test, adjacent_different) {
+	tgen::register_gen();
+
+	for (int i = 0; i < 50; ++i) {
+		auto inst = tgen::list<int>(10, 1, 5).adjacent_different().gen();
+		EXPECT_EQ(inst.size(), 10);
+		for (int j = 1; j < inst.size(); ++j)
+			EXPECT_NE(inst[j - 1], inst[j]);
+	}
+}

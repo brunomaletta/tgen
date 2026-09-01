@@ -231,3 +231,15 @@ TEST(str_test, value_index_out_of_bounds) {
 	EXPECT_THROW_TGEN_PREFIX(inst[-1], "str: value: index out of bounds");
 	EXPECT_THROW_TGEN_PREFIX(inst[2], "str: value: index out of bounds");
 }
+
+TEST(str_test, adjacent_different) {
+	tgen::register_gen();
+
+	for (int i = 0; i < 50; ++i) {
+		auto inst =
+			tgen::str(10, {'A', 'C', 'G', 'T'}).adjacent_different().gen();
+		EXPECT_EQ(inst.size(), 10);
+		for (int j = 1; j < inst.size(); ++j)
+			EXPECT_NE(inst[j - 1], inst[j]);
+	}
+}

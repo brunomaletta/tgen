@@ -22,10 +22,8 @@ int main(int argc, char **argv) {
 			  << std::endl;
 
 	// Random DNA list of length 8 with no equal adjacent values.
-	auto s2 = tgen::list<char>(8, {'A', 'C', 'G', 'T'});
-	for (int i = 1; i < 8; ++i)
-		s2.different(i - 1, i);
-	std::cout << s2.gen() << std::endl;
+	std::cout << tgen::str(8, {'A', 'C', 'G', 'T'}).adjacent_different().gen()
+			  << std::endl;
 
 	// Random binary list of length 10 with 5 1's that starts with 1.
 	std::cout << tgen::list<int>(10, 0, 1).fix(0, 1).gen_until(

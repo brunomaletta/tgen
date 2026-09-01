@@ -1671,6 +1671,13 @@ template <typename T> struct list : gen_base<list<T>> {
 		return different(std::set<int>(indices.begin(), indices.end()));
 	}
 
+	// Restricts adjacent list entries to be different: list[i] != list[i+1].
+	list &adjacent_different() {
+		for (int i = 1; i < size_; ++i)
+			different(i - 1, i);
+		return *this;
+	}
+
 	// List value.
 	// Operations on a value are not random.
 	struct value : gen_value_base<value> {
@@ -3815,6 +3822,13 @@ struct str : gen_base<str> {
 	str &all_different() {
 		tgen_ensure(!root_, "str: cannot add restriction for regex");
 		list_->all_different();
+		return *this;
+	}
+
+	// Restricts adjacent characters to be different: str[i] != str[i+1].
+	str &adjacent_different() {
+		tgen_ensure(!root_, "str: cannot add restriction for regex");
+		list_->adjacent_different();
 		return *this;
 	}
 
