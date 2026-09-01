@@ -1,0 +1,74 @@
+name: Hack request
+description: Propose a new adversarial input generator for tgen::hack
+title: "[Hack] "
+labels: ["hack", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a new hack for [tgen](https://github.com/brunomaletta/tgen).
+        See existing hacks in [`tgen::hack`](https://brunomaletta.github.io/tgen/group__hack.html)
+        and [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md).
+
+  - type: input
+    id: algorithm
+    attributes:
+      label: Target algorithm or bug class
+      description: e.g. "Centroid decomposition path queries", "Treap degenerate sequence"
+      placeholder: Heavy-light decomposition path queries
+    validations:
+      required: true
+
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected adversarial behavior
+      description: What complexity or failure mode should this input trigger?
+      placeholder: Forces Theta(n) per path query on a path-shaped heavy-light chain...
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Links to papers, blog posts, Codeforces entries, or known failing implementations
+      placeholder: |
+        - https://codeforces.com/blog/entry/...
+        - Problem link or submission that fails
+    validations:
+      required: false
+
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation criteria
+      description: How should we test that the hack is correct? Structural invariants, expected sizes, etc.
+      placeholder: |
+        - Tree has n vertices, n-1 edges
+        - Diameter is n-1
+        - Reference solution X times out on this input
+    validations:
+      required: true
+
+  - type: dropdown
+    id: return_type
+    attributes:
+      label: Preferred return type
+      options:
+        - Tree (tgen::tree::value)
+        - Graph (tgen::graph::value / egraph)
+        - Array / queries (std::vector)
+        - String pair
+        - Tuple (e.g. graph + queries)
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+      description: Optional parameters, size limits, or related existing hacks
+    validations:
+      required: false
