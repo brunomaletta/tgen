@@ -397,7 +397,7 @@ namespace tgen {
  *
  * @throws std::runtime_error if there is no valid string satisfying all restrictions.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * If created from restrictions: @tt{O(n log n)}.
  *
@@ -485,7 +485,7 @@ namespace tgen {
 /**
  * @brief Sorts the characters in non-decreasing order.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n log n)}.
  *
@@ -504,7 +504,7 @@ namespace tgen {
 /**
  * @brief Reverses the string.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -523,7 +523,7 @@ namespace tgen {
 /**
  * @brief Sets all characters to lowercase.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -542,7 +542,7 @@ namespace tgen {
 /**
  * @brief Sets all characters to uppercase.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -565,7 +565,7 @@ namespace tgen {
  *
  * @return The concatenation.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * Linear.
  *
@@ -584,7 +584,7 @@ namespace tgen {
 /**
  * @brief Shuffles the string.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -604,7 +604,7 @@ namespace tgen {
  *
  * @return A uniformly random element from the string.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -629,7 +629,7 @@ namespace tgen {
  * @warning For integral @tt{Dist}, assumes that the sum of @pname{distribution}
  *          fits in type @tt{@type{unsigned} __int128}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -651,7 +651,7 @@ namespace tgen {
  *
  * @return A uniformly random subsequence of length @pname{k}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *

@@ -84,12 +84,12 @@ class RenderInlineTest(unittest.TestCase):
     def test_nested_section_wrappers(self):
         xml = (
             "<sect1><sect2><sect3>"
-            "<title>Complexity</title><para>O(1).</para>"
+            "<title>Time complexity</title><para>O(1).</para>"
             "</sect3></sect2></sect1>"
         )
         out = llms_gen.render_node(el(xml))
         # innermost is sect3 -> level 4 heading
-        self.assertIn("#### Complexity", out)
+        self.assertIn("#### Time complexity", out)
         self.assertIn("O(1).", out)
 
     def test_ref_keeps_text(self):

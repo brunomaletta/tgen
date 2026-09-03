@@ -287,7 +287,7 @@ namespace tgen::geometry {
  *
  * @note This operation is not uniformly random.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n})}.
  *
@@ -319,7 +319,7 @@ namespace tgen::geometry {
  *
  * @note This operation is not uniformly random.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(|@pname{points}| log|@pname{points}|)} expected (if points are "random"),
  * @tt{O(|@pname{points}|^2)} worst case.
@@ -361,7 +361,7 @@ namespace tgen::geometry {
  *
  * @note This operation is not uniformly random.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n} log @pname{n})} expected.
  *
@@ -418,7 +418,7 @@ namespace tgen::geometry {
  *
  * @note This operation is not uniformly random.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n} log @pname{n})}.
  * #### Examples
@@ -489,7 +489,7 @@ namespace tgen::geometry {
  *
  * @note This operation is not uniformly random.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n}^2)} for @tt{@pname{n} <= 1000}; <br>
  * @tt{O(@pname{n})} otherwise.

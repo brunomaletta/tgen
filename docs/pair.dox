@@ -197,7 +197,7 @@ namespace tgen {
  *
  * @throws std::runtime_error if there is no valid pair satisfying all added restrictions.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log(@pname{first_right} - @pname{first_left}) + log(@pname{second_right} - @pname{second_left}))}.
  *
@@ -299,7 +299,7 @@ namespace tgen {
 /**
  * @brief Sets separator for printing.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *

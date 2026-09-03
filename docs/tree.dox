@@ -148,7 +148,7 @@ namespace tgen {
  *
  * @param n Number of vertices.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -171,7 +171,7 @@ namespace tgen {
  *
  * Preset edges must not form a cycle.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log n)}.
  *
@@ -191,7 +191,7 @@ namespace tgen {
  *
  * @return A uniformly random @tt{tgen::tree::value} from the set of valid trees, given the added restrictions.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -222,7 +222,7 @@ namespace tgen {
  *
  * @note This operation is not uniformly random.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -249,7 +249,7 @@ namespace tgen {
  *
  * @note This operation is not uniformly random.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n log(n) alpha(n))} expected time.
  *
@@ -286,7 +286,7 @@ namespace tgen {
  *
  * Adjacency list must be symmetric, and must form a tree.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -313,7 +313,7 @@ namespace tgen {
  *
  * Each edge @tt{(u, v)} must be listed once with @tt{u < v}, and must form a tree.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -340,7 +340,7 @@ namespace tgen {
  *
  * @note This operation is not uniformly random.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m alpha(n))}.
  *
@@ -458,7 +458,7 @@ namespace tgen {
  *
  * Immutable style: returns a copy with weights set (weight type deduced); does not modify @tt{*this}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -484,7 +484,7 @@ namespace tgen {
  *
  * Immutable style: returns a copy with weights set (weight type deduced); does not modify @tt{*this}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -510,7 +510,7 @@ namespace tgen {
  *
  * @return @tt{*this} (mutating).
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -536,7 +536,7 @@ namespace tgen {
  * This only affects streaming (@tt{@namespace{std}::@type{cout}} and friends). Stored vertex ids
  * stay 0-based. For a 1-based adjacency export, use @tt{to_std_1_based()}. Weights are not affected.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -555,7 +555,7 @@ namespace tgen {
 /**
  * @brief Prints the number of vertices before the tree.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -579,7 +579,7 @@ namespace tgen {
  *
  * Incompatible with edge weights.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -600,7 +600,7 @@ namespace tgen {
  *
  * @param indices Vertex ids to keep fixed; every other vertex is relabeled by a random permutation.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -621,7 +621,7 @@ namespace tgen {
  *
  * Shuffles all vertices and edge order. Equivalent to @tt{@ref shuffle_except({})}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -648,7 +648,7 @@ namespace tgen {
  * Vertices on @pname{rhs} are shifted by the current @tt{n}.
  * Weight usage must be consistent.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(rhs.n * log n)} amortized.
  *
@@ -677,7 +677,7 @@ namespace tgen {
  * Gluing one vertex to another means they are considered to be the same vertex, maintaining the label
  * it had in this tree. Other vertices are shifted accordingly.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(rhs.n * log n)} amortized.
  *
@@ -707,7 +707,7 @@ namespace tgen {
  * Gluing one vertex to another means they are considered to be the same vertex, maintaining the label
  * it had in this graph. Other vertices are shifted accordingly.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(rhs.n * log n)} amortized.
  *
@@ -776,7 +776,7 @@ namespace tgen {
  * (with optional edge weights), or parent format when @tt{@ref print_parents}
  * is set.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *

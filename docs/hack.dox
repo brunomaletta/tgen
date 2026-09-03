@@ -35,7 +35,7 @@ namespace tgen::hack {
  *
  * @return A string with the prefix of length @pname{n} of @tt{"abacabad..."}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n})}.
  *
@@ -59,12 +59,13 @@ namespace tgen::hack {
  *
  * @return A @tt{@namespace{std}\::pair} with the colliding strings.
  *
- * Reference:
+ * #### References
+ *
  * - <a href="https://codeforces.com/blog/entry/60442">On the mathematics behind rolling hashes and anti-hash
  *   tests</a>: Thue–Morse sequence: Hashing with unsigned overflow (p = 2^64, q arbitrary).
 
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -95,11 +96,12 @@ namespace tgen::hack {
  *
  * @return A @tt{@namespace{std}\::pair} with the colliding strings.
  *
- * Reference:
+ * #### References
+ *
  * - <a href="https://codeforces.com/blog/entry/60442">On the mathematics behind rolling hashes and anti-hash
  *   tests</a>: Composition-attack: Multiple hashes.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(sqrt(@pname{mod}) log @pname{mod})}.
  *
@@ -132,12 +134,13 @@ namespace tgen::hack {
  *
  * @return A @tt{@namespace{std}\::pair} with the colliding strings.
  *
- * Reference:
+ * #### References
+ *
  * - <a href="https://codeforces.com/blog/entry/60442">On the mathematics behind rolling hashes and anti-hash
  *   tests</a>: Composition-attack: Multiple hashes.
 
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(sqrt(mod) log^2 mod)}, with @tt{mod = max(@pname{mods})}.
  *
@@ -164,7 +167,7 @@ namespace tgen::hack {
  * @note The hack might not be effective due to differences in C++ implementations. <br>
  *       This function benefits from tgen::set_compiler and tgen::set_cpp_version information.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{size})}.
  *
@@ -188,7 +191,7 @@ namespace tgen::hack {
  *
  * Forces @tt{Theta(q sqrt n)} pointer moves for any ordering.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n} log @pname{n} + @pname{q})}.
  *
@@ -212,7 +215,7 @@ namespace tgen::hack {
  * Inserting these strings in a @tt{@namespace{std}::@type{set}} takes @tt{Theta(@pname{size} log(@pname{size}))}
  * time, and that is asymptotically the maximum one can achieve.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{size} log(@pname{size}))}.
  *
@@ -240,7 +243,7 @@ namespace tgen::hack {
  *
  * @return An @tt{egraph<int>::value} with @tt{m = 2(@pname{n} - 2)} directed edges, all with weight @tt{1}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n})}.
  *
@@ -268,7 +271,7 @@ namespace tgen::hack {
  * @return An @tt{egraph<int>::value} with @tt{m = @pname{n} + floor(@pname{n}/2) - 3}
  *         directed edges, with weights at most @tt{@pname{n}}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n})}.
  *
@@ -307,7 +310,7 @@ namespace tgen::hack {
  * @return A directed @tt{tgen::egraph<int>::value} with @tt{@pname{n}} vertices and
  *         @tt{m = 2@pname{n} - 3} edges. 
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n})}.
  *
@@ -341,13 +344,14 @@ namespace tgen::hack {
  *         @tt{m = 6@pname{l} + 4@pname{k} + @pname{k}^2 - 4} edges.
  *         Source @tt{s = 0}, sink @tt{t = 4@pname{l} + 2@pname{k} + 1}.
  *
- * References:
+ * #### References
+ *
  * - <a href="https://codeforces.com/blog/entry/145343">Worst-Case Graphs for
  *   Maximum Flow Algorithms</a>: Shortest Augmenting Paths (Edmonds-Karp, Dinic).
  * - Norman Zadeh, "Theoretical Efficiency of the Edmonds-Karp Algorithm for
  *   Computing Maximal Flows", J. ACM 19.1 (1972).
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{l} + @pname{k}^2)}.
  *
@@ -371,11 +375,12 @@ namespace tgen::hack {
  *
  * @return Six vertices of a strictly convex polygon (clockwise).
  *
- * Reference:
+ * #### References
+ *
  * - <a href="https://codeforces.com/blog/entry/48868#comment-329438">DuX counterexample</a>
  *   to Errichto's naive maximum-distance algorithm.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -409,10 +414,11 @@ namespace tgen::hack {
  * @endcode
  * then @tt{hash = 0}.
  *
- * Reference:
+ * #### References
+ *
  * - <a href="https://codeforces.com/blog/entry/153335">Hacking Incorrect XOR Hashing with mt19937_64</a>.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -450,11 +456,12 @@ namespace tgen::hack {
  *   - @tt{\{2, l, r, x\}}: chmax @tt{x} on @tt{[l, r)}.
  *   - @tt{\{3, i, x\}}: set @tt{array[i] = x}.
  *
- * Reference:
+ * #### References
+ *
  * - <a href="https://codeforces.com/blog/entry/149516">The Time Complexity Lower
  *   Bound for Segment Tree Beats is log^2</a>.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(fib(2@pname{k}+1)^3 + @pname{q})}.
  *
@@ -497,7 +504,7 @@ namespace tgen::hack {
  * @return A @tt{@namespace{std}\::@type{pair}} of a @tt{tgen::tree::value} on
  *         @pname{n} vertices and @pname{q} path queries @tt{(u, v)}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n} + @pname{q})}.
  *
@@ -535,7 +542,7 @@ namespace tgen::hack {
  * @return A @tt{@namespace{std}\::@type{pair}} of a @tt{tgen::tree::value} on
  *         @pname{n} vertices and @pname{q} path queries @tt{(u, v)}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n} + @pname{q})}.
  *
@@ -558,8 +565,9 @@ namespace tgen::hack {
  * @ingroup hack
  * @brief Tree and access sequence for link-cut tree worst case.
  *
- * Builds a tree and an access sequence that force @tt{Theta(log @pname{n})} amortized
- * work per access on a correct link-cut tree implementation using splay trees.
+ * Builds a tree and an access sequence that force @tt{Theta(log @pname{n})}
+ * preferred-path changes and amortized work per access on a correct link-cut
+ * tree implementation using splay trees.
  *
  * The tree is a near-balanced binary tree in heap layout on @tt{0..@pname{n}-1}
  * (parent @tt{i}, children @tt{2i+1} and @tt{2i+2}). The sequence cycles
@@ -574,12 +582,13 @@ namespace tgen::hack {
  * @return A @tt{@namespace{std}\::@type{pair}} of a @tt{tgen::tree::value} on
  *         @pname{n} vertices and an access sequence of length @pname{q}.
  *
- * Reference:
+ * #### References
+ *
  * - R. Wilber, <a href="https://doi.org/10.1137/0218004">Lower Bounds for
  *   Accessing Binary Search Trees with Rotations</a>, SIAM J. Comput. 18(1)
  *   (1989). Bit-reversal needs @tt{Theta(n log n)} via the alternation bound.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n} log @pname{n} + @pname{q})}.
  *

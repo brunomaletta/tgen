@@ -74,7 +74,7 @@ namespace tgen::math {
  *
  * @return If the number is prime.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log^2 @pname{n})}.
  *
@@ -99,7 +99,7 @@ namespace tgen::math {
  *
  * @return List of prime factors of @pname{n}, in non-decreasing order.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n}^(1/4) log @pname{n})} expected.
  *
@@ -124,7 +124,7 @@ namespace tgen::math {
  *
  * @return List of prime factors of @pname{n}, in increasing order, with its respective powers.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n}^(1/4) log @pname{n})} expected.
  *
@@ -152,7 +152,7 @@ namespace tgen::math {
  *
  * @return Inverse of @pname{a} mod @pname{mod}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log @pname{mod})}.
  *
@@ -178,7 +178,7 @@ namespace tgen::math {
  *
  * @return Totient of @pname{n}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n}^(1/4) log @pname{n})} expected.
  *
@@ -280,7 +280,7 @@ namespace tgen::math {
  *
  * @throws std::runtime_error if there is no prime in the given range.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log^3 @pname{right})} expected.
  *
@@ -306,7 +306,7 @@ namespace tgen::math {
  *
  * @return Smallest prime larger than or equal to @pname{left}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log^3 @pname{left})} expected.
  *
@@ -331,7 +331,7 @@ namespace tgen::math {
  *
  * @return Largest prime smaller than or equal to @pname{right}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log^3 @pname{right})} expected.
  *
@@ -359,7 +359,7 @@ namespace tgen::math {
  *
  * @return Number of divisors of @pname{n}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n}^(1/4) log @pname{n})} expected.
  *
@@ -386,7 +386,7 @@ namespace tgen::math {
  *
  * @return Uniformly random number with given prime number of divisors.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log(@pname{right}) log(@pname{divisor_count}))}.
  *
@@ -419,7 +419,7 @@ namespace tgen::math {
  *
  * @throws std::runtime_error if there is no such number.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(|@pname{mods}| + log @pname{right})}.
  *
@@ -453,7 +453,7 @@ namespace tgen::math {
  *
  * @throws std::runtime_error if there is no such number.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log @pname{right})}.
  *
@@ -484,7 +484,7 @@ namespace tgen::math {
  *
  * @throws std::runtime_error if there is no such number or if it does not fit in @primitive{uint64_t}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(|@pname{mods}| + log(lcm))}, if @tt{lcm} is the least common multiple of the mods.
  *
@@ -516,7 +516,7 @@ namespace tgen::math {
  *
  * @throws std::runtime_error if there is no such number or if it does not fit in @primitive{uint64_t}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log @pname{mod})}.
  *
@@ -547,7 +547,7 @@ namespace tgen::math {
  *
  * @throws std::runtime_error if there is no such number.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(|@pname{mods}| + log @pname{right})}.
  *
@@ -579,7 +579,7 @@ namespace tgen::math {
  *
  * @throws std::runtime_error if there is no such number.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log @pname{right})}.
  *
@@ -646,7 +646,7 @@ namespace tgen::math {
  *
  * @note Distribution might be slightly biased because of floating point arithmetic.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n})}.
  *
@@ -684,7 +684,7 @@ namespace tgen::math {
  *
  * @note Distribution might be slightly biased because of floating point arithmetic.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n})} time/memory if @pname{part_right} is not set; <br>
  * @tt{O(@pname{n} * @pname{k})} time/memory otherwise.
@@ -727,7 +727,7 @@ namespace tgen::math {
  *
  * @note This operation is not uniformly random.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{k} log @pname{k})}.
  *
@@ -763,7 +763,7 @@ namespace tgen::math {
  * @note This function is not always uniform: group sizes are uniform only when
  * @pname{max_size} is not set.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)} if @pname{max_size} is not set (uniform, via @ref gen_partition_fixed_size); <br>
  * @tt{O(n + k log k)} if @pname{max_size} is set (fast, via @ref gen_partition_fixed_size_fast).

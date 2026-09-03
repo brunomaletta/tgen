@@ -332,7 +332,7 @@ namespace tgen {
  * @throws std::runtime_error if there is no valid list satisfying all added restrictions,
  *         or if the added restrictions are considered to be too complex (see @tt{tgen::list::different}).
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n log n)}.
  *
@@ -423,7 +423,7 @@ namespace tgen {
 /**
  * @brief Sorts the list in non-decreasing order.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n log n)}.
  *
@@ -442,7 +442,7 @@ namespace tgen {
 /**
  * @brief Reverses the list.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -461,7 +461,7 @@ namespace tgen {
 /**
  * @brief Sets separator for printing.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -484,7 +484,7 @@ namespace tgen {
  *
  * @return The concatenation.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * Linear.
  *
@@ -503,7 +503,7 @@ namespace tgen {
 /**
  * @brief Shuffles the list in place.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -523,7 +523,7 @@ namespace tgen {
  *
  * @return A uniformly random element from the list.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -550,7 +550,7 @@ namespace tgen {
  * @warning For integral @tt{Dist}, assumes that the sum of @pname{distribution}
  *          fits in type @tt{@type{unsigned} __int128}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -573,7 +573,7 @@ namespace tgen {
  *
  * @return A uniformly random subsequence of length @pname{k}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *

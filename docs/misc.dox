@@ -28,7 +28,7 @@ namespace tgen::misc {
  *
  * Generates a uniformly random parenthesis sequence.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{size})}.
  *

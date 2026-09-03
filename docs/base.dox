@@ -221,7 +221,7 @@ namespace tgen {
  *
  * @return A random number in @tt{[0, @pname{right})}, chosen uniformly.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -254,7 +254,7 @@ namespace tgen {
  *       (@tt{[@pname{left}, @pname{right})} in C++). This matches the documented
  *       closed interval because the right endpoint has probability zero.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -297,7 +297,7 @@ namespace tgen {
  *
  * @note Distribution might be slightly biased because of floating point arithmetic.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(|@pname{w}|)}.
  *
@@ -332,7 +332,7 @@ namespace tgen {
  *
  * See @tt{tgen::wnext} for more details.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(|@pname{w}|)}.
  *
@@ -406,7 +406,7 @@ namespace tgen {
  * @warning For integral @tt{T}, assumes that the sum of @pname{distribution}
  *          fits in type @tt{@type{unsigned} __int128}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(|@pname{distribution}|)}.
  *
@@ -433,7 +433,7 @@ namespace tgen {
  *
  * Indices with weight @tt{0} are never returned.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -468,7 +468,7 @@ namespace tgen {
  * @ref many_by_distribution, or build a @ref tgen::weighted_sampler once and
  * call @ref weighted_sampler::next repeatedly.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(|@pname{distribution}|)}.
  *
@@ -498,7 +498,7 @@ namespace tgen {
  * Internally builds a @ref tgen::weighted_sampler and calls
  * @ref weighted_sampler::next @pname{k} times.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{k} + |@pname{distribution}|)}.
  *
@@ -524,7 +524,7 @@ namespace tgen {
  * @texttt{@namespace{std}::@type{vector}}, @texttt{@namespace{std}::@type{string}}, etc, but not
  * @texttt{@namespace{std}::@type{set}}. For those, use @tt{tgen::shuffled(@pname{container})}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(|@pname{last} - @pname{first}|)}.
  *
@@ -551,7 +551,7 @@ namespace tgen {
  *
  * @return The shuffled container.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(|@pname{container}|)}.
  *
@@ -577,7 +577,7 @@ namespace tgen {
  *
  * @return A uniformly random element from the range @tt{[@pname{first}, @pname{last})}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)} for random_access_iterator, @tt{O(|@pname{last} - @pname{first}|)} otherwise.
  *
@@ -602,7 +602,7 @@ namespace tgen {
  *
  * @return A uniformly random element from @pname{container}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)} for random_access_iterator, @tt{O(|@pname{container}|)} otherwise.
  *
@@ -632,7 +632,7 @@ namespace tgen {
  * @warning For integral @tt{T}, assumes that the sum of @pname{distribution}
  *          fits in type @tt{@type{unsigned} __int128}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)} for random_access_iterator, @tt{O(|@pname{container}|)} otherwise.
  *
@@ -659,7 +659,7 @@ namespace tgen {
  *
  * @return A uniformly random subsequence of length @pname{k}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(|@pname{container}|)}.
  *
@@ -717,7 +717,7 @@ namespace tgen {
  *
  * @return The number of values left to generate.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -741,7 +741,7 @@ namespace tgen {
  *
  * @throws std::runtime_error if there no more values to generate.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log(n))} for the @tt{n}-th call of @tt{gen}.
  *
@@ -765,7 +765,7 @@ namespace tgen {
  *
  * @throws std::runtime_error if there are not enough values to generate.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * The same as @pname{size} calls to @ref distinct_range::gen.
  *
@@ -786,7 +786,7 @@ namespace tgen {
  * @return A uniformly random @ref tgen::list::value with all
  *         distinct values from the range that have not been generated yet.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * The same as calling @ref distinct_range::gen until there are no more distinct values.
  *
@@ -845,7 +845,7 @@ namespace tgen {
  *
  * @return The number of elements left to generate.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -870,7 +870,7 @@ namespace tgen {
  *
  * @throws std::runtime_error if there no more elements to generate.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log(n))} for the @tt{n}-th call of @tt{gen}.
  *
@@ -895,7 +895,7 @@ namespace tgen {
  *
  * @throws std::runtime_error if there are not enough elements to generate.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * The same as @pname{size} calls to @ref distinct_container::gen.
  *
@@ -917,7 +917,7 @@ namespace tgen {
  * @return A uniformly random @ref tgen::list::value with all
  *         distinct elements from the container that have not been generated yet.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * The same as calling @ref distinct_container::gen until there are no more distinct values.
  *
@@ -1003,13 +1003,14 @@ namespace tgen {
  * @throws std::runtime_error if there are probably (with probability at least @tt{1 - 10^(-18)}) no
  *         more distinct values to generate.
  *
- * #### Complexity
+ * #### References
+ *
+ * - <a href="https://en.wikipedia.org/wiki/Coupon_collector%27s_problem">Coupon collector's problem</a>.
+ *
+ * #### Time complexity
  *
  * @tt{O(T * log k + log^2 k)} amortized expected, if the function runs in @tt{O(T)} time
  * and @tt{k} values are to be generated in total.
- *
- * Reference:
- * - <a href="https://en.wikipedia.org/wiki/Coupon_collector%27s_problem">Coupon collector's problem</a>.
  *
  * #### Examples
  *
@@ -1039,7 +1040,7 @@ namespace tgen {
  *
  * @throws std::runtime_error if there are not enough values to generate.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * The same as @pname{size} calls to @ref distinct::gen.
  *
@@ -1059,7 +1060,7 @@ namespace tgen {
  *
  * @return If there is probably (with probability at least @tt{1 - 10^(-18)}) no value that has not been generated yet.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * The same as a call to @ref distinct::gen.
  *
@@ -1082,7 +1083,7 @@ namespace tgen {
  *         distinct values from the function with the given arguments
  *         that have not been generated yet.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * The same as calling @ref distinct::gen until there are no more distinct values.
  *
@@ -1119,7 +1120,7 @@ namespace tgen {
  * @return A @ref tgen::list::value with @pname{size}
  *         calls to @tt{tgen::@type{Gen}::gen(@pname{args}...)}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @pname{size} times the complexity of one @tt{tgen::@type{Gen}::gen(@pname{args}...)} call.
  *
@@ -1156,7 +1157,7 @@ namespace tgen {
  * @throws std::runtime_error if no valid value satisfying @pname{predicate} is found after @pname{max_tries}
  *         tries.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(T(n) * (1 / p))} expected, if @tt{@type{Gen}::value} runs in @tt{O(T(n))} time, and @pname{predicate} has probability
  * @tt{p} of returning @tt{@primitive{true}}.
@@ -1204,7 +1205,7 @@ namespace tgen {
  *
  * @return The @ref distinct generator that calls @tt{tgen::@type{Gen}::gen} with the given arguments.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * Linear.
  *
@@ -1243,7 +1244,7 @@ namespace tgen {
  *
  * Uses @tt{@pname{Val}::to_std} for the comparison.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * Linear.
  *

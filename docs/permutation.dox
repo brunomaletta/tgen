@@ -119,7 +119,7 @@ namespace tgen {
  *
  * @throws std::runtime_error if there is no valid permutation satisfying all added restrictions.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -227,7 +227,7 @@ namespace tgen {
 /**
  * @brief Sorts the permutation in non-decreasing order.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -246,7 +246,7 @@ namespace tgen {
 /**
  * @brief Reverses the permutation.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -267,7 +267,7 @@ namespace tgen {
  *
  * The inverse of the permutation @tt{p} is another @tt{pi} such that @tt{pi[p[i]] = p[pi[i]] = i}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -286,7 +286,7 @@ namespace tgen {
 /**
  * @brief Sets separator for printing.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -309,7 +309,7 @@ namespace tgen {
  * @tt{operator[]}, and @tt{to_std()} stay 0-based. For a 1-based
  * @texttt{@namespace{std}::@type{vector}}, use @tt{to_std_1_based()}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -330,7 +330,7 @@ namespace tgen {
 /**
  * @brief Shuffles the permutation.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -350,7 +350,7 @@ namespace tgen {
  *
  * @return A uniformly random element from the permutation.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -375,7 +375,7 @@ namespace tgen {
  * @warning For integral @tt{Dist}, assumes that the sum of @pname{distribution}
  *          fits in type @tt{@type{unsigned} __int128}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *

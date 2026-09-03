@@ -207,7 +207,7 @@ namespace tgen {
  * @param is_directed If @tt{@primitive{true}}, edges are directed and distinguish @tt{(u,v)} from @tt{(v,u)}.
  * @param has_self_loops If @tt{@primitive{true}}, pairs @tt{(i,i)} may be generated.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -232,7 +232,7 @@ namespace tgen {
  *
  * The number of preset edges must not exceed @tt{m}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log m)} amortized.
  *
@@ -252,7 +252,7 @@ namespace tgen {
  *
  * @param rhs Graph to take edges from.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(rhs.m() log m)}.
  *
@@ -277,7 +277,7 @@ namespace tgen {
  *
  * @throws std::runtime_error if there are not @tt{m} valid edges to generate.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m log^2 n)} expected.
  *
@@ -302,7 +302,7 @@ namespace tgen {
  *
  * @note This operation is not uniformly random.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m log^2 n)} expected.
  *
@@ -328,7 +328,7 @@ namespace tgen {
  *
  * @note This operation is not uniformly random.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m log^2 n)} expected.
  *
@@ -369,7 +369,7 @@ namespace tgen {
  *
  * @note This operation is not uniformly random.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m log n)} if @pname{spread} is @tt{O(1)}; <br>
  * @tt{O(n log n + m log^2 n)} expected otherwise.
@@ -411,7 +411,7 @@ namespace tgen {
  * @note This function is not always uniformly random: it is uniform only when
  * @pname{connected} is @tt{@primitive{false}}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n1} + @pname{n2} + @pname{m} log(@pname{n1} * @pname{n2}))}
  * expected.
@@ -445,7 +445,7 @@ namespace tgen {
  * then a uniformly random labeled graph with exactly those @tt{m} edges is returned
  * (same as @tt{tgen::wgraph(n, m, @pname{is_directed}, @pname{has_self_loops}).gen()}).
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n^2 (1 + p log^2 n))} expected.
  *
@@ -485,7 +485,7 @@ namespace tgen {
  * @param adj Adjacency list; @tt{adj[u]} contains every neighbor of @tt{u} (out-neighbors if directed).
  * @param is_directed If @tt{@primitive{false}}, @tt{adj} must be symmetric and each undirected edge must appear in both directions.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m)}.
  *
@@ -513,7 +513,7 @@ namespace tgen {
  *
  * For undirected graphs, each edge @tt{(u, v)} should appear once with @tt{u <= v}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m log n)}.
  *
@@ -537,7 +537,7 @@ namespace tgen {
  * @tt{is_directed() == @primitive{false}}. Vertex and edge weights are copied when the
  * weight types match.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n)}.
  *
@@ -685,7 +685,7 @@ namespace tgen {
  *
  * Immutable style: returns a copy with weights set (weight type deduced); does not modify @tt{*this}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m)}.
  *
@@ -711,7 +711,7 @@ namespace tgen {
  *
  * Immutable style: returns a copy with weights set (weight type deduced); does not modify @tt{*this}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m)}.
  *
@@ -735,7 +735,7 @@ namespace tgen {
  *
  * @pre The graph has no edges (@tt{m() == 0}).
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -760,7 +760,7 @@ namespace tgen {
  * This only affects streaming (@tt{@namespace{std}::@type{cout}} and friends). Stored vertex ids
  * stay 0-based. For a 1-based adjacency export, use @tt{to_std_1_based()}. Weights are not affected.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -779,7 +779,7 @@ namespace tgen {
 /**
  * @brief Prints number of vertices and edges before edge list.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(1)}.
  *
@@ -801,7 +801,7 @@ namespace tgen {
  * @param k Number of vertices to append.
  * @param new_vertex_weights Optional weights for the new vertices (required if the graph already has vertex weights).
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(k)} amortized.
  *
@@ -827,7 +827,7 @@ namespace tgen {
  *
  * If the edge is already present, does nothing.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(log n)} amortized.
  *
@@ -849,7 +849,7 @@ namespace tgen {
  *
  * @param indices Vertex ids to keep fixed; every other vertex is relabeled by a random permutation.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m)}.
  *
@@ -869,7 +869,7 @@ namespace tgen {
  *
  * Shuffles all vertices and edge order. Equivalent to @tt{@ref shuffle_except({})}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m)}.
  *
@@ -895,7 +895,7 @@ namespace tgen {
  * Vertices on @pname{rhs} are shifted by the current @tt{n}.
  * Weight usage must be consistent.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(rhs.n + rhs.m log n)} amortized.
  *
@@ -924,7 +924,7 @@ namespace tgen {
  * Gluing one vertex to another means they are considered to be the same vertex, maintaining the label
  * it had in this graph. Other vertices are shifted accordingly.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(rhs.n + rhs.m log n)} amortized.
  *
@@ -951,7 +951,7 @@ namespace tgen {
  * Gluing one vertex to another means they are considered to be the same vertex, maintaining the label
  * it had in this graph. Other vertices are shifted accordingly.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(rhs.n + rhs.m log n)} amortized.
  *
@@ -971,7 +971,7 @@ namespace tgen {
 /**
  * @brief Disjoint union with another graph.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(rhs.n + rhs.m log n)} amortized.
  *
@@ -998,7 +998,7 @@ namespace tgen {
  *
  * The edges are chosen uniformly as a subset of the current edges.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m)}.
  *
@@ -1028,7 +1028,7 @@ namespace tgen {
  *
  * @note This operation is not uniformly random.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m)}.
  *
@@ -1054,7 +1054,7 @@ namespace tgen {
  *
  * Self loops are maintained.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n^2)}.
  *
@@ -1076,7 +1076,7 @@ namespace tgen {
  * Immutable style: returns a copy with the disjoint union;
  * does not modify @tt{*this}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m log n)} for the combined size.
  *
@@ -1140,7 +1140,7 @@ namespace tgen {
  *
  * Optional @tt{n m} line when @tt{print_nm} is set, optional vertex-weight line, then edges (with optional edge weights).
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(n + m)}.
  *
@@ -1169,7 +1169,7 @@ namespace tgen {
  *
  * @param n Number of vertices.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n}^2)}.
  *
@@ -1194,7 +1194,7 @@ namespace tgen {
  *
  * The endpoints of the path are vertices @tt{0} and @tt{@pname{n} - 1}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n})}.
  *
@@ -1222,7 +1222,7 @@ namespace tgen {
  *
  * @pre @tt{@pname{n} >= 3}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n})}.
  *
@@ -1248,7 +1248,7 @@ namespace tgen {
  *
  * The center of the star is vertex @tt{0}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n})}.
  *
@@ -1273,7 +1273,7 @@ namespace tgen {
  * The vertices on the left side are indexed in @tt{[0, @pname{n1})},
  * and those on right side in @tt{[@pname{n1}, @pname{n1} + @pname{n2})}.
  *
- * #### Complexity
+ * #### Time complexity
  *
  * @tt{O(@pname{n1} * @pname{n2})}.
  *
