@@ -477,4 +477,80 @@ namespace tgen::hack {
  * @fn segment_tree_beats_worst_case(int k, int q);
  */
 
-};
+
+/**
+ * @ingroup hack
+ * @brief Tree and path queries for centroid decomposition worst case.
+ *
+ * Builds a tree and path queries that force @tt{Theta(log n)} centroid-tree
+ * nodes per query on a correct centroid-decomposition implementation.
+ *
+ * The tree is a near-balanced binary tree in heap layout on @tt{0..n-1}
+ * (parent @tt{i}, children @tt{2i+1} and @tt{2i+2}). Queries are random leaves
+ * in the left and right subtrees of @tt{0}.
+ *
+ * @param n Number of vertices.
+ * @param q Number of path queries.
+ *
+ * @pre @tt{@pname{n} >= 3}, @tt{@pname{q} >= 1}.
+ *
+ * @return A @tt{@namespace{std}\::@type{pair}} of a @tt{tgen::tree::value} on
+ *         @pname{n} vertices and @pname{q} path queries @tt{(u, v)}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n} + @pname{q})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto [t, queries] = tgen::hack::centroid_decomposition_worst_case(100, 50);
+ * std::cout << t.print_n();
+ * std::cout << queries.size() << '\n';
+ * for (auto [u, v] : queries)
+ *   std::cout << u << ' ' << v << '\n';
+ * ```
+ *
+ * @fn centroid_decomposition_worst_case(int n, int q);
+ */
+
+
+/**
+ * @ingroup hack
+ * @brief Tree and path queries for heavy-light decomposition worst case.
+ *
+ * Builds a tree and path queries that force @tt{Theta(log n)} heavy-light
+ * chains per query on a correct heavy-light decomposition implementation
+ * rooted at @tt{0}.
+ *
+ * The tree is a near-balanced binary tree in heap layout on @tt{0..n-1}
+ * (parent @tt{i}, children @tt{2i+1} and @tt{2i+2}). Queries are random leaves
+ * in the left and right subtrees of @tt{0}.
+ *
+ * @param n Number of vertices.
+ * @param q Number of path queries.
+ *
+ * @pre @tt{@pname{n} >= 3}, @tt{@pname{q} >= 1}.
+ *
+ * @return A @tt{@namespace{std}\::@type{pair}} of a @tt{tgen::tree::value} on
+ *         @pname{n} vertices and @pname{q} path queries @tt{(u, v)}.
+ *
+ * #### Complexity
+ *
+ * @tt{O(@pname{n} + @pname{q})}.
+ *
+ * #### Examples
+ *
+ * ```cpp
+ * auto [t, queries] =
+ *     tgen::hack::heavy_light_decomposition_worst_case(1000, 500);
+ * std::cout << t.print_n();
+ * std::cout << queries.size() << '\n';
+ * for (auto [u, v] : queries)
+ *   std::cout << u << ' ' << v << '\n';
+ * ```
+ *
+ * @fn heavy_light_decomposition_worst_case(int n, int q);
+ */
+
+} // namespace hack

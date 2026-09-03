@@ -8251,6 +8251,84 @@ segment_tree_beats_worst_case(int k, int q) {
 	return {arr, updates};
 }
 
+namespace detail {
+
+// Near-balanced binary tree in heap layout: parent i, children 2i+1 and 2i+2.
+// Height Theta(log n).
+// O(n).
+inline tree::value binary_heap_tree(int n) {
+	std::vector<std::pair<int, int>> edges;
+	for (int i = 0; i < n; ++i) {
+		if (2 * i + 1 < n)
+			edges.emplace_back(i, 2 * i + 1);
+		if (2 * i + 2 < n)
+			edges.emplace_back(i, 2 * i + 2);
+	}
+	return tree::value(n, edges);
+}
+
+// Appends leaves of the heap subtree rooted at `u` in left-to-right order.
+// O(subtree size).
+inline void heap_subtree_leaves(int n, int u, std::vector<int> &out) {
+	if (2 * u + 1 >= n) {
+		out.push_back(u);
+		return;
+	}
+	heap_subtree_leaves(n, 2 * u + 1, out);
+	if (2 * u + 2 < n)
+		heap_subtree_leaves(n, 2 * u + 2, out);
+}
+
+// Path queries between random leaves in the left and right subtrees of the
+// root. On correct HLD or centroid decomposition each query visits
+// Theta(log n) chains / centroid-tree nodes.
+// O(n + q).
+inline std::vector<std::pair<int, int>> tree_path_worst_queries(int n, int q) {
+	std::vector<int> left, right;
+	if (n > 1)
+		heap_subtree_leaves(n, 1, left);
+	if (n > 2)
+		heap_subtree_leaves(n, 2, right);
+
+	std::vector<std::pair<int, int>> queries;
+	for (int i = 0; i < q; ++i)
+		queries.emplace_back(pick(left), pick(right));
+	return queries;
+}
+
+} // namespace detail
+
+// Near-balanced tree plus path queries that force Theta(log n) centroid-tree
+// nodes per query on correct centroid-decomposition implementations.
+// O(n + q).
+inline std::pair<tree::value, std::vector<std::pair<int, int>>>
+centroid_decomposition_worst_case(int n, int q) {
+	tgen_ensure(
+		n >= 3,
+		"hack: centroid_decomposition_worst_case: n must be at least 3");
+	tgen_ensure(
+		q >= 1,
+		"hack: centroid_decomposition_worst_case: q must be at least 1");
+
+	return {detail::binary_heap_tree(n), detail::tree_path_worst_queries(n, q)};
+}
+
+// Near-balanced tree plus path queries that force Theta(log n) heavy-light
+// chains per query on correct heavy-light decomposition implementations.
+// O(n + q).
+inline std::pair<tree::value, std::vector<std::pair<int, int>>>
+heavy_light_decomposition_worst_case(int n, int q) {
+	tgen_ensure(
+		n >= 3,
+		"hack: heavy_light_decomposition_worst_case: n must be at least "
+		"3");
+	tgen_ensure(
+		q >= 1,
+		"hack: heavy_light_decomposition_worst_case: q must be at least 1");
+
+	return {detail::binary_heap_tree(n), detail::tree_path_worst_queries(n, q)};
+}
+
 } // namespace hack
 
 /*********************

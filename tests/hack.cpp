@@ -393,3 +393,67 @@ TEST(hack_test, segment_tree_beats_worst_case) {
 	EXPECT_EQ(updates.size(), q);
 	expect_segment_tree_beats_cyclic_shifts(arr, updates, 13, 8, 5);
 }
+
+TEST(hack_test, centroid_decomposition_worst_case_invalid) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::centroid_decomposition_worst_case(2, 1),
+		"hack: centroid_decomposition_worst_case: n must be "
+		"at least 3");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::centroid_decomposition_worst_case(3, 0),
+		"hack: centroid_decomposition_worst_case: q must be at least 1");
+}
+
+TEST(hack_test, centroid_decomposition_worst_case) {
+	tgen::register_gen();
+
+	for (int n : {3, 5, 10, 20}) {
+		const int q = 10;
+		auto [t, queries] = tgen::hack::centroid_decomposition_worst_case(n, q);
+		EXPECT_EQ(t.n(), n);
+		EXPECT_EQ(static_cast<int>(t.edges().size()), n - 1);
+		EXPECT_EQ(queries.size(), static_cast<size_t>(q));
+		for (int i = 0; i < n; ++i) {
+			if (2 * i + 1 < n) {
+				EXPECT_TRUE(t.adj()[i].count(2 * i + 1) > 0);
+			}
+			if (2 * i + 2 < n) {
+				EXPECT_TRUE(t.adj()[i].count(2 * i + 2) > 0);
+			}
+		}
+	}
+}
+
+TEST(hack_test, heavy_light_decomposition_worst_case_invalid) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::heavy_light_decomposition_worst_case(2, 1),
+		"hack: heavy_light_decomposition_worst_case: n must be at least 3");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::heavy_light_decomposition_worst_case(3, 0),
+		"hack: heavy_light_decomposition_worst_case: q must be at least 1");
+}
+
+TEST(hack_test, heavy_light_decomposition_worst_case) {
+	tgen::register_gen();
+
+	for (int n : {3, 5, 10, 31}) {
+		const int q = 10;
+		auto [t, queries] =
+			tgen::hack::heavy_light_decomposition_worst_case(n, q);
+		EXPECT_EQ(t.n(), n);
+		EXPECT_EQ(static_cast<int>(t.edges().size()), n - 1);
+		EXPECT_EQ(queries.size(), static_cast<size_t>(q));
+		for (int i = 0; i < n; ++i) {
+			if (2 * i + 1 < n) {
+				EXPECT_TRUE(t.adj()[i].count(2 * i + 1) > 0);
+			}
+			if (2 * i + 2 < n) {
+				EXPECT_TRUE(t.adj()[i].count(2 * i + 2) > 0);
+			}
+		}
+	}
+}
