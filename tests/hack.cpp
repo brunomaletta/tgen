@@ -457,3 +457,41 @@ TEST(hack_test, heavy_light_decomposition_worst_case) {
 		}
 	}
 }
+
+TEST(hack_test, link_cut_tree_worst_case_invalid) {
+	tgen::register_gen();
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::link_cut_tree_worst_case(1, 1),
+		"hack: link_cut_tree_worst_case: n must be at least "
+		"2");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::link_cut_tree_worst_case(2, 0),
+		"hack: link_cut_tree_worst_case: q must be at least 1");
+}
+
+TEST(hack_test, link_cut_tree_worst_case) {
+	tgen::register_gen();
+
+	for (int n : {2, 5, 10, 31}) {
+		const int q = n + 10;
+		auto [t, access] = tgen::hack::link_cut_tree_worst_case(n, q);
+		EXPECT_EQ(t.n(), n);
+		EXPECT_EQ(static_cast<int>(t.edges().size()), n - 1);
+		EXPECT_EQ(access.size(), static_cast<size_t>(q));
+
+		const int first_leaf = n / 2;
+		const int m = n - first_leaf;
+		std::vector<char> seen(n);
+		int distinct = 0;
+		for (int v : access) {
+			EXPECT_GE(v, first_leaf);
+			EXPECT_LT(v, n);
+			if (!seen[v]) {
+				seen[v] = 1;
+				++distinct;
+			}
+		}
+		EXPECT_EQ(distinct, std::min(q, m));
+	}
+}

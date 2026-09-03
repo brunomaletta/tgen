@@ -8296,6 +8296,43 @@ inline std::vector<std::pair<int, int>> tree_path_worst_queries(int n, int q) {
 	return queries;
 }
 
+// Reverses the lowest `bits` bits of x.
+// O(bits).
+inline int reverse_bits(int x, int bits) {
+	int r = 0;
+	for (int i = 0; i < bits; ++i) {
+		r = (r << 1) | (x & 1);
+		x >>= 1;
+	}
+	return r;
+}
+
+// Wilber bit-reversal leaf tour: maximizes left/right preferred-child
+// alternations on a balanced tree, forcing Theta(q log n) preferred-path
+// switches in link-cut trees.
+// O(n log n + q).
+inline std::vector<int> lct_worst_access(int n, int q) {
+	int first_leaf = n / 2;
+	int m = n - first_leaf;
+
+	int bits = 0;
+	while ((1u << bits) < static_cast<unsigned>(m))
+		++bits;
+
+	std::vector<int> order;
+	int span = 1 << bits;
+	for (int i = 0; i < span; ++i) {
+		int r = reverse_bits(i, bits);
+		if (r < m)
+			order.push_back(first_leaf + r);
+	}
+
+	std::vector<int> access;
+	for (int i = 0; i < q; ++i)
+		access.push_back(order[i % m]);
+	return access;
+}
+
 } // namespace detail
 
 // Near-balanced tree plus path queries that force Theta(log n) centroid-tree
@@ -8327,6 +8364,16 @@ heavy_light_decomposition_worst_case(int n, int q) {
 		"hack: heavy_light_decomposition_worst_case: q must be at least 1");
 
 	return {detail::binary_heap_tree(n), detail::tree_path_worst_queries(n, q)};
+}
+
+// Near-balanced tree plus a Wilber bit-reversal leaf-access sequence.
+// O(n log n + q).
+inline std::pair<tree::value, std::vector<int>>
+link_cut_tree_worst_case(int n, int q) {
+	tgen_ensure(n >= 2, "hack: link_cut_tree_worst_case: n must be at least 2");
+	tgen_ensure(q >= 1, "hack: link_cut_tree_worst_case: q must be at least 1");
+
+	return {detail::binary_heap_tree(n), detail::lct_worst_access(n, q)};
 }
 
 } // namespace hack
