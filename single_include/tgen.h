@@ -6196,8 +6196,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// Generates a random bipartite graph. The first side has vertices
 	// 0 .. n1-1, the second n1 .. n1+n2-1.
 	// Uniform when connected is false (distinct cross-edge indices).
-	// When connected, bipartite Prüfer + rejection fill; not uniform over
-	// connected bipartite graphs.
+	// When connected, incremental bipartite spanning tree + rejection fill;
+	// not uniform over connected bipartite graphs.
 	// O(n1 + n2 + m log(n1 * n2)) expected.
 	static value gen_bipartite(int n1, int n2, int m, bool connected = false) {
 		tgen_ensure(m >= 0, "wgraph: number of edges must be nonnegative");
@@ -6210,6 +6210,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 				"wgraph: connected bipartite graph needs at least n1 + n2 - 1 "
 				"edges");
 
+		// Samples distinct cross edges uniformly.
 		if (!connected) {
 			std::vector<std::pair<int, int>> edges;
 			edges.reserve(m);
@@ -6232,24 +6233,44 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			return (static_cast<uint64_t>(u) << 32) | static_cast<uint32_t>(v);
 		};
 
+		// Creates a spanning tree.
 		if (n1 > 0 and n2 > 0) {
-			std::vector<int> prufer(n1 + n2 - 2);
-			for (int i = 0; i < n2 - 1; ++i)
-				prufer[i] = next(0, n1 - 1);
-			for (int i = 0; i < n1 - 1; ++i)
-				prufer[n2 - 1 + i] = next(n1, n1 + n2 - 1);
-			shuffle(prufer.begin(), prufer.end());
-			for (auto [u, v] : detail::edges_from_prufer(std::move(prufer))) {
-				if (u > v)
-					std::swap(u, v);
-				if (used_edges.insert(pack_edge(u, v)).second)
-					edges.emplace_back(u, v);
+			std::vector<int> left = {next(0, n1 - 1)};
+			std::vector<int> right = {next(n1, n1 + n2 - 1)};
+			std::vector<int> remaining;
+			left.reserve(n1);
+			right.reserve(n2);
+			remaining.reserve(n1 + n2 - 2);
+
+			for (int u = 0; u < n1; ++u)
+				if (u != left[0])
+					remaining.push_back(u);
+			for (int v = n1; v < n1 + n2; ++v)
+				if (v != right[0])
+					remaining.push_back(v);
+			shuffle(remaining.begin(), remaining.end());
+
+			auto add_tree_edge = [&](int u, int v) {
+				used_edges.insert(pack_edge(u, v));
+				edges.emplace_back(u, v);
+			};
+			add_tree_edge(left[0], right[0]);
+
+			for (int vertex : remaining) {
+				if (vertex < n1) {
+					add_tree_edge(vertex, pick(right));
+					left.push_back(vertex);
+				} else {
+					add_tree_edge(pick(left), vertex);
+					right.push_back(vertex);
+				}
 			}
 			detail::tgen_ensure_against_bug(
 				used_edges.size() == size_t(n1 + n2 - 1),
 				"wgraph: invalid bipartite spanning tree size");
 		}
 
+		// Adds remaining edges.
 		while (edges.size() < size_t(m)) {
 			int u = next(0, n1 - 1);
 			int v = next(n1, n1 + n2 - 1);

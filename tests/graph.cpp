@@ -111,6 +111,13 @@ bool is_bipartite(const tgen::graph::value &g) {
 	return true;
 }
 
+bool respects_bipartition(const tgen::graph::value &g, int n1) {
+	for (auto [u, v] : g.edges())
+		if ((u < n1) == (v < n1))
+			return false;
+	return true;
+}
+
 template <typename Graph> bool is_weakly_connected(const Graph &g, int root) {
 	if (g.n() <= 0)
 		return false;
@@ -406,14 +413,17 @@ TEST(graph_test, gen_bipartite) {
 TEST(graph_test, gen_bipartite_connected) {
 	tgen::register_gen();
 
-	// jngen-style connected bipartite: Prüfer tree for connectivity, then
-	// cross-part rejection sampling (tree edges may be same-part).
-	for (int it = 0; it < 30; ++it) {
-		const int n1 = 4, n2 = 5, m = 12;
-		auto g = tgen::graph::gen_bipartite(n1, n2, m, true);
-		EXPECT_TRUE((graph_gen_result_valid(g, n1 + n2, m, false, false)));
-		EXPECT_TRUE(is_connected_undirected(g));
-	}
+	for (int n1 = 1; n1 <= 6; ++n1)
+		for (int n2 = 1; n2 <= 6; ++n2)
+			for (int it = 0; it < 10; ++it) {
+				const int m = std::min(n1 * n2, n1 + n2 + 2);
+				auto g = tgen::graph::gen_bipartite(n1, n2, m, true);
+				EXPECT_TRUE(
+					(graph_gen_result_valid(g, n1 + n2, m, false, false)));
+				EXPECT_TRUE(is_connected_undirected(g));
+				EXPECT_TRUE(is_bipartite(g));
+				EXPECT_TRUE(respects_bipartition(g, n1));
+			}
 }
 
 TEST(graph_test, gen_bipartite_connected_needs_enough_edges) {

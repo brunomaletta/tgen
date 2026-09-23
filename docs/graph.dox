@@ -404,9 +404,9 @@ namespace tgen {
  * When @pname{connected} is @tt{@primitive{false}}, @tt{m} cross edges are chosen uniformly
  * without replacement from @tt{K_{@pname{n1}, @pname{n2}}}.
  *
- * When @pname{connected} is @tt{@primitive{true}}, a spanning tree is built first via a
- * bipartite Prüfer sequence, then remaining cross edges are added by rejection
- * sampling.
+ * When @pname{connected} is @tt{@primitive{true}}, a spanning tree is built by
+ * incrementally attaching each vertex to a vertex in the opposite partition,
+ * then remaining cross edges are added by rejection sampling.
  *
  * @note This function is not always uniformly random: it is uniform only when
  * @pname{connected} is @tt{@primitive{false}}.
