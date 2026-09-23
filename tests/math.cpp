@@ -278,7 +278,8 @@ TEST(math_test, gen_divisor_count) {
 
 	for (int i = 0; i < 100; ++i) {
 		auto p = tgen::math::gen_prime(0, 30);
-		auto x = tgen::math::gen_divisor_count(0, largest_number_64, p);
+		auto x = tgen::math::gen_divisor_count(0, largest_number_64,
+											   static_cast<int>(p));
 		EXPECT_TRUE(static_cast<uint64_t>(tgen::math::num_divisors(x)) == p);
 	}
 
@@ -289,12 +290,12 @@ TEST(math_test, gen_divisor_count) {
 
 		auto p = tgen::math::gen_prime(0, 10);
 		try {
-			auto x = tgen::math::gen_divisor_count(l, r, p);
+			auto x = tgen::math::gen_divisor_count(l, r, static_cast<int>(p));
 			EXPECT_TRUE(static_cast<uint64_t>(tgen::math::num_divisors(x)) ==
 						p);
 			EXPECT_TRUE(l <= x and x <= r);
 		} catch (const std::runtime_error &e) {
-			int root = p - 1;
+			int root = static_cast<int>(p) - 1;
 			auto lo = tgen::math::detail::kth_root_floor(l, root);
 			if (*tgen::math::detail::expo(lo, root, l) < l)
 				++lo;

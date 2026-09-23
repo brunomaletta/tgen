@@ -33,7 +33,7 @@ inline void append_stress_seed(std::vector<uint32_t> &seed) {
 inline void set_seed_with_stress_seed(int argc, char **argv) {
 	std::vector<uint32_t> seed;
 	for (int i = 1; i < argc; ++i) {
-		int size_pos = seed.size();
+		size_t size_pos = seed.size();
 		seed.push_back(0);
 		for (char *s = argv[i]; *s != '\0'; ++s) {
 			++seed[size_pos];
@@ -123,7 +123,7 @@ bool expect_uniform(const std::map<T, int> &counts, int num_elements,
 		double d = count - expected;
 		chi2 += d * d / expected;
 	}
-	chi2 += (num_elements - counts.size()) * expected;
+	chi2 += (num_elements - static_cast<double>(counts.size())) * expected;
 
 	double df = num_elements - 1;
 
@@ -147,7 +147,8 @@ void expect_generator_uniform(const Gen &gen, int num_elements) {
 		for (long long j = 0; j < num_tests; ++j)
 			counts[gen.gen().to_std()]++;
 
-		if (!expect_uniform(counts, num_elements, num_tests)) {
+		if (!expect_uniform(counts, num_elements,
+							static_cast<int>(num_tests))) {
 			++count_fail;
 			example_counts = counts;
 		}
@@ -176,7 +177,8 @@ void expect_function_uniform(F func, int num_elements, Args... args) {
 		for (long long j = 0; j < num_tests; ++j)
 			counts[func(args...)]++;
 
-		if (!expect_uniform(counts, num_elements, num_tests)) {
+		if (!expect_uniform(counts, num_elements,
+							static_cast<int>(num_tests))) {
 			++count_fail;
 			example_counts = counts;
 		}

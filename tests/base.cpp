@@ -291,7 +291,8 @@ TEST(base_test, weighted_sampler_uniform) {
 	tgen::register_gen();
 
 	tgen::weighted_sampler s({2, 2, 2, 2, 2});
-	expect_function_uniform([&]() -> int { return s.next(); }, 5);
+	expect_function_uniform([&]() -> int { return static_cast<int>(s.next()); },
+							5);
 }
 
 TEST(base_test, weighted_sampler_zero_weights) {
@@ -322,7 +323,8 @@ TEST(base_test, weighted_sampler_large_weights) {
 		seen.insert(idx);
 	}
 	EXPECT_EQ(seen.size(), 3u);
-	expect_function_uniform([&]() -> int { return s.next(); }, 3);
+	expect_function_uniform([&]() -> int { return static_cast<int>(s.next()); },
+							3);
 }
 
 TEST(base_test, weighted_sampler_double_weights) {
@@ -345,8 +347,9 @@ TEST(base_test, weighted_sampler_distribution_integral) {
 
 	std::vector<int> dist = {1, 3, 6};
 	tgen::weighted_sampler s(dist);
-	expect_distribution([](const auto &gen) -> int { return gen.next(); },
-						{1.0, 3.0, 6.0}, s);
+	expect_distribution(
+		[](const auto &gen) -> int { return static_cast<int>(gen.next()); },
+		{1.0, 3.0, 6.0}, s);
 }
 
 TEST(base_test, weighted_sampler_distribution_double) {
@@ -354,8 +357,9 @@ TEST(base_test, weighted_sampler_distribution_double) {
 
 	std::vector<double> dist = {0.25, 0.75, 2.0};
 	tgen::weighted_sampler s(dist);
-	expect_distribution([](const auto &gen) -> int { return gen.next(); }, dist,
-						s);
+	expect_distribution(
+		[](const auto &gen) -> int { return static_cast<int>(gen.next()); },
+		dist, s);
 }
 
 TEST(base_test, next_by_distribution) {
@@ -442,7 +446,7 @@ TEST(base_test, choose_invalid_amount) {
 	for (int &i : v)
 		i = tgen::next(1, 100);
 
-	EXPECT_THROW_TGEN_PREFIX(tgen::choose(v, v.size() + 1),
+	EXPECT_THROW_TGEN_PREFIX(tgen::choose(v, static_cast<int>(v.size()) + 1),
 							 "number of elements to choose must be valid");
 }
 
@@ -454,7 +458,7 @@ TEST(base_test, choose) {
 		i = tgen::next(1, 10);
 
 	for (int i = 0; i < 100; ++i) {
-		int k = tgen::next<int>(1, v.size());
+		int k = tgen::next<int>(1, static_cast<int>(v.size()));
 		auto subseq = tgen::choose(v, k);
 		auto subseq_it = subseq.begin();
 		// Tests if subseq is a subsequence of v.

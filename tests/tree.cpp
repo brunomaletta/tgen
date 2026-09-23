@@ -100,7 +100,7 @@ struct tree_iso_hash {
 		}
 		std::sort(h.begin(), h.end());
 		if (!mphash.count(h))
-			mphash[h] = mphash.size();
+			mphash[h] = static_cast<int>(mphash.size());
 		return mphash[h];
 	}
 
@@ -243,7 +243,7 @@ TEST(tree_test, shuffle_except_fixed_labels_and_isomorphism) {
 	// Shuffles all but 0.
 	for (int it = 0; it < 20; ++it) {
 		auto t = tgen::tree(12).gen();
-		int deg0 = t.adj()[0].size();
+		int deg0 = static_cast<int>(t.adj()[0].size());
 		auto adj_before = t.adj();
 		t.shuffle_except({0});
 

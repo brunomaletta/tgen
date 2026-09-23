@@ -47,7 +47,7 @@ CXX_CLANG := $(if $(CCACHE),ccache )clang++
 CXX_ASAN  := $(CXX_GCC)
 
 CXXFLAGS_COMMON := -std=c++17 -Wall -Wshadow -pthread
-CXXFLAGS_GCC    := $(CXXFLAGS_COMMON) -O2
+CXXFLAGS_GCC    := $(CXXFLAGS_COMMON) -Wconversion -O2
 CXXFLAGS_CLANG  := $(CXXFLAGS_COMMON) -O2
 CXXFLAGS_ASAN   := $(CXXFLAGS_COMMON) -g -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer
 CXXFLAGS_STRESS := $(CXXFLAGS_GCC) -DTGEN_STRESSTEST

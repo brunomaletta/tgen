@@ -150,7 +150,7 @@ TEST(hack_test, string_set) {
 
 	int sum = 0;
 	for (std::string &s : hack)
-		sum += s.size();
+		sum += static_cast<int>(s.size());
 	EXPECT_TRUE(sum == size);
 }
 
@@ -261,7 +261,7 @@ TEST(hack_test, mt19937_xor_hash) {
 		std::mt19937 rng(seed);
 		uint32_t hash = 0;
 		for (bool use : mask) {
-			uint32_t h = rng();
+			uint32_t h = static_cast<uint32_t>(rng());
 			if (use)
 				hash ^= h;
 		}

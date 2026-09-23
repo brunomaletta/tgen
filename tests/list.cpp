@@ -569,7 +569,7 @@ TEST(list_test, list_choose) {
 	tgen::list<int>::value inst(v);
 
 	for (int i = 0; i < 100; ++i) {
-		int k = tgen::next<int>(1, v.size());
+		int k = tgen::next<int>(1, static_cast<int>(v.size()));
 		auto subseq = inst.choose(k);
 		int idx = 0;
 		// Tests if subseq is a subsequence of inst.

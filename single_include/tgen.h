@@ -238,7 +238,9 @@ template <typename T> struct print_cols_view<T, false> {
 	print_cols_view(const T &v) : value(v) {}
 
 	std::size_t size() const { return value.size(); }
-	decltype(auto) get(std::size_t i) const { return value[i]; }
+	decltype(auto) get(std::size_t i) const {
+		return value[static_cast<int>(i)];
+	}
 	void advance() {}
 };
 
@@ -839,7 +841,7 @@ template <typename T> struct weighted_sampler {
 	// proportional to the distribution.
 	// O(n).
 	weighted_sampler(const std::vector<T> &distribution)
-		: n_(distribution.size()), alias_(n_) {
+		: n_(static_cast<int>(distribution.size())), alias_(n_) {
 		tgen_ensure(distribution.size() > 0,
 					"weighted_sampler: distribution must be non-empty");
 		for (const auto &w : distribution)
@@ -937,7 +939,7 @@ std::vector<int> many_by_distribution(int k,
 	weighted_sampler am(distribution);
 	std::vector<int> res;
 	for (int i = 0; i < k; ++i)
-		res.push_back(am.next());
+		res.push_back(static_cast<int>(am.next()));
 	return res;
 }
 template <typename T>
@@ -978,7 +980,7 @@ template <typename T>
 // Returns a random element from [first, last) uniformly.
 // O(1) for random_access_iterator, O(|last - first|) otherwise.
 template <typename It> typename It::value_type pick(It first, It last) {
-	int size = std::distance(first, last);
+	int size = static_cast<int>(std::distance(first, last));
 	tgen_ensure(size > 0, "cannot pick from empty range");
 	It it = first;
 	std::advance(it, next(0, size - 1));
@@ -1030,7 +1032,7 @@ template <typename C> C choose(const C &container, int k) {
 				"number of elements to choose must be valid");
 	std::vector<typename C::value_type> new_vec;
 	C new_container;
-	int need = k, left = container.size();
+	int need = k, left = static_cast<int>(container.size());
 	for (auto cur_it = container.begin(); cur_it != container.end(); ++cur_it) {
 		if (next(1, left--) <= need) {
 			new_container.insert(new_container.end(), *cur_it);
@@ -1057,7 +1059,8 @@ template <typename T> struct distinct_range {
 
 	// Generator of distinct values in [left, right].
 	distinct_range(T left, T right)
-		: left_(left), right_(right), num_available_(right - left + 1) {}
+		: left_(left), right_(right),
+		  num_available_(static_cast<T>(right - left + 1)) {}
 
 	// Returns the number of distinct values left to generate.
 	T size() const { return num_available_; }
@@ -1091,8 +1094,8 @@ template <typename T> struct distinct_range {
 		tgen_ensure(count <= num_available_,
 					"distinct_range: no more values to generate");
 
-		size_t range_size = right_ - left_ + 1;
-		size_t sample_count = count;
+		size_t range_size = static_cast<size_t>(right_ - left_ + 1);
+		size_t sample_count = static_cast<size_t>(count);
 
 		std::vector<T> res;
 		if (sample_count > 0) {
@@ -1104,7 +1107,7 @@ template <typename T> struct distinct_range {
 				res = sample_sparse(sample_count);
 		}
 
-		num_available_ -= count;
+		num_available_ -= static_cast<T>(count);
 		virtual_list_.clear();
 		return typename list<T>::value(res);
 	}
@@ -1179,7 +1182,7 @@ template <typename T> struct distinct_range {
 
 	// Returns right_ - left_ + 1.
 	// O(1).
-	T range_span() { return right_ - left_ + 1; }
+	T range_span() { return static_cast<T>(right_ - left_ + 1); }
 };
 
 // Distinct generator for containers.
@@ -1281,8 +1284,8 @@ namespace detail {
 inline bool process_special_opt_flags(std::string &key) {
 	// Checks for gen::CPP=17|20|23
 	if (key.find("tgen::CPP:") == 0) {
-		int prefix_len = std::string("tgen::CPP:").size();
-		tgen_ensure(static_cast<int>(key.size()) == prefix_len + 2 and
+		size_t prefix_len = std::string("tgen::CPP:").size();
+		tgen_ensure(key.size() == prefix_len + 2 and
 						std::isdigit(key[prefix_len]) and
 						std::isdigit(key[prefix_len + 1]),
 					"invalid CPP format");
@@ -1439,7 +1442,7 @@ inline void set_seed(int argc, char **argv) {
 	// Starting from 1 to ignore the name of the executable.
 	for (int i = 1; i < argc; ++i) {
 		// We append the number of chars, and then the list of chars.
-		int size_pos = seed.size();
+		size_t size_pos = seed.size();
 		seed.push_back(0);
 		for (char *s = argv[i]; *s != '\0'; ++s) {
 			++seed[size_pos];
@@ -1568,7 +1571,7 @@ template <typename T> struct list : gen_base<list<T>> {
 		: size_(size), values_(values), index_constraints_(true) {
 		tgen_ensure(size_ > 0, "list: size must be positive");
 		tgen_ensure(!values.empty(), "list: value set must be non-empty");
-		value_l_ = 0, value_r_ = values.size() - 1;
+		value_l_ = 0, value_r_ = static_cast<T>(values.size() - 1);
 		val_range_.assign(size_, {value_l_, value_r_});
 		int idx = 0;
 		for (T val : values_)
@@ -1593,7 +1596,7 @@ template <typename T> struct list : gen_base<list<T>> {
 			tgen_ensure(values_.count(val),
 						"list: value must be in the set of values");
 			auto &[left, right] = val_range_[idx];
-			int new_val = value_idx_in_set_[val];
+			T new_val = static_cast<T>(value_idx_in_set_[val]);
 			tgen_ensure(left <= new_val and new_val <= right,
 						"list: must not set to two different values");
 			left = right = new_val;
@@ -1693,7 +1696,7 @@ template <typename T> struct list : gen_base<list<T>> {
 		value(const std::initializer_list<T> &il) : value(std::vector<T>(il)) {}
 
 		// Fetches size.
-		int size() const { return vec_.size(); }
+		int size() const { return static_cast<int>(vec_.size()); }
 
 		// Fetches position idx.
 		T &operator[](int idx) {
@@ -1953,8 +1956,9 @@ template <typename T> struct list : gen_base<list<T>> {
 
 			// Generates values in this root "different" restriction.
 			{
-				int new_value_count = diff_restrictions_[diff_id].size() -
-									  static_cast<int>(defined_values.size());
+				int new_value_count =
+					static_cast<int>(diff_restrictions_[diff_id].size()) -
+					static_cast<int>(defined_values.size());
 				std::vector<T> generated_values =
 					generate_distinct_values(new_value_count, defined_values);
 				auto val_it = generated_values.begin();
@@ -2011,7 +2015,7 @@ template <typename T> struct list : gen_base<list<T>> {
 							nxt_defined_values.insert(vec[idx2]);
 						}
 					int new_value_count =
-						diff_restrictions_[nxt_diff].size() -
+						static_cast<int>(diff_restrictions_[nxt_diff].size()) -
 						static_cast<int>(nxt_defined_values.size());
 					std::vector<T> generated_values = generate_distinct_values(
 						new_value_count, nxt_defined_values);
@@ -2054,7 +2058,7 @@ template <typename T> struct list : gen_base<list<T>> {
 		for (std::size_t dist_id = 0; dist_id < diff_restrictions_.size();
 			 ++dist_id)
 			if (!vis_diff[dist_id])
-				define_tree(dist_id);
+				define_tree(static_cast<int>(dist_id));
 
 		// Define final values. These values all should be random in [l, r], and
 		// the "different" restrictions have already been processed. However,
@@ -2104,7 +2108,8 @@ template <typename T> struct list : gen_base<list<T>> {
 		for (auto forbidden : forbidden_values)
 			tgen_ensure(value_l_ <= forbidden and forbidden <= value_r_);
 		const T num_available =
-			(value_r_ - value_l_ + 1) - forbidden_values.size();
+			static_cast<T>((value_r_ - value_l_ + 1) -
+						   static_cast<T>(forbidden_values.size()));
 		if (num_available < k)
 			throw detail::complex_restrictions_error(
 				"list", "not enough distinct values");
@@ -2114,13 +2119,14 @@ template <typename T> struct list : gen_base<list<T>> {
 		std::map<T, T> virtual_list;
 		std::vector<T> gen_list;
 		for (int i = 0; i < k; ++i) {
-			T j = next<T>(i, num_available - 1);
+			T ti = static_cast<T>(i);
+			T j = next<T>(ti, num_available - 1);
 			T vj = virtual_list.count(j) ? virtual_list[j] : j;
-			T vi = virtual_list.count(i) ? virtual_list[i] : i;
+			T vi = virtual_list.count(ti) ? virtual_list[ti] : ti;
 
-			virtual_list[j] = vi, virtual_list[i] = vj;
+			virtual_list[j] = vi, virtual_list[ti] = vj;
 
-			gen_list.push_back(virtual_list[i]);
+			gen_list.push_back(virtual_list[ti]);
 		}
 
 		for (T &val : gen_list)
@@ -2136,7 +2142,7 @@ template <typename T> struct list : gen_base<list<T>> {
 			while (cur_it != forbidden_values.end() and
 				   *cur_it <= val + smaller_forbidden_count)
 				++cur_it, ++smaller_forbidden_count;
-			gen_list[idx] += smaller_forbidden_count;
+			gen_list[idx] += static_cast<T>(smaller_forbidden_count);
 		}
 
 		return gen_list;
@@ -2259,7 +2265,7 @@ struct permutation : gen_base<permutation> {
 			: value(std::vector<int>(il)) {}
 
 		// Fetches size.
-		int size() const { return vec_.size(); }
+		int size() const { return static_cast<int>(vec_.size()); }
 
 		// Fetches position idx.
 		const int &operator[](int idx) const {
@@ -2430,7 +2436,7 @@ struct permutation : gen_base<permutation> {
 		// Retrieves permutation from cycles.
 		std::vector<int> perm(size_, -1);
 		for (const std::vector<int> &cycle : cycles) {
-			int cur_size = cycle.size();
+			int cur_size = static_cast<int>(cycle.size());
 			for (int i = 0; i < cur_size; ++i)
 				perm[cycle[i]] = cycle[(i + 1) % cur_size];
 		}
@@ -2465,7 +2471,7 @@ inline int ctzll(uint64_t x) {
 }
 
 inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t m) {
-	return static_cast<u128>(a) * b % m;
+	return static_cast<uint64_t>(static_cast<u128>(a) * b % m);
 }
 
 // O(log n).
@@ -2714,7 +2720,7 @@ inline long double add_log_space(long double a, long double b) {
 		std::swap(a, b);
 	if (b == LOG_ZERO)
 		return a;
-	return a + log1p(exp(b - a));
+	return a + std::log1p(std::exp(static_cast<double>(b - a)));
 }
 
 // Math hack to subtract two values in log space.
@@ -2724,7 +2730,7 @@ inline long double sub_log_space(long double a, long double b) {
 		return LOG_ZERO;
 	if (b == LOG_ZERO)
 		return a;
-	return a + log1p(-exp(b - a));
+	return a + std::log1p(-std::exp(static_cast<double>(b - a)));
 }
 
 } // namespace detail
@@ -2758,7 +2764,7 @@ inline std::vector<std::pair<uint64_t, int>> factor_by_prime(uint64_t n) {
 // 0 < a < mod.
 // gcd(a, mod) = 1.
 inline uint64_t modular_inverse(uint64_t a, uint64_t mod) {
-	return detail::modular_inverse_128(a, mod);
+	return static_cast<uint64_t>(detail::modular_inverse_128(a, mod));
 }
 
 // O(n^(1/4) log n) expected.
@@ -2814,7 +2820,7 @@ inline std::pair<uint64_t, uint64_t> prime_gap_upto(uint64_t right) {
 		throw detail::there_is_no_upto_error("prime gap", right);
 
 	const auto &[P, G] = prime_gaps();
-	for (int i = P.size() - 1;; --i) {
+	for (int i = static_cast<int>(P.size()) - 1;; --i) {
 		if (P[i] >= right)
 			continue;
 
@@ -2869,7 +2875,7 @@ inline const std::vector<uint64_t> &highly_composites() {
 
 // O(log(right)) approximately.
 inline uint64_t highly_composite_upto(uint64_t right) {
-	for (int i = highly_composites().size() - 1; i >= 0; --i)
+	for (int i = static_cast<int>(highly_composites().size()) - 1; i >= 0; --i)
 		if (highly_composites()[i] <= right)
 			return highly_composites()[i];
 
@@ -2975,18 +2981,21 @@ inline uint64_t gen_congruent(uint64_t left, uint64_t right,
 				if (crt.a % mods[j] != rems[j])
 					throw detail::there_is_no_in_range_error("congruent number",
 															 left, right);
-			return crt.a;
+			return static_cast<uint64_t>(crt.a);
 		}
 	}
 
-	uint64_t k_min = crt.a >= left ? 0 : ((left - crt.a) + crt.m - 1) / crt.m;
-	uint64_t k_max = (right - crt.a) / crt.m;
+	uint64_t k_min =
+		crt.a >= left
+			? 0
+			: static_cast<uint64_t>(((left - crt.a) + crt.m - 1) / crt.m);
+	uint64_t k_max = static_cast<uint64_t>((right - crt.a) / crt.m);
 
 	if (k_min > k_max)
 		throw detail::there_is_no_in_range_error("congruent number", left,
 												 right);
 
-	return crt.a + next(k_min, k_max) * crt.m;
+	return static_cast<uint64_t>(crt.a + next(k_min, k_max) * crt.m);
 }
 
 // O(log (right)).
@@ -3024,18 +3033,18 @@ inline uint64_t congruent_from(uint64_t left, std::vector<uint64_t> rems,
 				if (crt.a % mods[j] != rems[j])
 					throw detail::error("math: congruent number does "
 										"not exist or is too large");
-			return crt.a;
+			return static_cast<uint64_t>(crt.a);
 		}
 	}
 
 	uint64_t k = 0;
 	if (crt.a < left)
-		k = ((left - crt.a) + crt.m - 1) / crt.m;
+		k = static_cast<uint64_t>(((left - crt.a) + crt.m - 1) / crt.m);
 	detail::i128 result = crt.a + k * crt.m;
 
 	if (result > std::numeric_limits<uint64_t>::max())
 		throw detail::error("math: congruent number is too large");
-	return result;
+	return static_cast<uint64_t>(result);
 }
 
 // O(log (left))
@@ -3072,19 +3081,19 @@ inline uint64_t congruent_upto(uint64_t right, std::vector<uint64_t> rems,
 				if (crt.a % mods[j] != rems[j])
 					throw detail::there_is_no_upto_error("congruent number",
 														 right);
-			return crt.a;
+			return static_cast<uint64_t>(crt.a);
 		}
 	}
 
 	if (crt.a > right)
 		throw detail::there_is_no_upto_error("congruent number", right);
 
-	uint64_t k = (right - crt.a) / crt.m;
+	uint64_t k = static_cast<uint64_t>((right - crt.a) / crt.m);
 	detail::i128 result = crt.a + k * crt.m;
 
 	if (result < 0)
 		throw detail::there_is_no_upto_error("congruent number", right);
-	return result;
+	return static_cast<uint64_t>(result);
 }
 
 // O(log r)
@@ -3164,8 +3173,10 @@ gen_partition(int n, int part_left = 1,
 					val_r = dp_pref[r];
 		while (nxt_sum > l and
 			   dp_pref[nxt_sum - 1] >=
-				   val_r + detail::log_space(random +
-											 (1 - random) * exp(val_l - val_r)))
+				   val_r +
+					   detail::log_space(
+						   random + (1 - random) * std::exp(static_cast<double>(
+													   val_l - val_r))))
 			--nxt_sum;
 
 		part.push_back(sum - nxt_sum);
@@ -3297,8 +3308,8 @@ inline std::vector<uint64_t> gen_partition_fixed_size_fast(
 					k128 * part_right128 >= n128,
 				"math: no such partition");
 
-	uint64_t slack_total = n128 - k128 * part_left128;
-	uint64_t slack_max = part_right128 - part_left128;
+	uint64_t slack_total = static_cast<uint64_t>(n128 - k128 * part_left128);
+	uint64_t slack_max = static_cast<uint64_t>(part_right128 - part_left128);
 
 	std::vector<uint64_t> part(k);
 	if (k == 1) {
@@ -3323,7 +3334,7 @@ inline std::vector<uint64_t> gen_partition_fixed_size_fast(
 			val <= std::numeric_limits<uint64_t>::max(),
 			"math: part + part_left exceeds uint64_t in "
 			"gen_partition_fixed_size_fast");
-		return val;
+		return static_cast<uint64_t>(val);
 	};
 
 	if (slack_max >= slack_total) {
@@ -3351,7 +3362,7 @@ inline std::vector<uint64_t> gen_partition_fixed_size_fast(
 					val <= *part_right,
 					"math: part exceeds part_right after redistribution in "
 					"gen_partition_fixed_size_fast");
-				x = val;
+				x = static_cast<uint64_t>(val);
 				remaining -= add;
 			}
 		}
@@ -3380,7 +3391,8 @@ partition_elements(std::vector<T> elements, int k, int min_size = 0,
 	if (max_size.has_value()) {
 		sizes = gen_partition_fixed_size_fast(n, k, min_size, max_size);
 	} else {
-		for (int sz : gen_partition_fixed_size(n, k, min_size))
+		for (int sz :
+			 gen_partition_fixed_size(static_cast<int>(n), k, min_size))
 			sizes.push_back(sz);
 	}
 
@@ -3461,8 +3473,9 @@ struct regex_node {
 		}
 		tgen_ensure_against_bug(pattern[0] == '[' and pattern.back() == ']',
 								"str: invalid regex: expected character class");
-		int size = pattern.size() - 2;
-		log_space_num_ways_ = math::detail::log_space(size);
+		int size = static_cast<int>(pattern.size()) - 2;
+		log_space_num_ways_ =
+			static_cast<double>(math::detail::log_space(size));
 		distinct_ = distinct_container<char>(pattern.substr(1, size));
 	}
 	// SEQ or OR.
@@ -3477,8 +3490,9 @@ struct regex_node {
 			// Add the number of ways.
 			log_space_num_ways_ = math::detail::LOG_ZERO;
 			for (const auto &child : children)
-				log_space_num_ways_ = math::detail::add_log_space(
-					log_space_num_ways_, child.log_space_num_ways_);
+				log_space_num_ways_ =
+					static_cast<double>(math::detail::add_log_space(
+						log_space_num_ways_, child.log_space_num_ways_));
 		} else
 			tgen_ensure_against_bug("str: invalid regex: expected SEQ or OR");
 
@@ -3490,8 +3504,9 @@ struct regex_node {
 		: pattern_("REP"), left_bound_(left_bound), right_bound_(right_bound) {
 		log_space_num_ways_ = math::detail::LOG_ZERO;
 		for (int i = left_bound; i <= right_bound; ++i)
-			log_space_num_ways_ = math::detail::add_log_space(
-				log_space_num_ways_, i * child.log_space_num_ways_);
+			log_space_num_ways_ =
+				static_cast<double>(math::detail::add_log_space(
+					log_space_num_ways_, i * child.log_space_num_ways_));
 
 		children_.push_back(std::move(child));
 	}
@@ -3627,7 +3642,9 @@ inline regex_node parse_regex(std::string regex) {
 inline void gen_regex(const regex_node &node, std::string &str) {
 	// For [chars], generate a random character from the list.
 	if (node.pattern_[0] == '[') {
-		str += node.pattern_[1 + next<int>(0, node.pattern_.size() - 3)];
+		str += node.pattern_[1 + next<int>(
+									 0, static_cast<int>(node.pattern_.size()) -
+											3)];
 		return;
 	}
 
@@ -3636,14 +3653,15 @@ inline void gen_regex(const regex_node &node, std::string &str) {
 		// Generates a random value W from 0 to num_ways.
 		// log(W) = log(random(0, 1) * num_ways)
 		//        = log(random(0, 1)) + log(num_ways).
-		double log_rand = math::detail::log_space(next<double>(0, 1)) +
-						  node.log_space_num_ways_;
+		double log_rand =
+			static_cast<double>(math::detail::log_space(next<double>(0, 1))) +
+			node.log_space_num_ways_;
 		double cur_prob = math::detail::LOG_ZERO;
 		double child_num_ways = node.children_[0].log_space_num_ways_;
 
 		for (int i = node.left_bound_; i <= node.right_bound_; ++i) {
-			cur_prob =
-				math::detail::add_log_space(cur_prob, i * child_num_ways);
+			cur_prob = static_cast<double>(
+				math::detail::add_log_space(cur_prob, i * child_num_ways));
 			if (log_rand <= cur_prob) {
 				for (int j = 0; j < i; ++j)
 					gen_regex(node.children_[0], str);
@@ -3667,13 +3685,14 @@ inline void gen_regex(const regex_node &node, std::string &str) {
 		// Generates a random value W from 0 to num_ways.
 		// log(W) = log(random(0, 1) * num_ways)
 		//        = log(random(0, 1)) + log(num_ways).
-		double log_rand = math::detail::log_space(next<double>(0, 1)) +
-						  node.log_space_num_ways_;
+		double log_rand =
+			static_cast<double>(math::detail::log_space(next<double>(0, 1))) +
+			node.log_space_num_ways_;
 		double cur_prob = math::detail::LOG_ZERO;
 
 		for (const regex_node &child : node.children_) {
-			cur_prob = math::detail::add_log_space(cur_prob,
-												   child.log_space_num_ways_);
+			cur_prob = static_cast<double>(math::detail::add_log_space(
+				cur_prob, child.log_space_num_ways_));
 			if (log_rand <= cur_prob) {
 				gen_regex(child, str);
 				return;
@@ -3839,7 +3858,7 @@ struct str : gen_base<str> {
 		}
 
 		// Fetches size.
-		int size() const { return str_.size(); }
+		int size() const { return static_cast<int>(str_.size()); }
 
 		// Fetches position idx.
 		char &operator[](int idx) {
@@ -3871,7 +3890,8 @@ struct str : gen_base<str> {
 		// O(n).
 		value &lowercase() {
 			for (char &c : str_)
-				c = std::tolower(c);
+				c = static_cast<char>(
+					std::tolower(static_cast<unsigned char>(c)));
 			return *this;
 		}
 
@@ -3879,7 +3899,8 @@ struct str : gen_base<str> {
 		// O(n).
 		value &uppercase() {
 			for (char &c : str_)
-				c = std::toupper(c);
+				c = static_cast<char>(
+					std::toupper(static_cast<unsigned char>(c)));
 			return *this;
 		}
 
@@ -4294,7 +4315,7 @@ namespace detail {
 // Generates edges from Prufer sequence.
 // O(n).
 inline std::vector<std::pair<int, int>> edges_from_prufer(std::vector<int> p) {
-	int n = p.size() + 2;
+	int n = static_cast<int>(p.size()) + 2;
 
 	// Degrees.
 	std::vector<int> d(n, 1);
@@ -4306,7 +4327,7 @@ inline std::vector<std::pair<int, int>> edges_from_prufer(std::vector<int> p) {
 
 	// Finds first vertex with degree 1.
 	int idx, u;
-	idx = u = find(d.begin(), d.end(), 1) - d.begin();
+	idx = u = static_cast<int>(find(d.begin(), d.end(), 1) - d.begin());
 
 	// Generates edges.
 	std::vector<std::pair<int, int>> edges;
@@ -4315,7 +4336,8 @@ inline std::vector<std::pair<int, int>> edges_from_prufer(std::vector<int> p) {
 		if (--d[v] == 1 and v < idx)
 			u = v;
 		else
-			idx = u = find(d.begin() + idx + 1, d.end(), 1) - d.begin();
+			idx = u = static_cast<int>(find(d.begin() + idx + 1, d.end(), 1) -
+									   d.begin());
 	}
 	return edges;
 }
@@ -4337,7 +4359,7 @@ struct dsu {
 	// O(k) amortized.
 	void add_elements(int k) {
 		for (int i = 0; i < k; ++i) {
-			int new_id = parent_.size();
+			int new_id = static_cast<int>(parent_.size());
 			parent_.push_back(new_id);
 			rank_.push_back(0);
 		}
@@ -4963,8 +4985,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		std::vector<std::pair<int, int>> new_edges(edges_.begin(),
 												   edges_.end());
 		if (comp_size.size() > 1) {
-			std::vector<int> prufer_values =
-				many_by_distribution(comp_size.size() - 2, comp_size);
+			std::vector<int> prufer_values = many_by_distribution(
+				static_cast<int>(comp_size.size()) - 2, comp_size);
 			for (auto [u, v] : detail::edges_from_prufer(prufer_values))
 				new_edges.emplace_back(pick(component_ids[u]),
 									   pick(component_ids[v]));
@@ -5129,8 +5151,8 @@ inline std::pair<int, int> decode_undirected_loops_edge(int n, long long idx) {
 // Decodes a linear edge index to (u, v) for a directed simple graph (no loops).
 // O(1).
 inline std::pair<int, int> decode_directed_simple_edge(int n, long long idx) {
-	int u = idx / (n - 1);
-	int rem = idx % (n - 1);
+	int u = static_cast<int>(idx / (n - 1));
+	int rem = static_cast<int>(idx % (n - 1));
 	return {u, rem + (rem >= u)};
 }
 
@@ -5301,7 +5323,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		int n() const { return n_; }
 
 		// Fetches number of edges.
-		int m() const { return edges_.size(); }
+		int m() const { return static_cast<int>(edges_.size()); }
 
 		// Fetches if graph is directed;
 		bool is_directed() const { return is_directed_; }
@@ -5689,7 +5711,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 				queue.push_back(start);
 
 				while (!queue.empty()) {
-					int i = tgen::next<int>(0, queue.size() - 1);
+					int i =
+						tgen::next<int>(0, static_cast<int>(queue.size()) - 1);
 					int u = queue[i];
 					std::swap(queue[i], queue.back());
 					queue.pop_back();
@@ -5973,8 +5996,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			}
 
 			if (component_ids.size() > 1) {
-				std::vector<int> prufer_values =
-					many_by_distribution(component_ids.size() - 2, comp_size);
+				std::vector<int> prufer_values = many_by_distribution(
+					static_cast<int>(component_ids.size()) - 2, comp_size);
 				for (auto [u, v] :
 					 detail::edges_from_prufer(std::move(prufer_values)))
 					edges.emplace_back(pick(component_ids[u]),
@@ -6165,7 +6188,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 				d = std::max(0, std::min(spread - 1, d - 1));
 			weighted_sampler vertex_choice(distribution);
 			distinct extra_edges([&]() -> std::pair<int, int> {
-				int u = vertex_choice.next();
+				int u = static_cast<int>(vertex_choice.next());
 				int k = next(2, spread);
 				int v = u;
 				for (int j = 0; j < lg; ++j)
@@ -6645,14 +6668,17 @@ random_points_general_position(int n, long long min_coord,
 		max_y = std::max(max_y, lin_y[i]);
 	}
 
-	long long x_shift =
-		min_coord - min_x + next<long long>(0, width - (max_x - min_x));
-	long long y_shift =
-		min_coord - min_y + next<long long>(0, width - (max_y - min_y));
+	detail::i128 x_shift =
+		min_coord - min_x +
+		next<uint64_t>(0, static_cast<uint64_t>(width - (max_x - min_x)));
+	detail::i128 y_shift =
+		min_coord - min_y +
+		next<uint64_t>(0, static_cast<uint64_t>(width - (max_y - min_y)));
 
 	std::vector<point<long long>> pts;
 	for (int i = 0; i < n; ++i)
-		pts.emplace_back(lin_x[i] + x_shift, lin_y[i] + y_shift);
+		pts.emplace_back(static_cast<long long>(lin_x[i] + x_shift),
+						 static_cast<long long>(lin_y[i] + y_shift));
 	return pts;
 }
 
@@ -6818,7 +6844,7 @@ sample_sorted_distinct_in_range(int k, long long left, long long right) {
 // coordinates. The n differences sum to zero.
 inline std::vector<long long>
 valtr_edge_components(const std::vector<long long> &sorted_coords) {
-	int n = sorted_coords.size();
+	int n = static_cast<int>(sorted_coords.size());
 	std::vector<long long> left, right;
 	left.reserve(n / 2);
 	right.reserve(n / 2);
@@ -6848,7 +6874,7 @@ valtr_edge_components(const std::vector<long long> &sorted_coords) {
 // O(m), m = |points|.
 inline std::vector<point<long long>>
 simplify_strict_boundary(std::vector<point<long long>> points) {
-	int n = points.size();
+	int n = static_cast<int>(points.size());
 	if (n < 3)
 		return points;
 
@@ -6865,14 +6891,15 @@ simplify_strict_boundary(std::vector<point<long long>> points) {
 // O(k).
 inline std::vector<point<long long>>
 subsample_boundary(const std::vector<point<long long>> &points, int k) {
-	int n = points.size();
+	int n = static_cast<int>(points.size());
 	if (n <= k)
 		return points;
 
 	std::vector<point<long long>> sampled_points;
 	sampled_points.reserve(k);
 	for (int i = 0; i < k; ++i)
-		sampled_points.push_back(points[(static_cast<i128>(i) * n) / k]);
+		sampled_points.push_back(
+			points[static_cast<size_t>((static_cast<i128>(i) * n) / k)]);
 	return sampled_points;
 }
 
@@ -6902,13 +6929,14 @@ inline void place_inside_box(std::vector<point<long long>> &points,
 		next<long long>(0, width - 1 - static_cast<long long>(span_y));
 
 	for (point<long long> &p : points)
-		p = point<long long>(p.x() + shift_x, p.y() + shift_y);
+		p = point<long long>(static_cast<long long>(p.x() + shift_x),
+							 static_cast<long long>(p.y() + shift_y));
 }
 
 // Random cyclic shift.
 // O(|points|).
 inline void randomize_cyclic_shift(std::vector<point<long long>> &points) {
-	int rot = next(points.size());
+	int rot = next(static_cast<int>(points.size()));
 	if (rot > 0)
 		std::rotate(points.begin(), points.begin() + rot, points.end());
 }
@@ -6996,8 +7024,8 @@ random_convex_polygon(int n, long long min_coord, long long max_coord,
 		// Extra grid lines beyond n: at least 100 (small-n headroom), about
 		// n/1000 for large n, and never more than width - n.
 		int extra = width <= n ? 0
-							   : std::min<long long>(std::max(100, n / 1000),
-													 width - n);
+							   : static_cast<int>(std::min<long long>(
+									 std::max(100, n / 1000), width - n));
 		num_coords = n + extra;
 	}
 
@@ -7043,7 +7071,7 @@ random_convex_polygon(int n, long long min_coord, long long max_coord,
 // O(n log n) expected if points are "random", O(n^2) worst case.
 inline std::vector<point<long long>> random_simple_polygon_through_points(
 	const std::vector<point<long long>> &points) {
-	int n = points.size();
+	int n = static_cast<int>(points.size());
 	tgen_ensure(n >= 3,
 				"geometry: random_simple_polygon_through_points: need at "
 				"least 3 points");
@@ -7113,7 +7141,7 @@ inline std::vector<point<long long>> random_simple_polygon_through_points(
 	// Upper chain: A -> B.
 	detail::conquer(chain, 0, n1);
 	// Lower chain: B -> A.
-	detail::conquer(chain, n1 - 1, chain.size());
+	detail::conquer(chain, n1 - 1, static_cast<int>(chain.size()));
 
 	// Cyclic vertex order: chain[1..n1) then chain[n1..end) (skip each path's
 	// start vertex).
@@ -7134,7 +7162,7 @@ random_distinct_points_in_box(int n, long long min_coord, long long max_coord) {
 	i128 universe = side_128 * side_128;
 	tgen_ensure(universe <= std::numeric_limits<long long>::max(),
 				"geometry: random_simple_polygon: coordinate range too large");
-	long long side = side_128;
+	long long side = static_cast<long long>(side_128);
 	tgen_ensure(universe >= n,
 				"geometry: random_simple_polygon: coordinate range too small "
 				"for n distinct points");
@@ -7148,7 +7176,9 @@ random_distinct_points_in_box(int n, long long min_coord, long long max_coord) {
 	// Runs O(1) expected times.
 	while (true) {
 		std::vector<long long> keys =
-			distinct_range<long long>(0, universe - 1).gen_list(n).to_std();
+			distinct_range<long long>(0, static_cast<long long>(universe - 1))
+				.gen_list(n)
+				.to_std();
 
 		std::vector<point<long long>> points;
 		points.reserve(n);
@@ -7186,7 +7216,7 @@ inline bool ortho_axis_collinear(const point<long long> &a,
 // O(1).
 inline ortho_poly_edge
 ortho_analyze_edge(const std::vector<point<long long>> &poly, int i) {
-	int m = poly.size();
+	int m = static_cast<int>(poly.size());
 	point<long long> a = poly[i], b = poly[(i + 1) % m];
 	ortho_poly_edge e{};
 	if (a.y() == b.y()) {
@@ -7246,7 +7276,7 @@ inline bool ortho_open_seg_cross(const point<long long> &a,
 // O(|poly|).
 inline bool ortho_point_inside(const std::vector<point<long long>> &poly,
 							   point<long long> p) {
-	int m = poly.size();
+	int m = static_cast<int>(poly.size());
 	bool inside = false;
 	for (int i = 0, j = m - 1; i < m; j = i++) {
 		point<long long> a = poly[i], b = poly[j];
@@ -7296,7 +7326,7 @@ inline bool ortho_bump_valid(const std::vector<point<long long>> &poly,
 							 point<long long> A, point<long long> B,
 							 const std::vector<point<long long>> &add,
 							 int edge_i, bool inward) {
-	int m = poly.size();
+	int m = static_cast<int>(poly.size());
 
 	for (point<long long> v : add)
 		for (point<long long> q : poly)
@@ -7361,7 +7391,7 @@ inline bool ortho_bump_edge(std::vector<point<long long>> &poly, int edge_i,
 							const ortho_poly_edge &e, long long lo,
 							long long hi, long long depth, bool inward,
 							size_t max_vertices) {
-	int m = poly.size();
+	int m = static_cast<int>(poly.size());
 	point<long long> A = poly[edge_i], B = poly[(edge_i + 1) % m];
 
 	int step_x = inward ? -e.out_x : e.out_x;
@@ -7417,7 +7447,7 @@ inline bool ortho_bump_edge(std::vector<point<long long>> &poly, int edge_i,
 // O(|poly|).
 inline int ortho_pick_poly_edge(const std::vector<point<long long>> &poly,
 								std::vector<int> &last_used, int &time_stamp) {
-	int m = poly.size();
+	int m = static_cast<int>(poly.size());
 	if (last_used.size() != static_cast<size_t>(m)) {
 		last_used.assign(m, 0);
 		time_stamp = 0;
@@ -7465,7 +7495,7 @@ ortho_try_bump(std::vector<point<long long>> &poly, int n,
 	// max_depth: cap on perpendicular tab/notch height (~sqrt(n), in [2, 12]).
 	// depth: actual height; shallow usually, up to max_depth 10% of the time.
 	long long max_depth =
-		std::clamp<long long>(std::sqrt(n) / 2 + 2, 2LL, 12LL);
+		std::clamp(static_cast<long long>(std::sqrt(n) / 2 + 2), 2LL, 12LL);
 	long long depth =
 		next(10) == 0 ? next<long long>(std::max(2LL, max_depth / 2), max_depth)
 					  : next<long long>(1, std::max(2LL, max_depth / 3));
@@ -7479,7 +7509,7 @@ ortho_try_bump(std::vector<point<long long>> &poly, int n,
 // O(n).
 inline std::vector<point<long long>>
 ortho_simplify_collinear(std::vector<point<long long>> poly) {
-	int n = poly.size();
+	int n = static_cast<int>(poly.size());
 	if (n < 3)
 		return poly;
 	std::vector<point<long long>> out;
@@ -7495,7 +7525,7 @@ ortho_simplify_collinear(std::vector<point<long long>> poly) {
 // Removes one collinear vertex.
 // O(n).
 inline bool ortho_remove_one_collinear(std::vector<point<long long>> &poly) {
-	int n = poly.size();
+	int n = static_cast<int>(poly.size());
 	if (n < 4)
 		return false;
 	for (int i = 0; i < n; ++i) {
@@ -7513,12 +7543,12 @@ inline bool ortho_remove_one_collinear(std::vector<point<long long>> &poly) {
 // O(target).
 inline void ortho_fill_collinear(std::vector<point<long long>> &poly,
 								 int target) {
-	int need = target - poly.size();
+	int need = target - static_cast<int>(poly.size());
 	if (need <= 0)
 		return;
 
 	std::vector<point<long long>> out;
-	int m = poly.size();
+	int m = static_cast<int>(poly.size());
 	out.reserve(poly.size() + need);
 
 	for (int i = 0; i < m; ++i) {
@@ -7543,7 +7573,7 @@ inline void ortho_fill_collinear(std::vector<point<long long>> &poly,
 			else
 				out.push_back({e.fixed, coord});
 		}
-		need -= take;
+		need -= static_cast<int>(take);
 	}
 	poly.swap(out);
 }
@@ -7565,7 +7595,7 @@ inline void ortho_fill_corrugation(std::vector<point<long long>> &poly,
 
 	std::vector<point<long long>> out;
 	out.reserve(target);
-	int n = poly.size();
+	int n = static_cast<int>(poly.size());
 
 	for (int i = 0; i < n; ++i) {
 		point<long long> a = poly[i], b = poly[(i + 1) % n];
@@ -7610,7 +7640,7 @@ inline std::vector<point<long long>> build_orthogonal_polygon(int n,
 															  bool strict) {
 	bool scale_up = n > 1000;
 
-	long long side = std::max<long long>(3, std::sqrt(n));
+	long long side = std::max(3LL, static_cast<long long>(std::sqrt(n)));
 	if (scale_up)
 		side = std::clamp(static_cast<long long>(2 * std::sqrt(std::sqrt(n))),
 						  8LL, 64LL);
@@ -7711,7 +7741,7 @@ random_orthogonal_polygon(int n, long long min_coord, long long max_coord,
 				"geometry: random_orthogonal_polygon: coordinate range too "
 				"small");
 
-	long long min_side = std::max<long long>(3, std::sqrt(n));
+	long long min_side = std::max(3LL, static_cast<long long>(std::sqrt(n)));
 	if (n > 1000)
 		min_side = std::max<long long>(min_side, (n + 3) / 4);
 	tgen_ensure(min_side < width,
@@ -7765,7 +7795,7 @@ inline int hash_string(const std::string &s, int base, int mod) {
 	long long h = 0;
 	for (char c : s)
 		h = (h * base + c - 'a' + 1) % mod;
-	return h;
+	return static_cast<int>(h);
 }
 
 // Estimates the length of the string to very likely have a collision.
@@ -7785,7 +7815,7 @@ birthday_attack(const std::vector<std::string> &alphabet, int base, int mod) {
 	tgen_ensure(0 < base and base < mod,
 				"birthday_attack: base must be in (0, mod)");
 	std::map<uint64_t, std::vector<int>> seen;
-	int length = estimate_length(alphabet.size(), mod);
+	int length = estimate_length(static_cast<int>(alphabet.size()), mod);
 
 	while (true) {
 		std::vector<int> seq(length);
@@ -7793,7 +7823,7 @@ birthday_attack(const std::vector<std::string> &alphabet, int base, int mod) {
 		std::string s;
 
 		for (int i = 0; i < length; ++i) {
-			seq[i] = next<int>(0, alphabet.size() - 1);
+			seq[i] = next<int>(0, static_cast<int>(alphabet.size()) - 1);
 			s += alphabet[seq[i]];
 		}
 
@@ -7846,7 +7876,7 @@ inline std::string abacaba(int n) {
 	std::string str = "a";
 	char c = 'a';
 	while (static_cast<int>(str.size()) < n) {
-		int prev_size = str.size();
+		int prev_size = static_cast<int>(str.size());
 		str += ++c;
 		for (int j = 0; j < prev_size and static_cast<int>(str.size()) < n; ++j)
 			str += str[j];
@@ -7862,8 +7892,8 @@ inline std::pair<std::string, std::string> unsigned_polynomial_hash() {
 	std::string a, b;
 	int size = 1 << 10;
 	for (int i = 0; i < size; ++i) {
-		a += 'a' + math::detail::popcount(i) % 2;
-		b += 'a' + ('b' - a[i]);
+		a += static_cast<char>('a' + math::detail::popcount(i) % 2);
+		b += static_cast<char>('a' + ('b' - a[i]));
 	}
 	return {a, b};
 }
@@ -7881,7 +7911,7 @@ inline std::pair<std::string, std::string> polynomial_hash(int alphabet_size,
 
 	std::vector<std::string> alphabet(alphabet_size);
 	for (int i = 0; i < alphabet_size; ++i)
-		alphabet[i] = std::string(1, 'a' + i);
+		alphabet[i] = std::string(1, static_cast<char>('a' + i));
 	std::iota(alphabet.begin(), alphabet.end(), 'a');
 	return detail::birthday_attack(alphabet, base, mod);
 }
@@ -7905,7 +7935,7 @@ polynomial_hash(int alphabet_size, std::vector<int> bases,
 
 	std::vector<std::string> alphabet(alphabet_size);
 	for (int i = 0; i < alphabet_size; ++i)
-		alphabet[i] = std::string(1, 'a' + i);
+		alphabet[i] = std::string(1, static_cast<char>('a' + i));
 	auto [S1, T1] = detail::birthday_attack(alphabet, bases[0], mods[0]);
 	if (bases.size() == 1)
 		return {S1, T1};
@@ -7940,7 +7970,7 @@ inline std::vector<std::pair<int, int>> mo_worst_case(int n, int q) {
 	std::set<std::pair<int, int>> queries;
 
 	// Adversarial case.
-	int sq = std::sqrt(n);
+	int sq = static_cast<int>(std::sqrt(n));
 	for (int i = 0; i < sq; ++i) {
 		for (int j = i; j < sq; ++j) {
 			if (i * sq < n and j * sq < n)
@@ -8245,9 +8275,9 @@ segment_tree_beats_worst_case(int k, int q) {
 				"hack: segment_tree_beats_worst_case: q must be positive");
 
 	const auto &fib = math::fibonacci();
-	const int block_len = fib[k * 2 + 1];
-	const int an = fib[k * 2];
-	const int bn = fib[k * 2 - 1];
+	const int block_len = static_cast<int>(fib[k * 2 + 1]);
+	const int an = static_cast<int>(fib[k * 2]);
+	const int bn = static_cast<int>(fib[k * 2 - 1]);
 
 	const int len = block_len;
 	const int total = len * len * len;

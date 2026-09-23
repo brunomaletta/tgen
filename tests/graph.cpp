@@ -1048,7 +1048,7 @@ TEST(graph_test, gen_undirected_with_self_loops_full_includes_all_diagonals) {
 	tgen::register_gen();
 
 	const int n = 5;
-	const int m = max_graph_edges(n, false, true);
+	const int m = static_cast<int>(max_graph_edges(n, false, true));
 	auto g = tgen::graph(n, m, false, true).gen();
 
 	for (int i = 0; i < n; ++i) {
