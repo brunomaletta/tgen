@@ -287,6 +287,11 @@ namespace tgen::geometry {
  *
  * @note This operation is not uniformly random.
  *
+ * @warning Modulo @tt{p}, all generated points lie on one conic, an affine
+ * image of @tt{xy = 1}. The random shears obscure the visual pattern but do
+ * not remove this structure. Combine this generator with other test families
+ * when that structure might make the tested problem easier.
+ *
  * #### Time complexity
  *
  * @tt{O(@pname{n})}.
