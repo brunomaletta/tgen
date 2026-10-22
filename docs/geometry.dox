@@ -117,7 +117,7 @@ namespace tgen::geometry {
  *
  * @tparam T Arithmetic coordinate type (@tt{@primitive{int}}, @tt{@primitive{double}}, ...).
  *
- * Dot and cross products return @tt{@type{product_t}}, widened to avoid overflow:
+ * Dot and cross products return @tt{@type{product_t}}, using a wider integer type:
  * @tt{@type{__int128}} when @tt{T} is @tt{@primitive{long long}}, @tt{@primitive{long long}} for other
  * integral @tt{T}, and @tt{T} for floating-point @tt{T}.
  *
@@ -233,6 +233,9 @@ namespace tgen::geometry {
  * @return The dot product as @tt{@type{product_t}} (@tt{@type{__int128}} for
  * @tt{@type{point}<@primitive{long long}>}, @tt{@primitive{long long}} for other integral @tt{T}, @tt{T}
  * for floating-point).
+ *
+ * @throws std::runtime_error For integral coordinates, if either product or
+ * their sum cannot be represented by @tt{@type{product_t}}.
  *
  * @fn point::operator*(const point &p) const;
  */

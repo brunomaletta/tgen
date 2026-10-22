@@ -1169,6 +1169,9 @@ namespace tgen {
  *
  * @param n Number of vertices.
  *
+ * @throws std::runtime_error If @pname{n} is not positive or the edge count
+ * @tt{n(n-1)/2} exceeds @tt{INT_MAX}, the graph API edge-count limit.
+ *
  * #### Time complexity
  *
  * @tt{O(@pname{n}^2)}.

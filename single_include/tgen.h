@@ -722,6 +722,38 @@ template <typename T> T next(T left, T right) {
 							std::string(typeid(T).name()) + ")");
 }
 
+namespace detail {
+
+// Maps a unit sample to an integral interval. half_open excludes right.
+template <typename T>
+T scale_skewed_integer(T left, T right, double x, bool half_open) {
+	// Ordinary integer ranges fit in 64 bits, including their full span.
+	if constexpr (sizeof(T) < sizeof(uint64_t)) {
+		long long lo = left, hi = right;
+		long long offset =
+			static_cast<long long>(x * static_cast<double>(hi - lo));
+		return static_cast<T>(std::min(lo + offset, hi - half_open));
+	} else {
+		// Widen before subtracting or reconstructing a value: the span of
+		// signed 64-bit endpoints can exceed LLONG_MAX. Rounded endpoints
+		// must also be clamped before narrowing to the output type.
+		i128 lo = left, hi = right, span = hi - lo;
+		// Keep ordinary ranges on the double/64-bit fast path. The margin
+		// below LLONG_MAX makes the conversion safe even after rounding.
+		if (span <= (i128(1) << 62)) {
+			long long offset =
+				static_cast<long long>(x * static_cast<double>(span));
+			offset = std::min(offset, static_cast<long long>(span) - half_open);
+			return static_cast<T>(lo + offset);
+		}
+		i128 offset = static_cast<i128>(static_cast<long double>(x) *
+										static_cast<long double>(span));
+		return static_cast<T>(std::min(lo + offset, hi - half_open));
+	}
+}
+
+} // namespace detail
+
 // Skewed next.
 //
 // Returns a random number in [0, right) with a bias controlled by `w`.
@@ -746,7 +778,8 @@ template <typename T> T next(T left, T right) {
 // O(1).
 template <typename T> T wnext(T right, int w) {
 	// For small |w|, use the naive approach.
-	if (abs(w) <= 5) {
+	// Avoid abs(INT_MIN), which overflows.
+	if (-5 <= w and w <= 5) {
 		T val = next<T>(right);
 		for (int i = 0; i < w; ++i)
 			val = std::max(val, next<T>(right));
@@ -755,23 +788,28 @@ template <typename T> T wnext(T right, int w) {
 		return val;
 	}
 
-	// O(1) way.
+	// Convert w before adding or negating to avoid int overflow.
 	double x, r = next<double>(0, 1);
 
 	if (w >= 0) {
-		x = std::pow(r, 1.0 / (w + 1));
+		x = std::pow(r, 1.0 / (static_cast<double>(w) + 1.0));
 	} else {
-		x = 1.0 - std::pow(r, 1.0 / (-w + 1));
+		x = 1.0 - std::pow(r, 1.0 / (-static_cast<double>(w) + 1.0));
 	}
 
-	return T(x * right);
+	if constexpr (std::is_integral_v<T>) {
+		tgen_ensure(right >= 1, "value for `wnext` must be valid");
+		return detail::scale_skewed_integer<T>(0, right, x, true);
+	} else
+		return T(x * right);
 }
 
 // Returns a random number in [left, right] with a bias controlled by `w`.
 // O(1).
 template <typename T> T wnext(T left, T right, int w) {
 	// For small |w|, use the naive approach.
-	if (abs(w) <= 5) {
+	// Avoid abs(INT_MIN), which overflows.
+	if (-5 <= w and w <= 5) {
 		T val = next<T>(left, right);
 		for (int i = 0; i < w; ++i)
 			val = std::max(val, next<T>(left, right));
@@ -780,16 +818,20 @@ template <typename T> T wnext(T left, T right, int w) {
 		return val;
 	}
 
-	// O(1) way.
+	// Convert w before adding or negating to avoid int overflow.
 	double x, r = next<double>(0, 1);
 
 	if (w >= 0) {
-		x = std::pow(r, 1.0 / (w + 1));
+		x = std::pow(r, 1.0 / (static_cast<double>(w) + 1.0));
 	} else {
-		x = 1.0 - std::pow(r, 1.0 / (-w + 1));
+		x = 1.0 - std::pow(r, 1.0 / (-static_cast<double>(w) + 1.0));
 	}
 
-	return left + T(x * (right - left));
+	if constexpr (std::is_integral_v<T>) {
+		tgen_ensure(left <= right, "range for `wnext` must be valid");
+		return detail::scale_skewed_integer(left, right, x, false);
+	} else
+		return left + T(x * (right - left));
 }
 
 namespace detail {
@@ -1050,20 +1092,24 @@ std::vector<T> choose(const std::initializer_list<T> &il, int k) {
 // Optimized for performance (unordered_map virtual list; gen_list uses array
 // pool, complement, or sparse sampling).
 template <typename T> struct distinct_range {
+	using index_type = std::make_unsigned_t<detail::uniform_int_t<T>>;
+	// The full 64-bit domain has 2^64 elements; smaller domains need only
+	// a 64-bit count. Indices themselves still fit in index_type.
+	using count_type = std::conditional_t<(sizeof(T) < sizeof(uint64_t)),
+										  uint64_t, detail::u128>;
 	T left_, right_;
-	T num_available_;
-	std::unordered_map<T, T> virtual_list_;
+	count_type num_available_;
+	std::unordered_map<index_type, index_type> virtual_list_;
 
 	// When the range fits in memory, sample via array Fisher–Yates.
 	static constexpr size_t array_pool_max = size_t{1} << 23;
 
 	// Generator of distinct values in [left, right].
 	distinct_range(T left, T right)
-		: left_(left), right_(right),
-		  num_available_(static_cast<T>(right - left + 1)) {}
+		: left_(left), right_(right), num_available_(range_span()) {}
 
 	// Returns the number of distinct values left to generate.
-	T size() const { return num_available_; }
+	count_type size() const { return num_available_; }
 
 	// Generates a random value in [left_, right_] that has not been generated
 	// yet.
@@ -1072,18 +1118,18 @@ template <typename T> struct distinct_range {
 		// One iteration of Fisher–Yates.
 		tgen_ensure(size() > 0, "distinct_range: no more values to generate");
 
-		T i = next<T>(0, size() - 1);
-		T j = size() - 1;
+		index_type j = static_cast<index_type>(size() - 1);
+		index_type i = next<index_type>(0, j);
 
 		auto vi_it = virtual_list_.find(i);
-		T vi = vi_it == virtual_list_.end() ? i : vi_it->second;
+		index_type vi = vi_it == virtual_list_.end() ? i : vi_it->second;
 		auto vj_it = virtual_list_.find(j);
-		T vj = vj_it == virtual_list_.end() ? j : vj_it->second;
+		index_type vj = vj_it == virtual_list_.end() ? j : vj_it->second;
 		virtual_list_[i] = vj;
 
 		--num_available_;
 
-		return vi + left_;
+		return value_at(vi);
 	}
 
 	// Generates a list of distinct values.
@@ -1091,37 +1137,47 @@ template <typename T> struct distinct_range {
 	// O(size) when the range fits in memory; O(size log range) otherwise.
 	auto gen_list(int count) {
 		tgen_ensure(count >= 0, "distinct_range: size must be nonnegative");
-		tgen_ensure(count <= num_available_,
+		tgen_ensure(static_cast<count_type>(count) <= num_available_,
 					"distinct_range: no more values to generate");
 
-		size_t range_size = static_cast<size_t>(right_ - left_ + 1);
+		count_type range_size = range_span();
 		size_t sample_count = static_cast<size_t>(count);
 
 		std::vector<T> res;
 		if (sample_count > 0) {
 			if (range_size <= array_pool_max)
-				res = sample_from_pool(sample_count, range_size);
+				res = sample_from_pool(sample_count,
+									   static_cast<size_t>(range_size));
 			else if (sample_count * 2 > range_size)
-				res = sample_complement(sample_count, range_size);
+				res = sample_complement(sample_count,
+										static_cast<size_t>(range_size));
 			else
 				res = sample_sparse(sample_count);
 		}
 
-		num_available_ -= static_cast<T>(count);
+		num_available_ -= static_cast<count_type>(count);
 		virtual_list_.clear();
 		return typename list<T>::value(res);
 	}
 
 	// Generates all distinct values.
 	// O(n) when the range fits in memory; O(n log n) otherwise.
-	auto gen_all() { return gen_list(size()); }
+	auto gen_all() {
+		// gen_list takes int; reject an unrepresentable count before narrowing.
+		tgen_ensure(size() <= std::numeric_limits<int>::max(),
+					"distinct_range: too many values for gen_all");
+		return gen_list(static_cast<int>(size()));
+	}
 
   private:
 	// Samples count distinct values via array Fisher–Yates on [left_, right_].
 	// O(range_size) time and memory.
 	std::vector<T> sample_from_pool(size_t count, size_t range_size) {
 		std::vector<T> pool(range_size);
-		std::iota(pool.begin(), pool.end(), left_);
+		// iota increments after the last element, overflowing when it is T's
+		// maximum. Generate by offsets instead, without an endpoint increment.
+		for (size_t i = 0; i < range_size; ++i)
+			pool[i] = value_at(static_cast<index_type>(i));
 		for (size_t i = 0; i < count; ++i) {
 			size_t j = next<size_t>(i, range_size - 1);
 			std::swap(pool[i], pool[j]);
@@ -1147,7 +1203,9 @@ template <typename T> struct distinct_range {
 
 		std::vector<T> res;
 		res.reserve(count);
-		for (T value = left_; value <= right_; ++value) {
+		for (size_t i = 0; i < range_size; ++i) {
+			// Offsets avoid incrementing the maximum coordinate.
+			T value = value_at(static_cast<index_type>(i));
 			if (!excluded.count(value))
 				res.push_back(value);
 		}
@@ -1159,22 +1217,22 @@ template <typename T> struct distinct_range {
 	// Samples count distinct values via sparse-map Fisher–Yates.
 	// O(count log(range_size)).
 	std::vector<T> sample_sparse(size_t count) {
-		std::unordered_map<T, T> local_virtual;
+		std::unordered_map<index_type, index_type> local_virtual;
 		local_virtual.reserve(count * 2);
-		T remaining = range_span();
+		count_type remaining = range_span();
 		std::vector<T> res;
 		res.reserve(count);
 		for (size_t step = 0; step < count; ++step) {
-			T i = next<T>(0, remaining - 1);
-			T j = remaining - 1;
+			index_type j = static_cast<index_type>(remaining - 1);
+			index_type i = next<index_type>(0, j);
 
 			auto vi_it = local_virtual.find(i);
-			T vi = vi_it == local_virtual.end() ? i : vi_it->second;
+			index_type vi = vi_it == local_virtual.end() ? i : vi_it->second;
 			auto vj_it = local_virtual.find(j);
-			T vj = vj_it == local_virtual.end() ? j : vj_it->second;
+			index_type vj = vj_it == local_virtual.end() ? j : vj_it->second;
 			local_virtual[i] = vj;
 
-			res.push_back(vi + left_);
+			res.push_back(value_at(vi));
 			--remaining;
 		}
 		return res;
@@ -1182,7 +1240,17 @@ template <typename T> struct distinct_range {
 
 	// Returns right_ - left_ + 1.
 	// O(1).
-	T range_span() { return static_cast<T>(right_ - left_ + 1); }
+	count_type range_span() const {
+		if (left_ > right_)
+			return 0;
+		// Widen before subtraction; even unsigned 64-bit counts can overflow.
+		return static_cast<count_type>(detail::i128(right_) - left_ + 1);
+	}
+
+	T value_at(index_type index) const {
+		// An offset may exceed signed T even though the final value fits.
+		return static_cast<T>(detail::i128(left_) + index);
+	}
 };
 
 // Distinct generator for containers.
@@ -1194,12 +1262,13 @@ template <typename T> struct distinct_container {
 	template <typename C>
 	distinct_container(const C &container)
 		: list_(container.begin(), container.end()),
-		  idx_(0, static_cast<int>(container.size()) - 1) {}
+		  // Represent an empty container explicitly, not as [0, SIZE_MAX].
+		  idx_(list_.empty() ? 1 : 0, list_.empty() ? 0 : list_.size() - 1) {}
 	distinct_container(const std::initializer_list<T> &il)
 		: distinct_container(std::vector<T>(il)) {}
 
 	// Returns the number of distinct elements left to generate.
-	size_t size() const { return idx_.size(); }
+	size_t size() const { return static_cast<size_t>(idx_.size()); }
 
 	// Generates a random element from container uniformly.
 	// O(log n).
@@ -3188,6 +3257,8 @@ gen_partition(int n, int part_left = 1,
 
 // Partition is ordered (composition), that is, (1, 1, 2) != (1, 2, 1).
 // O(n) time/memory if part_right is not set, O(n * k) time/memory otherwise.
+// Unbounded partitions with more than INT_MAX positions instead use
+// O(k log k) expected time and O(k) memory to sample and sort the cuts.
 // 0 < k <= n.
 // 0 <= part_left.
 inline std::vector<int>
@@ -3210,7 +3281,25 @@ gen_partition_fixed_size(int n, int k, int part_left = 0,
 		// Stars and bars - O(n).
 		std::vector<int> cuts = {-1};
 
-		int total = s + k - 1, bars = k - 1;
+		// Stars-and-bars positions can exceed int even when every part fits.
+		long long total_wide = static_cast<long long>(s) + k - 1;
+		if (total_wide > std::numeric_limits<int>::max()) {
+			// Sample the same uniform subset of delimiters without scanning
+			// billions of positions. Keep the ordinary-range fast path below.
+			auto wide_cuts = distinct_range<long long>(0, total_wide - 1)
+								 .gen_list(k - 1)
+								 .to_std();
+			std::sort(wide_cuts.begin(), wide_cuts.end());
+			wide_cuts.push_back(total_wide);
+			long long previous = -1;
+			for (int i = 0; i < k; ++i) {
+				part[i] =
+					static_cast<int>(wide_cuts[i] - previous - 1) + part_left;
+				previous = wide_cuts[i];
+			}
+			return part;
+		}
+		int total = static_cast<int>(total_wide), bars = k - 1;
 		for (int i = 0; i < total and bars > 0; ++i)
 			if (next<long double>(0, 1) <
 				static_cast<long double>(bars) / (total - i)) {
@@ -4129,7 +4218,9 @@ template <typename T> std::pair<T, T> gen_lt(T L1, T R1, T L2, T R2) {
 		if (d > 0)
 			k -= pos_arith_sum(base, base + d - 1, d);
 
-		return {L1 + static_cast<T>(k), L_second + d};
+		// Reconstruct in i128 before narrowing: k may exceed signed T.
+		return {static_cast<T>(i128(L1) + i128(k)),
+				static_cast<T>(L_second + d)};
 	} else {
 		// Region 2: uniform block of size n.
 		k -= count_region1;
@@ -4137,8 +4228,9 @@ template <typename T> std::pair<T, T> gen_lt(T L1, T R1, T L2, T R2) {
 		// For b in [R1+1, R_second], there are 'n' ways.
 		i128 L_second_region2 = std::max(L_second, static_cast<i128>(R1) + 1);
 
-		return {L1 + static_cast<T>(k % n),
-				L_second_region2 + static_cast<T>(k / n)};
+		// Each offset may exceed signed T while the final coordinate fits.
+		return {static_cast<T>(i128(L1) + i128(k % n)),
+				static_cast<T>(L_second_region2 + i128(k / n))};
 	}
 }
 
@@ -5077,8 +5169,10 @@ inline long long max_graph_edges(int n, bool directed, bool self_loops) {
 	if (directed)
 		return self_loops ? static_cast<long long>(n) * n
 						  : static_cast<long long>(n) * (n - 1);
-	return self_loops ? static_cast<long long>(n) * (n + 1) / 2
-					  : static_cast<long long>(n) * (n - 1) / 2;
+	// Widen n + 1 too: it overflows int when n == INT_MAX.
+	return self_loops
+			   ? static_cast<long long>(n) * (static_cast<long long>(n) + 1) / 2
+			   : static_cast<long long>(n) * (n - 1) / 2;
 }
 
 // Uniform random edge for rejection sampling.
@@ -5120,7 +5214,8 @@ inline std::pair<int, int> decode_undirected_simple_edge(int n, long long idx) {
 	};
 	int lo = 0, hi = n - 2;
 	while (lo < hi) {
-		int mid = (lo + hi + 1) / 2;
+		// Avoid overflow in lo + hi; keep the upper midpoint.
+		int mid = lo + (hi - lo + 1) / 2;
 		if (base(mid) <= idx)
 			lo = mid;
 		else
@@ -5139,7 +5234,8 @@ inline std::pair<int, int> decode_undirected_loops_edge(int n, long long idx) {
 	};
 	int lo = 0, hi = n - 1;
 	while (lo < hi) {
-		int mid = (lo + hi + 1) / 2;
+		// Avoid overflow in lo + hi; keep the upper midpoint.
+		int mid = lo + (hi - lo + 1) / 2;
 		if (base(mid) <= idx)
 			lo = mid;
 		else
@@ -6466,7 +6562,14 @@ using graph = wgraph<int, int>;
 
 // Complete.
 // O(n^2).
-inline graph::value K(int n) { return graph(n, n * (n - 1) / 2).gen(); }
+inline graph::value K(int n) {
+	tgen_ensure(n > 0, "K: number of vertices must be positive");
+	// The product can overflow int even when the divided edge count fits.
+	long long edges = detail::max_graph_edges(n, false, false);
+	tgen_ensure(edges <= std::numeric_limits<int>::max(),
+				"K: too many edges to generate");
+	return graph(n, static_cast<int>(edges)).gen();
+}
 
 // Path.
 // Path with `n` vertices. The edges of the path are 0 and n-1.
@@ -6577,9 +6680,20 @@ template <typename T> struct point {
 
 	// Dot product.
 	product_t operator*(const point &p) const {
-		if constexpr (std::is_floating_point_v<T>)
+		if constexpr (std::is_floating_point_v<T>) {
 			return x_ * p.x() + y_ * p.y();
-		return product_t(x_) * p.x() + product_t(y_) * p.y();
+		} else {
+			// Widening alone cannot represent every dot product at the
+			// coordinate limits. Reject overflow instead of wrapping.
+			product_t x_product, y_product, result;
+			tgen_ensure(!__builtin_mul_overflow(x_, p.x(), &x_product),
+						"geometry: point dot product overflow");
+			tgen_ensure(!__builtin_mul_overflow(y_, p.y(), &y_product),
+						"geometry: point dot product overflow");
+			tgen_ensure(!__builtin_add_overflow(x_product, y_product, &result),
+						"geometry: point dot product overflow");
+			return result;
+		}
 	}
 
 	// Cross product (signed area of the parallelogram).
@@ -6686,20 +6800,52 @@ namespace detail {
 
 using i128 = tgen::detail::i128;
 
-// Signed area of triangle (a, b, p); positive iff (a, b, p) are in
-// counterclockwise order. 0 iff (a, b, p) are collinear. O(1).
-inline i128 ccw(const point<long long> &a, const point<long long> &b,
-				const point<long long> &p) {
-	return (static_cast<i128>(b.x()) - a.x()) *
-			   (static_cast<i128>(p.y()) - a.y()) -
-		   (static_cast<i128>(b.y()) - a.y()) *
-			   (static_cast<i128>(p.x()) - a.x());
+using u128 = tgen::detail::u128;
+
+// A triangle of long long points has doubled area at most (2^64 - 1)^2.
+// Its magnitude fits in unsigned 128 bits, but not necessarily signed 128.
+struct signed_area {
+	u128 magnitude;
+	int sign;
+};
+
+inline signed_area triangle_area(const point<long long> &a,
+								 const point<long long> &b,
+								 const point<long long> &p) {
+	i128 dx1 = i128(b.x()) - a.x(), dy1 = i128(b.y()) - a.y();
+	i128 dx2 = i128(p.x()) - a.x(), dy2 = i128(p.y()) - a.y();
+	auto magnitude = [](i128 v) -> u128 { return v < 0 ? -v : v; };
+	u128 first = magnitude(dx1) * magnitude(dy2);
+	u128 second = magnitude(dy1) * magnitude(dx2);
+	int first_sign = (dx1 < 0) != (dy2 < 0) ? -1 : 1;
+	int second_sign = (dy1 < 0) != (dx2 < 0) ? -1 : 1;
+	if (first_sign != second_sign) {
+		// These are products from one triangle, so their sum obeys the
+		// area bound above even when the two terms have opposite signs.
+		u128 sum = first + second;
+		return {sum, sum == 0 ? 0 : first_sign};
+	}
+	if (first == second)
+		return {0, 0};
+	return first > second ? signed_area{first - second, first_sign}
+						  : signed_area{second - first, -first_sign};
 }
 
-// Integer projection of P onto line AB (A and B need not be distinct).
-inline i128 proj_on_ab(const point<long long> &P, const point<long long> &A,
-					   const point<long long> &B) {
-	return (P - A) * (B - A);
+// Orientation only: positive iff (a, b, p) are counterclockwise.
+inline int ccw(const point<long long> &a, const point<long long> &b,
+			   const point<long long> &p) {
+	return triangle_area(a, b, p).sign;
+}
+
+// Compares a*x with b*y without forming either potentially 192-bit product.
+// a and b are positive. Divide x by b and y by a: unequal quotients decide
+// the result; otherwise the remainders are 64-bit and their products fit.
+inline int compare_weighted_areas(u128 x, uint64_t a, u128 y, uint64_t b) {
+	u128 qx = x / b, qy = y / a;
+	if (qx != qy)
+		return qx > qy ? 1 : -1;
+	u128 rx = (x % b) * a, ry = (y % a) * b;
+	return (rx > ry) - (rx < ry);
 }
 
 // Side of the separator through C and D = (wa*A + wb*B)/(wa + wb).
@@ -6710,8 +6856,13 @@ inline bool split_on_positive_side(const point<long long> &A,
 								   const point<long long> &C,
 								   const point<long long> &P, uint64_t wa,
 								   uint64_t wb) {
-	i128 s = wa * ccw(C, A, P) + wb * ccw(C, B, P);
-	return s != 0 ? s > 0 : ccw(C, B, P) > 0;
+	signed_area a = triangle_area(C, A, P), b = triangle_area(C, B, P);
+	if (a.sign == 0)
+		return b.sign > 0;
+	if (b.sign == 0 or a.sign == b.sign)
+		return a.sign > 0;
+	int comparison = compare_weighted_areas(a.magnitude, wa, b.magnitude, wb);
+	return comparison == 0 ? b.sign > 0 : comparison == a.sign;
 }
 
 // In-place Hamiltonian path on points[left..right-1] with points[left]
@@ -6736,7 +6887,7 @@ inline void conquer(std::vector<point<long long>> &points, int left,
 	if (all_collinear) {
 		std::sort(points.begin() + left, points.begin() + right,
 				  [&](const point<long long> &P, const point<long long> &Q) {
-					  return proj_on_ab(P, A, B) < proj_on_ab(Q, A, B);
+					  return A < B ? P < Q : Q < P;
 				  });
 		return;
 	}
@@ -7128,7 +7279,7 @@ inline std::vector<point<long long>> random_simple_polygon_through_points(
 	for (int i = 0; i < n; ++i) {
 		if (i == idx_a or i == idx_b)
 			continue;
-		detail::i128 side = detail::ccw(A, B, points[i]);
+		int side = detail::ccw(A, B, points[i]);
 		if (side < 0 or (side == 0 and negative_count == 0)) {
 			chain.push_back(points[i]);
 			++left_count;
@@ -7138,7 +7289,7 @@ inline std::vector<point<long long>> random_simple_polygon_through_points(
 	for (int i = 0; i < n; ++i) {
 		if (i == idx_a or i == idx_b)
 			continue;
-		detail::i128 side = detail::ccw(A, B, points[i]);
+		int side = detail::ccw(A, B, points[i]);
 		if (side > 0 or (side == 0 and negative_count != 0))
 			chain.push_back(points[i]);
 	}
@@ -7165,7 +7316,8 @@ namespace detail {
 inline std::vector<point<long long>>
 random_distinct_points_in_box(int n, long long min_coord, long long max_coord) {
 	long long width = max_coord - min_coord;
-	i128 side_128 = width + 1;
+	// Promote before adding one: width may already equal LLONG_MAX.
+	i128 side_128 = i128(width) + 1;
 	i128 universe = side_128 * side_128;
 	tgen_ensure(universe <= std::numeric_limits<long long>::max(),
 				"geometry: random_simple_polygon: coordinate range too large");

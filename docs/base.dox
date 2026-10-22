@@ -715,7 +715,10 @@ namespace tgen {
 /**
  * @brief Returns the number of values left to generate.
  *
- * @return The number of values left to generate.
+ * @return The number of values left to generate, as @tt{count_type}:
+ * @tt{@type{uint64_t}} for coordinate types smaller than 64 bits, or
+ * @tt{@type{unsigned __int128}} for 64-bit types. The wider count can
+ * represent all @tt{2^64} values of a full 64-bit range.
  *
  * #### Time complexity
  *
@@ -785,6 +788,9 @@ namespace tgen {
  *
  * @return A uniformly random @ref tgen::list::value with all
  *         distinct values from the range that have not been generated yet.
+ *
+ * @throws std::runtime_error If the remaining count exceeds @tt{INT_MAX},
+ * the maximum count accepted by @ref distinct_range::gen_list.
  *
  * #### Time complexity
  *

@@ -688,6 +688,9 @@ namespace tgen::math {
  *
  * @tt{O(@pname{n})} time/memory if @pname{part_right} is not set; <br>
  * @tt{O(@pname{n} * @pname{k})} time/memory otherwise.
+ * For an unbounded partition whose stars-and-bars position count
+ * @tt{n - k * part_left + k - 1} exceeds @tt{INT_MAX}, the generator instead
+ * samples and sorts the cuts in @tt{O(k log k)} expected time and @tt{O(k)} memory.
  *
  * #### Examples
  *
@@ -765,7 +768,8 @@ namespace tgen::math {
  *
  * #### Time complexity
  *
- * @tt{O(n)} if @pname{max_size} is not set (uniform, via @ref gen_partition_fixed_size); <br>
+ * @tt{O(n)} if @pname{max_size} is not set, or @tt{O(n + k log k)} expected
+ * when the position count exceeds @tt{INT_MAX} (via @ref gen_partition_fixed_size); <br>
  * @tt{O(n + k log k)} if @pname{max_size} is set (fast, via @ref gen_partition_fixed_size_fast).
  *
  * #### Examples

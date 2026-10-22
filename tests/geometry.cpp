@@ -834,6 +834,92 @@ TEST(geometry_test, random_simple_polygon_through_points_many_n) {
 	}
 }
 
+TEST(geometry_test, polygon_split_large_weight_overflow) {
+	using point = tgen::geometry::point<long long>;
+	const point A(0, 0), B(10'000'000'000LL, 0);
+	const point C(10'000'000'000LL, 10'000'000'000LL);
+	const point P(0, 10'000'000'000LL);
+	// Both cross products are negative. The weighted result must stay
+	// negative, even when its magnitude exceeds 128 bits.
+	for (uint64_t weight : {UINT64_C(1) << 61, UINT64_C(1) << 62,
+							UINT64_C(1) << 63, UINT64_MAX}) {
+		EXPECT_FALSE(tgen::geometry::detail::split_on_positive_side(
+			A, B, C, P, weight, weight));
+		EXPECT_TRUE(tgen::geometry::detail::split_on_positive_side(
+			A, B, P, C, weight, weight));
+	}
+}
+
+TEST(geometry_test, polygon_split_large_opposing_terms) {
+	using point = tgen::geometry::point<long long>;
+	const auto lo = std::numeric_limits<long long>::min();
+	const auto hi = std::numeric_limits<long long>::max();
+	const point A(lo, 0), B(hi, 0), C(0, hi), P(0, lo);
+	const uint64_t wa = static_cast<uint64_t>(hi), wb = UINT64_C(1) << 63;
+	// The two weighted areas cancel exactly at these weights. Adjusting
+	// wb by one moves the separator to either side; an exact tie follows
+	// the symbolic rotation toward B.
+	EXPECT_TRUE(
+		tgen::geometry::detail::split_on_positive_side(A, B, C, P, wa, wb - 1));
+	EXPECT_FALSE(
+		tgen::geometry::detail::split_on_positive_side(A, B, C, P, wa, wb));
+	EXPECT_FALSE(
+		tgen::geometry::detail::split_on_positive_side(A, B, C, P, wa, wb + 1));
+	EXPECT_TRUE(
+		tgen::geometry::detail::split_on_positive_side(B, A, C, P, wb - 1, wa));
+	EXPECT_TRUE(
+		tgen::geometry::detail::split_on_positive_side(B, A, C, P, wb, wa));
+	EXPECT_FALSE(
+		tgen::geometry::detail::split_on_positive_side(B, A, C, P, wb + 1, wa));
+}
+
+TEST(geometry_test, polygon_full_range_affine_invariance) {
+	using point = tgen::geometry::point<long long>;
+	using i128 = __int128;
+	const auto lo = std::numeric_limits<long long>::min();
+	const auto hi = std::numeric_limits<long long>::max();
+	const i128 step = (i128(hi) - lo) / 3;
+	auto expand = [&](const point &p) {
+		return point(static_cast<long long>(lo + step * p.x()),
+					 static_cast<long long>(lo + step * p.y()));
+	};
+	auto small = grid_points(4, 4);
+	std::vector<point> large;
+	for (const auto &p : small)
+		large.push_back(expand(p));
+	for (int seed = 0; seed < 32; ++seed) {
+		SCOPED_TRACE(seed);
+		tgen::register_gen(seed);
+		auto expected =
+			tgen::geometry::random_simple_polygon_through_points(small);
+		ASSERT_TRUE(verify_simple_polygon(expected, 16, 0, 3));
+		for (auto &p : expected)
+			p = expand(p);
+		tgen::register_gen(seed);
+		auto actual =
+			tgen::geometry::random_simple_polygon_through_points(large);
+		// Positive scaling and translation preserve every geometric decision.
+		EXPECT_EQ(actual, expected);
+	}
+}
+
+TEST(geometry_test, polygon_collinear_path_full_range) {
+	using point = tgen::geometry::point<long long>;
+	const auto lo = std::numeric_limits<long long>::min();
+	const auto hi = std::numeric_limits<long long>::max();
+	for (bool reverse : {false, true}) {
+		std::vector<point> pts = {{lo, lo}, {1, 1}, {-1, -1}, {0, 0}, {hi, hi}};
+		if (reverse)
+			std::reverse(pts.begin(), pts.end());
+		auto expected = pts;
+		std::sort(expected.begin(), expected.end());
+		if (reverse)
+			std::reverse(expected.begin(), expected.end());
+		tgen::geometry::detail::conquer(pts, 0, static_cast<int>(pts.size()));
+		EXPECT_EQ(pts, expected);
+	}
+}
+
 TEST(geometry_test, polygon_split_exact_collinear_tie) {
 	tgen::register_gen(0);
 	using point = tgen::geometry::point<long long>;
