@@ -6702,11 +6702,22 @@ inline i128 proj_on_ab(const point<long long> &P, const point<long long> &A,
 	return (P - A) * (B - A);
 }
 
+// Side of the separator through C and D = (wa*A + wb*B)/(wa + wb).
+// On a tie, perturb wb by a positive infinitesimal: the separating line
+// rotates about C, placing points on opposite rays from C on opposite sides.
+inline bool split_on_positive_side(const point<long long> &A,
+								   const point<long long> &B,
+								   const point<long long> &C,
+								   const point<long long> &P, uint64_t wa,
+								   uint64_t wb) {
+	i128 s = wa * ccw(C, A, P) + wb * ccw(C, B, P);
+	return s != 0 ? s > 0 : ccw(C, B, P) > 0;
+}
+
 // In-place Hamiltonian path on points[left..right-1] with points[left]
 // start and points[right-1] end.
-// O(n log n) expected for every input in general position (no three
-// collinear points), over the algorithm's random choices. O(n^2) worst case.
-// Inputs with collinear triples are not covered by the expected-time bound.
+// O(n log n) expected for every valid input, including collinear triples,
+// over the algorithm's random choices. O(n^2) worst case.
 inline void conquer(std::vector<point<long long>> &points, int left,
 					int right) {
 	if (right - left <= 3)
@@ -6743,16 +6754,9 @@ inline void conquer(std::vector<point<long long>> &points, int left,
 	uint64_t wb = next<uint64_t>(1, std::numeric_limits<uint64_t>::max());
 	bool a_on_positive = ccw(C, A, B) < 0;
 
-	// Classify interior points into two sides of the wedge A-C-B for partition.
-	// Collinear points on AB are tie-broken along the segment.
-	i128 proj_sum = proj_on_ab(A, A, B) + proj_on_ab(B, A, B);
+	// Classify points using a consistent symbolic rotation for exact ties.
 	auto is_positive = [&](const point<long long> &P) -> bool {
-		i128 s = wa * ccw(C, A, P) + wb * ccw(C, B, P);
-		// Weighted wedge side of P w.r.t. C, A, B.
-		if (s != 0)
-			return s > 0;
-		// P is on line AB: split by projection past the midpoint.
-		return 2 * proj_on_ab(P, A, B) > proj_sum;
+		return split_on_positive_side(A, B, C, P, wa, wb);
 	};
 
 	// Holds C at points[right-2] while classifying interior points in
@@ -7070,9 +7074,8 @@ random_convex_polygon(int n, long long min_coord, long long max_coord,
 // Random simple polygon through given distinct points.
 // Collinear triples are allowed; fails if all points are collinear.
 // Always returns vertices in counterclockwise order.
-// O(n log n) expected for every input in general position (no three
-// collinear points), over the algorithm's random choices. O(n^2) worst case.
-// Inputs with collinear triples are not covered by the expected-time bound.
+// O(n log n) expected for every valid input, including collinear triples,
+// over the algorithm's random choices. O(n^2) worst case.
 inline std::vector<point<long long>> random_simple_polygon_through_points(
 	const std::vector<point<long long>> &points) {
 	int n = static_cast<int>(points.size());

@@ -834,6 +834,41 @@ TEST(geometry_test, random_simple_polygon_through_points_many_n) {
 	}
 }
 
+TEST(geometry_test, polygon_split_exact_collinear_tie) {
+	tgen::register_gen(0);
+	using point = tgen::geometry::point<long long>;
+	const point A(0, 0), B(10, 0);
+	const std::vector<std::vector<point>> cases = {
+		{{7, 2}, {6, 1}, {8, 3}},
+		{{5, 4}, {5, 2}, {5, 6}},
+	};
+	for (const auto &pts : cases) {
+		const point C = pts[0];
+		// Force the valid choice wa = wb = 1, so both remaining points lie
+		// exactly on CD. A midpoint-projection tie-break puts them in the
+		// same child and makes its path backtrack through C.
+		const bool a_side = tgen::geometry::detail::ccw(C, A, B) < 0;
+		std::vector<point> first{A}, second{C};
+		for (size_t i = 1; i < pts.size(); ++i) {
+			bool side = tgen::geometry::detail::split_on_positive_side(
+				A, B, C, pts[i], 1, 1);
+			(side == a_side ? first : second).push_back(pts[i]);
+		}
+		first.push_back(C);
+		second.push_back(B);
+		tgen::geometry::detail::conquer(first, 0,
+										static_cast<int>(first.size()));
+		tgen::geometry::detail::conquer(second, 0,
+										static_cast<int>(second.size()));
+		std::vector<point> poly = first;
+		poly.insert(poly.end(), second.begin() + 1, second.end());
+		if (!is_counterclockwise(poly))
+			std::reverse(poly.begin(), poly.end());
+		EXPECT_TRUE(contains_all_points(poly, {A, B, C, pts[1], pts[2]}));
+		EXPECT_TRUE(verify_simple_polygon(poly, 5, 0, 10));
+	}
+}
+
 TEST(geometry_test, random_simple_polygon_through_points_collinear_grids) {
 	tgen::register_gen();
 
