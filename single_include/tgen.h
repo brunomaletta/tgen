@@ -6704,7 +6704,9 @@ inline i128 proj_on_ab(const point<long long> &P, const point<long long> &A,
 
 // In-place Hamiltonian path on points[left..right-1] with points[left]
 // start and points[right-1] end.
-// O(n log n) expected if points are "random", O(n^2) worst case.
+// O(n log n) expected for every input in general position (no three
+// collinear points), over the algorithm's random choices. O(n^2) worst case.
+// Inputs with collinear triples are not covered by the expected-time bound.
 inline void conquer(std::vector<point<long long>> &points, int left,
 					int right) {
 	if (right - left <= 3)
@@ -7068,7 +7070,9 @@ random_convex_polygon(int n, long long min_coord, long long max_coord,
 // Random simple polygon through given distinct points.
 // Collinear triples are allowed; fails if all points are collinear.
 // Always returns vertices in counterclockwise order.
-// O(n log n) expected if points are "random", O(n^2) worst case.
+// O(n log n) expected for every input in general position (no three
+// collinear points), over the algorithm's random choices. O(n^2) worst case.
+// Inputs with collinear triples are not covered by the expected-time bound.
 inline std::vector<point<long long>> random_simple_polygon_through_points(
 	const std::vector<point<long long>> &points) {
 	int n = static_cast<int>(points.size());

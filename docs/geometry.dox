@@ -326,8 +326,23 @@ namespace tgen::geometry {
  *
  * #### Time complexity
  *
- * @tt{O(|@pname{points}| log|@pname{points}|)} expected (if points are "random"),
- * @tt{O(|@pname{points}|^2)} worst case.
+ * @tt{O(|@pname{points}| log|@pname{points}|)} expected for every fixed input
+ * in general position (no three points collinear). The expectation is over
+ * the algorithm's random choices; the input need not be randomly distributed.
+ * @tt{O(|@pname{points}|^2)} worst case. Inputs with collinear triples are
+ * supported, but are not covered by this expected-time guarantee.
+ *
+ * To see the expected bound, fix the auxiliary split point on the segment
+ * joining the endpoints. At least half of the non-endpoint points lie on one
+ * side of this segment's supporting line. Order those points by angle around
+ * the split point. A uniform pivot falls in the middle third of that order
+ * with probability at least 1/6, leaving a constant fraction of the points
+ * in each child. General position permits at most one other point on the
+ * separating line through the pivot, so discrete split weights and
+ * tie-breaking change this balance by at most one point. Each point is
+ * therefore processed as a non-endpoint point in O(log n) calls in
+ * expectation, giving O(n log n) total expected work, where n is the input
+ * size.
  *
  * #### Examples
  *
