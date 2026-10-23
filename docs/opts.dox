@@ -47,6 +47,13 @@ namespace tgen {
  * 
  * #### Consuming opts
  * 
+ * Numeric conversions must consume the entire value and fit the requested type.
+ * Leading whitespace is accepted; trailing whitespace or other suffixes are rejected.
+ * Unsigned types reject a minus sign, including @tt{-0}. Finite floating-point
+ * values that overflow or round to zero are rejected; representable subnormal
+ * values and explicit @tt{inf}/@tt{nan} spellings are accepted.
+ * Invalid conversions throw @tt{@namespace{std}::runtime_error}.
+ *
  * You can consume the opts by using @tt{opt<>}:
  * 
  * ```cpp

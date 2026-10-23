@@ -455,6 +455,7 @@ namespace tgen {
  * @param vertex_weights One weight per vertex (@tt{n} values).
  *
  * @return A copy of this tree with @pname{vertex_weights} attached. The weight type is deduced.
+ * Existing vertex weights are replaced; edge weights and edge order are preserved.
  *
  * Immutable style: returns a copy with weights set (weight type deduced); does not modify @tt{*this}.
  *
@@ -481,6 +482,7 @@ namespace tgen {
  * @param edge_weights One weight per edge, in the same order as @tt{edges()}.
  *
  * @return A copy of this tree with @pname{edge_weights} attached. The weight type is deduced.
+ * Existing edge weights are replaced; vertex weights and edge order are preserved.
  *
  * Immutable style: returns a copy with weights set (weight type deduced); does not modify @tt{*this}.
  *
@@ -647,6 +649,7 @@ namespace tgen {
  *
  * Vertices on @pname{rhs} are shifted by the current @tt{n}.
  * Weight usage must be consistent.
+ * Passing this value itself as @pname{rhs} links it to a copy of its original contents.
  *
  * #### Time complexity
  *
@@ -676,6 +679,7 @@ namespace tgen {
  *
  * Gluing one vertex to another means they are considered to be the same vertex, maintaining the label
  * it had in this tree. Other vertices are shifted accordingly.
+ * Passing this value itself as @pname{rhs} glues a copy of its original contents.
  *
  * #### Time complexity
  *
@@ -705,7 +709,8 @@ namespace tgen {
  *                @tt{i} in @pname{rhs}.
  *
  * Gluing one vertex to another means they are considered to be the same vertex, maintaining the label
- * it had in this graph. Other vertices are shifted accordingly.
+ * it had in this tree. Other vertices are shifted accordingly.
+ * Passing this value itself as @pname{rhs} glues a copy of its original contents.
  *
  * #### Time complexity
  *

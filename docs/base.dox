@@ -234,6 +234,10 @@ namespace tgen {
  * bool odds = tgen::next<double>(3) < 1.0;
  * ```
  *
+ * @pre For floating-point types, endpoints must be finite and ordered, and
+ * their difference must be finite in @tt{T}. The one-endpoint overload uses
+ * zero as its left endpoint. Invalid ranges throw @tt{std::runtime_error}.
+ *
  * @fn next(T right);
  */
 
@@ -264,6 +268,10 @@ namespace tgen {
  * // Random value from 1 to 10.
  * int value = tgen::next(1, 10);
  * ```
+ *
+ * @pre For floating-point types, endpoints must be finite and ordered, and
+ * their difference must be finite in @tt{T}. The one-endpoint overload uses
+ * zero as its left endpoint. Invalid ranges throw @tt{std::runtime_error}.
  *
  * @fn next(T left, T right);
  */
@@ -310,6 +318,10 @@ namespace tgen {
  * int b = tgen::wnext<int>(10, 2);
  * ```
  *
+ * @pre For floating-point types, endpoints must be finite and ordered, and
+ * their difference must be finite in @tt{T}. The one-endpoint overload uses
+ * zero as its left endpoint. Invalid ranges throw @tt{std::runtime_error}.
+ *
  * @fn wnext(T right, int w);
  */
 
@@ -345,6 +357,10 @@ namespace tgen {
  * int y = tgen::wnext<int>(1, 10, 3);
  * ```
  *
+ * @pre For floating-point types, endpoints must be finite and ordered, and
+ * their difference must be finite in @tt{T}. The one-endpoint overload uses
+ * zero as its left endpoint. Invalid ranges throw @tt{std::runtime_error}.
+ *
  * @fn wnext(T left, T right, int w);
  */
 
@@ -366,7 +382,10 @@ namespace tgen {
  *   distributions summing to nearly @tt{2^128} are handled with no loss;
  * - if @tt{T} is floating-point (@primitive{float}, @primitive{double}, ...),
  *   arithmetic is performed in @tt{@type{double}}, with the small relative
- *   rounding error inherent to floating-point sums.
+ *   rounding error inherent to floating-point sums. Finite weights are
+ *   rescaled when necessary to avoid overflow, underflow, or coarse rounding
+ *   when sampling from a subnormal total. Scaling is performed in the input
+ *   type before conversion to @tt{@type{double}}.
  *
  * If only a single index is needed, prefer @tt{tgen::next_by_distribution}. To draw
  * @tt{k} indices in one call, prefer @tt{tgen::many_by_distribution}. Use
@@ -397,7 +416,8 @@ namespace tgen {
  *
  * @tparam T Arithmetic type of the weights.
  *
- * @param distribution Non-negative weights.
+ * @param distribution Non-negative weights, with at least one positive weight.
+ * Floating-point weights must be finite.
  *
  * The probability of drawing index @tt{i} is @tt{@pname{distribution}[i] / sum(@pname{distribution})}.
  *
@@ -770,7 +790,9 @@ namespace tgen {
  *
  * #### Time complexity
  *
- * The same as @pname{size} calls to @ref distinct_range::gen.
+ * Expected @tt{O(@pname{size})}, except when first materializing a small
+ * remaining range of @tt{r} values as a dense pool, which costs @tt{O(r)}.
+ * Later batches reuse that pool. All draws share state with @ref distinct_range::gen.
  *
  * #### Examples
  *
@@ -794,7 +816,7 @@ namespace tgen {
  *
  * #### Time complexity
  *
- * The same as calling @ref distinct_range::gen until there are no more distinct values.
+ * Expected @tt{O(r)}, where @tt{r} is the number of remaining values.
  *
  * #### Examples
  *

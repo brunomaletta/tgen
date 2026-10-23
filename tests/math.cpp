@@ -813,3 +813,91 @@ TEST(math_test, gen_partition_fixed_size_fast) {
 	test_partition_fixed_size_fast(std::numeric_limits<uint64_t>::max(), 10);
 	test_partition_fixed_size_fast(std::numeric_limits<uint64_t>::max(), 1000);
 }
+
+TEST(math_test, regression_small_prime_intervals) {
+	tgen::register_gen(0);
+	EXPECT_EQ(tgen::math::gen_prime(2, 2), 2U);
+	EXPECT_EQ(tgen::math::gen_prime(3, 3), 3U);
+	EXPECT_EQ(tgen::math::gen_prime(0, 2), 2U);
+	expect_function_uniform([] { return tgen::math::gen_prime(2, 3); }, 2);
+	EXPECT_THROW(tgen::math::gen_prime(0, 1), std::runtime_error);
+}
+
+TEST(math_test, regression_bounded_partition_forced_upper_bound) {
+	tgen::register_gen(0);
+	auto part = tgen::math::gen_partition_fixed_size(100, 100, 0, 1);
+	EXPECT_EQ(part, std::vector<int>(100, 1));
+}
+
+TEST(math_test, regression_bounded_partition_near_upper_bound) {
+	for (int seed = 0; seed < 16; ++seed) {
+		tgen::register_gen(seed);
+		auto part = tgen::math::gen_partition_fixed_size(999, 100, 0, 10);
+		ASSERT_EQ(part.size(), 100);
+		EXPECT_EQ(std::accumulate(part.begin(), part.end(), 0), 999);
+		EXPECT_EQ(std::count(part.begin(), part.end(), 9), 1);
+		EXPECT_EQ(std::count(part.begin(), part.end(), 10), 99);
+	}
+}
+
+TEST(math_test, regression_bounded_partition_shifted_bounds) {
+	tgen::register_gen(0);
+	auto part = tgen::math::gen_partition_fixed_size(1199, 100, 2, 12);
+	ASSERT_EQ(part.size(), 100);
+	EXPECT_EQ(std::accumulate(part.begin(), part.end(), 0), 1199);
+	EXPECT_EQ(std::count(part.begin(), part.end(), 11), 1);
+	EXPECT_EQ(std::count(part.begin(), part.end(), 12), 99);
+}
+
+TEST(math_test, regression_bounded_partition_complement_uniform) {
+	tgen::register_gen(0);
+	expect_function_uniform(tgen::math::gen_partition_fixed_size, 100, 999, 100,
+							0, 10);
+}
+
+TEST(math_test, regression_partition_rounded_log_count) {
+	tgen::register_gen(0);
+	EXPECT_EQ(tgen::math::gen_partition(14, 5, 7), (std::vector<int>{7, 7}));
+}
+
+TEST(math_test, regression_partition_lower_bound_only) {
+	tgen::register_gen(0);
+	EXPECT_EQ(tgen::math::gen_partition(15, 5, 7), (std::vector<int>{5, 5, 5}));
+}
+
+TEST(math_test, regression_partition_narrow_range) {
+	tgen::register_gen(0);
+	EXPECT_EQ(tgen::math::gen_partition(25, 5, 6), std::vector<int>(5, 5));
+}
+
+TEST(math_test, regression_partition_gaps_and_boundaries) {
+	tgen::register_gen(0);
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(8, 5, 7),
+							 "math: no such partition");
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_partition(14, 7, 5),
+							 "math: no such partition");
+	EXPECT_EQ(tgen::math::gen_partition(12, 6, 6), (std::vector<int>{6, 6}));
+	expect_function_uniform(tgen::math::gen_partition, 2, 13, 5, 7);
+}
+
+TEST(math_test, regression_congruent_late_zero_modulus) {
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::gen_congruent(0, 1, {0, 0}, {2, 0}),
+							 "math: remainder must be smaller than the mod");
+}
+TEST(math_test, regression_congruent_upto_late_zero_modulus) {
+	EXPECT_THROW_TGEN_PREFIX(tgen::math::congruent_upto(1, {0, 0}, {2, 0}),
+							 "math: remainder must be smaller than the mod");
+}
+TEST(math_test, regression_congruent_from_late_zero_modulus) {
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::math::congruent_from(0, {0, 0, 0}, {uint64_t(1) << 63, 3, 0}),
+		"math: remainder must be smaller than the mod");
+}
+TEST(math_test, regression_congruent_shortcut_valid_moduli) {
+	tgen::register_gen(42);
+	EXPECT_EQ(tgen::math::gen_congruent(0, 1, {0, 0}, {2, 3}), 0u);
+	EXPECT_EQ(tgen::math::congruent_upto(1, {0, 0}, {2, 3}), 0u);
+	EXPECT_EQ(
+		tgen::math::congruent_from(0, {0, 0, 0}, {uint64_t(1) << 63, 3, 5}),
+		0u);
+}

@@ -82,13 +82,19 @@ TEST(overflow_test, distinct_complement_at_maximum) {
 	// Just above the pool threshold; exclude only one value so the
 	// complement branch is exercised without a large exclusion hash set.
 	constexpr int count = (1 << 23);
-	auto pts = tgen::distinct_range<long long>(LLONG_MAX - count, LLONG_MAX)
-				   .gen_list(count)
-				   .to_std();
+	tgen::distinct_range<long long> d(LLONG_MAX - count - 1, LLONG_MAX);
+	long long first = d.gen();
+	auto pts = d.gen_list(count).to_std();
 	ASSERT_EQ(pts.size(), static_cast<size_t>(count));
-	EXPECT_GE(pts.front(), LLONG_MAX - count);
+	EXPECT_FALSE(std::is_sorted(pts.begin(), pts.end()));
+	EXPECT_EQ(d.size(), 1U);
+	EXPECT_EQ(std::find(pts.begin(), pts.end(), first), pts.end());
+	long long remaining = d.gen();
+	EXPECT_NE(first, remaining);
+	EXPECT_EQ(std::find(pts.begin(), pts.end(), remaining), pts.end());
+	std::sort(pts.begin(), pts.end());
+	EXPECT_GE(pts.front(), LLONG_MAX - count - 1);
 	EXPECT_LE(pts.back(), LLONG_MAX);
-	EXPECT_TRUE(std::is_sorted(pts.begin(), pts.end()));
 	EXPECT_EQ(std::adjacent_find(pts.begin(), pts.end()), pts.end());
 }
 
@@ -163,4 +169,46 @@ TEST(overflow_test, dot_product_rejects_unrepresentable_result) {
 				(tgen::detail::i128(1) << 63));
 	EXPECT_TRUE(point(LLONG_MAX, LLONG_MAX) * point(LLONG_MAX, LLONG_MAX) ==
 				2 * tgen::detail::i128(LLONG_MAX) * LLONG_MAX);
+}
+
+TEST(overflow_test, regression_list_full_signed_range) {
+	tgen::register_gen(0);
+	auto v = tgen::list<long long>(10, LLONG_MIN, LLONG_MAX)
+				 .all_different()
+				 .gen()
+				 .to_std();
+	EXPECT_EQ(std::set<long long>(v.begin(), v.end()).size(), 10U);
+}
+
+TEST(overflow_test, regression_list_constrained_cardinality) {
+	tgen::register_gen(0);
+	auto v = tgen::list<int>(3, 0, INT_MAX).adjacent_different().gen();
+	EXPECT_NE(v[0], v[1]);
+	EXPECT_NE(v[1], v[2]);
+}
+
+TEST(overflow_test, regression_list_full_unsigned_fixed_values) {
+	tgen::register_gen(0);
+	auto v = tgen::list<uint64_t>(10, 0, UINT64_MAX)
+				 .all_different()
+				 .fix(0, UINT64_MAX)
+				 .fix(1, 0)
+				 .gen()
+				 .to_std();
+	EXPECT_EQ(v[0], UINT64_MAX);
+	EXPECT_EQ(v[1], 0U);
+	EXPECT_EQ(std::set<uint64_t>(v.begin(), v.end()).size(), 10U);
+}
+
+TEST(overflow_test, regression_list_full_signed_fixed_values) {
+	tgen::register_gen(0);
+	auto v = tgen::list<long long>(10, LLONG_MIN, LLONG_MAX)
+				 .all_different()
+				 .fix(0, LLONG_MIN)
+				 .fix(1, LLONG_MAX)
+				 .gen()
+				 .to_std();
+	EXPECT_EQ(v[0], LLONG_MIN);
+	EXPECT_EQ(v[1], LLONG_MAX);
+	EXPECT_EQ(std::set<long long>(v.begin(), v.end()).size(), 10U);
 }

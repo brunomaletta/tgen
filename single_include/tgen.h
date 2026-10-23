@@ -24,7 +24,10 @@
 
 #include <algorithm>
 #include <bitset>
+#include <cerrno>
+#include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <functional>
 #include <initializer_list>
 #include <iomanip>
@@ -540,7 +543,10 @@ struct print {
 
 		if (num < 0) {
 			os << '-';
-			num = -num;
+			// Unsigned magnitude also represents the signed minimum.
+			write_128_number(os,
+							 detail::u128(0) - static_cast<detail::u128>(num));
+			return;
 		}
 
 		if (num >= BASE) {
@@ -682,6 +688,14 @@ using uniform_int_t = std::conditional_t<
 	(sizeof(T) >= sizeof(short)), T,
 	std::conditional_t<std::is_signed_v<T>, int, unsigned int>>;
 
+// Floating distributions require finite endpoints and a representable span.
+template <typename T> void ensure_floating_range(T left, T right) {
+	tgen_ensure(
+		std::isfinite(left) and std::isfinite(right) and left <= right and
+			std::isfinite(right - left),
+		"floating range must have finite ordered endpoints and a finite width");
+}
+
 } // namespace detail
 
 // Returns a uniformly random number in [0, right)
@@ -695,7 +709,7 @@ template <typename T> T next(T right) {
 				0,
 				static_cast<detail::uniform_int_t<T>>(right) - 1)(detail::rng));
 	} else if constexpr (std::is_floating_point_v<T>) {
-		tgen_ensure(right >= 0, "value for `next` must be valid");
+		detail::ensure_floating_range(T(0), right);
 		return std::uniform_real_distribution<T>(0, right)(detail::rng);
 	} else
 		throw detail::error("invalid type for next (" +
@@ -715,9 +729,10 @@ template <typename T> T next(T left, T right) {
 			std::uniform_int_distribution<detail::uniform_int_t<T>>(
 				static_cast<detail::uniform_int_t<T>>(left),
 				static_cast<detail::uniform_int_t<T>>(right))(detail::rng));
-	else if constexpr (std::is_floating_point_v<T>)
+	else if constexpr (std::is_floating_point_v<T>) {
+		detail::ensure_floating_range(left, right);
 		return std::uniform_real_distribution<T>(left, right)(detail::rng);
-	else
+	} else
 		throw detail::error("invalid type for next (" +
 							std::string(typeid(T).name()) + ")");
 }
@@ -788,6 +803,9 @@ template <typename T> T wnext(T right, int w) {
 		return val;
 	}
 
+	if constexpr (std::is_floating_point_v<T>)
+		detail::ensure_floating_range(T(0), right);
+
 	// Convert w before adding or negating to avoid int overflow.
 	double x, r = next<double>(0, 1);
 
@@ -817,6 +835,9 @@ template <typename T> T wnext(T left, T right, int w) {
 			val = std::min(val, next<T>(left, right));
 		return val;
 	}
+
+	if constexpr (std::is_floating_point_v<T>)
+		detail::ensure_floating_range(left, right);
 
 	// Convert w before adding or negating to avoid int overflow.
 	double x, r = next<double>(0, 1);
@@ -886,16 +907,49 @@ template <typename T> struct weighted_sampler {
 		: n_(static_cast<int>(distribution.size())), alias_(n_) {
 		tgen_ensure(distribution.size() > 0,
 					"weighted_sampler: distribution must be non-empty");
-		for (const auto &w : distribution)
+		for (const auto &w : distribution) {
 			tgen_ensure(w >= 0,
 						"weighted_sampler: distribution must be non-negative");
+			if constexpr (std::is_floating_point_v<T>)
+				tgen_ensure(std::isfinite(w),
+							"weighted_sampler: weights must be finite");
+		}
 
 		total_ = std::accumulate(distribution.begin(), distribution.end(),
 								 storage_t(0));
 
+		T scale = T(1);
+		bool rescale = false;
+		if constexpr (std::is_floating_point_v<T>) {
+			// Rescale to avoid overflow and coarse threshold rounding when
+			// the total underflows or is subnormal.
+			rescale = !std::isfinite(total_) or
+					  total_ < std::numeric_limits<double>::min() or
+					  total_ > std::numeric_limits<double>::max() / n_;
+			if (rescale) {
+				// A common scale preserves the probabilities.
+				scale =
+					*std::max_element(distribution.begin(), distribution.end());
+				tgen_ensure(scale > 0,
+							"weighted_sampler: total weight must be positive");
+				// Divide in T before narrowing tiny long double weights.
+				total_ = 0;
+				for (const auto &w : distribution)
+					total_ += static_cast<double>(w / scale);
+			}
+		}
+
+		tgen_ensure(total_ > 0,
+					"weighted_sampler: total weight must be positive");
+
 		std::queue<int> big, small;
 		for (int i = 0; i < n_; ++i) {
-			weight_.push_back(storage_t(n_) * storage_t(distribution[i]));
+			if constexpr (std::is_floating_point_v<T>)
+				weight_.push_back(storage_t(n_) *
+								  storage_t(rescale ? distribution[i] / scale
+													: distribution[i]));
+			else
+				weight_.push_back(storage_t(n_) * storage_t(distribution[i]));
 			if (weight_[i] < total_)
 				small.push(i);
 			else
@@ -917,8 +971,18 @@ template <typename T> struct weighted_sampler {
 				big.push(b);
 		}
 
-		detail::tgen_ensure_against_bug(
-			small.empty(), "weighted_sampler: small must be empty");
+		if constexpr (std::is_integral_v<T>) {
+			detail::tgen_ensure_against_bug(
+				small.empty(), "weighted_sampler: small must be empty");
+		} else {
+			// Rounding can leave a nearly full column classified as small.
+			while (!small.empty()) {
+				int i = small.front();
+				small.pop();
+				weight_[i] = total_;
+				alias_[i] = i;
+			}
+		}
 
 		// The remaining elements should have weight equal to total and be
 		// assigned to themselves.
@@ -1099,7 +1163,10 @@ template <typename T> struct distinct_range {
 										  uint64_t, detail::u128>;
 	T left_, right_;
 	count_type num_available_;
+	// In sparse mode, positions [0, num_available_) map to offsets from left_.
 	std::unordered_map<index_type, index_type> virtual_list_;
+	std::vector<T> pool_;
+	bool uses_pool_ = false;
 
 	// When the range fits in memory, sample via array Fisher–Yates.
 	static constexpr size_t array_pool_max = size_t{1} << 23;
@@ -1118,6 +1185,15 @@ template <typename T> struct distinct_range {
 		// One iteration of Fisher–Yates.
 		tgen_ensure(size() > 0, "distinct_range: no more values to generate");
 
+		if (uses_pool_) {
+			size_t i = next<size_t>(pool_.size());
+			T result = pool_[i];
+			pool_[i] = pool_.back();
+			pool_.pop_back();
+			--num_available_;
+			return result;
+		}
+
 		index_type j = static_cast<index_type>(size() - 1);
 		index_type i = next<index_type>(0, j);
 
@@ -1134,30 +1210,56 @@ template <typename T> struct distinct_range {
 
 	// Generates a list of distinct values.
 	// Optimized for performance (array pool, complement, or sparse sampling).
-	// O(size) when the range fits in memory; O(size log range) otherwise.
+	// Expected O(count), plus O(r) to materialize a pool of r remaining values.
 	auto gen_list(int count) {
 		tgen_ensure(count >= 0, "distinct_range: size must be nonnegative");
 		tgen_ensure(static_cast<count_type>(count) <= num_available_,
 					"distinct_range: no more values to generate");
 
-		count_type range_size = range_span();
-		size_t sample_count = static_cast<size_t>(count);
+		if (count == 0)
+			return typename list<T>::value(std::vector<T>{});
 
 		std::vector<T> res;
-		if (sample_count > 0) {
-			if (range_size <= array_pool_max)
-				res = sample_from_pool(sample_count,
-									   static_cast<size_t>(range_size));
-			else if (sample_count * 2 > range_size)
-				res = sample_complement(sample_count,
-										static_cast<size_t>(range_size));
-			else
-				res = sample_sparse(sample_count);
+		const size_t sample_count = static_cast<size_t>(count);
+		if (!uses_pool_ and num_available_ <= array_pool_max) {
+			// Materialize the remaining permutation, respecting earlier draws.
+			pool_.resize(static_cast<size_t>(num_available_));
+			if (virtual_list_.empty()) {
+				// Widen offsets instead of incrementing T past its maximum.
+				const detail::i128 first = left_;
+				for (size_t i = 0; i < pool_.size(); ++i)
+					pool_[i] = static_cast<T>(first + i);
+			} else {
+				for (size_t i = 0; i < pool_.size(); ++i)
+					pool_[i] =
+						value_at(mapped_index(static_cast<index_type>(i)));
+			}
+			virtual_list_.clear();
+			uses_pool_ = true;
 		}
-
-		num_available_ -= static_cast<count_type>(count);
-		virtual_list_.clear();
-		return typename list<T>::value(res);
+		if (uses_pool_) {
+			// Local storage keeps the batch loop fast; the moves do not copy.
+			auto pool = std::move(pool_);
+			const size_t remaining = pool.size();
+			// Put sampled values at the end; retain the prefix for later draws.
+			for (size_t i = 0; i < sample_count; ++i) {
+				size_t last = remaining - i - 1;
+				size_t j = next<size_t>(0, last);
+				std::swap(pool[j], pool[last]);
+			}
+			res.assign(pool.end() - count, pool.end());
+			pool.resize(remaining - sample_count);
+			num_available_ -= sample_count;
+			pool_ = std::move(pool);
+		} else if (count_type(sample_count) * 2 > num_available_) {
+			res = sample_complement(sample_count);
+		} else {
+			virtual_list_.reserve(virtual_list_.size() + sample_count * 2);
+			res.reserve(sample_count);
+			for (size_t i = 0; i < sample_count; ++i)
+				res.push_back(gen());
+		}
+		return typename list<T>::value(std::move(res));
 	}
 
 	// Generates all distinct values.
@@ -1170,71 +1272,43 @@ template <typename T> struct distinct_range {
 	}
 
   private:
-	// Samples count distinct values via array Fisher–Yates on [left_, right_].
-	// O(range_size) time and memory.
-	std::vector<T> sample_from_pool(size_t count, size_t range_size) {
-		std::vector<T> pool(range_size);
-		// iota increments after the last element, overflowing when it is T's
-		// maximum. Generate by offsets instead, without an endpoint increment.
-		for (size_t i = 0; i < range_size; ++i)
-			pool[i] = value_at(static_cast<index_type>(i));
-		for (size_t i = 0; i < count; ++i) {
-			size_t j = next<size_t>(i, range_size - 1);
-			std::swap(pool[i], pool[j]);
-		}
-		pool.resize(count);
-		return pool;
+	index_type mapped_index(index_type i) const {
+		auto it = virtual_list_.find(i);
+		return it == virtual_list_.end() ? i : it->second;
 	}
 
-	// Samples count distinct values by excluding range_size - count values.
-	// O(range_size + (range_size - count) log(range_size)).
-	std::vector<T> sample_complement(size_t count, size_t range_size) {
-		size_t exclude_count = range_size - count;
-		std::unordered_set<T> excluded;
-		excluded.reserve(exclude_count * 2);
-
-		if (exclude_count <= array_pool_max) {
-			for (T value : sample_from_pool(exclude_count, range_size))
-				excluded.insert(value);
-		} else {
-			for (T value : sample_sparse(exclude_count))
-				excluded.insert(value);
+	// Sample the smaller excluded set of remaining positions, then retain it
+	// as the next virtual list. Called only when the remaining count fits
+	// size_t.
+	std::vector<T> sample_complement(size_t count) {
+		const size_t remaining = static_cast<size_t>(num_available_);
+		const size_t excluded_count = remaining - count;
+		std::unordered_set<index_type> excluded;
+		excluded.reserve(excluded_count);
+		// Floyd's sampling: on a collision, j is a new excluded position.
+		for (size_t j = count; j < remaining; ++j) {
+			index_type i = next<index_type>(0, static_cast<index_type>(j));
+			if (!excluded.insert(i).second)
+				excluded.insert(static_cast<index_type>(j));
 		}
 
+		std::unordered_map<index_type, index_type> next_virtual;
+		next_virtual.reserve(excluded_count);
 		std::vector<T> res;
 		res.reserve(count);
-		for (size_t i = 0; i < range_size; ++i) {
-			// Offsets avoid incrementing the maximum coordinate.
-			T value = value_at(static_cast<index_type>(i));
-			if (!excluded.count(value))
-				res.push_back(value);
+		index_type slot = 0;
+		for (size_t i = 0; i < remaining; ++i) {
+			index_type index = static_cast<index_type>(i);
+			index_type mapped = mapped_index(index);
+			if (excluded.count(index))
+				next_virtual[slot++] = mapped;
+			else
+				res.push_back(value_at(mapped));
 		}
-		detail::tgen_ensure_against_bug(
-			res.size() == count, "distinct_range: complement sampling failed");
-		return res;
-	}
-
-	// Samples count distinct values via sparse-map Fisher–Yates.
-	// O(count log(range_size)).
-	std::vector<T> sample_sparse(size_t count) {
-		std::unordered_map<index_type, index_type> local_virtual;
-		local_virtual.reserve(count * 2);
-		count_type remaining = range_span();
-		std::vector<T> res;
-		res.reserve(count);
-		for (size_t step = 0; step < count; ++step) {
-			index_type j = static_cast<index_type>(remaining - 1);
-			index_type i = next<index_type>(0, j);
-
-			auto vi_it = local_virtual.find(i);
-			index_type vi = vi_it == local_virtual.end() ? i : vi_it->second;
-			auto vj_it = local_virtual.find(j);
-			index_type vj = vj_it == local_virtual.end() ? j : vj_it->second;
-			local_virtual[i] = vj;
-
-			res.push_back(value_at(vi));
-			--remaining;
-		}
+		virtual_list_ = std::move(next_virtual);
+		num_available_ = excluded_count;
+		// A uniform subset also needs a uniform order for gen_list/gen_all.
+		tgen::shuffle(res.begin(), res.end());
 		return res;
 	}
 
@@ -1424,19 +1498,54 @@ inline std::map<std::string, std::string>
 
 template <typename T> T get_opt(const std::string &value) {
 	try {
+		size_t consumed = 0;
 		if constexpr (std::is_same_v<T, bool>) {
 			if (value == "true" or value == "1")
 				return true;
 			if (value == "false" or value == "0")
 				return false;
 		} else if constexpr (std::is_integral_v<T>) {
-			if constexpr (std::is_unsigned_v<T>)
-				return static_cast<T>(std::stoull(value));
-			else
-				return static_cast<T>(std::stoll(value));
-		} else if constexpr (std::is_floating_point_v<T>)
-			return static_cast<T>(std::stold(value));
-		else
+			if constexpr (std::is_unsigned_v<T>) {
+				// stoull accepts a minus sign and wraps; unsigned opts do not.
+				size_t first = value.find_first_not_of(" \t\n\r\f\v");
+				if (first != std::string::npos and value[first] != '-') {
+					auto parsed = std::stoull(value, &consumed);
+					if (consumed == value.size() and
+						parsed <= std::numeric_limits<T>::max())
+						return static_cast<T>(parsed);
+				}
+			} else {
+				auto parsed = std::stoll(value, &consumed);
+				if (consumed == value.size() and
+					std::numeric_limits<T>::min() <= parsed and
+					parsed <= std::numeric_limits<T>::max())
+					return static_cast<T>(parsed);
+			}
+		} else if constexpr (std::is_floating_point_v<T>) {
+			// stold may reject representable subnormals. Accept a nonzero
+			// subnormal from strtold, but not overflow or underflow to zero.
+			char *end;
+			int saved_errno = errno;
+			errno = 0;
+			auto parsed = std::strtold(value.c_str(), &end);
+			int parse_error = errno;
+			errno = saved_errno;
+			bool valid_range =
+				parse_error == 0 or
+				(parse_error == ERANGE and parsed != 0 and
+				 std::abs(parsed) < std::numeric_limits<long double>::min());
+			// Check before narrowing to prevent overflow; preserve explicit
+			// inf/nan inputs and reject finite nonzero values rounded to zero.
+			if (end != value.c_str() and end == value.c_str() + value.size() and
+				valid_range and
+				(!std::isfinite(parsed) or
+				 (std::numeric_limits<T>::lowest() <= parsed and
+				  parsed <= std::numeric_limits<T>::max()))) {
+				T result = static_cast<T>(parsed);
+				if (parsed == 0 or result != 0)
+					return result;
+			}
+		} else
 			return value; // Default: std::string.
 	} catch (...) {
 	}
@@ -1609,14 +1718,18 @@ inline void register_gen(std::optional<long long> seed = std::nullopt) {
  */
 
 template <typename T> struct list : gen_base<list<T>> {
-	int size_;			  // Size of list.
-	T value_l_, value_r_; // Range of defined values.
-	std::set<T> values_;  // Set of values. If empty, use range; if not,
-						  // represents the possible values, and the range
-						  // represents the index in this set.
+	// Small integral types cannot hold every index in their own value set.
+	using range_type =
+		std::conditional_t<std::is_integral_v<T> and (sizeof(T) < sizeof(int)),
+						   int, T>;
+	int size_;					   // Size of list.
+	range_type value_l_, value_r_; // Range of defined values.
+	std::set<T> values_; // Set of values. If empty, use range; if not,
+						 // represents the possible values, and the range
+						 // represents the index in this set.
 	std::map<T, int>
 		value_idx_in_set_; // Index of every value in the set above.
-	mutable std::vector<std::pair<T, T>>
+	mutable std::vector<std::pair<range_type, range_type>>
 		val_range_; // Range of values of each index.
 	mutable std::vector<std::vector<int>> neigh_; // Adjacency list of equality.
 	std::vector<std::set<int>>
@@ -1640,7 +1753,7 @@ template <typename T> struct list : gen_base<list<T>> {
 		: size_(size), values_(values), index_constraints_(true) {
 		tgen_ensure(size_ > 0, "list: size must be positive");
 		tgen_ensure(!values.empty(), "list: value set must be non-empty");
-		value_l_ = 0, value_r_ = static_cast<T>(values.size() - 1);
+		value_l_ = 0, value_r_ = static_cast<range_type>(values.size() - 1);
 		val_range_.assign(size_, {value_l_, value_r_});
 		int idx = 0;
 		for (T val : values_)
@@ -1665,7 +1778,8 @@ template <typename T> struct list : gen_base<list<T>> {
 			tgen_ensure(values_.count(val),
 						"list: value must be in the set of values");
 			auto &[left, right] = val_range_[idx];
-			T new_val = static_cast<T>(value_idx_in_set_[val]);
+			range_type new_val =
+				static_cast<range_type>(value_idx_in_set_[val]);
 			tgen_ensure(left <= new_val and new_val <= right,
 						"list: must not set to two different values");
 			left = right = new_val;
@@ -1693,6 +1807,8 @@ template <typename T> struct list : gen_base<list<T>> {
 	// Restricts lists for list[S] to be equal, for given subset S of indices.
 	list &equal(std::set<int> indices) {
 		if (!indices.empty()) {
+			tgen_ensure(0 <= *indices.begin() and *indices.rbegin() < size_,
+						"list: indices must be valid");
 			std::set<int>::iterator beg = indices.begin();
 			for (auto it = std::next(beg); it != indices.end(); ++it)
 				equal(*beg, *it);
@@ -1716,8 +1832,11 @@ template <typename T> struct list : gen_base<list<T>> {
 	// S of indices. You cannot add two of these restrictions on sets that
 	// intersect.
 	list &different(std::set<int> indices) {
-		if (!indices.empty())
+		if (!indices.empty()) {
+			tgen_ensure(0 <= *indices.begin() and *indices.rbegin() < size_,
+						"list: indices must be valid");
 			diff_restrictions_.push_back(indices);
+		}
 		return *this;
 	}
 
@@ -1762,6 +1881,7 @@ template <typename T> struct list : gen_base<list<T>> {
 		char sep_;			 // Separator for printing.
 
 		value(const std::vector<T> &vec) : vec_(vec), sep_(' ') {}
+		value(std::vector<T> &&vec) : vec_(std::move(vec)), sep_(' ') {}
 		value(const std::initializer_list<T> &il) : value(std::vector<T>(il)) {}
 
 		// Fetches size.
@@ -1812,8 +1932,7 @@ template <typename T> struct list : gen_base<list<T>> {
 		// Shuffles list uniformly.
 		// O(n).
 		value &shuffle() {
-			for (int i = 0; i < size(); ++i)
-				std::swap(vec_[i], vec_[next(0, size() - 1)]);
+			tgen::shuffle(vec_.begin(), vec_.end());
 			return *this;
 		}
 
@@ -1887,7 +2006,7 @@ template <typename T> struct list : gen_base<list<T>> {
 			return *all_different;
 
 		ensure_neigh_allocated();
-		std::vector<T> vec(size_);
+		std::vector<range_type> vec(size_);
 		std::vector<bool> defined_idx(
 			size_, false); // For every index, if it has been set in `vec`.
 
@@ -1896,7 +2015,7 @@ template <typename T> struct list : gen_base<list<T>> {
 		int comp_count = 0; // Number of different components.
 
 		// Defines value of entire component.
-		auto define_comp = [&](int cur_comp, T val) {
+		auto define_comp = [&](int cur_comp, range_type val) {
 			for (int idx : comp[cur_comp]) {
 				tgen_ensure(!defined_idx[idx]);
 				vec[idx] = val;
@@ -1909,7 +2028,7 @@ template <typename T> struct list : gen_base<list<T>> {
 			std::vector<bool> vis(size_, false); // Visited for each index.
 			for (int idx = 0; idx < size_; ++idx)
 				if (!vis[idx]) {
-					T new_value;
+					range_type new_value;
 					bool value_defined = false;
 
 					// BFS to visit the connected component, grouping equal
@@ -1969,14 +2088,13 @@ template <typename T> struct list : gen_base<list<T>> {
 			int dist_id = 0;
 			for (const std::set<int> &diff : diff_restrictions_) {
 				// Checks if there are too many different values.
-				if (static_cast<uint64_t>(diff.size() - 1) +
-						static_cast<uint64_t>(value_l_) >
-					static_cast<uint64_t>(value_r_))
+				if (detail::i128(diff.size()) > range_cardinality())
 					throw detail::contradiction_error(
-						"list", "tried to generate " +
-									std::to_string(diff.size()) +
-									" different values, but the maximum is " +
-									std::to_string(value_r_ - value_l_ + 1));
+						"list",
+						"tried to generate " + std::to_string(diff.size()) +
+							" different values, but the maximum is " +
+							std::to_string(
+								static_cast<uint64_t>(range_cardinality())));
 
 				// Checks if two values in same component are marked as
 				// different.
@@ -2010,7 +2128,7 @@ template <typename T> struct list : gen_base<list<T>> {
 			// values that are defined.
 
 			// Generates set of already defined values.
-			std::set<T> defined_values;
+			std::set<range_type> defined_values;
 			for (int idx : diff_restrictions_[diff_id])
 				if (defined_idx[idx]) {
 					// Checks if two values in `diff_restrictions_[dist_id]`
@@ -2028,7 +2146,7 @@ template <typename T> struct list : gen_base<list<T>> {
 				int new_value_count =
 					static_cast<int>(diff_restrictions_[diff_id].size()) -
 					static_cast<int>(defined_values.size());
-				std::vector<T> generated_values =
+				std::vector<range_type> generated_values =
 					generate_distinct_values(new_value_count, defined_values);
 				auto val_it = generated_values.begin();
 				for (int idx : diff_restrictions_[diff_id])
@@ -2071,7 +2189,7 @@ template <typename T> struct list : gen_base<list<T>> {
 					q.emplace(nxt_diff, cur_diff);
 
 					// Generates this "different" restriction.
-					std::set<T> nxt_defined_values;
+					std::set<range_type> nxt_defined_values;
 					for (int idx2 : diff_restrictions_[nxt_diff])
 						if (defined_idx[idx2]) {
 							// There cannot be any more defined. This case is
@@ -2086,8 +2204,9 @@ template <typename T> struct list : gen_base<list<T>> {
 					int new_value_count =
 						static_cast<int>(diff_restrictions_[nxt_diff].size()) -
 						static_cast<int>(nxt_defined_values.size());
-					std::vector<T> generated_values = generate_distinct_values(
-						new_value_count, nxt_defined_values);
+					std::vector<range_type> generated_values =
+						generate_distinct_values(new_value_count,
+												 nxt_defined_values);
 					auto val_it = generated_values.begin();
 					for (int idx2 : diff_restrictions_[nxt_diff])
 						if (!defined_idx[idx2]) {
@@ -2135,19 +2254,26 @@ template <typename T> struct list : gen_base<list<T>> {
 		// components.
 		for (int idx = 0; idx < size_; ++idx)
 			if (!defined_idx[idx])
-				define_comp(comp_id[idx], next<T>(value_l_, value_r_));
+				define_comp(comp_id[idx], next<range_type>(value_l_, value_r_));
 
 		if (!values_.empty()) {
 			// Needs to fetch the values from the value set.
-			std::vector<T> value_vec(values_.begin(), values_.end());
-			for (T &val : vec)
+			std::vector<range_type> value_vec(values_.begin(), values_.end());
+			for (range_type &val : vec)
 				val = value_vec[val];
 		}
 
-		return value(vec);
+		if constexpr (std::is_same_v<range_type, T>)
+			return value(std::move(vec));
+		else
+			return value(std::vector<T>(vec.begin(), vec.end()));
 	}
 
   private:
+	detail::i128 range_cardinality() const {
+		// Promote before subtraction: the full 64-bit domain has 2^64 values.
+		return detail::i128(value_r_) - detail::i128(value_l_) + 1;
+	}
 	// Materializes neigh_ after the first equality restriction.
 	void ensure_neigh_allocated() const {
 		if (neigh_.size() == static_cast<size_t>(size_))
@@ -2164,7 +2290,7 @@ template <typename T> struct list : gen_base<list<T>> {
 	}
 
 	// Returns the allowed value range at index idx.
-	std::pair<T, T> val_range_at(int idx) const {
+	std::pair<range_type, range_type> val_range_at(int idx) const {
 		if (uses_full_range_)
 			return {value_l_, value_r_};
 		return val_range_[idx];
@@ -2172,49 +2298,55 @@ template <typename T> struct list : gen_base<list<T>> {
 
 	// Generates a uniformly random list of k distinct values in `[value_l,
 	// value_r]`, such that no value is in `forbidden_values`.
-	std::vector<T>
-	generate_distinct_values(int k, const std::set<T> &forbidden_values) const {
+	std::vector<range_type> generate_distinct_values(
+		int k, const std::set<range_type> &forbidden_values) const {
 		for (auto forbidden : forbidden_values)
 			tgen_ensure(value_l_ <= forbidden and forbidden <= value_r_);
-		const T num_available =
-			static_cast<T>((value_r_ - value_l_ + 1) -
-						   static_cast<T>(forbidden_values.size()));
-		if (num_available < k)
+		const detail::i128 available =
+			range_cardinality() - forbidden_values.size();
+		if (available < k)
 			throw detail::complex_restrictions_error(
 				"list", "not enough distinct values");
+		if (k == 0)
+			return {};
 		if (forbidden_values.empty())
-			return distinct_range<T>(value_l_, value_r_).gen_list(k).to_std();
+			return distinct_range<range_type>(value_l_, value_r_)
+				.gen_list(k)
+				.to_std();
 
-		std::map<T, T> virtual_list;
-		std::vector<T> gen_list;
+		// Rank offsets may exceed T even when every resulting value fits T.
+		// Subtracting at least one forbidden value makes the count fit
+		// uint64_t.
+		const uint64_t count = static_cast<uint64_t>(available);
+		std::map<uint64_t, uint64_t> virtual_list;
+		std::vector<std::pair<uint64_t, int>> ranks;
+		ranks.reserve(static_cast<size_t>(k));
 		for (int i = 0; i < k; ++i) {
-			T ti = static_cast<T>(i);
-			T j = next<T>(ti, num_available - 1);
-			T vj = virtual_list.count(j) ? virtual_list[j] : j;
-			T vi = virtual_list.count(ti) ? virtual_list[ti] : ti;
-
-			virtual_list[j] = vi, virtual_list[ti] = vj;
-
-			gen_list.push_back(virtual_list[ti]);
+			uint64_t index = static_cast<uint64_t>(i);
+			uint64_t j = next<uint64_t>(index, count - 1);
+			uint64_t vj = virtual_list.count(j) ? virtual_list[j] : j;
+			uint64_t vi =
+				virtual_list.count(index) ? virtual_list[index] : index;
+			virtual_list[j] = vi;
+			ranks.emplace_back(vj, i);
 		}
-
-		for (T &val : gen_list)
-			val += value_l_;
-
-		std::vector<std::pair<T, int>> values_sorted;
-		for (std::size_t i = 0; i < gen_list.size(); ++i)
-			values_sorted.emplace_back(gen_list[i], i);
-		std::sort(values_sorted.begin(), values_sorted.end());
-		auto cur_it = forbidden_values.begin();
-		int smaller_forbidden_count = 0;
-		for (auto [val, idx] : values_sorted) {
-			while (cur_it != forbidden_values.end() and
-				   *cur_it <= val + smaller_forbidden_count)
-				++cur_it, ++smaller_forbidden_count;
-			gen_list[idx] += static_cast<T>(smaller_forbidden_count);
+		// Map allowed-value ranks back to coordinates in one ordered sweep.
+		std::sort(ranks.begin(), ranks.end());
+		std::vector<range_type> result(static_cast<size_t>(k));
+		auto forbidden = forbidden_values.begin();
+		detail::i128 skipped = 0;
+		for (auto [rank, index] : ranks) {
+			// Widen before adding offsets to avoid signed overflow.
+			detail::i128 chosen = detail::i128(value_l_) + rank + skipped;
+			while (forbidden != forbidden_values.end() and
+				   *forbidden <= chosen) {
+				++forbidden;
+				++skipped;
+				++chosen;
+			}
+			result[index] = static_cast<range_type>(chosen);
 		}
-
-		return gen_list;
+		return result;
 	}
 
 	// If this generator has no constraints beyond [value_l_, value_r_],
@@ -2226,7 +2358,8 @@ template <typename T> struct list : gen_base<list<T>> {
 
 		std::vector<T> vec(size_);
 		for (int i = 0; i < size_; ++i)
-			vec[i] = next<T>(value_l_, value_r_);
+			vec[i] =
+				next<T>(static_cast<T>(value_l_), static_cast<T>(value_r_));
 		return value(vec);
 	}
 
@@ -2253,14 +2386,16 @@ template <typename T> struct list : gen_base<list<T>> {
 		if (index_constraints_)
 			return std::nullopt;
 
-		if (static_cast<long long>(size_) >
-			static_cast<long long>(value_r_) - value_l_ + 1)
+		if (detail::i128(size_) > range_cardinality())
 			throw detail::contradiction_error(
-				"list", "tried to generate " + std::to_string(size_) +
-							" different values, but the maximum is " +
-							std::to_string(value_r_ - value_l_ + 1));
+				"list",
+				"tried to generate " + std::to_string(size_) +
+					" different values, but the maximum is " +
+					std::to_string(static_cast<uint64_t>(range_cardinality())));
 
-		return distinct_range<T>(value_l_, value_r_).gen_list(size_);
+		return distinct_range<T>(static_cast<T>(value_l_),
+								 static_cast<T>(value_r_))
+			.gen_list(size_);
 	}
 };
 
@@ -2296,8 +2431,19 @@ struct permutation : gen_base<permutation> {
 
 	// Restricts permutations for permutation to have cycle sizes.
 	permutation &cycles(const std::vector<int> &cycle_sizes) {
+		// Subtract from the remaining size instead of summing to avoid
+		// overflow.
+		int remaining = size_;
+		for (int cycle_size : cycle_sizes) {
+			tgen_ensure(cycle_size > 0,
+						"permutation: cycle sizes must be positive");
+			tgen_ensure(
+				cycle_size <= remaining,
+				"permutation: cycle sizes must add up to size of permutation");
+			remaining -= cycle_size;
+		}
 		tgen_ensure(
-			size_ == std::accumulate(cycle_sizes.begin(), cycle_sizes.end(), 0),
+			remaining == 0,
 			"permutation: cycle sizes must add up to size of permutation");
 		cycle_sizes_ = cycle_sizes;
 		return *this;
@@ -2402,8 +2548,7 @@ struct permutation : gen_base<permutation> {
 		// Shuffles permutation uniformly.
 		// O(n).
 		value &shuffle() {
-			for (int i = 0; i < size(); ++i)
-				std::swap(vec_[i], vec_[next(0, size() - 1)]);
+			tgen::shuffle(vec_.begin(), vec_.end());
 			return *this;
 		}
 
@@ -2452,6 +2597,10 @@ struct permutation : gen_base<permutation> {
 	// Generates permutation value.
 	// O(n).
 	value gen() const {
+		// Check here so neither order of fix() and cycles() is ignored.
+		tgen_ensure(
+			!cycle_sizes_ or defs_.empty(),
+			"permutation: fixed values and cycle sizes cannot be combined");
 		if (!cycle_sizes_) {
 			// Cycle sizes not specified.
 			std::vector<int> idx_to_val(size_, -1), val_to_idx(size_, -1);
@@ -2957,6 +3106,9 @@ inline uint64_t gen_prime(uint64_t left, uint64_t right) {
 	if (right < left or right < 2)
 		throw detail::there_is_no_in_range_error("prime", left, right);
 	left = std::max<uint64_t>(left, 2);
+	// Every candidate here is prime; prime_gap_upto requires right >= 4.
+	if (right <= 3)
+		return next(left, right);
 	auto [l_gap, r_gap] = prime_gap_upto(right);
 	if (right - left + 1 <= r_gap - l_gap + 1) {
 		// There might be no primes in the range.
@@ -3032,10 +3184,13 @@ inline uint64_t gen_congruent(uint64_t left, uint64_t right,
 				"math: number of remainders and mods must be the same");
 	tgen_ensure(rems.size() > 0, "math: must have at least one congruence");
 
-	detail::crt crt;
-	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
+	// Shortcuts inspect every modulus, so validate them all before combining.
+	for (size_t i = 0; i < rems.size(); ++i)
 		tgen_ensure(rems[i] < mods[i],
 					"math: remainder must be smaller than the mod");
+
+	detail::crt crt;
+	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
 		crt = crt * detail::crt(rems[i], mods[i]);
 
 		if (crt.a == -1)
@@ -3085,10 +3240,13 @@ inline uint64_t congruent_from(uint64_t left, std::vector<uint64_t> rems,
 				"math: number of remainders and mods must be the same");
 	tgen_ensure(rems.size() > 0, "math: must have at least one congruence");
 
-	detail::crt crt;
-	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
+	// Shortcuts inspect every modulus, so validate them all before combining.
+	for (size_t i = 0; i < rems.size(); ++i)
 		tgen_ensure(rems[i] < mods[i],
 					"math: remainder must be smaller than the mod");
+
+	detail::crt crt;
+	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
 		crt = crt * detail::crt(rems[i], mods[i]);
 
 		if (crt.a == -1)
@@ -3133,10 +3291,13 @@ inline uint64_t congruent_upto(uint64_t right, std::vector<uint64_t> rems,
 				"math: number of remainders and mods must be the same");
 	tgen_ensure(rems.size() > 0, "math: must have at least one congruence");
 
-	detail::crt crt;
-	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
+	// Shortcuts inspect every modulus, so validate them all before combining.
+	for (size_t i = 0; i < rems.size(); ++i)
 		tgen_ensure(rems[i] < mods[i],
 					"math: remainder must be smaller than the mod");
+
+	detail::crt crt;
+	for (int i = 0; i < static_cast<int>(rems.size()); ++i) {
 
 		crt = crt * detail::crt(rems[i], mods[i]);
 
@@ -3199,55 +3360,63 @@ gen_partition(int n, int part_left = 1,
 	part_right = std::min(*part_right, n);
 	tgen_ensure(n > 0 and part_left > 0,
 				"math: invalid parameters to gen_partition");
-	tgen_ensure(part_left <= n and *part_right > 0, "math: no such partition");
+	// A feasible number of parts lies between ceil(n / right) and n / left.
+	// Write the ceiling without n + right - 1 to avoid overflow.
+	tgen_ensure(part_left <= *part_right and
+					(n - 1) / *part_right + 1 <= n / part_left,
+				"math: no such partition");
+	if (part_left == *part_right)
+		return std::vector<int>(n / part_left, part_left);
+	if (n / part_left == 1)
+		return {n};
 
 	// dp[i] = log(number of ways to add to i).
-	std::vector<long double> dp(n + 1, detail::LOG_ZERO);
+	// Widen before adding one to avoid overflow at INT_MAX.
+	std::vector<long double> dp(static_cast<size_t>(n) + 1, detail::LOG_ZERO);
+	std::vector<long double> suffix(dp.size());
 	dp[0] = detail::LOG_ONE;
-	long double window = detail::LOG_ZERO;
-	for (int i = 1; i <= n; ++i) {
-		if (i >= part_left)
-			window = detail::add_log_space(window, dp[i - part_left]);
-		if (i >= *part_right + 1)
-			window = detail::sub_log_space(window, dp[i - *part_right - 1]);
-		dp[i] = window;
+	int width = *part_right - part_left + 1, block_start = 0;
+	long double prefix = detail::LOG_ZERO;
+	for (int r = 0; r <= n - part_left; ++r) {
+		if (r - block_start == width) {
+			// The previous block is now complete. Its suffixes and the new
+			// block's prefix give each window sum without cancellation.
+			for (int j = r - 1; j > block_start; --j) {
+				suffix[j] = dp[j];
+				if (j + 1 < r)
+					suffix[j] = detail::add_log_space(suffix[j], suffix[j + 1]);
+			}
+			block_start = r;
+			prefix = detail::LOG_ZERO;
+		}
+		prefix = detail::add_log_space(prefix, dp[r]);
+		long double window = prefix;
+		int l = r - width + 1;
+		if (0 < l and l < block_start)
+			window = detail::add_log_space(window, suffix[l]);
+		dp[r + part_left] = window;
 	}
-	tgen_ensure(dp[n] >= 0, "math: no such partition");
-
-	// Crazy math tricks ahead.
-	auto dp_pref = dp;
-	for (int i = 1; i <= n; ++i)
-		dp_pref[i] = detail::add_log_space(dp_pref[i - 1], dp[i]);
 
 	std::vector<int> part;
 	int sum = n;
 	while (sum > 0) {
-		// Will generate a number such that what remains is in [l, r].
 		int l = std::max(0, sum - *part_right), r = sum - part_left;
-		detail::tgen_ensure_against_bug(r >= 0, "math: r < 0 in gen_partition");
-
-		int nxt_sum = std::min(sum, r);
-		long double random = next<long double>(0, 1);
-
-		// We generate a value X (log space), and then choose nxt_sum such
-		// that dp_pref[nxt_sum-1] < X <= dp_pref[nxt_sum].
-
-		// Math hack:
-		// Let A = pref[l-1], B = pref[r], U = rand().
-		// X = log[exp(A) + U * (exp(B) - exp(A))]
-		//   = log{exp(B) * [exp(A) / exp(B) + U * (1 - exp(A) / exp(B))]}
-		//   = B + log[exp(A - B) + U - U * exp(A - B))]
-		//   = B + log[U + (1 - U) * exp(A - B)].
-		long double val_l = l ? dp_pref[l - 1] : detail::LOG_ZERO,
-					val_r = dp_pref[r];
-		while (nxt_sum > l and
-			   dp_pref[nxt_sum - 1] >=
-				   val_r +
-					   detail::log_space(
-						   random + (1 - random) * std::exp(static_cast<double>(
-													   val_l - val_r))))
-			--nxt_sum;
-
+		long double random =
+			detail::log_space(next<long double>(0, 1)) + dp[sum];
+		long double cumulative = detail::LOG_ZERO;
+		int nxt_sum = -1;
+		// Scan only as far as the chosen part; total sampling work is O(n).
+		// Keep the last feasible choice if rounding leaves a tiny remainder.
+		for (int j = r; j >= l; --j) {
+			if (dp[j] == detail::LOG_ZERO)
+				continue;
+			nxt_sum = j;
+			cumulative = detail::add_log_space(cumulative, dp[j]);
+			if (random < cumulative)
+				break;
+		}
+		detail::tgen_ensure_against_bug(nxt_sum >= 0,
+										"math: no completion in gen_partition");
 		part.push_back(sum - nxt_sum);
 		sum = nxt_sum;
 	}
@@ -3314,31 +3483,56 @@ gen_partition_fixed_size(int n, int k, int part_left = 0,
 	} else {
 		// DP with log trick - O(nk).
 		int u = *part_right - part_left;
+		// Complementing each part preserves uniformity and reduces the sum.
+		// Use a wide product for overflow safety before comparing capacities.
+		long long capacity = static_cast<long long>(k) * u;
+		bool complement = s > capacity - s;
+		if (complement)
+			s = static_cast<int>(capacity - s);
+		if (s == 0)
+			return std::vector<int>(k, complement ? *part_right : part_left);
 
-		// dp[i][j] = log(#ways to fill i parts with sum j)
+		// dp[i][j] = log(#ways to fill i parts with sum j).
 		std::vector<std::vector<long double>> dp(
 			k + 1, std::vector<long double>(s + 1, detail::LOG_ZERO));
 		dp[0][0] = detail::LOG_ONE;
+		std::vector<long double> suffix(s + 1);
 
 		for (int i = 1; i <= k; ++i) {
-			std::vector<long double> pref = dp[i - 1];
-			for (int j = 1; j <= s; ++j)
-				pref[j] = detail::add_log_space(pref[j - 1], dp[i - 1][j]);
-
-			for (int j = 0; j <= s; ++j) {
-				dp[i][j] = pref[j];
-				if (j >= u + 1)
-					dp[i][j] = detail::sub_log_space(dp[i][j], pref[j - u - 1]);
+			long long row_max = static_cast<long long>(i) * u;
+			int middle = static_cast<int>(std::min<long long>(s, row_max / 2));
+			int suffix_max =
+				std::min(middle / (u + 1) * (u + 1) - 1,
+						 static_cast<int>(std::min<long long>(s, row_max - u)));
+			// Each window of u + 1 entries spans at most two blocks. Combine
+			// a block suffix and prefix to avoid cancellation from subtraction.
+			for (int j = suffix_max; j >= 0; --j) {
+				suffix[j] = dp[i - 1][j];
+				if (j < suffix_max and j % (u + 1) != u)
+					suffix[j] = detail::add_log_space(suffix[j], suffix[j + 1]);
 			}
+
+			long double prefix = detail::LOG_ZERO;
+			for (int j = 0; j <= middle; ++j) {
+				if (j % (u + 1) == 0)
+					prefix = detail::LOG_ZERO;
+				prefix = detail::add_log_space(prefix, dp[i - 1][j]);
+				dp[i][j] = prefix;
+				if (j > u and j % (u + 1) != u)
+					dp[i][j] = detail::add_log_space(prefix, suffix[j - u]);
+			}
+			// Counts are symmetric under replacing each part x by u - x.
+			for (int j = middle + 1; j <= std::min<long long>(s, row_max); ++j)
+				dp[i][j] = dp[i][static_cast<int>(row_max - j)];
 		}
 
 		// Recovers parts backwards.
 		int left_to_distribute = s;
 		for (int i = k; i >= 1; --i) {
-			long double log_total = detail::LOG_ZERO;
-			for (int j = 0; j <= u and j <= left_to_distribute; ++j)
-				log_total = detail::add_log_space(
-					log_total, dp[i - 1][left_to_distribute - j]);
+			long double log_total = dp[i][left_to_distribute];
+			int lower = static_cast<int>(std::max<long long>(
+				0, left_to_distribute - static_cast<long long>(i - 1) * u));
+			int upper = std::min(u, left_to_distribute);
 			detail::tgen_ensure_against_bug(
 				log_total != detail::LOG_ZERO,
 				"math: total == 0 in gen_partition_fixed_size");
@@ -3351,8 +3545,9 @@ gen_partition_fixed_size(int n, int k, int part_left = 0,
 				detail::log_space(next<long double>(0, 1)) + log_total;
 
 			long double cur_prob = detail::LOG_ZERO;
-			int chosen = 0;
-			for (int j = 0; j <= u and j <= left_to_distribute; ++j) {
+			// The final feasible value also absorbs cumulative rounding error.
+			int chosen = upper;
+			for (int j = lower; j < upper; ++j) {
 				cur_prob = detail::add_log_space(
 					cur_prob, dp[i - 1][left_to_distribute - j]);
 				if (random < cur_prob) {
@@ -3361,7 +3556,7 @@ gen_partition_fixed_size(int n, int k, int part_left = 0,
 				}
 			}
 
-			part[k - i] = chosen;
+			part[k - i] = complement ? u - chosen : chosen;
 			left_to_distribute -= chosen;
 		}
 	}
@@ -3663,8 +3858,9 @@ inline regex_node parse_regex(std::string regex) {
 					char a = regex[i], b = regex[i + 2];
 					if (a > b)
 						std::swap(a, b);
-					for (char x = a; x <= b; ++x)
-						chars += x;
+					// Widen the counter so incrementing CHAR_MAX cannot wrap.
+					for (int x = a; x <= b; ++x)
+						chars += static_cast<char>(x);
 					i += 2;
 				} else
 					chars += regex[i];
@@ -3763,7 +3959,7 @@ inline void gen_regex(const regex_node &node, std::string &str) {
 	}
 
 	// For SEQ, generate all children.
-	if (!node.children_.empty() and node.pattern_ == "SEQ") {
+	if (node.pattern_ == "SEQ") {
 		for (const regex_node &child : node.children_)
 			gen_regex(child, str);
 		return;
@@ -3942,9 +4138,7 @@ struct str : gen_base<str> {
 		using std_type = std::string;
 		std::string str_;
 
-		value(const std::string &str) : str_(str) {
-			tgen_ensure(!str_.empty(), "str: value: cannot be empty");
-		}
+		value(const std::string &str) : str_(str) {}
 
 		// Fetches size.
 		int size() const { return static_cast<int>(str_.size()); }
@@ -4002,8 +4196,7 @@ struct str : gen_base<str> {
 		// Shuffles string uniformly.
 		// O(n).
 		value &shuffle() {
-			for (int i = 0; i < size(); ++i)
-				std::swap(str_[i], str_[next(0, size() - 1)]);
+			tgen::shuffle(str_.begin(), str_.end());
 			return *this;
 		}
 
@@ -4596,11 +4789,7 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 						"wtree: value: cannot convert weight type after "
 						"assigning weights");
 
-			typename wtree<NewVWeight, NewEWeight>::value new_tree(adj_);
-			new_tree.print_1_based_ = print_1_based_;
-			new_tree.print_n_ = print_n_;
-			new_tree.print_parents_ = print_parents_;
-			return new_tree;
+			return copy_without_weights<NewVWeight, NewEWeight>();
 		}
 
 		// Fetches number of vertices.
@@ -4630,7 +4819,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			tgen_ensure(static_cast<int>(vertex_weights.size()) == n(),
 						"wtree: value: must give `n` vertex weights");
 
-			auto new_tree = convert_weight_types<NewVWeight, EWeight>();
+			auto new_tree = copy_without_weights<NewVWeight, EWeight>();
+			new_tree.edge_weights_ = edge_weights_;
 			new_tree.vertex_weights_ = vertex_weights;
 			return new_tree;
 		}
@@ -4644,7 +4834,8 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 				edge_weights.size() == edges().size(),
 				"wtree: value: must give `edges().size()` edge weights");
 
-			auto new_tree = convert_weight_types<VWeight, NewEWeight>();
+			auto new_tree = copy_without_weights<VWeight, NewEWeight>();
+			new_tree.vertex_weights_ = vertex_weights_;
 			new_tree.edge_weights_ = edge_weights;
 			return new_tree;
 		}
@@ -4776,22 +4967,24 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			if (adj_[u].count(v))
 				return *this;
 
-			adj_[u].insert(v);
-			adj_[v].insert(u);
-			edges_.emplace_back(u, v);
-			tgen_ensure(dsu_.unite(u, v),
-						"wtree: value: added edge must not create a cycle");
-
+			// Validate before mutation so rejected insertions are safe to
+			// retry.
 			if (w.has_value()) {
 				tgen_ensure(edge_weights().has_value(),
 							"wtree: value: cannot add weighted edge to "
 							"edge-unweighted tree");
-
-				edge_weights_->push_back(*w);
 			} else
 				tgen_ensure(!edge_weights().has_value(),
 							"wtree: value: cannot add unweighted edge to "
 							"edge-weighted tree");
+
+			tgen_ensure(dsu_.unite(u, v),
+						"wtree: value: added edge must not create a cycle");
+			adj_[u].insert(v);
+			adj_[v].insert(u);
+			edges_.emplace_back(u, v);
+			if (w.has_value())
+				edge_weights_->push_back(*w);
 
 			return *this;
 		}
@@ -4802,6 +4995,12 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// O(rhs.n + rhs.m * log n) amortized.
 		value &link(const value &rhs, int new_u, int new_v,
 					std::optional<EWeight> new_w = std::nullopt) {
+			// Keep the right-hand input stable when linking to ourselves.
+			if (this == &rhs) {
+				value copy = rhs;
+				return link(copy, new_u, new_v, new_w);
+			}
+
 			tgen_ensure(0 <= new_u and new_u < n() and 0 <= new_v and
 							new_v < rhs.n(),
 						"wtree: value: vertex ids must be valid");
@@ -4829,6 +5028,13 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		// O(rhs.n + rhs.m * log n) amortized.
 		value &glue(const value &rhs,
 					std::set<std::pair<int, int>> index_pairs) {
+			// Appending edges must not change the right-hand input or loop
+			// bound.
+			if (this == &rhs) {
+				value copy = rhs;
+				return glue(copy, std::move(index_pairs));
+			}
+
 			// Checks validity of indices.
 			std::set<int> idx_left, idx_right;
 			std::vector<int> right_id_to_left(rhs.n(), -1);
@@ -4849,6 +5055,9 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 			std::vector<int> new_right_id(rhs.n(), -1);
 			int intersection_lt = 0;
 			std::optional<std::vector<VWeight>> rhs_vertex_weights;
+			// Preserve weighted mode even when no new vertices are added.
+			if (rhs.vertex_weights().has_value())
+				rhs_vertex_weights = std::vector<VWeight>();
 			for (int i = 0; i < rhs.n(); ++i) {
 				if (right_id_to_left[i] != -1) {
 					// Is in intersection.
@@ -4858,8 +5067,6 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 					// New id.
 					new_right_id[i] = n() + i - intersection_lt;
 					if (rhs.vertex_weights().has_value()) {
-						if (!rhs_vertex_weights.has_value())
-							rhs_vertex_weights = std::vector<VWeight>();
 						rhs_vertex_weights->push_back(
 							(*rhs.vertex_weights())[i]);
 					}
@@ -5005,13 +5212,32 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 		}
 
 	  private:
+		// Copies topology and print options without weights. Preserve edge
+		// order so newly assigned weights stay aligned with the original edges.
+		// O(n).
+		template <typename NewVWeight, typename NewEWeight>
+		typename wtree<NewVWeight, NewEWeight>::value
+		copy_without_weights() const {
+			typename wtree<NewVWeight, NewEWeight>::value new_tree(adj_);
+			new_tree.edges_ = edges_;
+			new_tree.print_1_based_ = print_1_based_;
+			new_tree.print_n_ = print_n_;
+			new_tree.print_parents_ = print_parents_;
+			return new_tree;
+		}
+
 		// Adds `k` vertices to the tree (labeled n, n+1, ...n+k-1). Updates
 		// `n` accordingly. This makes the tree invalid (not a tree anymore).
 		// O(k) amortized.
 		value &add_vertices(int k, std::optional<std::vector<VWeight>>
 									   new_vertex_weights = std::nullopt) {
-			n_ += k;
-			adj_.resize(n());
+			// Check before mutation, and subtract to avoid overflow in n_ + k.
+			tgen_ensure(
+				k >= 0,
+				"wtree: value: number of added vertices must be nonnegative");
+			tgen_ensure(k <= std::numeric_limits<int>::max() -
+								 static_cast<long long>(n_),
+						"wtree: value: too many vertices");
 			if (new_vertex_weights.has_value()) {
 				tgen_ensure(vertex_weights().has_value(),
 							"wtree: value: cannot add weighted vertices to "
@@ -5020,14 +5246,17 @@ struct wtree : gen_base<wtree<VWeight, EWeight>> {
 					static_cast<int>(new_vertex_weights->size()) == k,
 					"wtree: value: number of vertex weights must be equal "
 					"to number of added vertices");
-
-				vertex_weights_->insert(vertex_weights_->end(),
-										new_vertex_weights->begin(),
-										new_vertex_weights->end());
 			} else
 				tgen_ensure(!vertex_weights().has_value(),
 							"wtree: value: cannot add unweighted vertices to "
 							"vertex-weighted tree");
+
+			n_ += k;
+			adj_.resize(n());
+			if (new_vertex_weights.has_value())
+				vertex_weights_->insert(vertex_weights_->end(),
+										new_vertex_weights->begin(),
+										new_vertex_weights->end());
 
 			dsu_.add_elements(k);
 
@@ -5300,12 +5529,18 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	wgraph &add_edge(int u, int v) {
 		tgen_ensure(0 <= std::min(u, v) and std::max(u, v) < n_,
 					"wgraph: vertices must be indexed in [0, n)");
+		tgen_ensure(has_self_loops_ or u != v,
+					"wgraph: self loops are not allowed");
 
 		if (!is_directed_ and u > v)
 			std::swap(u, v);
-		edges_.emplace(u, v);
-		tgen_ensure(static_cast<int>(edges_.size()) <= m_,
-					"wgraph: too many edges were added");
+		auto [it, inserted] = edges_.emplace(u, v);
+		if (static_cast<int>(edges_.size()) > m_) {
+			// Keep the generator usable after rejecting an extra preset edge.
+			if (inserted)
+				edges_.erase(it);
+			throw detail::error("wgraph: too many edges were added");
+		}
 		return *this;
 	}
 
@@ -5319,7 +5554,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		using std_type = std::tuple<int, int, std::vector<std::set<int>>>;
 
 		int n_;									 // Number of vertices.
-		std::vector<std::set<int>> adj_;		 // Adjacency list.
+		mutable std::vector<std::set<int>> adj_; // Adjacency list.
 		std::vector<std::pair<int, int>> edges_; // Edge list.
 		bool is_directed_;						 // If graph is directed.
 		bool print_1_based_; // If should print vertex ids 1-based (print only).
@@ -5406,13 +5641,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 						"wgraph: value: cannot convert weight type after "
 						"assigning weights");
 
-			ensure_adj_built();
-			typename wgraph<NewVWeight, NewEWeight>::value new_graph(
-				adj_, is_directed_);
-			new_graph.is_directed_ = is_directed_;
-			new_graph.print_1_based_ = print_1_based_;
-			new_graph.print_nm_ = print_nm_;
-			return new_graph;
+			return copy_without_weights<NewVWeight, NewEWeight>();
 		}
 
 		// Fetches number of vertices.
@@ -5451,7 +5680,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			tgen_ensure(static_cast<int>(vertex_weights.size()) == n(),
 						"wgraph: value: must give `n` vertex weights");
 
-			auto new_graph = convert_weight_types<NewVWeight, EWeight>();
+			auto new_graph = copy_without_weights<NewVWeight, EWeight>();
+			new_graph.edge_weights_ = edge_weights_;
 			new_graph.vertex_weights_ = vertex_weights;
 			return new_graph;
 		}
@@ -5464,7 +5694,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			tgen_ensure(static_cast<int>(edge_weights.size()) == m(),
 						"wgraph: value: must give `m` edge weights");
 
-			auto new_graph = convert_weight_types<VWeight, NewEWeight>();
+			auto new_graph = copy_without_weights<VWeight, NewEWeight>();
+			new_graph.vertex_weights_ = vertex_weights_;
 			new_graph.edge_weights_ = edge_weights;
 			return new_graph;
 		}
@@ -5575,9 +5806,13 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// O(k) amortized.
 		value &add_vertices(int k, std::optional<std::vector<VWeight>>
 									   new_vertex_weights = std::nullopt) {
-			ensure_adj_built();
-			n_ += k;
-			adj_.resize(n());
+			// Check before mutation, and subtract to avoid overflow in n_ + k.
+			tgen_ensure(
+				k >= 0,
+				"wgraph: value: number of added vertices must be nonnegative");
+			tgen_ensure(k <= std::numeric_limits<int>::max() -
+								 static_cast<long long>(n_),
+						"wgraph: value: too many vertices");
 			if (new_vertex_weights.has_value()) {
 				tgen_ensure(vertex_weights().has_value(),
 							"wgraph: value: cannot add weighted vertices to "
@@ -5586,14 +5821,18 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 					static_cast<int>(new_vertex_weights->size()) == k,
 					"wgraph: value: number of vertex weights must be equal "
 					"to number of added vertices");
-
-				vertex_weights_->insert(vertex_weights_->end(),
-										new_vertex_weights->begin(),
-										new_vertex_weights->end());
 			} else
 				tgen_ensure(!vertex_weights().has_value(),
 							"wgraph: value: cannot add unweighted vertices to "
 							"vertex-weighted graph");
+
+			ensure_adj_built();
+			n_ += k;
+			adj_.resize(n());
+			if (new_vertex_weights.has_value())
+				vertex_weights_->insert(vertex_weights_->end(),
+										new_vertex_weights->begin(),
+										new_vertex_weights->end());
 
 			return *this;
 		}
@@ -5611,21 +5850,23 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			if (adj_[u].count(v))
 				return *this;
 
-			adj_[u].insert(v);
-			if (!is_directed())
-				adj_[v].insert(u);
-			edges_.emplace_back(u, v);
-
+			// Validate before mutation so rejected insertions are safe to
+			// retry.
 			if (w.has_value()) {
 				tgen_ensure(edge_weights().has_value(),
 							"wgraph: value: cannot add weighted edge to "
 							"edge-unweighted graph");
-
-				edge_weights_->push_back(*w);
 			} else
 				tgen_ensure(!edge_weights().has_value(),
 							"wgraph: value: cannot add unweighted edge to "
 							"edge-weighted graph");
+
+			adj_[u].insert(v);
+			if (!is_directed())
+				adj_[v].insert(u);
+			edges_.emplace_back(u, v);
+			if (w.has_value())
+				edge_weights_->push_back(*w);
 
 			return *this;
 		}
@@ -5636,9 +5877,19 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// O(rhs.n + rhs.m * log n) amortized.
 		value &link(const value &rhs, int new_u, int new_v,
 					std::optional<EWeight> new_w = std::nullopt) {
+			// Keep the right-hand input stable when linking to ourselves.
+			if (this == &rhs) {
+				value copy = rhs;
+				return link(copy, new_u, new_v, new_w);
+			}
+
 			tgen_ensure(0 <= new_u and new_u < n() and 0 <= new_v and
 							new_v < rhs.n(),
 						"wgraph: value: vertex ids must be valid");
+
+			tgen_ensure(
+				is_directed() == rhs.is_directed(),
+				"wgraph: value: graphs must have the same is_directed value");
 
 			// Edges from right-hand side.
 			int shift = n();
@@ -5663,6 +5914,13 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// O(rhs.n + rhs.m * log n) amortized.
 		value &glue(const value &rhs,
 					std::set<std::pair<int, int>> index_pairs) {
+			// Appending edges must not change the right-hand input or loop
+			// bound.
+			if (this == &rhs) {
+				value copy = rhs;
+				return glue(copy, std::move(index_pairs));
+			}
+
 			tgen_ensure(
 				is_directed() == rhs.is_directed(),
 				"wgraph: value: graphs must have the same is_directed value");
@@ -5687,6 +5945,9 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 			std::vector<int> new_right_id(rhs.n(), -1);
 			int intersection_lt = 0;
 			std::optional<std::vector<VWeight>> rhs_vertex_weights;
+			// Preserve weighted mode even when no new vertices are added.
+			if (rhs.vertex_weights().has_value())
+				rhs_vertex_weights = std::vector<VWeight>();
 			for (int i = 0; i < rhs.n(); ++i) {
 				if (right_id_to_left[i] != -1) {
 					// Is in intersection.
@@ -5696,8 +5957,6 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 					// New id.
 					new_right_id[i] = n() + i - intersection_lt;
 					if (rhs.vertex_weights().has_value()) {
-						if (!rhs_vertex_weights.has_value())
-							rhs_vertex_weights = std::vector<VWeight>();
 						rhs_vertex_weights->push_back(
 							(*rhs.vertex_weights())[i]);
 					}
@@ -5745,20 +6004,23 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		// Computes uniformly random subgraph of graph with num_edges edges.
 		// O(n + m).
 		value &random_subgraph(int num_edges) {
+			tgen_ensure(num_edges >= 0,
+						"wgraph: value: number of edges must be nonnegative");
 			tgen_ensure(
 				num_edges <= m(),
 				"wgraph: value: can choose at most `m` edges from graph");
 
 			std::vector<std::pair<int, int>> new_edges;
 			std::optional<std::vector<EWeight>> new_edge_weights;
+			// Preserve weighted mode even when no edges are selected.
+			if (edge_weights_.has_value())
+				new_edge_weights = std::vector<EWeight>();
 
 			int left = m();
 			for (int i = 0; i < m(); ++i) {
 				if (next(1, left--) <= num_edges) {
 					new_edges.push_back(edges()[i]);
 					if (edge_weights_.has_value()) {
-						if (!new_edge_weights.has_value())
-							new_edge_weights = std::vector<EWeight>();
 						new_edge_weights->push_back((*edge_weights())[i]);
 					}
 					--num_edges;
@@ -5977,10 +6239,27 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		}
 
 	  private:
+		// Preserve the existing cache and edge order. Do not build adjacency
+		// just to assign weights when the source has no cache yet.
+		// O(n + m).
+		template <typename NewVWeight, typename NewEWeight>
+		typename wgraph<NewVWeight, NewEWeight>::value
+		copy_without_weights() const {
+			using new_value = typename wgraph<NewVWeight, NewEWeight>::value;
+			new_value new_graph =
+				adj_built_ ? new_value(adj_, is_directed_)
+						   : new_value(n_, std::vector<std::pair<int, int>>(),
+									   is_directed_);
+			new_graph.edges_ = edges_;
+			new_graph.print_1_based_ = print_1_based_;
+			new_graph.print_nm_ = print_nm_;
+			return new_graph;
+		}
+
 		// Rebuilds adjacency from edges_ after replacing the edge list (e.g.
 		// subgraph operations).
 		// O(m log n).
-		void rebuild_adj_from_edge_list() {
+		void rebuild_adj_from_edge_list() const {
 			adj_.assign(n_, {});
 			for (auto [u, v] : edges_) {
 				adj_[u].insert(v);
@@ -5995,7 +6274,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 		void ensure_adj_built() const {
 			if (adj_built_)
 				return;
-			const_cast<value *>(this)->rebuild_adj_from_edge_list();
+			rebuild_adj_from_edge_list();
 		}
 	};
 
@@ -6207,9 +6486,8 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// 1. Builds the same skewed labeled tree as wtree::gen_skewed(n,
 	//    elongation)(root 0, parent(i) = wnext(i, elongation) for i >= 1).
 	//    If is_directed, tree edges are oriented down the tree.
-	// 2. Adds the remaining edges: pick an endpoint u uniformly;
-	//    pick k uniformly in [1, spread]; walk from u toward the root k
-	//    times along tree parents to get v; add edge (v, u).
+	// 2. Adds remaining edges uniformly from eligible ancestor pairs (v, u),
+	//    where v is between 2 and spread parent steps above u.
 	// If elongation is small, generates a graph with small diameter.
 	// If elongation is large, generates a graph with large diameter, with
 	// vertices 0 and n-1 being far apart.
@@ -6217,6 +6495,7 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 	// O(n log n + m log^2 n) expected otherwise.
 	static value gen_skewed(int n, int m, int elongation, int spread,
 							bool is_directed = false) {
+		tgen_ensure(n > 0, "wgraph: number of vertices must be positive");
 		tgen_ensure(
 			m >= n - 1,
 			"wgraph: skewed graph needs at least n - 1 edges to be connected");
@@ -6275,17 +6554,17 @@ struct wgraph : gen_base<wgraph<VWeight, EWeight>> {
 				for (int v = 0; v < n; ++v)
 					up[j][v] = up[j - 1][up[j - 1][v]];
 
-			// Creates uniform generator of edges (u, v) such that v is ancestor
-			// of u. For that, every u has depth[u]-1 choices for v, so we
-			// weight u by min(spread - 1, depth[u] - 1). After that we can
-			// just pick the ancestor uniformly.
+			// Weight each vertex by its number of eligible ancestors, then
+			// pick one of those ancestors uniformly.
 			std::vector<int> distribution = depth;
 			for (int &d : distribution)
 				d = std::max(0, std::min(spread - 1, d - 1));
 			weighted_sampler vertex_choice(distribution);
 			distinct extra_edges([&]() -> std::pair<int, int> {
 				int u = static_cast<int>(vertex_choice.next());
-				int k = next(2, spread);
+				// Limit distances before sampling: every jump fits the table,
+				// and walks past the root do not over-weight the root edge.
+				int k = next(2, std::min(spread, depth[u]));
 				int v = u;
 				for (int j = 0; j < lg; ++j)
 					if (k >> j & 1)
@@ -6643,15 +6922,8 @@ template <typename T> struct point {
 	// Returns the y coordinate.
 	T y() const { return y_; }
 
-	// Equality of coordinates, with epsilon-based equality for floating-point
-	// coordinates (tolerance 1e-9).
-	static bool coord_eq(T a, T b) {
-		if constexpr (std::is_integral_v<T>)
-			return a == b;
-		constexpr T eps = T(1e-9);
-		T d = a - b;
-		return d >= -eps and d <= eps;
-	}
+	// Exact coordinate equality, consistent with lexicographic ordering.
+	static bool coord_eq(T a, T b) { return a == b; }
 
 	// Lexicographic order (by x, then y).
 	bool operator<(const point &p) const {
@@ -6700,7 +6972,17 @@ template <typename T> struct point {
 	product_t operator^(const point &p) const {
 		if constexpr (std::is_floating_point_v<T>)
 			return x_ * p.y() - y_ * p.x();
-		return product_t(x_) * p.y() - product_t(y_) * p.x();
+		else {
+			// As with dot products, widening alone does not cover all inputs.
+			product_t x_product, y_product, result;
+			tgen_ensure(!__builtin_mul_overflow(x_, p.y(), &x_product),
+						"geometry: point cross product overflow");
+			tgen_ensure(!__builtin_mul_overflow(y_, p.x(), &y_product),
+						"geometry: point cross product overflow");
+			tgen_ensure(!__builtin_sub_overflow(x_product, y_product, &result),
+						"geometry: point cross product overflow");
+			return result;
+		}
 	}
 
 	// Prints the point as "x y".
@@ -6725,7 +7007,12 @@ random_points_general_position(int n, long long min_coord,
 			std::numeric_limits<long long>::max(),
 		"geometry: random_points_general_position: coordinate range too large");
 	uint64_t width = max_coord - min_coord;
-	uint64_t p = math::prime_from(2 * n);
+	// Keep the prime-sized pool within the int indices used by shuffle.
+	tgen_ensure(n <= std::numeric_limits<int>::max() / 2,
+				"geometry: random_points_general_position: n too large");
+	uint64_t p = math::prime_from(2ULL * static_cast<unsigned>(n));
+	tgen_ensure(p - 1 <= static_cast<uint64_t>(std::numeric_limits<int>::max()),
+				"geometry: random_points_general_position: n too large");
 
 	// Requires width >= p - 1 because sheared coordinates lie in [0, p - 1].
 	tgen_ensure(width >= p - 1,
@@ -6739,7 +7026,7 @@ random_points_general_position(int n, long long min_coord,
 	// base points lie on any line. x |-> x^-1 is bijective on {1, ..., p - 1},
 	// so all points are distinct and no three are collinear.
 	std::vector<uint64_t> x_range(p - 1);
-	std::iota(x_range.begin(), x_range.end(), 1);
+	std::iota(x_range.begin(), x_range.end(), uint64_t{1});
 	shuffle(x_range.begin(), x_range.end());
 	std::vector<detail::i128> bx(n), by(n);
 	for (int i = 0; i < n; ++i) {
@@ -7839,7 +8126,8 @@ inline std::vector<point<long long>> build_orthogonal_polygon(int n,
 		while (poly.size() > static_cast<size_t>(n) and
 			   ortho_remove_one_collinear(poly))
 			;
-		long long upscale = std::max(4LL, ((n + 3) / 4 + side - 1) / side);
+		long long upscale = std::max(
+			4LL, ((static_cast<long long>(n) + 3) / 4 + side - 1) / side);
 		for (point<long long> &p : poly)
 			p = {p.x() * upscale, p.y() * upscale};
 		if (strict)
@@ -7902,7 +8190,8 @@ random_orthogonal_polygon(int n, long long min_coord, long long max_coord,
 
 	long long min_side = std::max(3LL, static_cast<long long>(std::sqrt(n)));
 	if (n > 1000)
-		min_side = std::max<long long>(min_side, (n + 3) / 4);
+		min_side =
+			std::max<long long>(min_side, (static_cast<long long>(n) + 3) / 4);
 	tgen_ensure(min_side < width,
 				"geometry: random_orthogonal_polygon: coordinate range too "
 				"small");
@@ -7964,7 +8253,13 @@ inline int estimate_length(int alphabet_size, int mod) {
 	double scale = std::log(alphabet_size) / std::log(2.0);
 	double adjusted = base_len / std::max(1.0, scale * 0.7);
 
-	return static_cast<int>(std::ceil(adjusted));
+	// More candidates than hashes guarantees that a collision exists.
+	// Use long long for overflow safety: each product is at most mod *
+	// alphabet_size, and both parameters are int.
+	int min_length = 0;
+	for (long long ways = 1; ways <= mod; ways *= alphabet_size)
+		++min_length;
+	return std::max(min_length, static_cast<int>(std::ceil(adjusted)));
 }
 
 // Collides two strings to have the same polynomial hash.
@@ -8082,6 +8377,9 @@ inline std::pair<std::string, std::string> polynomial_hash(int alphabet_size,
 inline std::pair<std::string, std::string>
 polynomial_hash(int alphabet_size, std::vector<int> bases,
 				std::vector<int> mods) {
+	tgen_ensure(alphabet_size > 1,
+				"hack: polynomial_hash: alphabet size must be greater "
+				"than 1");
 	tgen_ensure(bases.size() == mods.size(),
 				"hack: polynomial_hash: bases and mods must have the same "
 				"size");
@@ -8226,30 +8524,23 @@ inline egraph<int>::value stale_heap_dijkstra_bug(int n) {
 	return g.shuffle_except({0});
 }
 
-// Worst-case for FIFO-SPFA.
-// Forces Omega(n^2) from vertex 0 (Theta(n*m), m = 2n - 3).
-// Upper chain ai -> a(i+1) weight 1; lower chain bi -> b(i+1) weight 0;
-// vertical ai -> bi weight 0; cross bi -> a(i+1) weight 1. Upper chain sets
-// loose dist first; cross edges from settled bi then improve a(i+1).
-// m = 2n - 3.
-// O(n).
+// Worst-case for FIFO-SPFA from vertex 0: Theta(n^2) edge scans.
+// Upper chain ai -> a(i+1) has weight 1. Each ai -> b0 has weight
+// 2(k-i), so successive upper vertices improve the entire zero-weight lower
+// chain. FIFO scheduling propagates these improvements in separate waves.
+// n = 2k, m = 3k - 2. O(n) construction.
 inline egraph<int>::value spfa(int n) {
 	tgen_ensure(n >= 2, "hack: spfa: n must be at least 2");
 	tgen_ensure(n % 2 == 0, "hack: spfa: n must be even");
-
 	egraph<int>::value g(n, {}, true);
 	g.edge_weighted();
-
 	const int k = n / 2;
-	for (int i = 0; i + 1 < k; ++i)
+	for (int i = 0; i + 1 < k; ++i) {
 		g.add_edge(i, i + 1, 1);
-	for (int i = 0; i + 1 < k; ++i)
 		g.add_edge(k + i, k + i + 1, 0);
+	}
 	for (int i = 0; i < k; ++i)
-		g.add_edge(i, k + i, 0);
-	for (int i = 0; i + 1 < k; ++i)
-		g.add_edge(k + i, i + 1, 1);
-
+		g.add_edge(i, k, 2 * (k - i));
 	return g.shuffle_except({0});
 }
 
@@ -8260,6 +8551,15 @@ inline egraph<int>::value spfa(int n) {
 inline egraph<int>::value dinitz_worst_case(int k, int l) {
 	tgen_ensure(k >= 1, "hack: dinitz_worst_case: k must be at least 1");
 	tgen_ensure(l >= 1, "hack: dinitz_worst_case: l must be at least 1");
+
+	// Validate in wide arithmetic before computing int indices and capacities.
+	const detail::i128 capacity = detail::i128(k) * k * l;
+	const long long vertices = 4LL * l + 2LL * k + 2;
+	const long long edges = 6LL * l + 4LL * k + 1LL * k * k - 4;
+	tgen_ensure(capacity <= std::numeric_limits<int>::max() and
+					vertices <= std::numeric_limits<int>::max() and
+					edges <= std::numeric_limits<int>::max(),
+				"hack: dinitz_worst_case: size or capacity too large");
 
 	const int p1 = 2 * l - 1;
 	const int p2 = 2 * l;

@@ -21,7 +21,7 @@ namespace tgen::geometry {
  * 11 -2
  * ```
  *
- * Floating-point coordinates use epsilon-based equality (@tt{1e-9}).
+ * Coordinate equality is exact, including for floating-point types.
  *
  * ```cpp
  * tgen::geometry::point<double> p(1.5, 2.5);
@@ -121,8 +121,9 @@ namespace tgen::geometry {
  * @tt{@type{__int128}} when @tt{T} is @tt{@primitive{long long}}, @tt{@primitive{long long}} for other
  * integral @tt{T}, and @tt{T} for floating-point @tt{T}.
  *
- * For floating-point @tt{T}, @tt{operator==} and lexicographic
- * @tt{operator<} compare coordinates with tolerance @tt{1e-9}.
+ * Coordinate equality and lexicographic ordering use exact comparisons, including
+ * for floating-point @tt{T}. Use finite coordinates for ordered containers;
+ * approximate comparisons must be performed explicitly.
  *
  * @struct point;
  */
@@ -248,6 +249,9 @@ namespace tgen::geometry {
  * (@tt{@type{__int128}} for @tt{@type{point}<@primitive{long long}>}, @tt{@primitive{long long}} for other integral
  * @tt{T}, @tt{T} for floating-point).
  *
+ * @throws std::runtime_error For integral coordinates, if either product or
+ * their difference cannot be represented by @tt{@type{product_t}}.
+ *
  * @fn point::operator^(const point &p) const;
  */
 
@@ -286,7 +290,8 @@ namespace tgen::geometry {
  * (non-)collinearity, and the graph of inversion over @tt{F_p} meets any line
  * in at most two points.
  *
- * @throws std::runtime_error if the coordinate range is not large enough.
+ * @throws std::runtime_error if the coordinate range is not large enough,
+ * or the prime-sized sampling pool would exceed @tt{INT_MAX} elements.
  *
  * @note This operation is not uniformly random.
  *
@@ -375,7 +380,8 @@ namespace tgen::geometry {
  * @ref random_points_general_position, othwerwise randomly generated. Points are polygonized by
  * @ref random_simple_polygon_through_points.
  *
- * @throws std::runtime_error if the coordinate range is not large enough.
+ * @throws std::runtime_error if the coordinate range is not large enough,
+ * or the prime-sized sampling pool would exceed @tt{INT_MAX} elements.
  *
  * @note This operation is not uniformly random.
  *
@@ -426,7 +432,8 @@ namespace tgen::geometry {
  * is subsampled to @tt{@pname{n}} vertices. The polygon is then translated by
  * a random amount so it lies inside the requested box.
  *
- * @throws std::runtime_error if the coordinate range is not large enough.
+ * @throws std::runtime_error if the coordinate range is not large enough,
+ * or the prime-sized sampling pool would exceed @tt{INT_MAX} elements.
  *
  * @warning When @pname{strict} is @tt{@primitive{true}}, the implementation
  * retries a bounded number of times. Use a

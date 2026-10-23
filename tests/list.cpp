@@ -590,3 +590,90 @@ TEST(list_test, adjacent_different) {
 			EXPECT_NE(inst[j - 1], inst[j]);
 	}
 }
+
+TEST(list_test, regression_shuffle_uniform) {
+	tgen::register_gen(0);
+	std::map<tgen::list<int>::value::std_type, int> counts;
+	constexpr int trials = 100000;
+	for (int i = 0; i < trials; ++i) {
+		tgen::list<int>::value v({0, 1, 2});
+		++counts[v.shuffle().to_std()];
+	}
+	EXPECT_TRUE(expect_uniform(counts, 6, trials));
+}
+
+TEST(list_test, regression_negative_range_restrictions) {
+	tgen::register_gen(0);
+	for (int i = 0; i < 100; ++i) {
+		auto v = tgen::list<int>(3, -2, 2).adjacent_different().gen();
+		EXPECT_NE(v[0], v[1]);
+		EXPECT_NE(v[1], v[2]);
+		for (int x : v.to_std())
+			EXPECT_TRUE(-2 <= x and x <= 2);
+	}
+}
+
+TEST(list_test, regression_invalid_distinct_indices) {
+	for (const std::set<int> &indices :
+		 {std::set<int>{-1}, {2}, {-1, 0}, {0, 2}}) {
+		auto g = tgen::list<int>(2, 0, 10);
+		EXPECT_THROW_TGEN_PREFIX(g.different(indices),
+								 "list: indices must be valid");
+		EXPECT_TRUE(g.diff_restrictions_.empty());
+	}
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(2, 0, 10).different(-1, 0),
+							 "list: indices must be valid");
+	EXPECT_THROW_TGEN_PREFIX(tgen::list<int>(2, 0, 10).different(0, 2),
+							 "list: indices must be valid");
+}
+
+TEST(list_test, regression_invalid_equal_indices) {
+	for (const std::set<int> &indices : {std::set<int>{-1}, {3}, {0, 1, 3}}) {
+		auto g = tgen::list<int>(3, 0, 10);
+		EXPECT_THROW_TGEN_PREFIX(g.equal(indices),
+								 "list: indices must be valid");
+		EXPECT_TRUE(g.neigh_.empty());
+	}
+}
+
+TEST(list_test, regression_small_signed_value_set) {
+	tgen::register_gen(0);
+	std::set<signed char> values;
+	for (int x = -128; x <= 127; ++x)
+		values.insert(static_cast<signed char>(x));
+	auto p =
+		tgen::list<signed char>(256, values).all_different().gen().to_std();
+	EXPECT_EQ(std::set<signed char>(p.begin(), p.end()), values);
+}
+
+TEST(list_test, regression_small_signed_value_set_fixed_distinct) {
+	tgen::register_gen(0);
+	std::set<signed char> values;
+	for (int x = -128; x <= 127; ++x)
+		values.insert(static_cast<signed char>(x));
+	auto p = tgen::list<signed char>(256, values)
+				 .fix(0, 127)
+				 .all_different()
+				 .gen()
+				 .to_std();
+	EXPECT_EQ(p[0], 127);
+	EXPECT_EQ(std::set<signed char>(p.begin(), p.end()), values);
+}
+
+TEST(list_test, regression_small_signed_value_set_constraints) {
+	tgen::register_gen(0);
+	std::set<signed char> values;
+	for (int x = -128; x <= 127; ++x)
+		values.insert(static_cast<signed char>(x));
+	auto g =
+		tgen::list<signed char>(4, values).fix(0, 127).equal(0, 1).different(
+			{1, 2, 3});
+	for (int i = 0; i < 100; ++i) {
+		auto p = g.gen().to_std();
+		EXPECT_EQ(p[0], 127);
+		EXPECT_EQ(p[1], p[0]);
+		EXPECT_NE(p[1], p[2]);
+		EXPECT_NE(p[1], p[3]);
+		EXPECT_NE(p[2], p[3]);
+	}
+}

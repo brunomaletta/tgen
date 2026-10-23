@@ -1109,3 +1109,375 @@ TEST(graph_test, tree_graph_roundtrip) {
 	EXPECT_EQ(std::set(t.edges().begin(), t.edges().end()),
 			  std::set(t0.edges().begin(), t0.edges().end()));
 }
+
+TEST(graph_test, regression_weighted_glue_full_overlap) {
+	auto a = tgen::graph::value(2).set_vertex_weights(std::vector<int>{10, 20});
+	auto b = tgen::graph::value(2, std::vector<std::pair<int, int>>{{0, 1}})
+				 .set_vertex_weights(std::vector<int>{10, 20});
+	a.glue(b, std::set<int>{0, 1});
+
+	EXPECT_EQ(a.n(), 2);
+	EXPECT_EQ(a.edges(), (std::vector<std::pair<int, int>>{{0, 1}}));
+	ASSERT_TRUE(a.vertex_weights().has_value());
+	EXPECT_EQ(*a.vertex_weights(), (std::vector<int>{10, 20}));
+}
+
+TEST(graph_test, regression_weighted_glue_partial_overlap) {
+	auto a = tgen::graph::value(2, std::vector<std::pair<int, int>>{{0, 1}})
+				 .set_vertex_weights(std::vector<int>{10, 20});
+	auto b = tgen::graph::value(2, std::vector<std::pair<int, int>>{{0, 1}})
+				 .set_vertex_weights(std::vector<int>{20, 30});
+	a.glue(b, std::set<std::pair<int, int>>{{1, 0}});
+	EXPECT_EQ(a.n(), 3);
+	EXPECT_EQ(a.edges(), (std::vector<std::pair<int, int>>{{0, 1}, {1, 2}}));
+	ASSERT_TRUE(a.vertex_weights().has_value());
+	EXPECT_EQ(*a.vertex_weights(), (std::vector<int>{10, 20, 30}));
+}
+
+TEST(graph_test, regression_weight_edge_order) {
+	for (bool directed : {false, true}) {
+		for (bool cached : {false, true}) {
+			auto v = tgen::graph::value(3, {{1, 2}, {0, 1}}, directed);
+			v.print_nm();
+			if (cached)
+				v.adj();
+			auto weighted = v.set_edge_weights({70, 90});
+			EXPECT_EQ(weighted.edges(), v.edges());
+			EXPECT_EQ(*weighted.edge_weights(), (std::vector<int>{70, 90}));
+			EXPECT_EQ(weighted.is_directed(), directed);
+			EXPECT_TRUE(weighted.print_nm_);
+			EXPECT_EQ(weighted.adj(), v.adj());
+			auto converted = v.convert_weight_types<std::string, long long>();
+			EXPECT_EQ(converted.edges(), v.edges());
+		}
+	}
+}
+
+TEST(graph_test, regression_weight_vertex_then_edge) {
+	auto v = tgen::graph::value(3, {{1, 2}, {0, 1}});
+	v.print_1_based();
+	auto vertices = v.set_vertex_weights<std::string>({"a", "b", "c"});
+	auto both = vertices.set_edge_weights<long long>({70, 90});
+	EXPECT_EQ(both.edges(), v.edges());
+	EXPECT_EQ(*both.vertex_weights(),
+			  (std::vector<std::string>{"a", "b", "c"}));
+	EXPECT_EQ(*both.edge_weights(), (std::vector<long long>{70, 90}));
+	EXPECT_TRUE(both.print_1_based_);
+	auto replaced = both.set_vertex_weights<int>({10, 20, 30});
+	EXPECT_EQ(*replaced.vertex_weights(), (std::vector<int>{10, 20, 30}));
+	EXPECT_EQ(*replaced.edge_weights(), *both.edge_weights());
+	EXPECT_FALSE(vertices.edge_weights().has_value());
+	EXPECT_FALSE(v.vertex_weights().has_value());
+}
+
+TEST(graph_test, regression_weight_edge_then_vertex) {
+	auto v = tgen::graph::value(3, {{1, 2}, {0, 1}});
+	auto edges = v.set_edge_weights<std::string>({"x", "y"});
+	auto both = edges.set_vertex_weights<long long>({10, 20, 30});
+	EXPECT_EQ(both.edges(), v.edges());
+	EXPECT_EQ(*both.vertex_weights(), (std::vector<long long>{10, 20, 30}));
+	EXPECT_EQ(*both.edge_weights(), (std::vector<std::string>{"x", "y"}));
+	auto replaced = both.set_edge_weights<int>({70, 90});
+	EXPECT_EQ(*replaced.edge_weights(), (std::vector<int>{70, 90}));
+	EXPECT_EQ(*replaced.vertex_weights(), *both.vertex_weights());
+	EXPECT_FALSE(edges.vertex_weights().has_value());
+	EXPECT_FALSE(v.edge_weights().has_value());
+}
+
+TEST(graph_test, regression_preset_self_loop_rejected) {
+	for (bool directed : {false, true}) {
+		auto gen = tgen::graph(2, 1, directed);
+		EXPECT_THROW_TGEN_PREFIX(gen.add_edge(0, 0),
+								 "wgraph: self loops are not allowed");
+		EXPECT_TRUE(gen.edges_.empty());
+	}
+}
+
+TEST(graph_test, regression_copied_self_loop_rejected) {
+	for (bool directed : {false, true}) {
+		auto source = tgen::graph::value(2, {{0, 0}}, directed);
+		EXPECT_THROW_TGEN_PREFIX(
+			tgen::graph(2, 1, directed).add_edges_from(source),
+			"wgraph: self loops are not allowed");
+	}
+}
+
+TEST(graph_test, regression_preset_self_loop_allowed) {
+	tgen::register_gen(0);
+	for (bool directed : {false, true}) {
+		auto source = tgen::graph::value(2, {{0, 0}}, directed);
+		auto direct = tgen::graph(2, 1, directed, true).add_edge(0, 0).gen();
+		auto copied =
+			tgen::graph(2, 1, directed, true).add_edges_from(source).gen();
+		EXPECT_EQ(direct.edges(), source.edges());
+		EXPECT_EQ(copied.edges(), source.edges());
+	}
+}
+
+TEST(graph_test, regression_skewed_large_spread) {
+	for (bool directed : {false, true}) {
+		for (int spread : {20, 21, std::numeric_limits<int>::max()}) {
+			tgen::register_gen(2);
+			auto g = tgen::graph::gen_skewed(3, 3, 100, spread, directed);
+			EXPECT_EQ(g.m(), 3);
+			EXPECT_EQ(g.is_directed(), directed);
+			EXPECT_EQ((std::set<std::pair<int, int>>(g.edges().begin(),
+													 g.edges().end())),
+					  (std::set<std::pair<int, int>>{{0, 1}, {1, 2}, {0, 2}}));
+		}
+	}
+}
+
+TEST(graph_test, regression_zero_edge_subgraph_weights) {
+	tgen::register_gen(0);
+	auto g = tgen::graph::value(2, {{0, 1}}).set_edge_weights({7});
+	g.random_subgraph(0);
+	EXPECT_EQ(g.m(), 0);
+	ASSERT_TRUE(g.edge_weights().has_value());
+	EXPECT_TRUE(g.edge_weights()->empty());
+	g.add_edge(0, 1, 9);
+	EXPECT_EQ(*g.edge_weights(), (std::vector<int>{9}));
+}
+
+TEST(graph_test, regression_empty_subgraph_weights) {
+	tgen::register_gen(0);
+	auto g = tgen::graph::value(2);
+	g.edge_weighted().random_subgraph(0);
+	ASSERT_TRUE(g.edge_weights().has_value());
+	EXPECT_TRUE(g.edge_weights()->empty());
+	g.add_edge(0, 1, 9);
+	EXPECT_EQ(*g.edge_weights(), (std::vector<int>{9}));
+}
+
+TEST(graph_test, regression_self_disjoint_union) {
+	auto g = tgen::graph::value(2, {{0, 1}});
+	g.disjoint_union(g);
+	EXPECT_EQ(g.n(), 4);
+	EXPECT_EQ(g.edges(), (std::vector<std::pair<int, int>>{{0, 1}, {2, 3}}));
+}
+
+TEST(graph_test, regression_self_glue_weights) {
+	auto v = tgen::graph::value(2, {{0, 1}})
+				 .set_vertex_weights({10, 20})
+				 .set_edge_weights({7});
+	v.glue(v, std::set<std::pair<int, int>>{{0, 0}});
+	EXPECT_EQ(v.n(), 3);
+	EXPECT_EQ(v.edges(), (std::vector<std::pair<int, int>>{{0, 1}, {0, 2}}));
+	EXPECT_EQ(*v.vertex_weights(), (std::vector<int>{10, 20, 20}));
+	EXPECT_EQ(*v.edge_weights(), (std::vector<int>{7, 7}));
+}
+
+TEST(graph_test, regression_self_link_weights) {
+	auto v = tgen::graph::value(2, {{0, 1}})
+				 .set_vertex_weights({10, 20})
+				 .set_edge_weights({7});
+	v.link(v, 1, 0, 9);
+	EXPECT_EQ(v.n(), 4);
+	EXPECT_EQ(v.edges(),
+			  (std::vector<std::pair<int, int>>{{0, 1}, {2, 3}, {1, 2}}));
+	EXPECT_EQ(*v.vertex_weights(), (std::vector<int>{10, 20, 10, 20}));
+	EXPECT_EQ(*v.edge_weights(), (std::vector<int>{7, 7, 9}));
+}
+
+TEST(graph_test, regression_skewed_large_spread_dense) {
+	for (bool directed : {false, true}) {
+		tgen::register_gen(0);
+		auto g = tgen::graph::gen_skewed(
+			4, 6, 100, std::numeric_limits<int>::max(), directed);
+		EXPECT_EQ(g.m(), 6);
+		EXPECT_EQ(
+			(std::set<std::pair<int, int>>(g.edges().begin(), g.edges().end())),
+			(std::set<std::pair<int, int>>{
+				{0, 1}, {0, 2}, {0, 3}, {1, 2}, {1, 3}, {2, 3}}));
+	}
+}
+
+TEST(graph_test, regression_rejected_missing_edge_weight) {
+	auto v = tgen::graph::value(2, std::vector<std::pair<int, int>>{})
+				 .set_edge_weights({});
+	EXPECT_THROW_TGEN_PREFIX(
+		v.add_edge(0, 1),
+		"wgraph: value: cannot add unweighted edge to edge-weighted graph");
+	ASSERT_TRUE(v.edges().empty());
+	EXPECT_TRUE(v.adj()[0].empty());
+	EXPECT_TRUE(v.edge_weights()->empty());
+	v.add_edge(0, 1, 7);
+	std::ostringstream out;
+	out << v;
+	EXPECT_EQ(out.str(), "0 1 7\n");
+}
+
+TEST(graph_test, regression_rejected_unexpected_edge_weight) {
+	auto v = tgen::graph::value(2, std::vector<std::pair<int, int>>{});
+	EXPECT_THROW_TGEN_PREFIX(
+		v.add_edge(0, 1, 7),
+		"wgraph: value: cannot add weighted edge to edge-unweighted graph");
+	ASSERT_TRUE(v.edges().empty());
+	EXPECT_TRUE(v.adj()[0].empty());
+	v.add_edge(0, 1);
+	std::ostringstream out;
+	out << v;
+	EXPECT_EQ(out.str(), "0 1\n");
+}
+
+TEST(graph_test, regression_rejected_missing_vertex_weights) {
+	auto g = tgen::graph::value(1).set_vertex_weights({7});
+	EXPECT_THROW_TGEN_PREFIX(g.add_vertices(1),
+							 "wgraph: value: cannot add unweighted vertices to "
+							 "vertex-weighted graph");
+	ASSERT_EQ(g.n(), 1);
+	EXPECT_EQ(g.adj().size(), 1u);
+	g.add_vertices(1, std::vector<int>{8});
+	std::ostringstream out;
+	out << g;
+	EXPECT_EQ(out.str(), "7 8\n");
+}
+
+TEST(graph_test, regression_rejected_wrong_vertex_weight_count) {
+	auto g = tgen::graph::value(1).set_vertex_weights({7});
+	EXPECT_THROW_TGEN_PREFIX(g.add_vertices(2, std::vector<int>{8}),
+							 "wgraph: value: number of vertex weights must be "
+							 "equal to number of added vertices");
+	ASSERT_EQ(g.n(), 1);
+	g.add_vertices(2, std::vector<int>{8, 9});
+	std::ostringstream out;
+	out << g;
+	EXPECT_EQ(out.str(), "7 8 9\n");
+}
+
+TEST(graph_test, regression_rejected_unexpected_vertex_weights) {
+	auto g = tgen::graph::value(1);
+	EXPECT_THROW_TGEN_PREFIX(g.add_vertices(1, std::vector<int>{8}),
+							 "wgraph: value: cannot add weighted vertices to "
+							 "vertex-unweighted graph");
+	ASSERT_EQ(g.n(), 1);
+	g.add_vertices(1).add_edge(0, 1);
+	std::ostringstream out;
+	out << g;
+	EXPECT_EQ(out.str(), "0 1\n");
+}
+
+TEST(graph_test, regression_rejected_negative_vertex_count) {
+	auto g = tgen::graph::value(2, {{0, 1}});
+	EXPECT_THROW_TGEN_PREFIX(
+		g.add_vertices(-1),
+		"wgraph: value: number of added vertices must be nonnegative");
+	ASSERT_EQ(g.n(), 2);
+	EXPECT_EQ(g.adj().size(), 2u);
+	EXPECT_EQ(g.edges(), (std::vector<std::pair<int, int>>{{0, 1}}));
+}
+
+TEST(graph_test, regression_rejected_overflowing_vertex_count) {
+	auto g = tgen::graph::value(1);
+	EXPECT_THROW_TGEN_PREFIX(g.add_vertices(std::numeric_limits<int>::max()),
+							 "wgraph: value: too many vertices");
+	ASSERT_EQ(g.n(), 1);
+	g.add_vertices(1).add_edge(0, 1);
+	EXPECT_EQ(g.edges(), (std::vector<std::pair<int, int>>{{0, 1}}));
+}
+
+TEST(graph_test, regression_preset_limit_recovery) {
+	tgen::register_gen(0);
+	for (bool directed : {false, true}) {
+		auto g = tgen::graph(3, 1, directed).add_edge(0, 1);
+		EXPECT_THROW_TGEN_PREFIX(g.add_edge(1, 2),
+								 "wgraph: too many edges were added");
+		ASSERT_EQ(g.edges_, (std::set<std::pair<int, int>>{{0, 1}}));
+		EXPECT_EQ(g.gen().edges(), (std::vector<std::pair<int, int>>{{0, 1}}));
+	}
+}
+
+TEST(graph_test, regression_zero_preset_limit_recovery) {
+	tgen::register_gen(0);
+	auto g = tgen::graph(2, 0);
+	EXPECT_THROW_TGEN_PREFIX(g.add_edge(0, 1),
+							 "wgraph: too many edges were added");
+	ASSERT_TRUE(g.edges_.empty());
+	EXPECT_EQ(g.gen().m(), 0);
+}
+
+TEST(graph_test, regression_duplicate_at_preset_limit) {
+	tgen::register_gen(0);
+	auto undirected = tgen::graph(2, 1).add_edge(0, 1);
+	undirected.add_edge(0, 1).add_edge(1, 0);
+	EXPECT_EQ(undirected.gen().edges(),
+			  (std::vector<std::pair<int, int>>{{0, 1}}));
+	auto directed = tgen::graph(2, 1, true).add_edge(0, 1);
+	directed.add_edge(0, 1);
+	EXPECT_EQ(directed.gen().edges(),
+			  (std::vector<std::pair<int, int>>{{0, 1}}));
+}
+
+TEST(graph_test, regression_bulk_preset_limit_recovery) {
+	tgen::register_gen(0);
+	for (bool directed : {false, true}) {
+		auto g = tgen::graph(4, 2, directed).add_edge(0, 1);
+		auto source = tgen::graph::value(4, {{0, 1}, {1, 2}, {2, 3}}, directed);
+		EXPECT_THROW_TGEN_PREFIX(g.add_edges_from(source),
+								 "wgraph: too many edges were added");
+		ASSERT_EQ(g.edges_, (std::set<std::pair<int, int>>{{0, 1}, {1, 2}}));
+		EXPECT_EQ(g.gen().edges(),
+				  (std::vector<std::pair<int, int>>{{0, 1}, {1, 2}}));
+	}
+}
+
+TEST(graph_test, regression_skewed_nonpositive_vertices) {
+	for (int n : {0, -1, std::numeric_limits<int>::min()})
+		EXPECT_THROW_TGEN_PREFIX(tgen::graph::gen_skewed(n, 0, 0, 2),
+								 "wgraph: number of vertices must be positive");
+}
+TEST(graph_test, regression_skewed_single_vertex) {
+	tgen::register_gen(42);
+	auto g = tgen::graph::gen_skewed(1, 0, 0, 2);
+	EXPECT_EQ(g.n(), 1);
+	EXPECT_EQ(g.m(), 0);
+}
+TEST(graph_test, regression_link_mismatched_directedness) {
+	for (bool directed : {false, true}) {
+		auto a =
+			tgen::graph::value(2, {{0, 1}}, directed).set_edge_weights({7});
+		auto b = tgen::graph::value(2, {{0, 1}, {1, 0}}, !directed)
+					 .set_edge_weights(directed ? std::vector<int>{8}
+												: std::vector<int>{8, 9});
+		auto edges = a.edges();
+		auto adj = a.adj();
+		auto weights = a.edge_weights();
+		EXPECT_THROW_TGEN_PREFIX(
+			a.link(b, 0, 0, 10),
+			"wgraph: value: graphs must have the same is_directed value");
+		EXPECT_EQ(a.n(), 2);
+		EXPECT_EQ(a.edges(), edges);
+		EXPECT_EQ(a.adj(), adj);
+		EXPECT_EQ(a.edge_weights(), weights);
+	}
+}
+TEST(graph_test, regression_negative_subgraph_size) {
+	tgen::register_gen(42);
+	for (bool directed : {false, true}) {
+		auto g =
+			tgen::graph::value(2, {{0, 1}}, directed).set_edge_weights({7});
+		auto edges = g.edges();
+		auto adj = g.adj();
+		auto weights = g.edge_weights();
+		EXPECT_THROW_TGEN_PREFIX(
+			g.random_subgraph(-1),
+			"wgraph: value: number of edges must be nonnegative");
+		EXPECT_EQ(g.edges(), edges);
+		EXPECT_EQ(g.adj(), adj);
+		EXPECT_EQ(g.edge_weights(), weights);
+		g.random_subgraph(0);
+		EXPECT_EQ(g.m(), 0);
+		ASSERT_TRUE(g.edge_weights().has_value());
+		EXPECT_TRUE(g.edge_weights()->empty());
+	}
+}
+
+TEST(graph_test, regression_truly_const_adjacency_cache) {
+	const tgen::graph::value g(3, {{0, 1}, {1, 2}});
+	const std::vector<std::set<int>> expected{{1}, {0, 2}, {1}};
+	EXPECT_EQ(g.adj(), expected);
+	EXPECT_EQ(g.adj(), expected);
+	EXPECT_EQ(std::get<2>(g.to_std()), expected);
+	EXPECT_EQ(std::get<2>(g.to_std_1_based()),
+			  (std::vector<std::set<int>>{{}, {2}, {1, 3}, {2}}));
+}

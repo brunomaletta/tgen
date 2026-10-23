@@ -295,15 +295,15 @@ TEST(geometry_test, comparison_int) {
 	EXPECT_FALSE(b < a);
 }
 
-TEST(geometry_test, comparison_double_epsilon) {
+TEST(geometry_test, comparison_double_exact) {
 	tgen::geometry::point<double> a(1.0, 2.0), b(1.0 + 1e-10, 2.0),
 		c(1.0 + 1e-8, 2.0);
 
-	EXPECT_TRUE(a == b);
+	EXPECT_FALSE(a == b);
 	EXPECT_FALSE(a == c);
 	EXPECT_TRUE(a < c);
 	EXPECT_FALSE(c < a);
-	EXPECT_FALSE(a < b);
+	EXPECT_TRUE(a < b);
 	EXPECT_FALSE(b < a);
 }
 
@@ -1314,4 +1314,36 @@ TEST(geometry_test, random_orthogonal_polygon_counterclockwise) {
 			EXPECT_TRUE(is_counterclockwise(poly));
 		}
 	}
+}
+
+TEST(geometry_test, regression_exact_point_order) {
+	using P = tgen::geometry::point<double>;
+	P a(0, 2), b(0.75e-9, 1), c(1.5e-9, 0);
+	EXPECT_LT(a, b);
+	EXPECT_LT(b, c);
+	EXPECT_LT(a, c);
+	EXPECT_FALSE(a == b);
+	std::set<P> points{a, b, c};
+	EXPECT_EQ(points.size(), 3u);
+}
+TEST(geometry_test, regression_checked_cross_product) {
+	using P = tgen::geometry::point<unsigned int>;
+	auto max = std::numeric_limits<unsigned int>::max();
+	EXPECT_THROW(P(max, 0) ^ P(0, max), std::runtime_error);
+	using Q = tgen::geometry::point<long>;
+	if constexpr (sizeof(long) == 8) {
+		EXPECT_THROW(Q(4000000000L, 0) ^ Q(0, 4000000000L), std::runtime_error);
+	}
+	EXPECT_EQ(P(3, 2) ^ P(1, 4), 10);
+	EXPECT_EQ(P(1, 4) ^ P(3, 2), -10);
+}
+
+TEST(geometry_test, regression_large_request_validation) {
+	tgen::register_gen(0);
+	EXPECT_THROW(tgen::geometry::random_points_general_position(
+					 std::numeric_limits<int>::max() / 2 + 1, 0, 1),
+				 std::runtime_error);
+	EXPECT_THROW(tgen::geometry::random_orthogonal_polygon(
+					 std::numeric_limits<int>::max(), 0, 3),
+				 std::runtime_error);
 }

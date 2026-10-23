@@ -514,3 +514,154 @@ TEST(base_test, distinct_container) {
 	vec = tgen::distinct_container(v).gen_list(5).to_std();
 	EXPECT_EQ(vec.size(), 5);
 }
+
+TEST(base_test, regression_distinct_mixed_calls) {
+	for (int seed = 0; seed < 20; ++seed) {
+		tgen::register_gen(seed);
+		tgen::distinct_range<int> d(-4, 4);
+		std::set<int> seen;
+		EXPECT_TRUE(seen.insert(d.gen()).second);
+		for (int x : d.gen_list(3).to_std())
+			EXPECT_TRUE(seen.insert(x).second);
+		EXPECT_EQ(d.size(), 5U);
+		EXPECT_TRUE(d.gen_list(0).to_std().empty());
+		EXPECT_TRUE(seen.insert(d.gen()).second);
+		for (int x : d.gen_all().to_std())
+			EXPECT_TRUE(seen.insert(x).second);
+		EXPECT_EQ(seen, (std::set<int>{-4, -3, -2, -1, 0, 1, 2, 3, 4}));
+		EXPECT_EQ(d.size(), 0U);
+		EXPECT_THROW(d.gen(), std::runtime_error);
+	}
+}
+
+TEST(base_test, regression_distinct_empty_batch_preserves_state) {
+	tgen::register_gen(0);
+	tgen::distinct_range<int> d(0, 99);
+	std::set<int> seen;
+	for (int i = 0; i < 100; ++i) {
+		EXPECT_TRUE(seen.insert(d.gen()).second);
+		EXPECT_TRUE(d.gen_list(0).to_std().empty());
+	}
+}
+
+TEST(base_test, regression_distinct_sparse_batches) {
+	tgen::register_gen(0);
+	tgen::distinct_range<int> d(0, 100000000);
+	std::set<int> seen;
+	for (int i = 0; i < 10; ++i) {
+		for (int x : d.gen_list(10000).to_std())
+			ASSERT_TRUE(seen.insert(x).second);
+		ASSERT_TRUE(seen.insert(d.gen()).second);
+	}
+}
+
+TEST(base_test, regression_weighted_fractional_rounding) {
+	tgen::register_gen(0);
+	for (auto weights : {std::vector<double>{0.1, 0.3, 0.6},
+						 std::vector<double>{0.1, 0.2, 0.3},
+						 std::vector<double>{0.0, 0.1, 0.3, 0.6, 0.0}}) {
+		tgen::weighted_sampler sampler(weights);
+		expect_distribution([&] { return sampler.next(); }, weights);
+	}
+}
+
+TEST(base_test, regression_weighted_invalid_totals) {
+	EXPECT_THROW(tgen::weighted_sampler({0.0, 0.0}), std::runtime_error);
+	EXPECT_THROW(tgen::weighted_sampler({0, 0}), std::runtime_error);
+	EXPECT_THROW(
+		tgen::weighted_sampler({1.0, std::numeric_limits<double>::infinity()}),
+		std::runtime_error);
+}
+
+TEST(base_test, regression_weighted_finite_scaling_overflow) {
+	tgen::register_gen(0);
+	tgen::weighted_sampler sampler({7e307, 6e307, 1e307});
+	expect_distribution([&] { return sampler.next(); }, {7, 6, 1});
+}
+
+TEST(base_test, regression_distinct_mixed_order_uniform) {
+	tgen::register_gen(0);
+	expect_function_uniform(
+		[] {
+			tgen::distinct_range<int> d(0, 3);
+			std::vector<int> result{d.gen()};
+			for (int x : d.gen_list(2).to_std())
+				result.push_back(x);
+			result.push_back(d.gen());
+			return result;
+		},
+		24);
+}
+
+TEST(base_test, regression_weighted_finite_total_overflow) {
+	tgen::register_gen(0);
+	const double max = std::numeric_limits<double>::max();
+	tgen::weighted_sampler sampler({max, max});
+	expect_function_uniform([&] { return sampler.next(); }, 2);
+}
+
+TEST(base_test, regression_distinct_copy_after_batch) {
+	tgen::register_gen(0);
+	tgen::distinct_range<int> d(0, 9);
+	auto first = d.gen_list(4).to_std();
+	auto copy = d;
+	auto rest = d.gen_all().sort().to_std();
+	EXPECT_EQ(copy.gen_all().sort().to_std(), rest);
+	std::set<int> all(first.begin(), first.end());
+	all.insert(rest.begin(), rest.end());
+	EXPECT_EQ(all.size(), 10U);
+}
+
+TEST(base_test, regression_weighted_subnormal_weights) {
+	tgen::register_gen(42);
+	const double tiny = std::numeric_limits<double>::denorm_min();
+	tgen::weighted_sampler sampler({tiny, 2 * tiny});
+	expect_distribution([&] { return sampler.next(); }, {1, 2});
+}
+
+TEST(base_test, regression_weighted_tiny_long_double_weights) {
+	if (std::numeric_limits<long double>::min_exponent >=
+		std::numeric_limits<double>::min_exponent)
+		GTEST_SKIP() << "long double has no wider exponent range than double";
+	tgen::register_gen(42);
+	const long double tiny = std::numeric_limits<long double>::min();
+	tgen::weighted_sampler sampler({tiny, 2 * tiny});
+	expect_distribution([&] { return sampler.next(); }, {1, 2});
+}
+
+TEST(base_test, regression_finite_float_ranges) {
+	tgen::register_gen(42);
+	auto check = [](auto max) {
+		using T = decltype(max);
+		T inf = std::numeric_limits<T>::infinity();
+		EXPECT_THROW(tgen::next(-max, max), std::runtime_error);
+		EXPECT_THROW(tgen::next(inf), std::runtime_error);
+		for (int w : {-6, 0, 6}) {
+			EXPECT_THROW(tgen::wnext(-max, max, w), std::runtime_error);
+			EXPECT_THROW(tgen::wnext(inf, w), std::runtime_error);
+			EXPECT_THROW(tgen::wnext(T(2), T(1), w), std::runtime_error);
+			EXPECT_THROW(tgen::wnext(T(-1), w), std::runtime_error);
+			T v = tgen::wnext(-max / 4, max / 4, w);
+			EXPECT_TRUE(std::isfinite(v));
+			EXPECT_GE(v, -max / 4);
+			EXPECT_LE(v, max / 4);
+		}
+	};
+	check(std::numeric_limits<float>::max());
+	check(std::numeric_limits<double>::max());
+	check(std::numeric_limits<long double>::max());
+}
+
+TEST(base_test, regression_print_128_extrema) {
+	using I = __int128;
+	using U = unsigned __int128;
+	EXPECT_EQ(tgen::print(std::numeric_limits<I>::min()).s_,
+			  "-170141183460469231731687303715884105728");
+	EXPECT_EQ(tgen::print(std::numeric_limits<I>::max()).s_,
+			  "170141183460469231731687303715884105727");
+	EXPECT_EQ(tgen::print(std::numeric_limits<U>::max()).s_,
+			  "340282366920938463463374607431768211455");
+	EXPECT_EQ(
+		tgen::print(std::vector<I>{0, -1, std::numeric_limits<I>::min()}).s_,
+		"0 -1 -170141183460469231731687303715884105728");
+}

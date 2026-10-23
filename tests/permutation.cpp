@@ -122,6 +122,30 @@ TEST(permutation_test, gen_invalid) {
 		"permutation: cannot set two indices to the same value");
 }
 
+TEST(permutation_test, gen_fix_then_cycles) {
+	tgen::register_gen(1);
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::permutation(3).fix(0, 0).cycles({1, 2}).gen(),
+		"permutation: fixed values and cycle sizes cannot be combined");
+}
+
+TEST(permutation_test, gen_cycles_then_fix) {
+	tgen::register_gen(1);
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::permutation(3).cycles({1, 2}).fix(0, 0).gen(),
+		"permutation: fixed values and cycle sizes cannot be combined");
+}
+
+TEST(permutation_test, gen_incompatible_fix_cycles) {
+	tgen::register_gen(1);
+
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::permutation(2).fix(0, 0).cycles({2}).gen(),
+		"permutation: fixed values and cycle sizes cannot be combined");
+}
+
 TEST(permutation_test, gen_without_cycles) {
 	tgen::register_gen();
 
@@ -185,4 +209,32 @@ TEST(permutation_test, gen_uniform) {
 
 	expect_generator_uniform(tgen::permutation(4), 24);
 	expect_generator_uniform(tgen::permutation(5).fix(0, 3).fix(1, 2), 6);
+}
+
+TEST(permutation_test, regression_shuffle_uniform) {
+	tgen::register_gen(0);
+	std::map<tgen::permutation::value::std_type, int> counts;
+	constexpr int trials = 100000;
+	for (int i = 0; i < trials; ++i) {
+		tgen::permutation::value v({0, 1, 2});
+		++counts[v.shuffle().to_std()];
+	}
+	EXPECT_TRUE(expect_uniform(counts, 6, trials));
+}
+
+TEST(permutation_test, regression_cycles_nonpositive) {
+	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(3).cycles({-1, 4}),
+							 "permutation: cycle sizes must be positive");
+	EXPECT_THROW_TGEN_PREFIX(tgen::permutation(3).cycles({0, 3}),
+							 "permutation: cycle sizes must be positive");
+}
+
+TEST(permutation_test, regression_cycles_oversized) {
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::permutation(3).cycles({4, -1}),
+		"permutation: cycle sizes must add up to size of permutation");
+	const int max = std::numeric_limits<int>::max();
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::permutation(3).cycles({max, max, 5}),
+		"permutation: cycle sizes must add up to size of permutation");
 }

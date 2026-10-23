@@ -9,6 +9,9 @@ namespace tgen {
  * ## Regex
  *
  * Regex syntax compatible with testlib's regex.
+ * Regexes may generate an empty string (for example, @tt{a{0}}).
+ * Empty groups and alternatives are supported: @tt{a()b} yields @tt{ab},
+ * and @tt{a|} yields either @tt{a} or the empty string.
  *
  * Operations:
  * - A single character yields itself (@tt{a}, @tt{3}).
@@ -430,7 +433,7 @@ namespace tgen {
 /**
  * @brief Creates a string value from a @texttt{@namespace{std}::@type{string}}.
  *
- * @param str The @texttt{@namespace{std}::@type{string}} representing the string.
+ * @param str The @texttt{@namespace{std}::@type{string}} representing the string. May be empty.
  *
  * #### Examples
  *

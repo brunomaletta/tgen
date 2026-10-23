@@ -276,3 +276,75 @@ TEST(opts_test, set_compiler_opt) {
 	EXPECT_EQ(tgen::detail::compiler.major_, tgen::clang(17, 2).major_);
 	EXPECT_EQ(tgen::detail::compiler.minor_, tgen::clang(17, 2).minor_);
 }
+TEST(opts_test, regression_numeric_option_narrowing) {
+	auto argv =
+		get_argv({"./executable", "2147483648", "-2147483649", "256", "128"});
+	tgen::register_gen(static_cast<int>(argv.size()) - 1, argv.data());
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<int>(0), "invalid value");
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<int>(1), "invalid value");
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<unsigned char>(2), "invalid value");
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<signed char>(3), "invalid value");
+}
+
+TEST(opts_test, regression_numeric_option_suffix) {
+	auto argv =
+		get_argv({"./executable", "--n=12junk", "--x=1.5junk", "--y=12 "});
+	tgen::register_gen(static_cast<int>(argv.size()) - 1, argv.data());
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<int>("n"), "invalid value");
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<double>("x"), "invalid value");
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<unsigned>("y"), "invalid value");
+	EXPECT_EQ(tgen::opt<std::string>("n"), "12junk");
+}
+
+TEST(opts_test, regression_negative_unsigned_option) {
+	auto argv = get_argv({"./executable", "-1", "--n= -1", "--zero=-0"});
+	tgen::register_gen(static_cast<int>(argv.size()) - 1, argv.data());
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<unsigned>(0), "invalid value");
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<unsigned long long>("n"),
+							 "invalid value");
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<unsigned>("zero"), "invalid value");
+}
+
+TEST(opts_test, regression_floating_option_range) {
+	auto argv = get_argv({"./executable", "1e40", "1e-100", "--double=1e400"});
+	tgen::register_gen(static_cast<int>(argv.size()) - 1, argv.data());
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<float>(0), "invalid value");
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<float>(1), "invalid value");
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<double>("double"), "invalid value");
+}
+
+TEST(opts_test, regression_numeric_option_boundaries) {
+	auto argv =
+		get_argv({"./executable", "-9223372036854775808", "9223372036854775807",
+				  "18446744073709551615", "--plus=+12", "--real=1.25e2",
+				  "--tiny=1.401298464324817070923729583289916131280e-45",
+				  "--inf=inf", "--nan=nan"});
+	tgen::register_gen(static_cast<int>(argv.size()) - 1, argv.data());
+	EXPECT_EQ(tgen::opt<long long>(0), std::numeric_limits<long long>::min());
+	EXPECT_EQ(tgen::opt<long long>(1), std::numeric_limits<long long>::max());
+	EXPECT_EQ(tgen::opt<unsigned long long>(2),
+			  std::numeric_limits<unsigned long long>::max());
+	EXPECT_EQ(tgen::opt<unsigned>("plus"), 12);
+	EXPECT_EQ(tgen::opt<double>("real"), 125);
+	EXPECT_EQ(tgen::opt<float>("tiny"),
+			  std::numeric_limits<float>::denorm_min());
+	EXPECT_TRUE(std::isinf(tgen::opt<double>("inf")));
+	EXPECT_TRUE(std::isnan(tgen::opt<double>("nan")));
+}
+
+TEST(opts_test, regression_long_double_subnormal_option) {
+	std::ostringstream out;
+	out << std::scientific
+		<< std::setprecision(std::numeric_limits<long double>::max_digits10)
+		<< std::numeric_limits<long double>::denorm_min();
+	std::string tiny = out.str();
+	auto argv = get_argv({"./executable", tiny.c_str(), "--overflow=1e100000",
+						  "--underflow=1e-100000"});
+	tgen::register_gen(static_cast<int>(argv.size()) - 1, argv.data());
+	EXPECT_EQ(tgen::opt<long double>(0),
+			  std::numeric_limits<long double>::denorm_min());
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<long double>("overflow"),
+							 "invalid value");
+	EXPECT_THROW_TGEN_PREFIX(tgen::opt<long double>("underflow"),
+							 "invalid value");
+}

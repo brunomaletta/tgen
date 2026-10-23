@@ -243,3 +243,69 @@ TEST(str_test, adjacent_different) {
 			EXPECT_NE(inst[j - 1], inst[j]);
 	}
 }
+
+TEST(str_test, regression_shuffle_uniform) {
+	tgen::register_gen(0);
+	std::map<tgen::str::value::std_type, int> counts;
+	constexpr int trials = 100000;
+	for (int i = 0; i < trials; ++i) {
+		tgen::str::value v("012");
+		++counts[v.shuffle().to_std()];
+	}
+	EXPECT_TRUE(expect_uniform(counts, 6, trials));
+}
+
+TEST(str_test, regression_empty_regex_result) {
+	tgen::register_gen(42);
+	EXPECT_EQ(tgen::str("a{0}").gen().to_std(), "");
+	auto g = tgen::str("[ab]{0,1}");
+	std::map<std::string, int> counts;
+	for (int i = 0; i < 30000; ++i)
+		++counts[g.gen().to_std()];
+	EXPECT_EQ(counts.size(), 3u);
+	EXPECT_TRUE(expect_uniform(counts, 3, 30000));
+}
+TEST(str_test, regression_empty_string_value) {
+	tgen::register_gen(42);
+	tgen::str::value s("");
+	EXPECT_EQ(s.size(), 0);
+	s.sort().reverse().shuffle().lowercase().uppercase();
+	EXPECT_EQ(s.to_std(), "");
+	EXPECT_EQ((std::ostringstream() << s).str(), "");
+	EXPECT_THROW(s.pick(), std::runtime_error);
+	EXPECT_THROW(s[0], std::runtime_error);
+	EXPECT_THROW(s.pick_by_distribution(std::vector<int>{}),
+				 std::runtime_error);
+	EXPECT_THROW(s.choose(1), std::runtime_error);
+	EXPECT_EQ((s + tgen::str::value("a")).to_std(), "a");
+}
+
+TEST(str_test, regression_empty_groups) {
+	tgen::register_gen(0);
+	EXPECT_EQ(tgen::str("()").gen().to_std(), "");
+	EXPECT_EQ(tgen::str("a()b").gen().to_std(), "ab");
+	for (auto pattern : {"a|", "(|a)"}) {
+		std::set<std::string> seen;
+		for (int i = 0; i < 100; ++i)
+			seen.insert(tgen::str(pattern).gen().to_std());
+		EXPECT_EQ(seen, (std::set<std::string>{"", "a"}));
+	}
+}
+TEST(str_test, regression_character_range_maximum) {
+	tgen::register_gen(0);
+	for (int width : {0, 1}) {
+		std::string pattern = "[";
+		pattern += char(std::numeric_limits<char>::max() - width);
+		pattern += '-';
+		pattern += char(std::numeric_limits<char>::max());
+		pattern += ']';
+		auto gen = tgen::str(pattern);
+		std::set<char> seen;
+		for (int i = 0; i < 100; ++i)
+			seen.insert(gen.gen()[0]);
+		EXPECT_EQ(seen.size(), static_cast<size_t>(width + 1));
+		EXPECT_EQ(*seen.begin(),
+				  char(std::numeric_limits<char>::max() - width));
+		EXPECT_EQ(*seen.rbegin(), char(std::numeric_limits<char>::max()));
+	}
+}

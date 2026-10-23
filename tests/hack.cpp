@@ -208,7 +208,7 @@ TEST(hack_test, spfa) {
 
 	for (int n : {2, 4, 10, 100}) {
 		const int k = n / 2;
-		const int m = 4 * k - 3;
+		const int m = 3 * k - 2;
 		auto g = tgen::hack::spfa(n);
 		EXPECT_TRUE(graph_gen_result_valid(g, n, m, true, false));
 		ASSERT_TRUE(g.edge_weights().has_value());
@@ -494,4 +494,128 @@ TEST(hack_test, link_cut_tree_worst_case) {
 		}
 		EXPECT_EQ(distinct, std::min(q, m));
 	}
+}
+
+TEST(hack_test, regression_hash_small_modulus) {
+	for (int seed = 0; seed < 16; ++seed) {
+		tgen::register_gen(seed);
+		auto [a, b] = tgen::hack::polynomial_hash(2, 1, 2);
+		ASSERT_NE(a, b);
+		ASSERT_EQ(a.size(), b.size());
+		for (const auto &s : {a, b})
+			for (char c : s)
+				ASSERT_TRUE(c == 'a' or c == 'b');
+		auto hash = [](const std::string &s) {
+			int h = 0;
+			for (char c : s)
+				h = (h + c - 'a' + 1) % 2;
+			return h;
+		};
+		EXPECT_EQ(hash(a), hash(b));
+	}
+}
+
+TEST(hack_test, regression_hash_small_modulus_vector) {
+	tgen::register_gen(0);
+	auto [a, b] = tgen::hack::polynomial_hash(2, std::vector<int>{1},
+											  std::vector<int>{2});
+	ASSERT_NE(a, b);
+	ASSERT_EQ(a.size(), b.size());
+	int hash_a = 0, hash_b = 0;
+	for (char c : a) {
+		ASSERT_TRUE(c == 'a' or c == 'b');
+		hash_a = (hash_a + c - 'a' + 1) % 2;
+	}
+	for (char c : b) {
+		ASSERT_TRUE(c == 'a' or c == 'b');
+		hash_b = (hash_b + c - 'a' + 1) % 2;
+	}
+	EXPECT_EQ(hash_a, hash_b);
+}
+
+TEST(hack_test, regression_hash_small_modulus_composition) {
+	tgen::register_gen(0);
+	auto [a, b] = tgen::hack::polynomial_hash(2, {1, 1}, {3, 2});
+	ASSERT_NE(a, b);
+	ASSERT_EQ(a.size(), b.size());
+	for (int mod : {3, 2}) {
+		int hash_a = 0, hash_b = 0;
+		for (char c : a) {
+			ASSERT_TRUE(c == 'a' or c == 'b');
+			hash_a = (hash_a + c - 'a' + 1) % mod;
+		}
+		for (char c : b) {
+			ASSERT_TRUE(c == 'a' or c == 'b');
+			hash_b = (hash_b + c - 'a' + 1) % mod;
+		}
+		EXPECT_EQ(hash_a, hash_b);
+	}
+}
+
+TEST(hack_test, regression_hash_vector_invalid_alphabet) {
+	tgen::register_gen(0);
+	for (int size : {-1, 0, 1})
+		EXPECT_THROW_TGEN_PREFIX(
+			tgen::hack::polynomial_hash(size, std::vector<int>{1},
+										std::vector<int>{2}),
+			"hack: polynomial_hash: alphabet size must be greater than 1");
+}
+
+TEST(hack_test, regression_flow_capacity_validation) {
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::dinitz_worst_case(350, 18000),
+		"hack: dinitz_worst_case: size or capacity too large");
+	EXPECT_THROW_TGEN_PREFIX(
+		tgen::hack::dinitz_worst_case(std::numeric_limits<int>::max(),
+									  std::numeric_limits<int>::max()),
+		"hack: dinitz_worst_case: size or capacity too large");
+	auto g = tgen::hack::dinitz_worst_case(10, 20);
+	for (int w : *g.edge_weights())
+		EXPECT_GT(w, 0);
+}
+TEST(hack_test, regression_spfa_work) {
+	for (int n : {100, 200, 400})
+		for (int seed = 0; seed < 5; ++seed) {
+			tgen::register_gen(seed);
+			auto g = tgen::hack::spfa(n);
+			for (int order = 0; order < 2; ++order) {
+				std::vector<std::vector<std::pair<int, int>>> adj(n);
+				for (int i = 0; i < g.m(); ++i) {
+					auto [u, v] = g.edges()[i];
+					adj[u].push_back({v, (*g.edge_weights())[i]});
+				}
+				if (order)
+					for (auto &row : adj)
+						std::reverse(row.begin(), row.end());
+				std::vector<long long> d(n,
+										 std::numeric_limits<long long>::max());
+				std::vector<bool> queued(n);
+				std::queue<int> q;
+				q.push(0);
+				queued[0] = true;
+				d[0] = 0;
+				long long scans = 0;
+				while (!q.empty()) {
+					int u = q.front();
+					q.pop();
+					queued[u] = false;
+					for (auto [v, w] : adj[u]) {
+						++scans;
+						if (d[u] + w < d[v]) {
+							d[v] = d[u] + w;
+							if (!queued[v]) {
+								queued[v] = true;
+								q.push(v);
+							}
+						}
+					}
+				}
+				EXPECT_GE(scans, 1LL * n * n / 8);
+				EXPECT_LE(scans, 2LL * n * n);
+				for (auto [u, v] : g.edges()) {
+					EXPECT_NE(d[u], std::numeric_limits<long long>::max());
+					EXPECT_NE(d[v], std::numeric_limits<long long>::max());
+				}
+			}
+		}
 }

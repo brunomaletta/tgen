@@ -83,6 +83,9 @@ namespace tgen {
  * @param idx Index.
  * @param val Value.
  *
+ * @note Generation fails if this restriction is combined with @tt{tgen::permutation::cycles}.
+ *       The combination is unsupported regardless of the order in which the restrictions are added.
+ *
  * #### Examples
  *
  * ```cpp
@@ -97,9 +100,15 @@ namespace tgen {
 /**
  * @brief Restricts generator s.t. cycle sizes are fixed.
  *
- * @param cycle_sizes Sizes of cycles.
+ * @param cycle_sizes Positive sizes of cycles, summing to the permutation size.
  *
  * The sizes of cycles of the generated permutation will be @pname{cycle_sizes}.
+ *
+ * @throws std::runtime_error If a cycle size is not positive or the sizes do not sum to the permutation size.
+ *
+ * @note Generation fails if this restriction is combined with @tt{tgen::permutation::fix}.
+ *       The combination is unsupported even when a permutation satisfying both restrictions exists.
+ *       Calling @tt{tgen::permutation::gen} with both restrictions throws @tt{std::runtime_error}.
  *
  * #### Examples
  *
@@ -117,7 +126,8 @@ namespace tgen {
  *
  * @return A uniformly random @tt{tgen::permutation::value} from the set of valid permutations, given the added restrictions.
  *
- * @throws std::runtime_error if there is no valid permutation satisfying all added restrictions.
+ * @throws std::runtime_error if there is no valid permutation satisfying all added restrictions,
+ *         or if fixed values and cycle sizes are combined.
  *
  * #### Time complexity
  *

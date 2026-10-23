@@ -89,6 +89,7 @@ namespace tgen::hack {
  * @param mod Mod.
  *
  * @pre
+ * @tt{@pname{alphabet_size} > 1}. <br>
  * @tt{0 < @pname{base} < @pname{mod}}
  *
  * Computes two strings that have the same polynomial hash for given base and mod. <br>
@@ -125,7 +126,8 @@ namespace tgen::hack {
  * @param mods Mods.
  *
  * @pre
- * @tt{|@pname{bases}| = |@pname{mods}| <= 2}. <br>
+ * @tt{@pname{alphabet_size} > 1}. <br>
+ * @tt{0 < |@pname{bases}| = |@pname{mods}| <= 2}. <br>
  * @tt{0 < @pname{bases}[i] < @pname{mods}[i]}.
  *
  * Computes two strings that have the same polynomial hash for given bases and mods,
@@ -293,22 +295,18 @@ namespace tgen::hack {
  *
  * @pre @tt{@pname{n} >= 2}, @tt{@pname{n} even}.
  *
- * Builds two parallel chains of length @tt{k = @pname{n}/2} (upper @tt{a_1..a_k},
- * lower @tt{b_1..b_k}):
+ * Builds two chains of length @tt{k = @pname{n}/2}, with zero-based indices:
  *
  * - Upper chain @tt{a_i -> a_{i+1}}, weight @tt{1};
  * - Lower chain @tt{b_i -> b_{i+1}}, weight @tt{0};
- * - Vertical @tt{a_i -> b_i}, weight @tt{0};
- * - Cross @tt{b_i -> a_{i+1}}, weight @tt{1}.
+ * - Edges @tt{a_i -> b_0}, weight @tt{2(k-i)}.
  *
- * The upper chain reaches each @tt{a_{i+1}} with a loose estimate first; once
- * @tt{b_i} is settled on the zero-weight lower chain, the cross edge can
- * strictly improve @tt{a_{i+1}} and re-enqueue it in FIFO-SPFA.
+ * Successive upper vertices give decreasing estimates for @tt{b_0}.
+ * FIFO-SPFA propagates these improvements through the lower chain in separate
+ * waves, forcing @tt{Theta(@pname{n}^2)} edge scans from vertex @tt{0}.
  *
- * Forces @tt{Omega(@pname{n}^2)} time on FIFO-SPFA from vertex @tt{0} (@tt{Theta(@pname{n} * m)}.
- *
- * @return A directed @tt{tgen::egraph<int>::value} with @tt{@pname{n}} vertices and
- *         @tt{m = 2@pname{n} - 3} edges. 
+ * @return A directed @tt{tgen::egraph<int>::value} with @tt{@pname{n}} vertices
+ * and @tt{m = 3@pname{n}/2 - 2} edges.
  *
  * #### Time complexity
  *
@@ -332,6 +330,9 @@ namespace tgen::hack {
  * @param l Source and sink chain length.
  *
  * @pre @tt{@pname{k} >= 1}, @tt{@pname{l} >= 1}.
+ *
+ * @throws std::runtime_error if the vertex count, edge count, or capacity
+ * @tt{k*k*l} exceeds @tt{INT_MAX}.
  *
  * Builds the Zadeh (1972) anti-shortest-paths network, a worst-case instance for
  * both Edmonds-Karp and Dinitz. The source is vertex @tt{0} and the sink is vertex
@@ -409,7 +410,8 @@ namespace tgen::hack {
  * std::mt19937 rng(42);
  * int hash = 0;
  * for (bool use : tgen::hack::mt19937_xor_hash<T>()) {
- *   if (use) hash ^= rng();
+ *   auto value = rng();
+ *   if (use) hash ^= value;
  * }
  * @endcode
  * then @tt{hash = 0}.
@@ -427,8 +429,10 @@ namespace tgen::hack {
  * ```cpp
  * std::mt19937 rng(seed);
  * uint32_t hash = 0;
- * for (bool use : tgen::hack::mt19937_xor_hash<int>())
- *   if (use) hash ^= rng();
+ * for (bool use : tgen::hack::mt19937_xor_hash<int>()) {
+ *   auto value = rng();
+ *   if (use) hash ^= value;
+ * }
  * ```
  *
  * @fn mt19937_xor_hash();

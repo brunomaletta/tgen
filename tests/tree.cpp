@@ -589,3 +589,159 @@ TEST(tree_test, from_graph_fails_directed) {
 		(tgen::tree::value(g)),
 		"wtree: value: graph must be undirected to form a tree");
 }
+
+TEST(tree_test, regression_weighted_glue_full_overlap) {
+	auto a = tgen::tree::value(2, std::vector<std::pair<int, int>>{{0, 1}})
+				 .set_vertex_weights(std::vector<int>{10, 20});
+	auto b = tgen::tree::value(1, std::vector<std::pair<int, int>>{})
+				 .set_vertex_weights(std::vector<int>{20});
+	a.glue(b, std::set<std::pair<int, int>>{{1, 0}});
+
+	EXPECT_EQ(a.n(), 2);
+	EXPECT_EQ(a.edges(), (std::vector<std::pair<int, int>>{{0, 1}}));
+	ASSERT_TRUE(a.vertex_weights().has_value());
+	EXPECT_EQ(*a.vertex_weights(), (std::vector<int>{10, 20}));
+}
+
+TEST(tree_test, regression_weighted_glue_partial_overlap) {
+	auto a = tgen::tree::value(2, std::vector<std::pair<int, int>>{{0, 1}})
+				 .set_vertex_weights(std::vector<int>{10, 20});
+	auto b = tgen::tree::value(2, std::vector<std::pair<int, int>>{{0, 1}})
+				 .set_vertex_weights(std::vector<int>{20, 30});
+	a.glue(b, std::set<std::pair<int, int>>{{1, 0}});
+	EXPECT_EQ(a.n(), 3);
+	EXPECT_EQ(a.edges(), (std::vector<std::pair<int, int>>{{0, 1}, {1, 2}}));
+	ASSERT_TRUE(a.vertex_weights().has_value());
+	EXPECT_EQ(*a.vertex_weights(), (std::vector<int>{10, 20, 30}));
+}
+
+TEST(tree_test, regression_weight_edge_order) {
+	auto v = tgen::tree::value(3, {{1, 2}, {0, 1}});
+	auto weighted = v.set_edge_weights({70, 90});
+	EXPECT_EQ(weighted.edges(), v.edges());
+	EXPECT_EQ(*weighted.edge_weights(), (std::vector<int>{70, 90}));
+	auto converted = v.convert_weight_types<std::string, long long>();
+	EXPECT_EQ(converted.edges(), v.edges());
+}
+
+TEST(tree_test, regression_weight_vertex_then_edge) {
+	auto v = tgen::tree::value(3, {{1, 2}, {0, 1}});
+	v.print_1_based();
+	auto vertices = v.set_vertex_weights<std::string>({"a", "b", "c"});
+	auto both = vertices.set_edge_weights<long long>({70, 90});
+	EXPECT_EQ(both.edges(), v.edges());
+	EXPECT_EQ(*both.vertex_weights(),
+			  (std::vector<std::string>{"a", "b", "c"}));
+	EXPECT_EQ(*both.edge_weights(), (std::vector<long long>{70, 90}));
+	EXPECT_TRUE(both.print_1_based_);
+	auto replaced = both.set_vertex_weights<int>({10, 20, 30});
+	EXPECT_EQ(*replaced.vertex_weights(), (std::vector<int>{10, 20, 30}));
+	EXPECT_EQ(*replaced.edge_weights(), *both.edge_weights());
+	EXPECT_FALSE(vertices.edge_weights().has_value());
+	EXPECT_FALSE(v.vertex_weights().has_value());
+}
+
+TEST(tree_test, regression_weight_edge_then_vertex) {
+	auto v = tgen::tree::value(3, {{1, 2}, {0, 1}});
+	auto edges = v.set_edge_weights<std::string>({"x", "y"});
+	auto both = edges.set_vertex_weights<long long>({10, 20, 30});
+	EXPECT_EQ(both.edges(), v.edges());
+	EXPECT_EQ(*both.vertex_weights(), (std::vector<long long>{10, 20, 30}));
+	EXPECT_EQ(*both.edge_weights(), (std::vector<std::string>{"x", "y"}));
+	auto replaced = both.set_edge_weights<int>({70, 90});
+	EXPECT_EQ(*replaced.edge_weights(), (std::vector<int>{70, 90}));
+	EXPECT_EQ(*replaced.vertex_weights(), *both.vertex_weights());
+	EXPECT_FALSE(edges.vertex_weights().has_value());
+	EXPECT_FALSE(v.edge_weights().has_value());
+}
+
+TEST(tree_test, regression_self_glue_weights) {
+	auto v = tgen::tree::value(2, {{0, 1}})
+				 .set_vertex_weights({10, 20})
+				 .set_edge_weights({7});
+	v.glue(v, std::set<std::pair<int, int>>{{0, 0}});
+	EXPECT_EQ(v.n(), 3);
+	EXPECT_EQ(v.edges(), (std::vector<std::pair<int, int>>{{0, 1}, {0, 2}}));
+	EXPECT_EQ(*v.vertex_weights(), (std::vector<int>{10, 20, 20}));
+	EXPECT_EQ(*v.edge_weights(), (std::vector<int>{7, 7}));
+}
+
+TEST(tree_test, regression_self_link_weights) {
+	auto v = tgen::tree::value(2, {{0, 1}})
+				 .set_vertex_weights({10, 20})
+				 .set_edge_weights({7});
+	v.link(v, 1, 0, 9);
+	EXPECT_EQ(v.n(), 4);
+	EXPECT_EQ(v.edges(),
+			  (std::vector<std::pair<int, int>>{{0, 1}, {2, 3}, {1, 2}}));
+	EXPECT_EQ(*v.vertex_weights(), (std::vector<int>{10, 20, 10, 20}));
+	EXPECT_EQ(*v.edge_weights(), (std::vector<int>{7, 7, 9}));
+}
+
+TEST(tree_test, regression_rejected_missing_edge_weight) {
+	auto v = tgen::tree::value(2, std::vector<std::pair<int, int>>{})
+				 .set_edge_weights({});
+	EXPECT_THROW_TGEN_PREFIX(
+		v.add_edge(0, 1),
+		"wtree: value: cannot add unweighted edge to edge-weighted tree");
+	ASSERT_TRUE(v.edges().empty());
+	EXPECT_TRUE(v.adj()[0].empty());
+	EXPECT_TRUE(v.edge_weights()->empty());
+	v.add_edge(0, 1, 7);
+	std::ostringstream out;
+	out << v;
+	EXPECT_EQ(out.str(), "0 1 7\n");
+}
+
+TEST(tree_test, regression_rejected_unexpected_edge_weight) {
+	auto v = tgen::tree::value(2, std::vector<std::pair<int, int>>{});
+	EXPECT_THROW_TGEN_PREFIX(
+		v.add_edge(0, 1, 7),
+		"wtree: value: cannot add weighted edge to edge-unweighted tree");
+	ASSERT_TRUE(v.edges().empty());
+	EXPECT_TRUE(v.adj()[0].empty());
+	v.add_edge(0, 1);
+	std::ostringstream out;
+	out << v;
+	EXPECT_EQ(out.str(), "0 1\n");
+}
+
+TEST(tree_test, regression_rejected_cycle_preserves_tree) {
+	auto t = tgen::tree::value(3, {{0, 1}, {1, 2}});
+	const auto original = t;
+	EXPECT_THROW_TGEN_PREFIX(
+		t.add_edge(0, 2), "wtree: value: added edge must not create a cycle");
+	ASSERT_EQ(t.edges(), original.edges());
+	EXPECT_EQ(t.adj(), original.adj());
+	std::ostringstream out;
+	out << t;
+	EXPECT_EQ(out.str(), "0 1\n1 2\n");
+	t.link(tgen::tree::value(1, {}), 2, 0);
+	EXPECT_EQ(t.n(), 4);
+	EXPECT_EQ(t.edges().back(), std::make_pair(2, 3));
+}
+
+TEST(tree_test, regression_rejected_vertex_weights_preserves_tree) {
+	auto t = tgen::tree::value(1, {}).set_vertex_weights({7});
+	EXPECT_THROW_TGEN_PREFIX(
+		t.link(tgen::tree::value(1, {}), 0, 0),
+		"wtree: value: cannot add unweighted vertices to vertex-weighted tree");
+	ASSERT_EQ(t.n(), 1);
+	EXPECT_EQ(*t.vertex_weights(), (std::vector<int>{7}));
+	t.link(tgen::tree::value(1, {}).set_vertex_weights({8}), 0, 0);
+	std::ostringstream out;
+	out << t;
+	EXPECT_EQ(out.str(), "7 8\n0 1\n");
+}
+
+TEST(tree_test, regression_rejected_extra_vertex_weights_preserves_tree) {
+	auto t = tgen::tree::value(1, {});
+	EXPECT_THROW_TGEN_PREFIX(
+		t.link(tgen::tree::value(1, {}).set_vertex_weights({8}), 0, 0),
+		"wtree: value: cannot add weighted vertices to vertex-unweighted tree");
+	ASSERT_EQ(t.n(), 1);
+	t.link(tgen::tree::value(1, {}), 0, 0);
+	std::ostringstream out;
+	out << t;
+	EXPECT_EQ(out.str(), "0 1\n");
+}

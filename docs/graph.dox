@@ -230,7 +230,10 @@ namespace tgen {
  * @param u Endpoint (head if directed).
  * @param v Endpoint (tail if directed).
  *
- * The number of preset edges must not exceed @tt{m}.
+ * The number of preset edges must not exceed @tt{m}. An edge rejected for
+ * exceeding this limit is not retained. Repeated edges count only once.
+ * Self-loops are rejected unless the generator was constructed with
+ * @tt{has_self_loops = @primitive{true}}.
  *
  * #### Time complexity
  *
@@ -251,6 +254,9 @@ namespace tgen {
  * @brief Adds all edges from another graph as preset edges.
  *
  * @param rhs Graph to take edges from.
+ *
+ * Edges are added one at a time. If an edge is rejected, earlier accepted
+ * additions remain in the generator.
  *
  * #### Time complexity
  *
@@ -357,9 +363,9 @@ namespace tgen {
  * @return A connected skewed @tt{tgen::wgraph::value} with exactly @tt{m} edges.
  *
  * First, builds a skewed spanning tree with @tt{tgen::wtree::gen_skewed(n, @pname{elongation})}.
- * Then, the remaining edges @tt{(v, u)} are generated with the following procedure.
- * Vertex @tt{u} is random, and vertex @tt{v} is the result of walking @tt{tgen::next(2, @pname{spread})} parent edges
- * in the spanning tree.
+ * Then, the remaining edges @tt{(v, u)} are chosen uniformly without replacement
+ * from eligible ancestor pairs in that spanning tree: @tt{v} is between two and
+ * @pname{spread} parent steps above @tt{u}. Distances never exceed the depth of @tt{u}.
  *
  * If @pname{elongation} is small (negative), the spanning tree tends to be star-like and the graph tends to have
  * small diameter. If @pname{elongation} is large (positive), the spanning tree tends to be path-like and vertices
@@ -682,6 +688,7 @@ namespace tgen {
  * @param vertex_weights One weight per vertex (@tt{n} values).
  *
  * @return A copy of this graph with @pname{vertex_weights} attached. The weight type is deduced.
+ * Existing vertex weights are replaced; edge weights and edge order are preserved.
  *
  * Immutable style: returns a copy with weights set (weight type deduced); does not modify @tt{*this}.
  *
@@ -708,6 +715,7 @@ namespace tgen {
  * @param edge_weights One weight per edge, in the same order as @tt{edges()}.
  *
  * @return A copy of this graph with @pname{edge_weights} attached. The weight type is deduced.
+ * Existing edge weights are replaced; vertex weights and edge order are preserved.
  *
  * Immutable style: returns a copy with weights set (weight type deduced); does not modify @tt{*this}.
  *
@@ -798,8 +806,10 @@ namespace tgen {
 /**
  * @brief Adds new isolated vertices.
  *
- * @param k Number of vertices to append.
+ * @param k Nonnegative number of vertices to append; the resulting count must fit in @tt{int}.
  * @param new_vertex_weights Optional weights for the new vertices (required if the graph already has vertex weights).
+ *
+ * Invalid counts or weights are rejected before modifying the graph.
  *
  * #### Time complexity
  *
@@ -826,6 +836,7 @@ namespace tgen {
  * @param w Optional edge weight (required iff the graph already has edge weights).
  *
  * If the edge is already present, does nothing.
+ * Invalid endpoints or incompatible weights are rejected before modifying the graph.
  *
  * #### Time complexity
  *
@@ -893,7 +904,8 @@ namespace tgen {
  * @param new_w Optional weight of the connecting edge.
  *
  * Vertices on @pname{rhs} are shifted by the current @tt{n}.
- * Weight usage must be consistent.
+ * Both graphs must have the same directedness. Weight usage must be consistent.
+ * Passing this value itself as @pname{rhs} links it to a copy of its original contents.
  *
  * #### Time complexity
  *
@@ -923,6 +935,7 @@ namespace tgen {
  *
  * Gluing one vertex to another means they are considered to be the same vertex, maintaining the label
  * it had in this graph. Other vertices are shifted accordingly.
+ * Passing this value itself as @pname{rhs} glues a copy of its original contents.
  *
  * #### Time complexity
  *
@@ -950,6 +963,7 @@ namespace tgen {
  *
  * Gluing one vertex to another means they are considered to be the same vertex, maintaining the label
  * it had in this graph. Other vertices are shifted accordingly.
+ * Passing this value itself as @pname{rhs} glues a copy of its original contents.
  *
  * #### Time complexity
  *
@@ -994,9 +1008,10 @@ namespace tgen {
 /**
  * @brief Random subgraph with a fixed number of edges.
  *
- * @param num_edges Number of edges to keep (subset of current edges).
+ * @param num_edges Number of edges to keep (subset of current edges). Must be nonnegative.
  *
  * The edges are chosen uniformly as a subset of the current edges.
+ * Edge-weighted mode is preserved even when @pname{num_edges} is zero.
  *
  * #### Time complexity
  *
@@ -1017,7 +1032,7 @@ namespace tgen {
 /**
  * @brief Random subgraph with a fixed number of edges that keeps components connected.
  *
- * @param num_edges Number of edges to keep (subset of current edges).
+ * @param num_edges Number of edges to keep (subset of current edges). Must be nonnegative.
  *
  * First, picks a random spanning forest via randomized Prim on each connected
  * component (so the number of connected components does not increase).
