@@ -43,7 +43,9 @@ std::cout << tgen::distinct(tgen::math::gen_prime, 1, 10).gen_all().sort() << st
 std::cout << tgen::misc::gen_parenthesis(10) << std::endl;
 
 // Generates a random simple polygon with 200 vertices in [0, 2000] x [0, 2000].
-std::cout << tgen::print(tgen::geometry::random_simple_polygon(200, 0, 2000), '\n') << std::endl;
+std::cout
+    << tgen::print(tgen::geometry::random_simple_polygon(200, 0, 2000), '\n')
+    << std::endl;
 ```
 
 - **Generators**: describe constraints and sample valid values. Most generators sample uniformly; a few specialized helpers intentionally use non-uniform distributions.
