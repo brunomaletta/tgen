@@ -46,7 +46,7 @@ std::cout << tgen::misc::gen_parenthesis(10) << std::endl;
 std::cout << tgen::print(tgen::geometry::random_simple_polygon(200, 0, 2000), '\n') << std::endl;
 ```
 
-- **Generators**: describe constraints and sample uniformly among valid values.
+- **Generators**: describe constraints and sample valid values. Most generators sample uniformly; a few specialized helpers intentionally use non-uniform distributions.
 
 ```cpp
 // Generates 20 random distinct values from 1 to 100.
@@ -64,8 +64,9 @@ std::cout << tgen::pair(1, n).leq().distinct().gen_list(q) << std::endl;
 // Random skewed tree on 10 vertices (elongation 3; large diameter).
 std::cout << tgen::tree::gen_skewed(10, 3) << std::endl;
 
-// Random connected simple graph on 8 vertices and 10 edges, including (0,1).
-std::cout << tgen::graph(8, 10).add_edge(0, 1).get_connected() << std::endl;
+// Two 20-vertex cliques connected by exactly one bridge, with shuffled labels.
+std::cout << tgen::K(20).link(tgen::K(20), 0, 0)
+                 .shuffle().print_1_based().print_nm();
 ```
 
 - **Adversarial generation**: generate worst-case inputs.
